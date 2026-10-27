@@ -117,7 +117,7 @@ function boostCard() {
       <div class="boost-copy"><p class="eyebrow">Multiplikationsboost · ca 2 min</p><h2>Gör resten av matten lättare.</h2><p class="mut small">${esc(weakText)}</p></div>
     </div>
     <div class="boost-meta">
-      <div><span>Veckomål</span><div class="boost-week">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} korta pass</small></div>
+      <div><span>Veckomål</span><div class="boost-week">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} dagar den här veckan</small></div>
       <div><span>Tabellflyt</span><b>${s.percent}%</b><small>${esc(s.level)}</small></div>
     </div>
     <button class="btn block boost-btn" data-a="multStart">Starta dagens 10</button>
@@ -140,7 +140,7 @@ function viewTables(mode) {
     <p class="eyebrow">Grundträning</p><h1>Multiplikationsboost</h1>
     <p class="mut">10 korta frågor. Systemet väljer automatiskt det som behöver mest repetition och låter missade fakta komma tillbaka som revansch.</p>
     <section class="card boost-overview">
-      <div class="boost-score"><div><span>Tabellflyt</span><strong>${s.percent}%</strong><small>${esc(s.level)}</small></div><div><span>Veckomål</span><div class="boost-week big">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} pass</small></div></div>
+      <div class="boost-score"><div><span>Tabellflyt</span><strong>${s.percent}%</strong><small>${esc(s.level)}</small></div><div><span>Veckomål</span><div class="boost-week big">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} dagar</small></div></div>
       <button class="btn block" data-a="multStart">Starta 10 frågor</button>
     </section>
     <details class="fold" ${s.started ? 'open' : ''}><summary>Tabellkarta 2–10</summary><div class="in">${tableMap()}</div></details>
@@ -571,7 +571,7 @@ function viewMultResult() {
     profile: () => openSheet({ type: 'profile' }),
     closesheet: () => closeSheet(),
     scrim: (b, e) => { if (e.target === b) closeSheet(); },
-    pickprofile: b => { E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go('#/'); render(); },
+    pickprofile: b => { E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.mult = null; UI.ex = null; UI.fch = null; closeSheet(); go('#/'); render(); },
     formula: b => openSheet({ type: 'formula', sid: b.dataset.sid, inLesson: /^#\/(l|run|prov)\//.test(location.hash + '/') }),
     ftoggle: b => { const id = b.dataset.sid; UI.fopen.has(id) ? UI.fopen.delete(id) : UI.fopen.add(id); rerenderKeepScroll(); },
     fch: b => { UI.fch = b.dataset.ch; UI.fopen.clear(); render(); },
