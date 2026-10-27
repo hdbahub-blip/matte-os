@@ -1,222 +1,187 @@
 (function(){
 'use strict';
 
-const APP='matte-prov-v1';
+const STORE_KEY='matte-prov-v1';
+const ACTIVE_KEY=STORE_KEY+'-active';
 const app=document.getElementById('app');
-const M=window.MOMath, V=window.MOVis, C=window.MO_CORE, PC=window.MOProvCore;
-const ALL=[...(window.MO_CONTENT9||[]),...(window.MO_CONTENT8||[])];
-const BYID=Object.fromEntries(ALL.map(s=>[s.id,s]));
-let store=load();
-let run=null;
-let timerId=null;
+const M=window.MOMath, V=window.MOExamVisuals, C=window.MO_CORE, PC=window.MOProvCore;
+let store=loadStore();
+let run=loadActive();
 
-function load(){
-  try{return JSON.parse(localStorage.getItem(APP))||{grade:null,attempts:[],attemptNo:0}}catch{return {grade:null,attempts:[],attemptNo:0}}
-}
-function save(){localStorage.setItem(APP,JSON.stringify(store))}
+function emptyStore(){return {grade:null,attempts:[],attemptNo:0}}
+function loadStore(){try{return {...emptyStore(),...(JSON.parse(localStorage.getItem(STORE_KEY))||{})}}catch{return emptyStore()}}
+function saveStore(){localStorage.setItem(STORE_KEY,JSON.stringify(store))}
+function loadActive(){try{const x=JSON.parse(sessionStorage.getItem(ACTIVE_KEY));return x&&Array.isArray(x.items)?x:null}catch{return null}}
+function saveActive(){if(run)sessionStorage.setItem(ACTIVE_KEY,JSON.stringify(run))}
+function clearActive(){sessionStorage.removeItem(ACTIVE_KEY)}
 function esc(s){return M.esc(String(s??''))}
 function rich(s){return M.rich(String(s??''))}
 function profile(){return C.profiles[store.grade]}
 function skills(){return store.grade==='grade8'?window.MO_CONTENT8:window.MO_CONTENT9}
 function skillList(ch){return skills().filter(s=>s.ch===ch)}
-function chById(id){return profile().chapters.find(c=>c.id===id)}
-function theme(){
-  const g=store.grade;
-  document.documentElement.style.setProperty('--accent',g==='grade8'?'#1d3557':'#6e1f35');
-  document.documentElement.style.setProperty('--soft',g==='grade8'?'#e8eef5':'#f4e7eb');
+function chapter(id){return profile().chapters.find(c=>c.id===id)}
+function setTheme(){
+ const g=store.grade;
+ document.documentElement.style.setProperty('--accent',g==='grade8'?'#1d3557':'#6e1f35');
+ document.documentElement.style.setProperty('--soft',g==='grade8'?'#e9eef5':'#f5e8ec');
+}
+function header(){
+ const p=profile();
+ return `<header class="top"><div class="topin"><div class="brand"><div class="mark">P</div><div><b>MATTE PROV</b><small>separat från Matte OS</small></div></div><div class="spacer"></div>${p?`<button class="grade" data-grade aria-label="Byt årskurs">Å${p.label.replace(/\D/g,'')}</button>`:''}</div></header>`;
 }
 function shell(content,focus=false){
-  const p=profile();
-  return '<div class="app">'+(focus?'':`<header class="top"><div class="topin"><div class="brand"><div class="mark">P</div><div><b>MATTE PROV</b><small>Diagnos · Prov</small></div></div><div class="spacer"></div>${p?`<button class="grade" data-grade>Å${p.label.replace(/\D/g,'')}</button>`:''}</div></header>`)+`<main class="wrap">${content}</main></div>`;
+ return `<div class="app">${focus?'':header()}<main class="wrap ${focus?'focus-wrap':''}">${content}</main></div>`;
 }
 function render(){
-  theme();
-  if(!store.grade){app.innerHTML=shell(pickProfile());bind();return}
-  if(run){app.innerHTML=shell(renderRun(),true);bindRun();return}
-  app.innerHTML=shell(renderHome());bind();
+ setTheme();
+ if(!store.grade){app.innerHTML=shell(renderGradePick());bindHome();return}
+ if(run){app.innerHTML=shell(run.review?renderReview():renderQuestion(),true);run.review?bindReview():bindQuestion();return}
+ app.innerHTML=shell(renderHome());bindHome();
 }
-function pickProfile(){
- return `<section class="pick"><div><div class="kicker" style="text-align:center">SEPARAT TESTMILJÖ</div><h1>Matte Prov</h1><p class="mut">Här tränar man inte. Här testar man vad som sitter utan ledtrådar och formelstöd.</p></div>
- <button class="pickbtn" data-pick="grade9"><span class="avatar g9">Å9</span><span><b>Åk 9</b><small>Tal · Geometri · Procent</small></span></button>
- <button class="pickbtn" data-pick="grade8"><span class="avatar g8">Å8</span><span><b>Åk 8</b><small>Tal · Geometri · Algebra</small></span></button></section>`;
+function renderGradePick(){
+ return `<section class="pick">
+   <div class="pick-intro"><div class="kicker">SEPARAT TESTMILJÖ</div><div class="seal">P</div><h1>Matte Prov</h1><p>Här får eleven visa vad hon kan <b>utan ledtrådar, formelsamling eller direkt rättning</b>.</p></div>
+   <button class="pickbtn" data-pick="grade9"><span class="avatar g9">Å9</span><span><b>Åk 9</b><small>Tal · Geometri · Procent</small></span><span class="arrow">→</span></button>
+   <button class="pickbtn" data-pick="grade8"><span class="avatar g8">Å8</span><span><b>Åk 8</b><small>Tal · Geometri · Algebra</small></span><span class="arrow">→</span></button>
+   <p class="privacy">Resultat sparas bara på den här enheten.</p>
+ </section>`;
 }
 function currentInfo(){
  const p=profile(),week=PC.isoWeek(),ch=PC.recommendedChapter(p,week);
- return {p,week,ch,skills:skillList(ch.id)};
+ return {p,week,ch};
 }
-function countFor(ch,mode){
- return PC.selectRun(skills(),ch,mode,store.attemptNo+1).length;
-}
+function countFor(ch,mode){return PC.selectRun(skills(),ch,mode,(store.attemptNo||0)+1).length}
 function renderHome(){
- const {p,week,ch,skills:ss}=currentInfo();
- const dcount=countFor(ch.id,'diagnos'),pcount=countFor(ch.id,'prov');
- const recent=store.attempts.slice(-4).reverse();
- return `<section class="hero"><div class="kicker">ÅK ${p.label.replace(/\D/g,'')} · VECKA ${week}</div><h1>Testa vad som faktiskt sitter.</h1><p class="mut">Separat från Matte OS. Under testet finns inga ledtrådar, formler eller direkt feedback.</p></section>
- <section class="panel">
-   <div class="reco"><div><div class="kicker">REKOMMENDERAT OMRÅDE</div><h2>${esc(ch.name)}</h2><p class="mut" style="margin:0">Nästa kapitelprov enligt planeringen är vecka ${ch.examWeek}. Välj bara en av två vägar.</p></div><div class="examweek">Prov v${ch.examWeek}</div></div>
+ const {p,week,ch}=currentInfo(),recent=(store.attempts||[]).slice(-4).reverse();
+ const dc=countFor(ch.id,'diagnos'),pc=countFor(ch.id,'prov');
+ return `
+ <section class="home-head"><div class="kicker">ÅK ${p.label.replace(/\D/g,'')} · VECKA ${week}</div><h1>Testa utan hjälp.</h1><p>Matte OS används för att lära och träna. Här mäter ni vad som går att lösa självständigt.</p></section>
+ <section class="exam-card">
+   <div class="recommended"><div><div class="kicker">REKOMMENDERAT NU</div><h2>${esc(ch.name)}</h2><p>Enligt planeringen kommer kapitelprovet vecka ${ch.examWeek}.</p></div><div class="week-chip">v${ch.examWeek}</div></div>
+   <div class="rules"><span>Ingen formelsamling</span><span>Inga ledtrådar</span><span>Rättning efter inlämning</span></div>
    <div class="modegrid">
-     <button class="mode primary" data-start="diagnos" data-ch="${ch.id}"><b>Diagnos</b><span>${dcount} frågor · ingen timer · hittar luckor per moment</span></button>
-     <button class="mode" data-start="prov" data-ch="${ch.id}"><b>Prov</b><span>${pcount} frågor · 45 min träningsprov · resultat först efteråt</span></button>
+     <button class="mode primary" data-start="diagnos" data-ch="${ch.id}"><span class="mode-num">01</span><span><b>Diagnos</b><small>${dc} frågor · en fråga per moment · hittar luckor snabbt</small></span></button>
+     <button class="mode" data-start="prov" data-ch="${ch.id}"><span class="mode-num">02</span><span><b>Prov</b><small>${pc} frågor · hela kapitlet + extra blandade uppgifter</small></span></button>
    </div>
  </section>
- <details class="details"><summary>Välj ett annat område</summary><div class="chapterlist">${p.chapters.map(x=>`<div class="chapter"><div><b>${esc(x.name)}</b><small>${skillList(x.id).length} moment · planerat prov v${x.examWeek}</small></div><div class="chapacts"><button class="mini" data-start="diagnos" data-ch="${x.id}">Diagnos</button><button class="mini dark" data-start="prov" data-ch="${x.id}">Prov</button></div></div>`).join('')}</div></details>
- ${recent.length?`<section class="panel history"><h3>Senaste resultat</h3>${recent.map(a=>`<div class="histrow"><div><b>${esc(a.chapterName)} · ${a.mode==='prov'?'Prov':'Diagnos'}</b><small>${new Date(a.finishedAt).toLocaleDateString('sv-SE')} · ${a.correct}/${a.total}</small></div><div class="scorepill">${a.percent}%</div></div>`).join('')}</section>`:''}
- <div class="footer">Resultat sparas bara på den här enheten. Testtiden 45 min är Matte Provs egen träningsinställning – inte skolans officiella provtid.</div>`;
+ <details class="area-picker"><summary>Välj ett annat område</summary><div class="area-list">${p.chapters.map(x=>`<div class="area-row"><div><b>${esc(x.name)}</b><small>${skillList(x.id).length} moment · planerat kapitelprov v${x.examWeek}</small></div><div><button data-start="diagnos" data-ch="${x.id}">Diagnos</button><button class="dark" data-start="prov" data-ch="${x.id}">Prov</button></div></div>`).join('')}</div></details>
+ ${recent.length?`<section class="history-card"><div class="section-title">Senaste resultat</div>${recent.map(a=>`<div class="history-row"><div><b>${esc(a.chapterName)} · ${a.mode==='prov'?'Prov':'Diagnos'}</b><small>${new Date(a.finishedAt).toLocaleDateString('sv-SE')} · ${a.correct}/${a.total} rätt</small></div><strong>${a.percent}%</strong></div>`).join('')}</section>`:''}
+ <footer>Ingen provtid har lagts in eftersom skolans faktiska provtid inte är verifierad.</footer>`;
 }
 function begin(mode,ch){
- store.attemptNo=(store.attemptNo||0)+1;save();
- const qs=PC.selectRun(skills(),ch,mode,store.attemptNo);
- run={
-   mode,chapter:ch,chapterName:chById(ch).name,items:qs,index:0,answers:{},flags:{},
-   startedAt:Date.now(),limitMs:mode==='prov'?45*60*1000:null
- };
- persistRun();startTimer();render();
+ store.attemptNo=(store.attemptNo||0)+1;saveStore();
+ run={mode,chapter:ch,chapterName:chapter(ch).name,items:PC.selectRun(skills(),ch,mode,store.attemptNo),index:0,answers:{},flags:{},review:false,startedAt:Date.now()};
+ saveActive();render();
 }
-function persistRun(){sessionStorage.setItem(APP+'-active',JSON.stringify(run))}
-function clearRun(){sessionStorage.removeItem(APP+'-active')}
-function resume(){
- try{
-  const x=JSON.parse(sessionStorage.getItem(APP+'-active'));
-  if(x&&x.items&&x.items.length){run=x;startTimer()}
- }catch{}
-}
-function timeLeft(){
- if(!run||!run.limitMs)return null;
- return Math.max(0,run.limitMs-(Date.now()-run.startedAt));
-}
-function fmtTime(ms){
- const sec=Math.ceil(ms/1000),m=Math.floor(sec/60),s=sec%60;
- return m+':'+String(s).padStart(2,'0');
-}
-function startTimer(){
- clearInterval(timerId);timerId=null;
- if(!run||!run.limitMs)return;
- timerId=setInterval(()=>{
-   const el=document.querySelector('[data-timer]');
-   const left=timeLeft();
-   if(el)el.textContent=fmtTime(left);
-   if(left<=0){clearInterval(timerId);timerId=null;submitRun(true)}
- },1000);
-}
+function key(q){return q.sid+'|'+q.key}
 function current(){return run.items[run.index]}
-function responseFor(q){
- const a=run.answers[q.sid+'|'+q.key];
- return a==null?'':a;
+function response(q){return run.answers[key(q)]??''}
+function setResponse(q,v){run.answers[key(q)]=v;saveActive()}
+function answered(q){
+ const v=response(q);
+ if(v&&typeof v==='object')return String(v.m??'').trim()!==''&&String(v.e??'').trim()!=='';
+ return String(v??'').trim()!=='';
 }
-function setResponse(q,v){run.answers[q.sid+'|'+q.key]=v;persistRun()}
 function renderInput(q){
- const x=q.item,val=responseFor(q);
- if((x.type||'num')==='choice'){
-  return `<div class="options">${x.opts.map(o=>`<button type="button" class="opt ${val===o?'sel':''}" data-opt="${esc(o)}">${rich(o)}</button>`).join('')}</div>`;
+ const x=q.item,v=response(q),type=x.type||'num';
+ if(type==='choice')return `<div class="options" role="group" aria-label="Svarsalternativ">${x.opts.map(o=>`<button type="button" class="opt ${v===o?'sel':''}" data-opt="${esc(o)}">${rich(o)}</button>`).join('')}</div>`;
+ if(type==='sci'){
+   const mv=v&&typeof v==='object'?v.m:'',ev=v&&typeof v==='object'?v.e:'';
+   return `<div class="sci"><input id="ansm" class="ansinput" inputmode="decimal" value="${esc(mv)}" aria-label="Talet framför tiopotensen" placeholder="a"><span>· 10</span><sup><input id="anse" class="ansinput exp" inputmode="text" value="${esc(ev)}" aria-label="Exponent" placeholder="n"></sup></div>`;
  }
- if(x.type==='sci'){
-  const mv=val&&typeof val==='object'?val.m:'',ev=val&&typeof val==='object'?val.e:'';
-  return `<div class="sci"><input class="ansinput" id="ansm" inputmode="decimal" value="${esc(mv)}" placeholder="a" aria-label="Talet framför"><span>· 10</span><sup><input class="ansinput exp" id="anse" inputmode="text" value="${esc(ev)}" placeholder="n" aria-label="Exponent"></sup></div>`;
- }
- return `<input class="ansinput" id="ans" inputmode="${x.type==='expr'||x.type==='roots'?'text':'decimal'}" autocomplete="off" value="${esc(val)}" placeholder="Skriv ditt svar">`;
+ const mode=type==='expr'||type==='roots'||x.radical?'text':'decimal';
+ return `<input id="ans" class="ansinput" inputmode="${mode}" autocomplete="off" value="${esc(v)}" placeholder="${esc(x.answerHint||'Skriv ditt svar')}">`;
 }
-function renderRun(){
- const q=current(),x=q.item,left=timeLeft(),answered=Object.keys(run.answers).filter(k=>{
-   const v=run.answers[k];return v!=null&&(typeof v==='object'?String(v.m||'').trim()&&String(v.e||'').trim():String(v).trim())
- }).length;
- const pct=(run.index/run.items.length)*100;
- const vis=x.vis?V.render(x.vis):'';
- return `<div class="runhead"><button class="back" data-exit>Avsluta</button><div class="progress"><i style="width:${pct}%"></i></div>${run.limitMs?`<div class="timer" data-timer>${fmtTime(left)}</div>`:''}</div><div id="exitNotice"></div>
- <section class="qcard">
-  <div class="qmeta"><b>Fråga ${run.index+1} av ${run.items.length} · ${answered} besvarade</b><button class="flag ${run.flags[run.index]?'on':''}" data-flag>${run.flags[run.index]?'Markerad':'Markera'}</button></div>
-  ${vis?`<div class="visual">${vis}</div>`:''}
-  <div class="qtext">${rich(x.q)}</div>
-  <div class="answer">${renderInput(q)}</div>
-  <div class="navrow"><button class="btn secondary" data-prev ${run.index===0?'disabled':''}>← Föregående</button><button class="btn primary" data-next>${run.index===run.items.length-1?'Kontrollera innan inlämning':'Nästa →'}</button></div>
-  <div id="runNotice"></div>
+function renderQuestion(){
+ const q=current(),x=q.item,pct=100*run.index/run.items.length;
+ const vis=V.render(x,q.sid);
+ return `<div class="exam-top"><button class="exit" data-exit>Avsluta</button><div class="exam-progress" aria-label="Framsteg"><i style="width:${pct}%"></i></div><div class="qcount">${run.index+1}/${run.items.length}</div></div>
+ <div id="exitNotice"></div>
+ <section class="question-sheet">
+   <div class="question-meta"><span>${run.mode==='prov'?'PROV':'DIAGNOS'} · ${esc(run.chapterName)}</span><button class="flag ${run.flags[run.index]?'on':''}" data-flag>${run.flags[run.index]?'Markerad':'Markera'}</button></div>
+   <div class="question-number">Fråga ${run.index+1}</div>
+   <div class="question-text">${rich(x.q)}</div>
+   ${vis?`<div class="visual">${vis}</div>`:''}
+   <div class="answer-block"><div class="answer-label">Ditt svar</div>${renderInput(q)}</div>
+   <div class="question-nav"><button class="btn secondary" data-prev ${run.index===0?'disabled':''}>← Föregående</button><button class="btn primary" data-next>${run.index===run.items.length-1?'Granska testet':'Nästa →'}</button></div>
  </section>`;
 }
 function readInput(){
- const q=current(),x=q.item;
- if((x.type||'num')==='choice') return responseFor(q);
- if(x.type==='sci') return {m:document.getElementById('ansm')?.value||'',e:document.getElementById('anse')?.value||''};
+ const x=current().item,type=x.type||'num';
+ if(type==='choice')return response(current());
+ if(type==='sci')return {m:document.getElementById('ansm')?.value||'',e:document.getElementById('anse')?.value||''};
  return document.getElementById('ans')?.value||'';
 }
-function commitInput(){setResponse(current(),readInput())}
-function unanswered(){
- return run.items.map((q,i)=>({q,i,v:responseFor(q)})).filter(z=>{
-   const v=z.v;return v==null||(typeof v==='object'?(!String(v.m||'').trim()||!String(v.e||'').trim()):!String(v).trim())
- });
+function commit(){setResponse(current(),readInput())}
+function go(i){commit();run.index=Math.max(0,Math.min(run.items.length-1,i));run.review=false;saveActive();render()}
+function renderReview(){
+ const n=run.items.length,done=run.items.filter(answered).length,marked=Object.values(run.flags).filter(Boolean).length;
+ return `<div class="review-top"><button class="exit" data-back-question>← Till frågorna</button><div class="kicker">${run.mode==='prov'?'PROV':'DIAGNOS'} · ${esc(run.chapterName)}</div></div>
+ <section class="review-sheet"><h1>Granska innan du lämnar in.</h1><p>${done} av ${n} frågor är besvarade${marked?' · '+marked+' markerade':''}.</p>
+ <div class="review-grid">${run.items.map((q,i)=>`<button data-jump="${i}" class="${answered(q)?'done':'missing'} ${run.flags[i]?'marked':''}"><b>${i+1}</b><span>${answered(q)?'Besvarad':'Obesvarad'}${run.flags[i]?' · markerad':''}</span></button>`).join('')}</div>
+ ${done<n?`<div class="warning"><b>${n-done} obesvarade.</b> Du kan gå tillbaka och svara, eller lämna in ändå.</div>`:''}
+ <div class="review-actions"><button class="btn secondary" data-back-question>Tillbaka</button><button class="btn primary" data-submit>Lämna in ${run.mode==='prov'?'provet':'diagnosen'}</button></div></section>`;
 }
-function next(){
- commitInput();
- if(run.index<run.items.length-1){run.index++;persistRun();render();return}
- const miss=unanswered();
- if(miss.length){
-   document.getElementById('runNotice').innerHTML=`<div class="notice"><b>${miss.length} obesvarade.</b> <button class="mini" data-first-miss>Gå till första</button> <button class="mini dark" data-submit>Skicka ändå</button></div>`;
-   bindRun();
- }else submitRun(false);
-}
-function submitRun(timeout){
- commitInput();
+function submit(){
+ commit();
  const results=run.items.map(q=>{
-   const raw=responseFor(q),check=M.check(q.item,raw);
-   return {sid:q.sid,skillTitle:q.skillTitle,key:q.key,q:q.item.q,raw,ok:!!check.ok,correct:PC.answerText(q.item),sol:q.item.sol||[],ab:q.item.ab||[]};
+  const raw=response(q),check=M.check(q.item,raw);
+  return {sid:q.sid,skillTitle:q.skillTitle,key:q.key,q:q.item.q,raw,ok:!!check.ok,correct:PC.answerText(q.item),sol:q.item.sol||[]};
  });
- const correct=results.filter(r=>r.ok).length,total=results.length,percent=Math.round(100*correct/total);
- const attempt={
-   id:Date.now(),grade:store.grade,chapter:run.chapter,chapterName:run.chapterName,mode:run.mode,
-   startedAt:run.startedAt,finishedAt:Date.now(),timeout:!!timeout,correct,total,percent,results
- };
- store.attempts.push(attempt);save();clearInterval(timerId);timerId=null;clearRun();run=null;
- renderResult(attempt);
+ const correct=results.filter(r=>r.ok).length,total=results.length;
+ const a={id:Date.now(),grade:store.grade,chapter:run.chapter,chapterName:run.chapterName,mode:run.mode,startedAt:run.startedAt,finishedAt:Date.now(),correct,total,percent:Math.round(100*correct/total),results};
+ store.attempts.push(a);saveStore();run=null;clearActive();renderResult(a);
 }
 function renderResult(a){
- theme();
- app.innerHTML=shell(resultHTML(a));
- bindResult(a);
+ setTheme();app.innerHTML=shell(resultHTML(a));bindResult(a);
 }
 function resultHTML(a){
- const by={};
- a.results.forEach(r=>{const x=by[r.sid]||(by[r.sid]={title:r.skillTitle,c:0,n:0});x.n++;if(r.ok)x.c++});
- const weak=Object.entries(by).sort((A,B)=>(A[1].c/A[1].n)-(B[1].c/B[1].n))[0];
- const abilities={B:[0,0],M:[0,0],P:[0,0],R:[0,0],K:[0,0]};
- a.results.forEach(r=>(r.ab||[]).forEach(k=>{if(abilities[k]){abilities[k][1]++;if(r.ok)abilities[k][0]++}}));
- const abLabels={B:'Begrepp',M:'Metod',P:'Problemlösning',R:'Resonemang',K:'Kommunikation'};
- return `<section class="result-hero"><div class="kicker">${a.mode==='prov'?'PROV KLART':'DIAGNOS KLAR'} · ${esc(a.chapterName)}</div><div class="bigscore">${a.percent}%</div><h1>${a.correct} av ${a.total} rätt</h1><p class="mut">${a.percent>=80?'Starkt resultat. Kontrollera ändå de moment som blev fel.':a.percent>=60?'Mycket sitter, men några områden behöver följas upp.':'Bra att ni testade nu – resultatet visar tydligt vad som behöver tränas vidare.'}</p></section>
- <section class="panel"><div class="kicker">PER MOMENT</div><div class="skillgrid">${Object.entries(by).map(([id,x])=>{const p=x.c/x.n,cl=p>=.8?'ok':p>=.5?'mid':'low',lab=p>=.8?'Sitter':p>=.5?'Nästan':'Behöver träna';return `<div class="skillres"><b>${esc(x.title)}</b><span class="${cl}">${x.c}/${x.n} · ${lab}</span></div>`}).join('')}</div>
- ${Object.values(abilities).some(x=>x[1]>=2)?`<div class="ability">${Object.entries(abilities).filter(([k,x])=>x[1]>=2).map(([k,x])=>`<span>${abLabels[k]} ${x[0]}/${x[1]}</span>`).join('')}</div>`:''}
- <div class="resultacts"><button class="btn primary" data-copy>Kopiera resultat</button>${weak?`<a class="btn secondary" href="../#/l/${weak[0]}/0">Träna svagaste i Matte OS</a>`:''}<button class="btn secondary" data-home>Till startsidan</button></div></section>
- <section class="panel review"><div class="kicker">FRÅGA FÖR FRÅGA</div>${a.results.map((r,i)=>`<details><summary><span class="rq">${i+1}. ${rich(r.q)}</span><span class="${r.ok?'ok':'low'}">${r.ok?'Rätt':'Fel'}</span></summary><div class="ra"><div>Ditt svar: <b>${esc(typeof r.raw==='object'?((r.raw.m||'')+' · 10^'+(r.raw.e||'')):r.raw||'—')}</b></div><div>Rätt svar: <b>${esc(r.correct)}</b></div>${r.sol.length?`<div class="solution">${r.sol.map(s=>`<div>${rich(s)}</div>`).join('')}</div>`:''}</div></details>`).join('')}</section>
- <div class="footer">Det här är ett separat diagnos-/provsystem. Matte OS används för undervisning och träning.</div>`;
+ const by={};for(const r of a.results){const x=by[r.sid]||(by[r.sid]={title:r.skillTitle,c:0,n:0});x.n++;if(r.ok)x.c++}
+ const failed=Object.entries(by).filter(([,x])=>x.c<x.n);
+ const firstFail=failed[0];
+ return `<section class="result-head"><div class="kicker">${a.mode==='prov'?'PROV KLART':'DIAGNOS KLAR'} · ${esc(a.chapterName)}</div><div class="score">${a.percent}%</div><h1>${a.correct} av ${a.total} rätt</h1><p>Det här är ett resultat från <b>den här testomgången</b> – inte ett skolbetyg eller ett säkert mått på att ett moment är helt behärskat.</p></section>
+ <section class="result-card"><div class="section-title">Moment i testet</div><div class="skill-results">${Object.entries(by).map(([id,x])=>`<div class="skill-result"><div><b>${esc(x.title)}</b><small>${x.c}/${x.n} rätt i den här omgången</small></div><span class="${x.c===x.n?'pass':'follow'}">${x.c===x.n?'Rätt':'Följ upp'}</span></div>`).join('')}</div>
+ <div class="result-actions"><button class="btn primary" data-retry data-mode="${a.mode}" data-ch="${a.chapter}">Nytt ${a.mode==='prov'?'prov':'diagnostest'}</button>${firstFail?`<a class="btn secondary" href="../#/l/${firstFail[0]}/0">Träna ett felområde i Matte OS</a>`:''}<button class="btn secondary" data-copy>Kopiera resultat</button><button class="btn secondary" data-home>Startsidan</button></div></section>
+ <section class="result-card review-list"><div class="section-title">Rättning – fråga för fråga</div>${a.results.map((r,i)=>`<details ${r.ok?'':'open'}><summary><span><b>${i+1}.</b> ${rich(r.q)}</span><strong class="${r.ok?'pass-text':'fail-text'}">${r.ok?'Rätt':'Fel'}</strong></summary><div class="result-detail"><div><span>Ditt svar</span><b>${esc(rawText(r.raw)||'—')}</b></div><div><span>Rätt svar</span><b>${esc(r.correct)}</b></div>${r.sol.length?`<div class="solution"><span>Lösning</span>${r.sol.map(s=>`<p>${rich(s)}</p>`).join('')}</div>`:''}</div></details>`).join('')}</section>
+ <footer>Matte Prov används för kontroll. Matte OS används för undervisning och träning.</footer>`;
 }
-function summary(a){
+function rawText(v){return v&&typeof v==='object'?`${v.m||''} · 10^${v.e||''}`:String(v??'')}
+function copySummary(a){
  const by={};a.results.forEach(r=>{const x=by[r.skillTitle]||(by[r.skillTitle]=[0,0]);x[1]++;if(r.ok)x[0]++});
- return [`Matte Prov – Åk ${a.grade==='grade8'?'8':'9'} · ${a.chapterName}`,`${a.mode==='prov'?'Prov':'Diagnos'}: ${a.correct}/${a.total} (${a.percent}%)`,'',...Object.entries(by).map(([k,v])=>`${k}: ${v[0]}/${v[1]}`)].join('\n');
+ return [`Matte Prov · Åk ${a.grade==='grade8'?'8':'9'} · ${a.chapterName}`,`${a.mode==='prov'?'Prov':'Diagnos'}: ${a.correct}/${a.total} (${a.percent}%)`,'',...Object.entries(by).map(([k,v])=>`${k}: ${v[0]}/${v[1]}`)].join('\n');
 }
-function bind(){
- document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{store.grade=b.dataset.pick;save();render()});
- document.querySelector('[data-grade]')?.addEventListener('click',()=>{store.grade=null;save();render()});
+function showExit(){
+ const box=document.getElementById('exitNotice');if(!box)return;
+ box.innerHTML='<div class="exit-box"><div><b>Avsluta testet?</b><span>Svaren i den här omgången sparas inte.</span></div><div><button data-cancel-exit>Fortsätt</button><button class="danger" data-confirm-exit>Avsluta</button></div></div>';
+ box.querySelector('[data-cancel-exit]').onclick=()=>box.innerHTML='';
+ box.querySelector('[data-confirm-exit]').onclick=()=>{run=null;clearActive();render()};
+}
+function bindHome(){
+ document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{store.grade=b.dataset.pick;saveStore();render()});
+ document.querySelector('[data-grade]')?.addEventListener('click',()=>{store.grade=null;saveStore();render()});
  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>begin(b.dataset.start,b.dataset.ch));
 }
-function bindRun(){
- document.querySelector('[data-exit]')?.addEventListener('click',()=>{
-   const box=document.getElementById('exitNotice');
-   if(!box)return;
-   box.innerHTML='<div class="notice"><b>Avsluta testet?</b> Svaren i den här omgången sparas inte. <button class="mini" data-cancel-exit>Fortsätt testet</button> <button class="mini dark" data-confirm-exit>Avsluta</button></div>';
-   box.querySelector('[data-cancel-exit]')?.addEventListener('click',()=>{box.innerHTML=''});
-   box.querySelector('[data-confirm-exit]')?.addEventListener('click',()=>{clearInterval(timerId);timerId=null;run=null;clearRun();render()});
- });
- document.querySelector('[data-flag]')?.addEventListener('click',()=>{run.flags[run.index]=!run.flags[run.index];persistRun();render()});
+function bindQuestion(){
+ document.querySelector('[data-exit]')?.addEventListener('click',showExit);
+ document.querySelector('[data-flag]')?.addEventListener('click',()=>{run.flags[run.index]=!run.flags[run.index];saveActive();render()});
  document.querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>{setResponse(current(),b.dataset.opt);render()});
- document.querySelector('[data-prev]')?.addEventListener('click',()=>{commitInput();if(run.index>0){run.index--;persistRun();render()}});
- document.querySelector('[data-next]')?.addEventListener('click',next);
- document.querySelector('[data-first-miss]')?.addEventListener('click',()=>{commitInput();run.index=unanswered()[0].i;persistRun();render()});
- document.querySelector('[data-submit]')?.addEventListener('click',()=>submitRun(false));
- ['ans','ansm','anse'].forEach(id=>document.getElementById(id)?.addEventListener('change',commitInput));
+ document.querySelector('[data-prev]')?.addEventListener('click',()=>go(run.index-1));
+ document.querySelector('[data-next]')?.addEventListener('click',()=>{commit();if(run.index===run.items.length-1){run.review=true;saveActive();render()}else go(run.index+1)});
+ ['ans','ansm','anse'].forEach(id=>document.getElementById(id)?.addEventListener('change',commit));
+}
+function bindReview(){
+ document.querySelectorAll('[data-back-question]').forEach(b=>b.onclick=()=>{run.review=false;saveActive();render()});
+ document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>{run.index=Number(b.dataset.jump);run.review=false;saveActive();render()});
+ document.querySelector('[data-submit]')?.addEventListener('click',submit);
 }
 function bindResult(a){
  document.querySelector('[data-home]')?.addEventListener('click',render);
+ document.querySelector('[data-retry]')?.addEventListener('click',b=>begin(b.currentTarget.dataset.mode,b.currentTarget.dataset.ch));
  document.querySelector('[data-copy]')?.addEventListener('click',async()=>{
-   const t=summary(a);
-   try{await navigator.clipboard.writeText(t);alert('Resultatet är kopierat.')}catch{prompt('Kopiera resultatet:',t)}
+   const t=copySummary(a);try{await navigator.clipboard.writeText(t);alert('Resultatet är kopierat.')}catch{prompt('Kopiera resultatet:',t)}
  });
 }
-resume();render();
-if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+render();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
