@@ -6,7 +6,7 @@
 const GOAL=3, BASE_N=10;
 const FACTS=[];
 for(let a=2;a<=10;a++)for(let b=a;b<=10;b++)FACTS.push({a,b,key:a+'x'+b});
-const STARTER=[[2,7],[3,4],[4,6],[5,8],[6,7],[6,8],[6,9],[7,8],[7,9],[8,9]];
+const STARTER=[[2,7],[3,4],[4,6],[5,8],[6,7],[6,9],[7,8],[8,9],[9,4],[10,7]];
 
 function engine(){return root.MOEngine}
 function canon(a,b){a=Number(a);b=Number(b);return a<=b?{a,b,key:a+'x'+b}:{a:b,b:a,key:b+'x'+a}}
@@ -105,7 +105,7 @@ function record(pid,q,answer,ms,firstAttempt=true){
 function answer(pid,run,answer){
  if(run.answered)return run.feedback;
  const q=current(run),started=q.startedAt||run.questionStarted||Date.now(),ms=Date.now()-started;
- const base=!q.retry,res=record(pid,q,answer,ms,true);
+ const base=!q.retry,res=record(pid,q,answer,ms,base);
  if(base){run.baseAnswered++;if(res.ok)run.baseCorrect++}
  if(res.ok){run.streak++;run.bestStreak=Math.max(run.bestStreak,run.streak)}
  else{
