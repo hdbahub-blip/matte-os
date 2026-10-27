@@ -5,7 +5,7 @@
   const esc = M.esc, R = M.rich, TX = M.texBlock;
   const app = document.getElementById('app');
   const sheetRoot = document.getElementById('sheet');
-  const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, mult: null, sheet: null, confirmReset: false };
+  const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, sheet: null, confirmReset: false };
 
   /* ---------- ikoner ---------- */
   const svgI = (d, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
@@ -120,62 +120,7 @@ function boostCard() {
     <a class="btn block boost-btn" href="tabell/?g=${pid()}">Öppna Tabellarenan →</a>
   </section>`;
 }
-function tableMap() {
-  return `<div class="table-map">${Array.from({ length: 10 }, (_, i) => i + 1).map(n => {
-    const x = T.tableStats(pid(), n);
-    return `<div class="table-row"><span class="table-name">${n}:ans tabell</span><div class="table-track"><i style="width:${x.percent}%"></i></div><b>${x.percent}%</b></div>`;
-  }).join('')}</div>`;
-}
-
-function viewTables(mode) {
-  const s = T.stats(pid());
-  if (mode === 'run' && UI.mult) return viewMultRun();
-  if (mode === 'result' && UI.mult && UI.mult.finished) return viewMultResult();
-  const weekly = Array.from({ length: s.weekGoal }, (_, i) => `<i class="${i < Math.min(s.weekSessions, s.weekGoal) ? 'on' : ''}"></i>`).join('');
-  return shell(`<button class="btn text" data-a="nav" data-h="#/">${I.back.replace('<svg', '<svg width="18" height="18"')} Hem</button>
-    <p class="eyebrow">Grundträning</p><h1>Multiplikationsboost</h1>
-    <p class="mut">10 korta frågor. Systemet väljer automatiskt det som behöver mest repetition och låter missade fakta komma tillbaka som revansch.</p>
-    <section class="card boost-overview">
-      <div class="boost-score"><div><span>Tabellflyt</span><strong>${s.percent}%</strong><small>${esc(s.level)}</small></div><div><span>Veckomål</span><div class="boost-week big">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} dagar</small></div></div>
-      <button class="btn block" data-a="multStart">Starta dagens 10</button>
-    </section>
-    <details class="fold" ${s.started ? 'open' : ''}><summary>Tabellkarta 1–10</summary><div class="in">${tableMap()}</div></details>
-    <div class="box neutral"><div class="k">Så fungerar det</div><p class="small" style="margin:0">Ingen nedräkning. Rätt på första försöket bygger flyt. Ett fel ger direkt rätt svar och samma fakta kommer tillbaka senare. Målet är säkra svar – farten kommer efteråt.</p></div>`, 'home');
-}
-
-function viewMultRun() {
-  const r = UI.mult, q = T.current(r);
-  if (!q) { r.finished = T.finish(pid(), r); return viewMultResult(); }
-  const retry = !!q.retry;
-  const step = retry ? Math.min(r.idx + 1, r.questions.length) : Math.min(r.idx + 1, r.baseN);
-  const pct = retry ? 100 : Math.round(100 * r.idx / r.baseN);
-  const fb = r.feedback;
-  const body = `<section class="mult-run">
-    <div class="mult-status"><span>${retry ? 'REVANSCH' : `FRÅGA ${step} AV ${r.baseN}`}</span><span>${r.streak ? `Serie ${r.streak}` : 'Bygg flyt'}</span></div>
-    <div class="mult-progress"><i style="width:${pct}%"></i></div>
-    <div class="mult-question" aria-label="${q.a} gånger ${q.b}">${q.a} <span>×</span> ${q.b}</div>
-    ${fb ? `<div class="mult-feedback ${fb.ok ? 'good' : 'try'}"><b>${fb.ok ? 'Rätt.' : 'Inte än.'}</b><span>${q.a} × ${q.b} = ${fb.correct}${fb.ok ? '' : ' · den kommer tillbaka.'}</span></div>
-      <button class="btn block" data-a="multNext">${r.idx + 1 >= r.questions.length ? 'Visa resultat' : 'Nästa'}</button>`
-    : `<form data-form="mult" class="mult-form"><label for="multans" class="sr">Svar</label><input id="multans" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autofocus placeholder="?" aria-label="Skriv svaret"><button class="btn block" type="submit">Svara</button></form>`}
-  </section>`;
-  return focusShell(body, { title: 'Multiplikationsboost', sub: retry ? 'Revansch' : '10 korta frågor', steps: 10, cur: Math.min(r.baseAnswered, 10), exit: '#/tabell' });
-}
-
-function viewMultResult() {
-  const r = UI.mult, x = r.finished || { correctFirst: r.baseCorrect, baseN: r.baseN, missed: r.missed, bestStreak: r.bestStreak };
-  const pct = Math.round(100 * x.correctFirst / x.baseN);
-  const title = pct === 100 ? 'Fullträff.' : pct >= 80 ? 'Bra flyt.' : pct >= 60 ? 'På väg.' : 'Bra – nu vet vi vad som ska nötas.';
-  const missed = x.missed && x.missed.length ? x.missed.map(k => k.replace('x','×')).join(' · ') : 'Inga missade fakta den här rundan.';
-  const s = T.stats(pid());
-  return shell(`<section class="mult-result">
-    <p class="eyebrow">Rundan klar</p><div class="mult-score">${x.correctFirst}/${x.baseN}</div><h1>${title}</h1>
-    <p class="mut">Rätt på första försöket. Bästa serie: <b>${x.bestStreak}</b>.</p>
-    <div class="card"><div class="row between"><span>Tabellflyt totalt</span><b>${s.percent}%</b></div><div class="mult-result-bar"><i style="width:${s.percent}%"></i></div><p class="mut small" style="margin:10px 0 0">Nästa runda prioriterar: ${esc(missed)}</p></div>
-    <div class="actions"><button class="btn" data-a="multStart">Kör en till</button><button class="btn ghost" data-a="multHome">Till Matte OS</button></div>
-  </section>`, 'home');
-}
-
-  /* ================= KAPITELKARTA ================= */
+/* ================= KAPITELKARTA ================= */
   function viewChapter(chId) {
     const p = pid(), st = E.chapterStats(p, chId), sk = E.chapterSkills(p, chId);
     if (!sk.length) return viewHome();
@@ -567,15 +512,12 @@ function viewMultResult() {
     profile: () => openSheet({ type: 'profile' }),
     closesheet: () => closeSheet(),
     scrim: (b, e) => { if (e.target === b) closeSheet(); },
-    pickprofile: b => { E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.mult = null; UI.ex = null; UI.fch = null; closeSheet(); go('#/'); render(); },
+    pickprofile: b => { E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go('#/'); render(); },
     formula: b => openSheet({ type: 'formula', sid: b.dataset.sid, inLesson: /^#\/(l|run|prov)\//.test(location.hash + '/') }),
     ftoggle: b => { const id = b.dataset.sid; UI.fopen.has(id) ? UI.fopen.delete(id) : UI.fopen.add(id); rerenderKeepScroll(); },
     fch: b => { UI.fch = b.dataset.ch; UI.fopen.clear(); render(); },
     startTrain: b => { closeSheet(); startRun('train', b.dataset.sid ? { skill: b.dataset.sid } : { chapter: b.dataset.ch }); },
     startTest: b => { closeSheet(); startRun('test', { chapter: b.dataset.ch }); },
-    multStart: () => { closeSheet(); UI.mult = T.start(pid()); UI.mult.questionStarted = Date.now(); go('#/tabell/run'); },
-    multNext: () => { if (!UI.mult) return; if (T.next(UI.mult)) render(); else { UI.mult.finished = T.finish(pid(), UI.mult); go('#/tabell/result'); } },
-    multHome: () => { UI.mult = null; go('#/'); },
     reveal: () => { UI.lesson.reveal++; rerenderKeepScroll(); },
     gsr: b => { UI.lesson[b.dataset.k] = true; rerenderKeepScroll(); },
     rule: b => { const L = UI.lesson, i = +b.dataset.i; L.rule = i; if (i === E.SKILLS[L.sid].g.rc) L.ruleOk = true; rerenderKeepScroll(); },
@@ -609,14 +551,6 @@ function viewMultResult() {
     e.preventDefault(); a(b, e);
   });
   document.addEventListener('submit', e => {
-    const mf = e.target.closest('form[data-form="mult"]');
-    if (mf) {
-      e.preventDefault();
-      if (!UI.mult || UI.mult.answered) return;
-      const inp = document.getElementById('multans'), v = inp ? inp.value : '';
-      if (!String(v).trim()) return;
-      T.answer(pid(), UI.mult, v); render(); return;
-    }
     const f = e.target.closest('form[data-form="answer"]'); if (!f) return;
     e.preventDefault();
     const ex = UI.ex; if (!ex) return;
