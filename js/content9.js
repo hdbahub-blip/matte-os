@@ -560,6 +560,284 @@
     kw: 'procent problemlösning rabatt ordinarie pris hur procent räknar man procent ökning procent lön'
   });
 
+
+  /* ================= TILLÄGG v5.1 · KAPITEL 1 · TAL (källa: HT-26 år 9, v. 34–38) ================= */
+  S.push({
+    id: 's9-names', ch: 's9-tal', w: [34], title: 'Namn på stora och små tal', sub: 'miljon, miljard, biljon · tusendel, miljondel',
+    idea: 'Stora och små tal har egna namn. På svenska är **miljon** $10^6$, **miljard** $10^9$ och **biljon** $10^{12}$. Små tal slutar på **-del**: en **tusendel** är $10^{-3}$ och en **miljondel** är $10^{-6}$. Namnen hoppar tre nollor i taget.',
+    anchor: 'Tre nollor till per namn: tusen 10³ → miljon 10⁶ → miljard 10⁹ → biljon 10¹². OBS: engelskans "billion" är svensk miljard.',
+    cue: ['Orden miljon, miljard, biljon, tusendel eller miljondel.', 'Frågan ber dig skriva ett namn som tal eller som tiopotens.'],
+    cvis: { t: 'names', hl: 'miljard' },
+    f: {
+      name: 'Namn på stora och små tal', main: '\\text{miljon}=10^6,\\ \\text{miljard}=10^9,\\ \\text{biljon}=10^{12}', when: 'När ett tal är skrivet med ord, eller ska skrivas med ord.',
+      sym: [['tusen', '10³ = 1 000'], ['miljon', '10⁶ = 1 000 000'], ['miljard', '10⁹ (nio nollor)'], ['biljon', '10¹² (tolv nollor)'], ['tusendel', '10⁻³ = 0,001'], ['miljondel', '10⁻⁶ = 0,000001']],
+      forms: [['Namn → tiopotens', '\\text{miljard} \\to 10^9'], ['Tiopotens → namn', '10^{6} \\to \\text{miljon}'], ['Små tal', '10^{-n} = \\text{n decimaler}']],
+      ex: '$3$ miljarder $= 3 \\cdot 10^9 = 3\\,000\\,000\\,000$', trap: 'Svensk **biljon** är $10^{12}$ (tusen miljarder). Engelskans "billion" är $10^9$ = svensk miljard.'
+    },
+    h1: 'Det handlar om ett namn på en tiopotens. Hur många nollor har namnet?',
+    ex: {
+      q: 'Skriv en miljard som en tiopotens.', vis: { t: 'names', hl: 'miljard' }, given: ['en miljard'], find: 'en tiopotens 10ⁿ', rule: '\\text{miljard}=10^9',
+      steps: [['Vilket namn är det?', 'En miljard har **nio** nollor: 1 000 000 000'], ['Skriv som tiopotens', '$10^9$']], ans: '10⁹'
+    },
+    g: {
+      q: 'En biljon skrivs som $10^n$. Vilket tal är n?', vis: { t: 'names', hl: 'biljon' }, given: ['biljon'], find: 'exponenten n',
+      opts: ['\\text{biljon} = 10^{12}', '\\text{biljon} = 10^{9}', '\\text{biljon} = 10^{6}'], oc: 0, why: 'Svensk biljon är tusen miljarder: $10^9 \\cdot 10^3 = 10^{12}$.',
+      type: 'num', a: 12, calc: '9+3', start: 'En biljon är 1 000 miljarder.', sol: ['1 miljard $= 10^9$', 'Tusen miljarder: $10^9 \\cdot 10^3 = 10^{12}$'], traps: [[9, 'Det är en miljard. En biljon är tusen miljarder: $10^{12}$.'], [6, 'Det är en miljon. Biljon är mycket större: $10^{12}$.']], ab: ['B']
+    },
+    p: [
+      { lv: 'A', q: 'Hur många nollor har en miljon?', vis: { t: 'names', hl: 'miljon' }, type: 'num', a: 6, calc: '6', given: ['en miljon'], find: 'antal nollor', start: '$10^n$ har n nollor. Miljon = $10^6$.', sol: ['En miljon $= 1\\,000\\,000 = 10^6$', '6 nollor'], traps: [[3, 'Tre nollor är tusen. Miljon är tusen tusen: 6 nollor.'], [9, 'Nio nollor är en miljard.']], ab: ['B'] },
+      { lv: 'B', q: 'En miljard är hur många miljoner?', type: 'num', a: 1000, calc: '10**9/10**6', given: ['1 miljard = 10⁹', '1 miljon = 10⁶'], find: 'antal miljoner', start: '$10^9 / 10^6$', sol: ['$10^9 / 10^6 = 10^{9-6} = 10^3$', '$= 1000$'], traps: [[100, 'Exponenterna skiljer sig med 3 (9 − 6), så det är 10³ = 1 000.']], ab: ['B', 'M'] },
+      { lv: 'C', q: 'Skriv 3 miljoner som ett vanligt tal.', type: 'num', a: 3000000, calc: '3*10**6', given: ['3 miljoner'], find: 'talet med siffror', start: '$3 \\cdot 10^6$', sol: ['En miljon $= 10^6$', '$3 \\cdot 10^6 = 3\\,000\\,000$'], traps: [[300000, 'Det är 300 tusen. En miljon har sex nollor.'], [3000000000, 'Det är 3 miljarder. En miljon har sex nollor, inte nio.']], ab: ['M'] },
+      { lv: 'D', q: 'Vilket namn har 10⁻⁶?', vis: { t: 'names', hl: 'miljondel' }, type: 'choice', opts: ['tusendel', 'miljondel', 'miljarddel', 'miljon'], a: 'miljondel', traps: [['tusendel', 'En tusendel är $10^{-3}$. Här är exponenten −6.'], ['miljon', 'Miljon är $10^6$ (stort tal). Negativ exponent ger ett litet tal: miljondel.']], sol: ['$10^{-3}$ = tusendel, $10^{-6}$ = miljondel', 'Svar: miljondel'], ab: ['B'] },
+      { lv: 'D', q: 'I en engelsk text står "a billion people". Vad heter talet 10⁹ på svenska?', type: 'choice', opts: ['miljon', 'miljard', 'biljon', 'biljard'], a: 'miljard', traps: [['biljon', 'Svensk biljon är $10^{12}$. Engelskans "billion" ($10^9$) motsvarar svensk miljard.']], sol: ['Svenska: miljard = $10^9$, biljon = $10^{12}$', 'Engelska "billion" = $10^9$ = svensk miljard'], ab: ['B', 'K'] },
+      { lv: 'F', q: 'Ett företag omsätter 4 miljarder kronor. Skriv det i grundpotensform: ? · 10ⁿ kr', type: 'sci', a: [4, 9], given: ['4 miljarder', 'miljard = 10⁹'], find: 'omsättningen som a · 10ⁿ', start: 'Miljard $= 10^9$', sol: ['$4$ miljarder $= 4 \\cdot 10^9$ kr'], ab: ['M', 'P'] }
+    ],
+    kw: 'namn stora tal miljon miljard biljon tusendel miljondel biljard nollor hur många nollor namnge'
+  });
+
+  S.push({
+    id: 's9-sci-calc', ch: 's9-tal', w: [35, 37], title: 'Räkna med grundpotensform', sub: 'gånger och delat med tiopotenser',
+    idea: 'Vid **multiplikation** och **division** tar du talen för sig och tiopotenserna för sig. Tiopotenserna räknar du med exponenterna: gånger → **plussa** exponenterna, delat → **minus**. Blir första talet 10 eller mer (eller under 1) justerar du så att det hamnar mellan 1 och 10.',
+    anchor: 'Talen för sig, tiopotenserna för sig. Gånger: exponent + exponent. Delat: exponent − exponent.',
+    cue: ['Två tal i grundpotensform ska multipliceras eller divideras.', 'Svaret ska stå i grundpotensform.'],
+    cvis: { t: 'sciMul', a: 3, m: 4, b: 2, n: 3 },
+    f: {
+      name: 'Räkna med grundpotensform', main: '(a \\cdot 10^m)(b \\cdot 10^n) = (a \\cdot b) \\cdot 10^{m+n}', when: 'Tal i grundpotensform multipliceras eller divideras.',
+      sym: [['a, b', 'talen framför tiopotenserna'], ['m, n', 'exponenterna'], ['Justera', 'om a·b ≥ 10: flytta komma och höj exponenten']],
+      forms: [['Division', '\\frac{a \\cdot 10^m}{b \\cdot 10^n} = \\frac{a}{b} \\cdot 10^{m-n}'], ['Justera till grundpotensform', '24 \\cdot 10^7 = 2{,}4 \\cdot 10^8'], ['Addition', '\\text{bara om exponenterna är lika}']],
+      ex: '$(3 \\cdot 10^4)(2 \\cdot 10^3) = 6 \\cdot 10^{7}$', trap: 'Plussa exponenterna vid gånger – multiplicera dem inte. Och $24 \\cdot 10^7$ är inte grundpotensform ännu.'
+    },
+    h1: 'Gånger eller delat? Räkna talen för sig och exponenterna för sig.',
+    ex: {
+      q: 'Beräkna $(3 \\cdot 10^4) \\cdot (2 \\cdot 10^3)$. Svara i grundpotensform.', vis: { t: 'sciMul', a: 3, m: 4, b: 2, n: 3 }, given: ['3 · 10⁴', '2 · 10³'], find: 'a · 10ⁿ', rule: '(a \\cdot b) \\cdot 10^{m+n}',
+      steps: [['Talen för sig', '$3 \\cdot 2 = 6$'], ['Tiopotenserna: gånger → plussa exponenterna', '$10^4 \\cdot 10^3 = 10^{4+3} = 10^7$'], ['Är 6 mellan 1 och 10?', 'Ja → klart: $6 \\cdot 10^7$']], ans: '6 · 10⁷'
+    },
+    g: {
+      q: 'Beräkna $(2 \\cdot 10^5) \\cdot (4 \\cdot 10^2)$. Svara i grundpotensform.', vis: { t: 'sciMul', a: 2, m: 5, b: 4, n: 2 }, given: ['2 · 10⁵', '4 · 10²'], find: 'a · 10ⁿ',
+      opts: ['(2 \\cdot 4) \\cdot 10^{5+2}', '(2 \\cdot 4) \\cdot 10^{5 \\cdot 2}', '(2 + 4) \\cdot 10^{5+2}'], oc: 0, why: 'Talen multipliceras och exponenterna adderas.',
+      type: 'sci', a: [8, 7], start: '$2 \\cdot 4 = ?$ och $5 + 2 = ?$', sol: ['$2 \\cdot 4 = 8$', '$10^{5+2} = 10^7$', '$8 \\cdot 10^7$'], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Beräkna $(2 \\cdot 10^4) \\cdot (3 \\cdot 10^5)$. Svara i grundpotensform.', vis: { t: 'sciMul', a: 2, m: 4, b: 3, n: 5 }, type: 'sci', a: [6, 9], given: ['2 · 10⁴', '3 · 10⁵'], find: 'a · 10ⁿ', start: '$2 \\cdot 3$ och $4 + 5$', sol: ['$2 \\cdot 3 = 6$', '$10^{4+5} = 10^9$', '$6 \\cdot 10^9$'], ab: ['M'] },
+      { lv: 'B', q: 'Beräkna $\\dfrac{8 \\cdot 10^6}{2 \\cdot 10^2}$. Svara i grundpotensform.', vis: { t: 'sciMul', a: 8, m: 6, b: 2, n: 2, op: 'div' }, type: 'sci', a: [4, 4], given: ['8 · 10⁶', '2 · 10²'], find: 'a · 10ⁿ', start: '$8 / 2$ och $6 - 2$', sol: ['$8 / 2 = 4$', '$10^{6-2} = 10^4$', '$4 \\cdot 10^4$'], ab: ['M'] },
+      { lv: 'C', q: 'Beräkna $(6 \\cdot 10^5) \\cdot (4 \\cdot 10^2)$. Svara i grundpotensform.', vis: { t: 'sciMul', a: 6, m: 5, b: 4, n: 2 }, type: 'sci', a: [2.4, 8], given: ['6 · 10⁵', '4 · 10²'], find: 'a · 10ⁿ med 1 ≤ a < 10', start: '$6 \\cdot 4 = 24$ – men 24 är över 10. Flytta kommat och höj exponenten.', sol: ['$6 \\cdot 4 = 24$ och $10^{5+2} = 10^7$', '$24 \\cdot 10^7$ är inte grundpotensform', '$24 = 2{,}4 \\cdot 10$, så $2{,}4 \\cdot 10 \\cdot 10^7 = 2{,}4 \\cdot 10^8$'], ab: ['M'] },
+      { lv: 'C', q: 'Beräkna $(5 \\cdot 10^3) \\cdot (4 \\cdot 10^{-5})$ och svara som decimaltal.', type: 'num', a: 0.2, calc: '5*10**3*4*10**-5', given: ['5 · 10³', '4 · 10⁻⁵'], find: 'decimaltalet', start: '$5 \\cdot 4 = 20$ och $3 + (-5) = -2$', sol: ['$5 \\cdot 4 = 20$', '$10^{3+(-5)} = 10^{-2}$', '$20 \\cdot 10^{-2} = 0{,}2$'], traps: [[20, 'Du glömde tiopotensen $10^{-2}$ (= 0,01).'], [0.002, 'Nästan: $20 \\cdot 0{,}01 = 0{,}2$, inte 0,002.']], ab: ['M'] },
+      { lv: 'D', q: 'Ljuset går 3 · 10⁸ m varje sekund. Hur långt går det på 2 · 10² sekunder? Svara i grundpotensform (meter).', type: 'sci', a: [6, 10], given: ['3 · 10⁸ m/s', '2 · 10² s'], find: 'sträckan i m som a · 10ⁿ', start: 'sträcka = hastighet · tid', sol: ['$3 \\cdot 10^8 \\cdot 2 \\cdot 10^2$', '$3 \\cdot 2 = 6$ och $10^{8+2} = 10^{10}$', '$6 \\cdot 10^{10}$ m'], ab: ['P', 'M'] },
+      { lv: 'D', q: 'Jordens massa är 6 · 10²⁴ kg och månens 7,3 · 10²² kg. Hur många gånger tyngre är jorden än månen? Avrunda till heltal.', type: 'num', a: 82, dec: 0, calc: '6e24/7.3e22', given: ['6 · 10²⁴', '7,3 · 10²²'], find: 'kvoten (hur många gånger)', start: 'Hur många gånger → dela. $6 / 7{,}3$ och $24 - 22$', sol: ['$\\dfrac{6}{7{,}3} \\approx 0{,}82$ och $10^{24-22} = 10^2$', '$0{,}82 \\cdot 100 \\approx 82$'], traps: [[0.82, 'Du glömde tiopotensen $10^2 = 100$.']], ab: ['P', 'M'] },
+      { lv: 'F', q: 'Elin räknar $(2 \\cdot 10^3) \\cdot (5 \\cdot 10^4) = 10 \\cdot 10^7$ och lämnar in det som svar. Vad är fel?', type: 'choice', opts: ['Inget – svaret är rätt', 'Exponenterna skulle ha multiplicerats', 'Första talet ska ligga mellan 1 och 10, så svaret ska vara 1 · 10⁸', 'Hon skulle ha adderat 2 och 5'], a: 'Första talet ska ligga mellan 1 och 10, så svaret ska vara 1 · 10⁸', traps: [['Inget – svaret är rätt', 'Värdet stämmer, men grundpotensform kräver att första talet är mellan 1 och 10. $10 \\cdot 10^7 = 1 \\cdot 10^8$.'], ['Exponenterna skulle ha multiplicerats', 'Vid gånger ska exponenterna adderas: 3 + 4 = 7. Felet är att 10 är för stort som första tal.']], sol: ['$2 \\cdot 5 = 10$ och $10^{3+4} = 10^7$', '$10 \\cdot 10^7 = 1 \\cdot 10^1 \\cdot 10^7 = 1 \\cdot 10^8$'], ab: ['R', 'K'] },
+      { lv: 'F', q: 'Beräkna $(3 \\cdot 10^4) + (2 \\cdot 10^3)$. Svara i grundpotensform.', type: 'sci', a: [3.2, 4], given: ['3 · 10⁴', '2 · 10³'], find: 'a · 10ⁿ', start: 'Addition går inte med exponenterna. Skriv båda som vanliga tal först.', sol: ['$3 \\cdot 10^4 = 30\\,000$ och $2 \\cdot 10^3 = 2\\,000$', '$30\\,000 + 2\\,000 = 32\\,000$', '$32\\,000 = 3{,}2 \\cdot 10^4$'], ab: ['M', 'R'] }
+    ],
+    kw: 'grundpotensform räkna multiplicera dividera tiopotenser exponenter plussa exponenter stora tal små tal ljusets hastighet'
+  });
+
+  S.push({
+    id: 's9-sqrt-more', ch: 's9-tal', w: [38], title: 'Mer om kvadratrötter', sub: 'förenkla, multiplicera och addera rötter',
+    idea: 'Rötter har egna räkneregler. Vid **multiplikation** kan du slå ihop eller dela upp under roten: $\\sqrt{a} \\cdot \\sqrt{b} = \\sqrt{a \\cdot b}$. Det använder du för att **förenkla**: $\\sqrt{50} = \\sqrt{25 \\cdot 2} = 5\\sqrt{2}$ – du drar ut det som är en jämn kvadrat. **Addition** går inte under roten: $\\sqrt{9+16}$ är inte $\\sqrt{9}+\\sqrt{16}$.',
+    anchor: 'Gånger går att dela upp under roten. Plus går inte. Leta efter en kvadrat (4, 9, 16, 25 …) som delar talet.',
+    cue: ['Roten ur ett tal som inte är en jämn kvadrat (√12, √50).', 'Ordet förenkla, eller två rötter som multipliceras.', 'Svaret ska vara exakt, med rot.'],
+    cvis: { t: 'rootsplit', n: 50 },
+    f: {
+      name: 'Räkna med kvadratrötter', main: '\\sqrt{a \\cdot b} = \\sqrt{a} \\cdot \\sqrt{b}', when: 'En rot ska förenklas, eller rötter multipliceras.',
+      sym: [['√a · √b', 'blir √(a·b)'], ['√(k²·n)', 'blir k·√n'], ['m√a + n√a', 'blir (m+n)√a – samma sorts rot']],
+      forms: [['Förenkla en rot', '\\sqrt{50} = \\sqrt{25 \\cdot 2} = 5\\sqrt{2}'], ['Multiplicera rötter', '\\sqrt{2} \\cdot \\sqrt{8} = \\sqrt{16} = 4'], ['Addera lika rötter', '3\\sqrt{2} + 5\\sqrt{2} = 8\\sqrt{2}'], ['Fälla', '\\sqrt{a+b} \\neq \\sqrt{a} + \\sqrt{b}']],
+      ex: '$\\sqrt{12} = \\sqrt{4 \\cdot 3} = 2\\sqrt{3}$', trap: '$\\sqrt{9+16} = \\sqrt{25} = 5$, men $\\sqrt{9}+\\sqrt{16} = 7$. Rötter går att dela upp vid gånger, aldrig vid plus.'
+    },
+    h1: 'Finns det en jämn kvadrat (4, 9, 16, 25 …) som går jämnt upp i talet under roten?',
+    ex: {
+      q: 'Förenkla $\\sqrt{12}$. Svara på formen $a\\sqrt{b}$.', vis: { t: 'rootsplit', n: 12 }, given: ['√12'], find: 'a√b i enklaste form', rule: '\\sqrt{k^2 \\cdot n} = k\\sqrt{n}',
+      steps: [['Vilken jämn kvadrat går jämnt upp i 12?', '4, eftersom $12 = 4 \\cdot 3$'], ['Dela upp roten', '$\\sqrt{4 \\cdot 3} = \\sqrt{4} \\cdot \\sqrt{3}$'], ['Ta roten ur kvadraten', '$\\sqrt{4} = 2$, alltså $2\\sqrt{3}$']], ans: '2√3'
+    },
+    g: {
+      q: 'Förenkla $\\sqrt{18}$. Svara på formen $a\\sqrt{b}$.', vis: { t: 'rootsplit', n: 18 }, given: ['√18'], find: 'a√b i enklaste form',
+      opts: ['\\sqrt{9 \\cdot 2}', '\\sqrt{18 / 2}', '\\sqrt{9 + 9}'], oc: 0, why: 'Skriv talet som en produkt där ena faktorn är en jämn kvadrat: $18 = 9 \\cdot 2$.',
+      type: 'num', a: 3 * Math.SQRT2, radical: [3, 2], calc: '3*Math.sqrt(2)', start: 'Vilken kvadrat går upp i 18? Prova 9.', sol: ['$18 = 9 \\cdot 2$', '$\\sqrt{18} = \\sqrt{9} \\cdot \\sqrt{2}$', '$= 3\\sqrt{2}$'], traps: [['9√2', 'Du glömde ta roten ur 9: $\\sqrt{9} = 3$, inte 9.'], ['2√3', 'Fel kvadrat: $18 = 9 \\cdot 2$, så det är $3\\sqrt{2}$.']], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Förenkla $\\sqrt{32}$. Svara på formen $a\\sqrt{b}$.', vis: { t: 'rootsplit', n: 32 }, type: 'num', a: 4 * Math.SQRT2, radical: [4, 2], calc: '4*Math.sqrt(2)', given: ['√32'], find: 'a√b i enklaste form', start: 'Störst jämn kvadrat som går upp i 32: 16.', sol: ['$32 = 16 \\cdot 2$', '$\\sqrt{32} = \\sqrt{16} \\cdot \\sqrt{2} = 4\\sqrt{2}$'], ab: ['M'] },
+      { lv: 'B', q: 'Förenkla $\\sqrt{45}$. Svara på formen $a\\sqrt{b}$.', vis: { t: 'rootsplit', n: 45 }, type: 'num', a: 3 * Math.sqrt(5), radical: [3, 5], calc: '3*Math.sqrt(5)', given: ['√45'], find: 'a√b i enklaste form', start: '$45 = 9 \\cdot 5$', sol: ['$45 = 9 \\cdot 5$', '$\\sqrt{45} = 3\\sqrt{5}$'], ab: ['M'] },
+      { lv: 'B', q: 'Beräkna $\\sqrt{2} \\cdot \\sqrt{8}$.', type: 'num', a: 4, calc: 'Math.sqrt(2)*Math.sqrt(8)', given: ['√2 · √8'], find: 'värdet', start: 'Gånger: samla under en rot, $\\sqrt{2 \\cdot 8}$.', sol: ['$\\sqrt{2} \\cdot \\sqrt{8} = \\sqrt{16}$', '$= 4$'], traps: [[10, 'Du adderade talen under roten. Vid gånger multiplicerar du: $2 \\cdot 8 = 16$.'], [16, 'Du har 2 · 8 = 16 men glömde roten: $\\sqrt{16} = 4$.']], ab: ['M'] },
+      { lv: 'C', q: 'Beräkna $3\\sqrt{2} + 5\\sqrt{2}$. Svara exakt.', type: 'num', a: 8 * Math.SQRT2, radical: [8, 2], calc: '8*Math.sqrt(2)', given: ['3√2 + 5√2'], find: 'a√b', start: 'Samma sorts rot (√2), som x-termer: 3 + 5 = ?', sol: ['Samma rot → addera talen framför: $3 + 5 = 8$', '$8\\sqrt{2}$'], traps: [['8√4', 'Du adderade även talen under roten. Roten (√2) är densamma – addera bara talen framför.'], ['8', 'Roten $\\sqrt{2}$ ska vara kvar: $8\\sqrt{2}$.']], ab: ['M'] },
+      { lv: 'C', q: 'Det gäller att $\\sqrt{x} = 6\\sqrt{2}$. Vilket tal är x?', type: 'num', a: 72, calc: '(6*Math.sqrt(2))**2', given: ['√x = 6√2'], find: 'x', start: 'Baklänges: kvadrera båda sidor. $(6\\sqrt{2})^2 = 6^2 \\cdot (\\sqrt{2})^2$', sol: ['$x = (6\\sqrt{2})^2$', '$= 6^2 \\cdot (\\sqrt{2})^2 = 36 \\cdot 2$', '$= 72$'], traps: [[12, 'Du multiplicerade 6 och 2. Kvadrera hela uttrycket: $36 \\cdot 2$.'], [36, 'Du kvadrerade bara 6. Även roten ska kvadreras: $(\\sqrt{2})^2 = 2$.']], ab: ['M', 'R'] },
+      { lv: 'D', q: 'En kvadrat har arean 200 cm². Hur lång är sidan? Svara exakt, med rot.', vis: { t: 'sqrt', a: '200 cm²', r: '?' }, type: 'num', a: 10 * Math.SQRT2, radical: [10, 2], u: 'cm', calc: '10*Math.sqrt(2)', given: ['arean 200 cm²', 'kvadrat'], find: 'sidan, exakt', start: 'sida = √area = √200. Förenkla med $200 = 100 \\cdot 2$.', sol: ['$\\text{sida} = \\sqrt{200} = \\sqrt{100 \\cdot 2}$', '$= 10\\sqrt{2}$ cm'], ab: ['P', 'M'] },
+      { lv: 'D', q: 'Vilket påstående är sant?', type: 'choice', opts: ['√(9 + 16) = √9 + √16', '√(9 · 16) = √9 · √16', '√16 − √9 = √7', '√9 · √16 = √25'], a: '√(9 · 16) = √9 · √16', traps: [['√(9 + 16) = √9 + √16', '√(9+16) = √25 = 5 men √9 + √16 = 3 + 4 = 7. Plus går inte att dela upp.'], ['√16 − √9 = √7', '√16 − √9 = 4 − 3 = 1, men √7 ≈ 2,65.'], ['√9 · √16 = √25', '√9 · √16 = 3 · 4 = 12. Vid gånger multiplicerar du talen: √(9·16) = √144 = 12.']], sol: ['$\\sqrt{9 \\cdot 16} = \\sqrt{144} = 12$', '$\\sqrt{9} \\cdot \\sqrt{16} = 3 \\cdot 4 = 12$ ✓'], ab: ['R'] },
+      { lv: 'D', q: 'Hur skriver man "tre gånger roten ur fem" korrekt?', type: 'choice', opts: ['3√5', '√35', '3 + √5', '√(3 · 5)'], a: '3√5', traps: [['√35', '√35 är roten ur 35 (talet 35 under roten). Tre gånger roten ur fem skrivs 3√5.'], ['√(3 · 5)', 'Det är roten ur 15. Talet 3 ska stå utanför roten: 3√5.']], sol: ['Talet framför roten är en faktor: $3 \\cdot \\sqrt{5} = 3\\sqrt{5}$'], ab: ['K'] },
+      { lv: 'F', q: 'Beräkna $\\sqrt{12} \\cdot \\sqrt{3}$.', type: 'num', a: 6, calc: 'Math.sqrt(12)*Math.sqrt(3)', given: ['√12 · √3'], find: 'värdet', start: 'Samla under en rot: $\\sqrt{12 \\cdot 3}$.', sol: ['$\\sqrt{12} \\cdot \\sqrt{3} = \\sqrt{36}$', '$= 6$'], traps: [[15, 'Du adderade. Gånger: $12 \\cdot 3 = 36$, och $\\sqrt{36} = 6$.'], [36, 'Du glömde roten. $\\sqrt{36} = 6$.']], ab: ['M'] }
+    ],
+    kw: 'mer om kvadratrötter förenkla rot förenkla kvadratrot rötter multiplicera rötter addera rötter rot ur exakt svar 5√2 √50 √12 √18'
+  });
+
+  S.push({
+    id: 's9-sqrt-div', ch: 's9-tal', w: [38], title: 'Division med kvadratrötter', sub: '√a ÷ √b = √(a ÷ b)',
+    idea: 'När du **delar** en kvadratrot med en annan kan du samla allt under **en** rot: $\\dfrac{\\sqrt{a}}{\\sqrt{b}} = \\sqrt{\\dfrac{a}{b}}$. Ofta blir kvoten $a/b$ en jämn kvadrat, och då försvinner roten. Det går även åt andra hållet: roten ur ett bråk är roten ur täljaren delat med roten ur nämnaren.',
+    anchor: 'Delat med rötter → dela talen under roten. Roten ur ett bråk → roten ur täljare och nämnare var för sig.',
+    cue: ['Två rötter som divideras: √72 ÷ √2.', 'Roten ur ett bråk: √(9/25).', 'Frågan ber om kvoten av två rötter.'],
+    cvis: { t: 'rootdiv', a: 72, b: 2 },
+    f: {
+      name: 'Division med kvadratrötter', main: '\\frac{\\sqrt{a}}{\\sqrt{b}} = \\sqrt{\\frac{a}{b}}', when: 'Två kvadratrötter divideras, eller roten ska tas ur ett bråk.',
+      sym: [['√a / √b', 'samla till √(a/b)'], ['√(a/b)', 'kan delas: √a / √b'], ['Mål', 'få en jämn kvadrat under roten']],
+      forms: [['Samla', '\\frac{\\sqrt{48}}{\\sqrt{3}} = \\sqrt{\\frac{48}{3}} = \\sqrt{16} = 4'], ['Dela upp bråk', '\\sqrt{\\frac{9}{25}} = \\frac{\\sqrt{9}}{\\sqrt{25}} = \\frac{3}{5}'], ['Fälla', '\\sqrt{a} \\div \\sqrt{b} \\neq \\sqrt{a - b}']],
+      ex: '$\\dfrac{\\sqrt{72}}{\\sqrt{2}} = \\sqrt{36} = 6$', trap: 'Dela talen under roten – subtrahera dem inte. $\\sqrt{72} \\div \\sqrt{2} = \\sqrt{36}$, inte $\\sqrt{70}$.'
+    },
+    h1: 'Delat med två rötter? Samla under en rot och dela talen.',
+    ex: {
+      q: 'Beräkna $\\dfrac{\\sqrt{72}}{\\sqrt{2}}$.', vis: { t: 'rootdiv', a: 72, b: 2 }, given: ['√72', '√2'], find: 'kvoten', rule: '\\sqrt{a \\div b}',
+      steps: [['Samla under en rot', '$\\sqrt{72 \\div 2}$'], ['Dela', '$72 \\div 2 = 36$'], ['Ta roten', '$\\sqrt{36} = 6$']], ans: '6'
+    },
+    g: {
+      q: 'Beräkna $\\dfrac{\\sqrt{50}}{\\sqrt{2}}$.', vis: { t: 'rootdiv', a: 50, b: 2 }, given: ['√50', '√2'], find: 'kvoten',
+      opts: ['\\sqrt{50 \\div 2}', '\\sqrt{50 - 2}', '\\sqrt{50} \\div 2'], oc: 0, why: 'Delat → dela talen under roten.',
+      type: 'num', a: 5, calc: 'Math.sqrt(50)/Math.sqrt(2)', start: '$50 \\div 2 = ?$ och sedan roten.', sol: ['$\\sqrt{50 \\div 2} = \\sqrt{25}$', '$= 5$'], traps: [['√48', 'Du subtraherade 50 − 2. Vid delat ska du dela: 50 ÷ 2 = 25.']], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Beräkna $\\dfrac{\\sqrt{48}}{\\sqrt{3}}$.', vis: { t: 'rootdiv', a: 48, b: 3 }, type: 'num', a: 4, calc: 'Math.sqrt(48)/Math.sqrt(3)', given: ['√48', '√3'], find: 'kvoten', start: '$\\sqrt{48 \\div 3}$', sol: ['$48 \\div 3 = 16$', '$\\sqrt{16} = 4$'], ab: ['M'] },
+      { lv: 'B', q: 'Beräkna $\\sqrt{\\dfrac{9}{25}}$. Svara som bråk i enklaste form.', type: 'num', a: 0.6, mustFraction: [3, 5], calc: 'Math.sqrt(9/25)', given: ['√(9/25)'], find: 'ett bråk', start: 'Roten ur täljare och nämnare var för sig.', sol: ['$\\sqrt{\\frac{9}{25}} = \\frac{\\sqrt{9}}{\\sqrt{25}}$', '$= \\frac{3}{5}$'], traps: [['9/5', 'Du tog roten ur 25 men inte ur 9. Ta roten ur båda: 3/5.']], ab: ['M'] },
+      { lv: 'B', q: 'Beräkna $\\dfrac{\\sqrt{2}}{\\sqrt{8}}$. Svara som bråk i enklaste form.', vis: { t: 'rootdiv', a: 2, b: 8 }, type: 'num', a: 0.5, mustFraction: [1, 2], calc: 'Math.sqrt(2)/Math.sqrt(8)', given: ['√2', '√8'], find: 'ett bråk', start: '$\\sqrt{2 \\div 8} = \\sqrt{\\tfrac{1}{4}}$', sol: ['$\\dfrac{2}{8} = \\dfrac{1}{4}$', '$\\sqrt{\\frac{1}{4}} = \\frac{1}{2}$'], ab: ['M'] },
+      { lv: 'C', q: 'Det gäller att $\\dfrac{\\sqrt{x}}{\\sqrt{3}} = 4$. Vilket tal är x?', type: 'num', a: 48, calc: '3*4**2', given: ['√x / √3 = 4'], find: 'x', start: '$\\sqrt{x/3} = 4$. Kvadrera: $x/3 = 16$.', sol: ['$\\sqrt{x \\div 3} = 4$', 'Kvadrera: $x \\div 3 = 16$', '$x = 16 \\cdot 3 = 48$'], traps: [[12, 'Du multiplicerade 4 och 3. Kvadrera först: kvoten under roten är $4^2 = 16$.'], [16, 'Det är x/3. Multiplicera med 3 för att få x.']], ab: ['M', 'R'] },
+      { lv: 'D', q: 'Kvadrat A har arean 200 cm² och kvadrat B har arean 8 cm². Hur många gånger längre är sidan i A än i B?', type: 'num', a: 5, calc: 'Math.sqrt(200)/Math.sqrt(8)', given: ['A: 200 cm²', 'B: 8 cm²'], find: 'sidans längdförhållande A / B', start: 'sida = √area. Dela: $\\sqrt{200}/\\sqrt{8}$.', sol: ['$\\dfrac{\\sqrt{200}}{\\sqrt{8}} = \\sqrt{200 \\div 8} = \\sqrt{25}$', '$= 5$'], traps: [[25, 'Det är areaförhållandet. För längd tar du roten: $\\sqrt{25} = 5$.']], ab: ['P'] },
+      { lv: 'D', q: 'Vilket uttryck är lika med $\\sqrt{\\dfrac{81}{9}}$?', type: 'choice', opts: ['√81 ÷ √9 = 3', '√81 − √9 = 6', '81 ÷ 9 = 9', '√81 ÷ 9 = 1'], a: '√81 ÷ √9 = 3', traps: [['√81 − √9 = 6', 'Roten ur en kvot är en kvot av rötter – inte en differens.'], ['81 ÷ 9 = 9', 'Du glömde roten: $\\sqrt{81 \\div 9} = \\sqrt{9} = 3$.'], ['√81 ÷ 9 = 1', 'Roten gäller även nämnaren: $\\sqrt{81} \\div \\sqrt{9} = 9 \\div 3 = 3$.']], sol: ['$\\sqrt{81/9} = \\sqrt{9} = 3$', '$\\sqrt{81} \\div \\sqrt{9} = 9 \\div 3 = 3$ ✓'], ab: ['B', 'R'] },
+      { lv: 'F', q: 'Beräkna $\\dfrac{\\sqrt{180}}{\\sqrt{5}}$.', type: 'num', a: 6, calc: 'Math.sqrt(180)/Math.sqrt(5)', given: ['√180', '√5'], find: 'kvoten', start: '$\\sqrt{180 \\div 5}$', sol: ['$180 \\div 5 = 36$', '$\\sqrt{36} = 6$'], traps: [[175, 'Du subtraherade. Dela: 180 ÷ 5 = 36.'], [36, 'Du glömde roten: $\\sqrt{36} = 6$.']], ab: ['M'] }
+    ],
+    kw: 'division kvadratrötter dela rötter kvot av rötter roten ur bråk √72/√2 samla under en rot'
+  });
+
+  S.push({
+    id: 's9-quadratic', ch: 's9-tal', w: [38], title: 'Andragradsekvationer', sub: 'x² = a har två lösningar',
+    idea: 'En **andragradsekvation** har ett $x^2$. Den enklaste typen är $x^2 = a$: vilka tal ger $a$ när man kvadrerar dem? Både $\\sqrt{a}$ **och** $-\\sqrt{a}$, eftersom $(-5)^2 = 25$ precis som $5^2 = 25$. Står $x^2$ inte ensamt löser du ut det först. Är $a$ negativt finns **ingen** lösning, för en kvadrat är aldrig negativ.',
+    anchor: 'x² = a → x = ±√a. Först x² ensamt, sedan roten – och glöm inte minus-lösningen. Negativt a: ingen lösning.',
+    cue: ['En ekvation med x² (x i kvadrat).', 'Orden "lös ekvationen" och ett x som är kvadrerat.', 'Du ska hitta alla x som uppfyller ekvationen.'],
+    cvis: { t: 'quad', a: 25, r1: '−5', r2: '5' },
+    f: {
+      name: 'Andragradsekvation x² = a', main: 'x^2 = a \\;\\Rightarrow\\; x = \\pm\\sqrt{a}', when: 'Ekvationen har x i kvadrat och inget x på första gradens sätt.',
+      sym: [['±', 'både plus och minus'], ['a > 0', 'två lösningar: +√a och −√a'], ['a = 0', 'en lösning: x = 0'], ['a < 0', 'ingen reell lösning']],
+      forms: [['Lös ut x² först', 'ax^2 + b = c \\;\\Rightarrow\\; x^2 = \\dfrac{c - b}{a}'], ['Sedan roten', 'x = \\sqrt{x^2} \\text{ eller } x = -\\sqrt{x^2}'], ['Kontrollera', '(-r)^2 = r^2 = a']],
+      ex: '$x^2 = 49 \\Rightarrow x = 7$ eller $x = -7$', trap: 'Svaret $x = 7$ räcker inte: även $(-7)^2 = 49$. Ange **båda** lösningarna.'
+    },
+    h1: 'Står x² ensamt? Ta roten ur båda sidor – och kom ihåg både + och −.',
+    ex: {
+      q: 'Lös ekvationen $x^2 = 49$.', vis: { t: 'quad', a: 49, r1: '−7', r2: '7' }, given: ['x² = 49'], find: 'alla x som ger 49 när de kvadreras', rule: 'x = \\pm\\sqrt{a}',
+      steps: [['Vilka tal gånger sig självt blir 49?', '$7 \\cdot 7 = 49$ – men också $(-7)\\cdot(-7) = 49$'], ['Skriv båda lösningarna', '$x = 7$ eller $x = -7$']], ans: 'x = 7 eller x = −7'
+    },
+    g: {
+      q: 'Lös ekvationen $x^2 = 36$.', vis: { t: 'quad', a: 36, r1: '−6', r2: '6' }, given: ['x² = 36'], find: 'alla x',
+      opts: ['x = \\pm\\sqrt{36}', 'x = 36 \\div 2', 'x = \\sqrt{36}'], oc: 0, why: 'Roten ger det positiva talet, men det negativa kvadrerat blir också 36 – därför ±.',
+      type: 'roots', a: [-6, 6], calc: '[-Math.sqrt(36), Math.sqrt(36)]', start: 'Vilka två tal gånger sig själva blir 36?', sol: ['$x = \\sqrt{36} = 6$', 'Även $(-6)^2 = 36$', '$x = 6$ eller $x = -6$'], traps: [['18 och -18', 'Du delade med 2. Roten frågar vilket tal gånger SIG SJÄLVT som blir 36.']], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Lös ekvationen $x^2 = 81$.', vis: { t: 'quad', a: 81, r1: '−9', r2: '9' }, type: 'roots', a: [-9, 9], calc: '[-Math.sqrt(81), Math.sqrt(81)]', given: ['x² = 81'], find: 'alla x', start: '$x = \\pm\\sqrt{81}$', sol: ['$\\sqrt{81} = 9$', '$x = 9$ eller $x = -9$'], traps: [['81', 'Du har kvadraten. Ta roten ur 81 för att få x.']], ab: ['M'] },
+      { lv: 'B', q: 'Lös ekvationen $x^2 = 2{,}25$.', type: 'roots', a: [-1.5, 1.5], calc: '[-Math.sqrt(2.25), Math.sqrt(2.25)]', given: ['x² = 2,25'], find: 'alla x', start: 'Vilket tal gånger sig självt blir 2,25? Prova 1,5.', sol: ['$1{,}5 \\cdot 1{,}5 = 2{,}25$', '$x = 1{,}5$ eller $x = -1{,}5$'], ab: ['M'] },
+      { lv: 'B', q: 'Lös ekvationen $3x^2 = 75$.', type: 'roots', a: [-5, 5], calc: '[-Math.sqrt(75/3), Math.sqrt(75/3)]', given: ['3x² = 75'], find: 'alla x', start: 'Dela med 3 så att x² står ensamt.', sol: ['$x^2 = 75 \\div 3 = 25$', '$x = \\pm\\sqrt{25}$', '$x = 5$ eller $x = -5$'], traps: [['25', 'Det är x². Ta roten för att få x – och ange båda lösningarna.']], ab: ['M'] },
+      { lv: 'C', q: 'Lös ekvationen $x^2 + 4 = 20$.', type: 'roots', a: [-4, 4], calc: '[-Math.sqrt(20-4), Math.sqrt(20-4)]', given: ['x² + 4 = 20'], find: 'alla x', start: 'Subtrahera 4 på båda sidor först.', sol: ['$x^2 = 20 - 4 = 16$', '$x = \\pm 4$'], traps: [['16', 'Det är x². Ta roten ur 16.']], ab: ['M'] },
+      { lv: 'C', q: 'Lös ekvationen $2x^2 - 8 = 42$.', type: 'roots', a: [-5, 5], calc: '[-Math.sqrt((42+8)/2), Math.sqrt((42+8)/2)]', given: ['2x² − 8 = 42'], find: 'alla x', start: 'Addera 8, dela med 2, ta sedan roten.', sol: ['$2x^2 = 42 + 8 = 50$', '$x^2 = 25$', '$x = 5$ eller $x = -5$'], traps: [['25', 'Det är x². Ta roten för att få x.']], ab: ['M'] },
+      { lv: 'D', q: 'Lös ekvationen $x^2 = -16$. Finns ingen lösning, skriv "ingen".', vis: { t: 'quad', a: -16 }, type: 'roots', a: [], calc: '[]', given: ['x² = −16'], find: 'alla reella x (eller ingen)', start: 'Kan ett tal gånger sig självt bli negativt?', sol: ['$(+4)^2 = 16$ och $(-4)^2 = 16$ – aldrig −16', 'En kvadrat är aldrig negativ → **ingen** lösning'], ab: ['R', 'B'] },
+      { lv: 'D', q: 'Lös ekvationen $x^2 = 7$. Avrunda lösningarna till två decimaler.', type: 'roots', a: [-2.65, 2.65], dec: 2, calc: '[-Math.sqrt(7), Math.sqrt(7)]', given: ['x² = 7'], find: 'x, avrundat till två decimaler', start: '$x = \\pm\\sqrt{7}$. 7 ligger mellan 4 och 9, så x är mellan 2 och 3.', sol: ['$x = \\pm\\sqrt{7}$', '$\\sqrt{7} \\approx 2{,}65$', '$x \\approx 2{,}65$ eller $x \\approx -2{,}65$'], ab: ['M'] },
+      { lv: 'D', q: 'En kvadratisk tomt har arean 144 m². Hur lång är en sida?', vis: { t: 'sqrt', a: '144 m²', r: '?' }, type: 'num', a: 12, u: 'm', calc: 'Math.sqrt(144)', given: ['arean 144 m²', 'kvadrat'], find: 'sidans längd', start: '$x^2 = 144$ – men en längd kan inte vara negativ.', sol: ['$x^2 = 144$ ger $x = 12$ eller $x = -12$', 'En sidlängd är positiv → $x = 12$ m'], traps: [[-12, 'En längd kan inte vara negativ. Av de två lösningarna duger bara den positiva.']], ab: ['P', 'R'] },
+      { lv: 'D', q: 'Elin löste $x^2 = 100$ och svarade "x = 10". Vad är felet?', type: 'choice', opts: ['Inget – svaret är rätt', 'Hon missade att x = −10 också är en lösning', 'Hon skulle ha delat 100 med 2', 'Ekvationen saknar lösning'], a: 'Hon missade att x = −10 också är en lösning', traps: [['Inget – svaret är rätt', 'x = 10 stämmer, men det är bara hälften av svaret: $(-10)^2 = 100$ också.'], ['Ekvationen saknar lösning', 'Det finns lösningar: både 10 och −10 ger 100 när de kvadreras.']], sol: ['$10^2 = 100$ och $(-10)^2 = 100$', 'Båda är lösningar: $x = \\pm 10$'], ab: ['R'] },
+      { lv: 'D', q: 'Vilken uträkning visar att x = −3 är en lösning till $x^2 = 9$?', type: 'choice', opts: ['(−3)² = 9', '−3² = 9', '−3 · 2 = 9', '3² = −9'], a: '(−3)² = 9', traps: [['−3² = 9', '−3² betyder −(3²) = −9. Sätt parentes runt −3: (−3)² = 9.']], sol: ['Sätt in x = −3: $(-3)^2 = (-3)\\cdot(-3) = 9$ ✓'], ab: ['K'] },
+      { lv: 'F', q: 'Lös ekvationen $5x^2 + 3 = 128$.', type: 'roots', a: [-5, 5], calc: '[-Math.sqrt((128-3)/5), Math.sqrt((128-3)/5)]', given: ['5x² + 3 = 128'], find: 'alla x', start: 'Subtrahera 3, dela med 5, ta roten.', sol: ['$5x^2 = 125$', '$x^2 = 25$', '$x = 5$ eller $x = -5$'], traps: [['25', 'Det är x². Ta roten för att få x.']], ab: ['M'] }
+    ],
+    kw: 'andragradsekvation andragradsekvationer x i kvadrat x² ekvation två lösningar plus minus ± lös ekvationen kvadrat rot'
+  });
+
+  /* ================= TILLÄGG v5.1 · KAPITEL 2 · GEOMETRI (källa: HT-26 år 9, v. 40–45: "mer om vinklar", "mer om Pythagoras sats") ================= */
+  S.push({
+    id: 's9-angles-more', ch: 's9-geo', w: [43], title: 'Mer om vinklar', sub: 'parallella linjer och månghörningar',
+    idea: 'Skär en linje två **parallella** linjer får vinklarna samma värde på samma sätt: **likbelägna** (F-formen) och **alternatvinklar** (Z-formen) är lika stora. **Vertikalvinklar** (X-formen) är alltid lika, och **sidovinklar** blir 180° tillsammans. I en **månghörning** med n hörn är vinkelsumman $(n-2) \\cdot 180°$ – dela upp i trianglar.',
+    anchor: 'F och Z och X är lika. Bredvid varandra på en linje = 180°. Månghörning: (n − 2) · 180°.',
+    cue: ['Två parallella linjer (pilar >>) skurna av en tredje linje.', 'En vinkel är känd och du söker en annan i figuren.', 'En månghörning (fem-, sex-, sjuhörning).'],
+    cvis: { t: 'parallel', acute: 65, marks: { 1: '65°', 5: '?' } },
+    f: {
+      name: 'Vinklar vid parallella linjer och i månghörningar', main: '\\text{F, Z, X: lika}\\quad u+v=180°', when: 'Parallella linjer skärs av en linje, två linjer korsas, eller du ska bestämma vinkelsumman i en månghörning.',
+      sym: [['Vertikalvinklar (X)', 'lika stora'], ['Likbelägna (F)', 'lika stora – kräver parallella linjer'], ['Alternatvinklar (Z)', 'lika stora – kräver parallella linjer'], ['Sidovinklar', '180° tillsammans']],
+      forms: [['Vertikal', 'u = v'], ['Sidovinkel', 'u + v = 180°'], ['Månghörning', 'S = (n - 2) \\cdot 180°'], ['Regelbunden n-hörning', 'v = \\dfrac{(n-2) \\cdot 180°}{n}']],
+      ex: '$65°$ och dess likbelägna vinkel är båda $65°$. En sexhörning: $(6-2) \\cdot 180° = 720°$.', trap: 'F- och Z-reglerna gäller bara om linjerna är **parallella**. Utan parallella linjer får du inte anta att vinklarna är lika.'
+    },
+    h1: 'Är linjerna parallella? Hitta ett F, Z eller X – eller en rak linje som ger 180°.',
+    ex: {
+      q: 'Linjerna är parallella. Vinkel 1 är 65°. Hur stor är vinkel 5 (likbelägen)?', vis: { t: 'parallel', acute: 65, marks: { 1: '65°', 5: '?' } }, given: ['linjerna är parallella', 'vinkel 1 = 65°'], find: 'vinkel 5', rule: '\\text{likbelägna vinklar är lika}',
+      steps: [['Ligger vinklarna på samma sätt mot var sin parallell linje?', 'Ja: båda uppe till vänster om den lutande linjen (F-form).'], ['Likbelägna vinklar är lika', 'Vinkel 5 = 65°']], ans: '65°'
+    },
+    g: {
+      q: 'Linjerna är parallella. Vinkel 3 är 65°. Bestäm vinkel 5 (alternatvinkel).', vis: { t: 'parallel', acute: 65, marks: { 3: '65°', 5: '?' } }, given: ['parallella linjer', 'vinkel 3 = 65°'], find: 'vinkel 5',
+      opts: ['\\text{lika stora (Z-form)}', 'u + v = 180°', '\\text{dubbelt så stor}'], oc: 0, why: 'Alternatvinklar (Z-formen) mellan parallella linjer är lika stora.',
+      type: 'num', a: 65, u: '°', calc: '65', start: 'Rita ett Z: vinkel 3 och vinkel 5 ligger på var sin sida om den lutande linjen, innanför linjerna.', sol: ['Alternatvinklar är lika', 'Vinkel 5 = 65°'], traps: [[115, 'Du räknade 180° − 65°. Alternatvinklar är lika stora, inte sidovinklar.']], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Två linjer korsar varandra. En vinkel är 48°. Hur stor är vinkeln mitt emot (vertikalvinkeln)?', vis: { t: 'parallel', acute: 48, marks: { 1: '48°', 3: '?' } }, type: 'num', a: 48, u: '°', calc: '48', given: ['vinkel 1 = 48°'], find: 'vinkel 3 (mitt emot)', start: 'Vertikalvinklar (X-formen) är lika stora.', sol: ['Vertikalvinklar är lika', 'Vinkel 3 = 48°'], traps: [[132, 'Du räknade 180° − 48° (sidovinkel). Vinkeln mitt emot är lika stor.']], ab: ['M'] },
+      { lv: 'B', q: 'Vinkel 2 är 115°. Hur stor är vinkel 1 (sidovinkeln)?', vis: { t: 'parallel', acute: 65, marks: { 2: '115°', 1: '?' } }, type: 'num', a: 65, u: '°', calc: '180-115', given: ['vinkel 2 = 115°', '1 och 2 ligger bredvid varandra på en rak linje'], find: 'vinkel 1', start: 'Sidovinklar blir 180° tillsammans.', sol: ['$180° - 115° = 65°$'], traps: [[115, 'Sidovinklar är inte lika – de blir 180° tillsammans.']], ab: ['M'] },
+      { lv: 'C', q: 'Linjerna är parallella. Vinkel 2 är 115°. Hur stor är vinkel 8?', vis: { t: 'parallel', acute: 65, marks: { 2: '115°', 8: '?' } }, type: 'num', a: 115, u: '°', calc: '115', given: ['parallella linjer', 'vinkel 2 = 115°'], find: 'vinkel 8', start: 'Vinkel 2 är lika med vinkel 4 (vertikal). Vinkel 4 och 8 är likbelägna.', sol: ['Vinkel 4 = vinkel 2 = 115° (vertikalvinklar)', 'Vinkel 8 = vinkel 4 = 115° (likbelägna)'], traps: [[65, 'Det är sidovinkeln. Vinkel 8 ligger på samma sätt som vinkel 4 – och 4 är lika med 2.']], ab: ['M', 'R'] },
+      { lv: 'D', q: 'Hur stor är vinkelsumman i en sexhörning?', vis: { t: 'polygon', n: 6, sum: '?' }, type: 'num', a: 720, u: '°', calc: '(6-2)*180', given: ['sexhörning'], find: 'vinkelsumman', start: 'Dela upp i trianglar från ett hörn: n − 2 st.', sol: ['$n - 2 = 4$ trianglar', '$4 \\cdot 180° = 720°$'], traps: [[1080, 'Du räknade 6 · 180°. Antalet trianglar är n − 2 = 4.']], ab: ['M'] },
+      { lv: 'D', q: 'En regelbunden femhörning har fem lika stora vinklar. Hur stor är varje vinkel?', vis: { t: 'polygon', n: 5, sum: '?' }, type: 'num', a: 108, u: '°', calc: '(5-2)*180/5', given: ['regelbunden femhörning'], find: 'en vinkel', start: 'Summan först: $(5-2) \\cdot 180°$. Dela sedan på 5.', sol: ['$(5-2) \\cdot 180° = 540°$', '$540° / 5 = 108°$'], traps: [[540, 'Det är summan av alla fem vinklar. Dela med 5.']], ab: ['M', 'P'] },
+      { lv: 'D', q: 'Anna säger: "Två vinklar bredvid varandra på en rak linje är alltid lika stora." Vad är rätt?', type: 'choice', opts: ['Det stämmer alltid', 'Nej – de blir 180° tillsammans, och är lika bara om båda är 90°', 'Nej – de blir 360° tillsammans', 'Det stämmer om linjen är lutande'], a: 'Nej – de blir 180° tillsammans, och är lika bara om båda är 90°', traps: [['Det stämmer alltid', 'Exempel: 115° och 65° ligger bredvid varandra och är olika.'], ['Nej – de blir 360° tillsammans', 'En rak linje är 180°, inte 360° (helt varv).']], sol: ['Sidovinklar: $u + v = 180°$', 'Lika bara om $u = v = 90°$'], ab: ['R'] },
+      { lv: 'F', q: 'Linjerna är parallella. Vinkel 4 är 130°. Bestäm vinkel 5.', vis: { t: 'parallel', acute: 50, marks: { 4: '130°', 5: '?' } }, type: 'num', a: 50, u: '°', calc: '180-130', given: ['parallella linjer', 'vinkel 4 = 130°'], find: 'vinkel 5', start: 'Vinkel 1 är sidovinkel till 4. Vinkel 5 är likbelägen med 1.', sol: ['Vinkel 1 $= 180° - 130° = 50°$ (sidovinklar)', 'Vinkel 5 = vinkel 1 = 50° (likbelägna)'], traps: [[130, 'Vinkel 5 är spetsig: den är likbelägen med sidovinkeln till 4, inte med 4.']], ab: ['M', 'R'] },
+      { lv: 'F', q: 'I en sjuhörning är fem av vinklarna 120°, 130°, 140°, 150° och 100°. Hur stor är summan av de två övriga vinklarna?', type: 'num', a: 260, u: '°', calc: '(7-2)*180-(120+130+140+150+100)', given: ['sjuhörning', '120°, 130°, 140°, 150°, 100°'], find: 'summan av de två sista', start: 'Hela summan först: $(7-2) \\cdot 180°$.', sol: ['$(7-2) \\cdot 180° = 900°$', '$120 + 130 + 140 + 150 + 100 = 640$', '$900° - 640° = 260°$'], traps: [[640, 'Det är summan av de fem du känner till. Dra den från 900°.']], ab: ['P', 'M'] }
+    ],
+    kw: 'mer om vinklar parallella linjer likbelägna alternatvinklar vertikalvinklar sidovinklar månghörning vinkelsumma sexhörning femhörning F-vinkel Z-vinkel'
+  });
+
+  S.push({
+    id: 's9-pyth-more', ch: 's9-geo', w: [43], title: 'Mer om Pythagoras sats', sub: 'är det en rät vinkel? höjden i likbent triangel',
+    idea: 'Pythagoras sats fungerar åt **båda** hållen. Om $a^2 + b^2 = c^2$ stämmer för de tre sidorna är triangeln **rätvinklig** – använd den längsta sidan som $c$. Och många trianglar kan delas i rätvinkliga: **höjden** i en likbent triangel delar den i två lika räta trianglar.',
+    anchor: 'Testa: de två korta kvadraterna ska ge den längsta i kvadrat. Likbent: höjden delar basen på mitten.',
+    cue: ['"Är triangeln rätvinklig?" med tre sidor givna.', 'En likbent triangel där höjden eller arean söks.', 'Ett tak, en nock eller en lutande sida.'],
+    cvis: { t: 'rightTri', a: 3, b: 4, c: 5, note: '3² + 4² = 5²' },
+    f: {
+      name: 'Pythagoras åt båda hållen', main: 'a^2 + b^2 = c^2 \\;\\Leftrightarrow\\; \\text{rät vinkel}', when: 'Du ska avgöra om en triangel är rätvinklig, eller bestämma höjden i en likbent triangel.',
+      sym: [['c', 'den längsta sidan'], ['a, b', 'de två kortare sidorna'], ['h', 'höjden – delar basen på mitten']],
+      forms: [['Testa rät vinkel', '\\text{kort}_1^2 + \\text{kort}_2^2 \\text{ jämfört med } \\text{längsta}^2'], ['Höjd i likbent triangel', 'h = \\sqrt{s^2 - (b/2)^2}'], ['Area', 'A = \\dfrac{b \\cdot h}{2}']],
+      ex: '$5^2 + 12^2 = 25 + 144 = 169 = 13^2$ → rätvinklig', trap: 'Den längsta sidan är alltid $c$. Och höjden i en likbent triangel räknas med **halva** basen, inte hela.'
+    },
+    h1: 'Räkna kvadraterna: stämmer kort² + kort² = längst²? Eller dela den likbenta triangeln på mitten.',
+    ex: {
+      q: 'En triangel har sidorna 5 cm, 12 cm och 13 cm. Är den rätvinklig?', vis: { t: 'rightTri', a: 5, b: 12, c: 13 }, type: 'choice', opts: ['ja', 'nej'], a: 'ja', given: ['5, 12, 13'], find: 'ja eller nej', rule: 'a^2 + b^2 = c^2',
+      steps: [['Vilken är den längsta sidan?', '13 → den är $c$'], ['Räkna de korta', '$5^2 + 12^2 = 25 + 144 = 169$'], ['Jämför med $c^2$', '$13^2 = 169$ → lika, alltså rätvinklig']], ans: 'ja'
+    },
+    g: {
+      q: 'Sidorna är 6 cm, 8 cm och 10 cm. Är triangeln rätvinklig?', vis: { t: 'rightTri', a: 6, b: 8, c: 10 }, type: 'choice', opts: ['ja', 'nej'], a: 'ja', given: ['6, 8, 10'], find: 'ja eller nej',
+      start: 'Räkna $6^2 + 8^2$ och jämför med $10^2$.', sol: ['$6^2 + 8^2 = 36 + 64 = 100$', '$10^2 = 100$ → lika → rätvinklig'], traps: [['nej', '36 + 64 = 100 = 10². Det stämmer, alltså är triangeln rätvinklig.']], ab: ['M', 'B']
+    },
+    p: [
+      { lv: 'A', q: 'Sidorna är 7, 24 och 25. Är triangeln rätvinklig?', type: 'choice', opts: ['ja', 'nej'], a: 'ja', given: ['7, 24, 25'], find: 'ja eller nej', start: '$7^2 + 24^2$ jämfört med $25^2$', traps: [['nej', '49 + 576 = 625 = 25². Det stämmer → rätvinklig.']], sol: ['$49 + 576 = 625$', '$25^2 = 625$ ✓'], ab: ['M'] },
+      { lv: 'B', q: 'Sidorna är 4, 5 och 6. Är triangeln rätvinklig?', type: 'choice', opts: ['ja', 'nej'], a: 'nej', given: ['4, 5, 6'], find: 'ja eller nej', start: 'Längsta sidan är 6. Räkna $4^2 + 5^2$.', traps: [['ja', '16 + 25 = 41 men 6² = 36. Olika → inte rätvinklig.']], sol: ['$4^2 + 5^2 = 41$', '$6^2 = 36$ → inte lika → ej rätvinklig'], ab: ['M'] },
+      { lv: 'B', q: 'En likbent triangel har basen 10 cm och benen 13 cm. Hur hög är den?', vis: { t: 'isoTri', base: 10, side: 13 }, type: 'num', a: 12, u: 'cm', calc: 'Math.sqrt(13**2-5**2)', given: ['bas 10 cm', 'ben 13 cm'], find: 'höjden', start: 'Höjden delar basen på mitten: halva basen = 5 cm.', sol: ['Halva basen: $10 / 2 = 5$', '$h = \\sqrt{13^2 - 5^2} = \\sqrt{144}$', '$h = 12$ cm'], traps: [['√69', 'Du använde hela basen 10. Höjden delar basen på mitten – räkna med halva basen, 5.'], [144, 'Du har h². Ta roten.']], ab: ['M'] },
+      { lv: 'C', q: 'Triangeln med basen 10 cm och benen 13 cm: bestäm arean.', vis: { t: 'isoTri', base: 10, side: 13, h: 12 }, type: 'num', a: 60, u: 'cm²', calc: '10*12/2', given: ['bas 10 cm', 'höjd 12 cm'], find: 'arean', start: '$A = b \\cdot h / 2$', sol: ['Höjden är 12 cm', '$A = 10 \\cdot 12 / 2 = 60$ cm²'], traps: [[120, 'Du glömde dela med 2.']], ab: ['M'] },
+      { lv: 'C', q: 'En likbent triangel har benen 17 cm och höjden 15 cm. Hur lång är basen?', vis: { t: 'isoTri', base: '?', side: 17, h: 15 }, type: 'num', a: 16, u: 'cm', calc: '2*Math.sqrt(17**2-15**2)', given: ['ben 17 cm', 'höjd 15 cm'], find: 'basen', start: 'Först halva basen: $\\sqrt{17^2 - 15^2}$.', sol: ['$\\sqrt{17^2 - 15^2} = \\sqrt{289 - 225} = \\sqrt{64} = 8$', 'Det är **halva** basen → basen $= 2 \\cdot 8 = 16$ cm'], traps: [[8, 'Det är halva basen. Hela basen är dubbelt så lång.']], ab: ['M', 'P'] },
+      { lv: 'D', q: 'Ett likbent tak har basen 8 m och sluttningen 5 m (benen). Hur hög är nocken över basen?', vis: { t: 'isoTri', base: 8, side: 5, h: '?' }, type: 'num', a: 3, u: 'm', calc: 'Math.sqrt(5**2-4**2)', given: ['bas 8 m', 'sluttning 5 m'], find: 'nockhöjden', start: 'Halva basen är 4 m. Sluttningen är hypotenusa.', sol: ['$h = \\sqrt{5^2 - 4^2} = \\sqrt{9}$', '$= 3$ m'], ab: ['P', 'M'] },
+      { lv: 'D', q: 'Mia mätte sidorna 9 cm, 12 cm och 16 cm och säger: "Rätvinklig, för 9 + 12 är större än 16." Vad är fel?', type: 'choice', opts: ['Hon ska jämföra kvadraterna: 9² + 12² = 225 men 16² = 256 → inte rätvinklig', 'Inget – hon har rätt', 'Hon skulle ha använt 12 som hypotenusa', 'Hon skulle ha multiplicerat sidorna'], a: 'Hon ska jämföra kvadraterna: 9² + 12² = 225 men 16² = 256 → inte rätvinklig', traps: [['Inget – hon har rätt', 'Att 9 + 12 > 16 gäller i alla trianglar och visar inget om rät vinkel. Testet är kvadraterna.'], ['Hon skulle ha använt 12 som hypotenusa', 'Hypotenusan är alltid den längsta sidan, här 16.']], sol: ['$9^2 + 12^2 = 81 + 144 = 225$', '$16^2 = 256 \\ne 225$ → inte rätvinklig'], ab: ['R'] },
+      { lv: 'F', q: 'En likbent triangel har basen 16 cm och benen 17 cm. Bestäm arean.', type: 'num', a: 120, u: 'cm²', calc: '16*Math.sqrt(17**2-8**2)/2', given: ['bas 16 cm', 'ben 17 cm'], find: 'arean', start: 'Höjd först: halva basen = 8.', sol: ['$h = \\sqrt{17^2 - 8^2} = \\sqrt{225} = 15$', '$A = 16 \\cdot 15 / 2 = 120$ cm²'], traps: [[240, 'Du glömde dela med 2.']], ab: ['M', 'P'] },
+      { lv: 'F', q: 'Vilken av trianglarna är rätvinklig?', type: 'choice', opts: ['5, 6, 7', '8, 15, 17', '9, 10, 12', '7, 8, 12'], a: '8, 15, 17', traps: [['5, 6, 7', '25 + 36 = 61 men 7² = 49.'], ['9, 10, 12', '81 + 100 = 181 men 12² = 144.'], ['7, 8, 12', '49 + 64 = 113 men 12² = 144.']], sol: ['$8^2 + 15^2 = 64 + 225 = 289 = 17^2$ ✓'], ab: ['M', 'R'] }
+    ],
+    kw: 'mer om pythagoras omvänd pythagoras rätvinklig triangel kontrollera rät vinkel likbent triangel höjd tak nock pythagoreisk trippel'
+  });
+
+  /*@@ADD9@@*/
+
+  /* Ordning inom kapitlen följer skolplanen (HT-26 år 9). */
+  /* ===== v5.1 förmågeberikning (Resonemang/Kommunikation): motexempel och motiveringar ===== */
+  S.find(s => s.id === 's9-powers').p.push(
+      { lv: 'F', q: 'Är $(-4)^2$ och $-4^2$ samma tal?', type: 'choice', opts: ['Ja, båda är 16', 'Nej – (−4)² = 16 men −4² = −16', 'Ja, båda är −16', 'Nej – (−4)² = −16 men −4² = 16'], a: 'Nej – (−4)² = 16 men −4² = −16', traps: [['Ja, båda är 16', 'Utan parentes gäller exponenten bara 4: −4² = −(4·4) = −16.'], ['Nej – (−4)² = −16 men −4² = 16', 'Det är tvärtom: parentesen gör att minustecknet också kvadreras, så (−4)² = 16.']], sol: ['(−4)² = (−4)·(−4) = 16', '−4² = −(4·4) = −16'], ab: ['R', 'K'] });
+  S.find(s => s.id === 's9-scientific').p.push(
+      { lv: 'F', q: 'Vilken motivering visar att $0{,}5 \\cdot 10^4$ inte är skrivet i grundpotensform?', type: 'choice', opts: ['0,5 är mindre än 1; rätt form är 5 · 10³', 'Exponenten 4 är för stor', 'Talet saknar decimaltecken', 'Det är grundpotensform'], a: '0,5 är mindre än 1; rätt form är 5 · 10³', traps: [['Exponenten 4 är för stor', 'Exponentens storlek avgör inte. Det är första talet som ska ligga mellan 1 och 10.'], ['Det är grundpotensform', 'Första talet 0,5 är under 1, så det är inte grundpotensform.']], sol: ['Första talet måste vara minst 1 och under 10', '0,5 · 10⁴ = 5000 = 5 · 10³'], ab: ['K', 'R'] });
+  S.find(s => s.id === 's9-angles').p.push(
+      { lv: 'F', q: 'Kan en triangel ha två trubbiga vinklar?', type: 'choice', opts: ['Ja', 'Nej – två vinklar över 90° ger redan mer än 180°', 'Ja, om den är likbent', 'Nej – alla vinklar är 60°'], a: 'Nej – två vinklar över 90° ger redan mer än 180°', traps: [['Ja', 'Vinkelsumman i en triangel är 180°. Två vinklar över 90° blir över 180° tillsammans.'], ['Nej – alla vinklar är 60°', 'Bara den liksidiga triangeln har tre 60°-vinklar. Skälet är vinkelsumman 180°.']], sol: ['Trubbig vinkel > 90°', '2 · 90° = 180°, så två trubbiga överskrider vinkelsumman'], ab: ['R', 'K'] });
+  S.find(s => s.id === 's9-area-scale').p.push(
+      { lv: 'F', q: 'Alla sidor i en kvadrat dubblas. Hur många gånger större blir arean?', type: 'choice', opts: ['2 gånger', '4 gånger', '8 gånger', '16 gånger'], a: '4 gånger', traps: [['2 gånger', 'Längden dubblas, men arean har två dimensioner: 2 · 2 = 4.'], ['8 gånger', '8 gånger gäller volymen (2 · 2 · 2).']], sol: ['Längdskala 2 ger areaskala 2² = 4'], ab: ['R'] });
+  S.find(s => s.id === 's9-volume-scale').p.push(
+      { lv: 'F', q: 'Alla kanter i en kub dubblas. Hur många gånger större blir volymen?', type: 'choice', opts: ['2 gånger', '4 gånger', '8 gånger', '6 gånger'], a: '8 gånger', traps: [['2 gånger', 'Volymen har tre dimensioner: 2 · 2 · 2 = 8.'], ['4 gånger', '4 gånger gäller arean. Volymen skalas med tredje potensen.']], sol: ['Längdskala 2 ger volymskala 2³ = 8'], ab: ['R'] });
+  S.find(s => s.id === 's9-repeated-change').p.push(
+      { lv: 'F', q: 'Ett pris höjs med 20 % och sänks sedan med 20 %. Hamnar priset där det började?', type: 'choice', opts: ['Ja', 'Nej – det blir 4 % lägre (1,2 · 0,8 = 0,96)', 'Nej – det blir 4 % högre', 'Nej – det blir 20 % lägre'], a: 'Nej – det blir 4 % lägre (1,2 · 0,8 = 0,96)', traps: [['Ja', 'De 20 % räknas på olika belopp. Förändringsfaktorerna multipliceras: 1,2 · 0,8 = 0,96.'], ['Nej – det blir 4 % högre', '0,96 är under 1, alltså en minskning.']], sol: ['1,2 · 0,8 = 0,96', 'faktor 0,96 = 4 % minskning'], ab: ['R', 'M'] });
+  S.find(s => s.id === 's9-percent-problem').p.push(
+      { lv: 'F', q: 'En tröja kostar 400 kr och sänks med 25 %. Vilken redovisning är rätt och tydlig?', type: 'choice', opts: ['400 · 0,75 = 300 kr', '400 − 25 = 375 kr', '400 · 0,25 = 100 kr', '400 · 1,25 = 500 kr'], a: '400 · 0,75 = 300 kr', traps: [['400 − 25 = 375 kr', '25 % är inte 25 kr. Minskning med 25 % ger förändringsfaktor 0,75.'], ['400 · 0,25 = 100 kr', 'Det är själva sänkningen, inte det nya priset. Frågan gäller nya priset (eller dra av 100).'], ['400 · 1,25 = 500 kr', 'Faktor 1,25 är en ökning.']], sol: ['Minskning 25 % → faktor 0,75', '400 · 0,75 = 300 kr'], ab: ['K', 'P'] });
+  S.find(s => s.id === 's9-number-sets').p.push(
+      { lv: 'F', q: 'Är $\\sqrt{16}$ ett rationellt tal?', type: 'choice', opts: ['Ja – √16 = 4 = 4/1', 'Nej – alla rötter är irrationella', 'Nej – det är ett negativt tal', 'Ja, men bara om talet är ett decimaltal'], a: 'Ja – √16 = 4 = 4/1', traps: [['Nej – alla rötter är irrationella', 'Bara rötter ur icke-kvadrater som √2 är irrationella. √16 = 4 går att skriva som bråk.']], sol: ['√16 = 4 = 4/1 → rationellt'], ab: ['R', 'B'] },
+      { lv: 'F', q: 'Är 0,333… (oändligt många treor) ett rationellt tal?', type: 'choice', opts: ['Ja – det är 1/3', 'Nej – decimalerna tar aldrig slut', 'Nej – det är ett irrationellt tal', 'Ja, men bara avrundat'], a: 'Ja – det är 1/3', traps: [['Nej – decimalerna tar aldrig slut', 'Periodiska decimaler kan skrivas som bråk. 0,333… = 1/3. Irrationella tal har decimaler utan upprepning.']], sol: ['0,333… = 1/3'], ab: ['R', 'K'] },
+      { lv: 'F', q: 'Alla heltal är naturliga tal. Stämmer det?', type: 'choice', opts: ['Ja', 'Nej – t.ex. −3 är ett heltal men inte ett naturligt tal'], a: 'Nej – t.ex. −3 är ett heltal men inte ett naturligt tal', traps: [['Ja', 'Motexempel: −3 är ett heltal men inget naturligt tal.']], sol: ['Ett enda motexempel räcker för att visa att ett påstående inte stämmer'], ab: ['R'] });
+  S.find(s => s.id === 's9-similarity').p.push(
+      { lv: 'F', q: 'Alla rektanglar är likformiga. Stämmer det?', type: 'choice', opts: ['Ja', 'Nej – 2 × 4 och 2 × 6 har olika sidförhållanden'], a: 'Nej – 2 × 4 och 2 × 6 har olika sidförhållanden', traps: [['Ja', 'Likformighet kräver samma sidförhållande. 4/2 = 2 men 6/2 = 3.']], sol: ['Motexempel: 2 × 4 och 2 × 6'], ab: ['R', 'K'] },
+      { lv: 'F', q: 'Två likformiga figurer har längdskalan 1:3. Hur många gånger större är den stora figurens area?', type: 'num', a: 9, calc: '3**2', given: ['längdskala 1:3'], find: 'areaskalan', start: 'Areaskalan är längdskalan i kvadrat.', sol: ['Längdskala 3 → areaskala 3² = 9'], traps: [[3, '3 är längdskalan. Area skalas med kvadraten: 3² = 9.'], [27, '27 gäller volymen (3³).']], ab: ['R', 'M'] });
+
+  const ORDER = ["s9-names", "s9-prefix", "s9-scientific", "s9-sci-calc", "s9-powers", "s9-sqrt", "s9-sqrt-more", "s9-sqrt-div", "s9-quadratic", "s9-number-sets", "s9-angles", "s9-angles-more", "s9-pythagoras", "s9-pyth-more", "s9-length-scale", "s9-area-scale", "s9-volume-scale", "s9-similarity", "s9-symmetry", "s9-space-diagonal", "s9-percent-share", "s9-percent-part", "s9-percent-whole", "s9-change-factor", "s9-repeated-change", "s9-percentage-points", "s9-percent-problem"];
+  S.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
+
   root.MO_CONTENT9 = S;
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
 })(typeof window !== 'undefined' ? window : globalThis);

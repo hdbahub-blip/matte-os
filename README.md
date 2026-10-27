@@ -12,7 +12,7 @@ Live: https://mohamed321966-wq.github.io/matte-os/
 | `js/math.js` | formelrendering + svarskontroll (tal, bråk, enheter, algebra-ekvivalens, grundpotensform) |
 | `js/visuals.js` | 45 diagramtyper (SVG), styrs av uppgiftens data |
 | `js/core.js` | skolplan HT-26, kapitel, restprov |
-| `js/content9.js`, `js/content8.js` | 49 moment: förklaring, formelkort, exempel, guidad uppgift, övningar A–F, fällor |
+| `js/content9.js`, `js/content8.js` | 63 moment (Åk 9: 27, Åk 8: 36): förklaring, formelkort, exempel, guidad uppgift, övningar A–F, fällor |
 | `js/engine.js` | lokal lagring, nivåer, rekommendation, sök, säkerhetskopia |
 | `js/app.js` | gränssnitt |
 | `sw.js` | service worker (offline, versionerad cache) |

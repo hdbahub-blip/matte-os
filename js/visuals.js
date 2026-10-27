@@ -654,6 +654,146 @@
     return svg(320, 162, s, 'Faktorisering: bryt ut gemensam faktor');
   };
 
+  /* ===== NYA DIAGRAM (rapport 5.1: andragradsekvationer, rötter, parallella linjer m.m.) ===== */
+  const gcd_ = (a, b) => (b ? gcd_(b, a % b) : Math.abs(a));
+  const bigSq = n => { let best = 1; for (let k = 2; k * k <= n; k++) if (n % (k * k) === 0) best = k * k; return best; };
+  const fr = (a, b) => { const g = gcd_(a, b) || 1; const n = a / g, d = b / g; return d === 1 ? String(n) : n + '/' + d; };
+  /* Kedja av rutor med pilar: [{t:'text', hl:bool, s:'förklaring'}] */
+  function chainBoxes(rows, w = 320, note) {
+    const bh = 34, gap = 22, x = 40, bw = w - 80; let b = arrowDefs, y = 8;
+    rows.forEach((r, i) => {
+      b += RECT(x, y, bw, bh, r.hl ? 'box hl' : 'box', 9) + T(w / 2, y + 22, r.t, r.hl ? 'lb big acc' : 'lb big');
+      if (i < rows.length - 1) { b += ARR(w / 2, y + bh + 2, w / 2, y + bh + gap - 3); if (r.s) b += T(w / 2 + 10, y + bh + 15, r.s, 'lbs mut', 'start'); }
+      y += bh + gap;
+    });
+    if (note) b += T(w / 2, y + 2, note, 'lbs mut');
+    return svg(w, y + (note ? 14 : -6), b, 'Steg för steg');
+  }
+  V.names = ({ hl } = {}) => {
+    const big = [['tusen', 3], ['miljon', 6], ['miljard', 9], ['biljon', 12]], small = [['tusendel', -3], ['miljondel', -6], ['miljarddel', -9], ['biljondel', -12]];
+    let b = T(160, 14, 'Stora tal: antal nollor', 'lbs mut');
+    big.forEach(([n, e], i) => { const x = 8 + i * 78, a = n === hl; b += RECT(x, 22, 72, 52, a ? 'box hl' : 'box', 8) + T(x + 36, 42, n, a ? 'lb acc' : 'lb') + T(x + 36, 60, '10' + sup(e), a ? 'lb big acc' : 'lb big') ; });
+    b += T(160, 96, 'Små tal: antal decimaler', 'lbs mut');
+    small.forEach(([n, e], i) => { const x = 8 + i * 78, a = n === hl; b += RECT(x, 104, 72, 52, a ? 'box hl' : 'box', 8) + T(x + 36, 124, n, a ? 'lb acc' : 'lb') + T(x + 36, 142, '10' + sup(e), a ? 'lb big acc' : 'lb big'); });
+    return svg(320, 166, b, 'Namn på stora och små tal');
+  };
+  V.sciMul = ({ a = 3, m = 4, b = 2, n = 3, op = 'mul' } = {}) => {
+    const mul = op === 'mul', p = mul ? a * b : a / b, e = mul ? m + n : m - n, o = mul ? '·' : '÷';
+    const rows = [{ t: `(${dec(a)}·10${sup(m)}) ${o} (${dec(b)}·10${sup(n)})`, s: 'sortera faktorerna' },
+      { t: `(${dec(a)} ${o} ${dec(b)}) · (10${sup(m)} ${o} 10${sup(n)})`, s: mul ? 'exponenterna adderas' : 'exponenterna subtraheras' },
+      { t: `${dec(p)} · 10${sup(e)}`, hl: p >= 1 && p < 10 }];
+    if (!(p >= 1 && p < 10)) { let q = p, f = e; while (q >= 10) { q /= 10; f++; } while (q < 1) { q *= 10; f--; } rows[2].s = 'talet ska vara 1–10'; rows.push({ t: `${dec(q)} · 10${sup(f)}`, hl: true }); }
+    return chainBoxes(rows);
+  };
+  V.rootsplit = ({ n = 50 } = {}) => {
+    const sq = bigSq(n), rest = n / sq, r = Math.sqrt(sq);
+    if (sq === 1) return chainBoxes([{ t: `√${n}` }, { t: `${n} har ingen kvadrat som faktor`, hl: true }], 320, 'Då kan roten inte förenklas');
+    return chainBoxes([{ t: `√${n}`, s: `skriv ${n} som ${sq} · ${rest}` }, { t: `√(${sq} · ${rest})`, s: 'dela upp i två rötter' }, { t: `√${sq} · √${rest}`, s: `√${sq} = ${r}` }, { t: `${r}√${rest}`, hl: true }]);
+  };
+  V.rootdiv = ({ a = 72, b = 2 } = {}) => {
+    const q = a / b, qs = Number.isInteger(q) ? String(q) : fr(a, b), root = Math.sqrt(q);
+    const rt = Number.isInteger(root) ? String(root) : (() => { const [n, d] = qs.split('/').map(Number); return d && Number.isInteger(Math.sqrt(n)) && Number.isInteger(Math.sqrt(d)) ? Math.sqrt(n) + '/' + Math.sqrt(d) : '≈ ' + dec(root); })();
+    return chainBoxes([{ t: `√${a} ÷ √${b}`, s: 'samla under en rot' }, { t: `√(${a} ÷ ${b})`, s: `${a} ÷ ${b} = ${qs}` }, { t: `√${qs.includes('/') ? '(' + qs + ')' : qs}`, s: 'ta kvadratroten' }, { t: rt, hl: true }]);
+  };
+  V.quad = ({ a = 25, r1, r2 } = {}) => {
+    const na = typeof a === 'number' ? a : parseFloat(String(a).replace(',', '.'));
+    const ox = 160, oy = 120, k = 92; let b = L(20, oy, 300, oy, 'ln thin') + L(ox, 10, ox, 150, 'ln thin');
+    const pts = []; for (let u = -100; u <= 100; u += 4) pts.push([ox + u, oy - u * u / k]); b += PL(pts, 'ln acc');
+    b += T(300, oy + 14, 'x', 'lbs mut', 'end') + T(ox + 8, 16, 'y', 'lbs mut', 'start');
+    b += T(ox + 14, 22, 'y = x²', 'lb acc', 'start');
+    if (na > 0) {
+      const ly = oy - 56, u = Math.sqrt(56 * k);
+      b += L(24, ly, 296, ly, 'ln dashed') + T(26, ly - 6, `y = ${dec(na)}`, 'lb', 'start');
+      b += C(ox - u, ly, 4.5, 'dot acc') + C(ox + u, ly, 4.5, 'dot acc');
+      b += L(ox - u, ly, ox - u, oy, 'ln thin dashed') + L(ox + u, ly, ox + u, oy, 'ln thin dashed');
+      b += T(ox - u, oy + 16, r1 != null ? String(r1) : '?', 'lb acc') + T(ox + u, oy + 16, r2 != null ? String(r2) : '?', 'lb acc');
+      b += T(160, 166, 'Linjen skär kurvan två gånger → två lösningar', 'lbs mut');
+    } else if (na === 0) {
+      b += C(ox, oy, 4.5, 'dot acc') + T(ox + 10, oy + 16, 'x = 0', 'lb acc', 'start') + T(26, oy - 6, 'y = 0', 'lb', 'start');
+      b += T(160, 166, 'Linjen rör kurvan en gång → en lösning', 'lbs mut');
+    } else {
+      const ly = oy + 26; b += L(24, ly, 296, ly, 'ln dashed') + T(26, ly - 6, `y = ${dec(na)}`, 'lb', 'start');
+      b += T(160, 166, 'Linjen ligger under kurvan → ingen lösning', 'lbs mut');
+    }
+    return svg(320, 176, b, 'Parabeln y = x² och en vågrät linje');
+  };
+  V.parallel = ({ acute = 65, marks = {}, note } = {}) => {
+    const th = Math.max(30, Math.min(80, +acute)) * Math.PI / 180, y1 = 54, y2 = 128, dx = (y2 - y1) / Math.tan(th), cx1 = 160 - dx / 2, cx2 = cx1 + dx;
+    const u = [Math.cos(th), Math.sin(th)];
+    let b = L(20, y1, 288, y1, 'ln') + L(20, y2, 288, y2, 'ln') + L(cx1 - u[0] * 34, y1 - u[1] * 34, cx2 + u[0] * 34, y2 + u[1] * 34, 'ln acc2');
+    for (const y of [y1, y2]) b += PL([[276, y - 6], [284, y], [276, y + 6]], 'ln thin');
+    const regions = (I, off) => [[off + 1, 'UL'], [off + 2, 'UR'], [off + 3, 'LR'], [off + 4, 'LL']].map(([id, q]) => {
+      const mid = q === 'UR' ? (Math.PI - th) / 2 : q === 'UL' ? Math.PI - th / 2 : q === 'LL' ? 1.5 * Math.PI - th / 2 : 2 * Math.PI - th / 2;
+      const rays = { right: [I[0] + 40, I[1]], left: [I[0] - 40, I[1]], up: [I[0] - u[0] * 40, I[1] - u[1] * 40], down: [I[0] + u[0] * 40, I[1] + u[1] * 40] };
+      const pair = q === 'UR' ? [rays.right, rays.up] : q === 'UL' ? [rays.up, rays.left] : q === 'LL' ? [rays.left, rays.down] : [rays.down, rays.right];
+      return { id, mid, pair, I };
+    });
+    [regions([cx1, y1], 0), regions([cx2, y2], 4)].flat().forEach(r => {
+      const mk = marks[r.id]; if (mk == null) return;
+      const unk = isUnk(mk), tx = r.I[0] + 31 * Math.cos(r.mid), ty = r.I[1] - 31 * Math.sin(r.mid);
+      b += angArc(r.I, r.pair[0], r.pair[1], 14, unk ? 'arcm acc' : 'arcm').d + T(tx, ty + 4, unk ? '?' : mk, unk ? 'lb acc' : 'lb');
+    });
+    b += T(300, y1 - 10, 'parallella', 'lbs mut', 'end');
+    if (note) b += T(160, 168, note, 'lbs mut');
+    return svg(320, 176, b, 'Två parallella linjer skurna av en tredje linje');
+  };
+  V.polygon = ({ n = 6, sum } = {}) => {
+    const cx = 160, cy = 80, r = 66; const pts = Array.from({ length: n }, (_, i) => [cx + r * Math.sin(2 * Math.PI * i / n), cy - r * Math.cos(2 * Math.PI * i / n)]);
+    let b = P(pts, 'ln fillsoft'); for (let i = 2; i < n - 1; i++) b += L(pts[0][0], pts[0][1], pts[i][0], pts[i][1], 'ln dashed');
+    b += T(160, 168, `${n}-hörning → ${n - 2} trianglar → ${n - 2} · 180° = ${isUnk(sum) && sum != null ? '?' : (n - 2) * 180 + '°'}`, 'lbs mut');
+    return svg(320, 176, b, `${n}-hörning delad i trianglar`);
+  };
+  V.isoTri = ({ base = 10, side = 13, h = '?', unit = 'cm' } = {}) => {
+    const hv = isUnk(h) ? null : +h, nb = isUnk(base) ? 2 * Math.sqrt(side * side - hv * hv) : +base, hn = isUnk(h) ? Math.sqrt(side * side - nb * nb / 4) : hv;
+    const pts = fitPts([[0, 0], [-nb / 2, hn], [nb / 2, hn]], 50, 14, 220, 122); const [A, Bp, Cp] = pts, M = [A[0], Bp[1]];
+    let s = P(pts, 'ln fillsoft') + L(A[0], A[1], M[0], M[1], 'ln dashed') + rightMark(M, A, Cp, 9);
+    s += T(M[0], Bp[1] + 18, isUnk(base) ? 'bas = ?' : `bas = ${dec(nb)} ${unit}`, isUnk(base) ? 'lb acc' : 'lb') + T(A[0] + 8, A[1] + (M[1] - A[1]) * 0.76, isUnk(h) ? 'h = ?' : `h = ${dec(hn)} ${unit}`, isUnk(h) ? 'lb acc' : 'lb', 'start');
+    s += T((A[0] + Cp[0]) / 2 + 12, (A[1] + Cp[1]) / 2 - 2, isUnk(side) ? '?' : dec(side) + ' ' + unit, 'lb', 'start');
+    s += T(160, 170, 'Höjden delar triangeln i två räta trianglar', 'lbs mut');
+    return svg(320, 178, s, 'Likbent triangel med höjd');
+  };
+  V.trapezoid = ({ a = 4, b = 10, h = 5, unit = 'cm', A } = {}) => {
+    const na = isUnk(a) ? 5 : +a, nb = isUnk(b) ? 11 : +b, nh = isUnk(h) ? 4 : +h, sc = 190 / Math.max(na, nb), hh = Math.max(46, Math.min(96, nh * sc)), x0 = 60, y0 = 24;
+    const off = (nb - na) * sc / 2; const bw = nb * sc, tw = na * sc;
+    let s = P([[x0, y0 + hh], [x0 + bw, y0 + hh], [x0 + off + tw, y0], [x0 + off, y0]], 'ln fillsoft');
+    s += L(x0 + off + tw * 0.25, y0, x0 + off + tw * 0.25, y0 + hh, 'ln dashed') + rightMark([x0 + off + tw * 0.25, y0 + hh], [x0 + off + tw * 0.25, y0], [x0 + bw, y0 + hh], 9);
+    s += T(x0 + off + tw / 2, y0 - 6, `a = ${lab(a, ' ' + unit)}`, isUnk(a) ? 'lb acc' : 'lb') + T(x0 + bw / 2, y0 + hh + 18, `b = ${lab(b, ' ' + unit)}`, isUnk(b) ? 'lb acc' : 'lb');
+    s += T(x0 + off + tw * 0.25 + 8, y0 + hh / 2 + 4, `h = ${lab(h, ' ' + unit)}`, isUnk(h) ? 'lb acc' : 'lb', 'start');
+    s += T(160, y0 + hh + 44, 'A = (a + b) · h / 2', 'lbs mut');
+    return svg(320, y0 + hh + 56, s, 'Trapets');
+  };
+  V.lshape = ({ W = 10, H = 8, w = 4, h = 3, unit = 'cm' } = {}) => {
+    const sc = Math.min(190 / W, 110 / H), x0 = 60, y0 = 16, X = W * sc, Y = H * sc, nw = w * sc, nh = h * sc;
+    let s = RECT(x0 + X - nw, y0, nw, nh, 'ghost') + P([[x0, y0], [x0 + X - nw, y0], [x0 + X - nw, y0 + nh], [x0 + X, y0 + nh], [x0 + X, y0 + Y], [x0, y0 + Y]], 'ln fillsoft');
+    s += T(x0 + (X - nw) / 2, y0 + Y + 18, `${W - w} ${unit}`, 'lb') + T(x0 + X - nw / 2, y0 + nh + 18, `${w} ${unit}`, 'lb');
+    s += T(x0 - 8, y0 + Y / 2 + 4, `${H} ${unit}`, 'lb', 'end') + T(x0 + X + 8, y0 + nh / 2 + 4, `${h} ${unit}`, 'lb', 'start');
+    s += T(160, 176, 'Dela upp – eller hela minus biten som saknas', 'lbs mut');
+    return svg(320, 184, s, 'L-formad figur');
+  };
+  V.ftree = ({ n = 60 } = {}) => {
+    let idx = 0, maxD = 0;
+    const build = (m, d) => { maxD = Math.max(maxD, d); let p = 0; for (let k = 2; k * k <= m; k++) if (m % k === 0) { p = k; break; } if (!p) return { v: m, d, leaf: true, x: 28 + 44 * idx++ }; const l = { v: p, d: d + 1, leaf: true, x: 28 + 44 * idx++ }; maxD = Math.max(maxD, d + 1); const r = build(m / p, d + 1); return { v: m, d, kids: [l, r], x: (l.x + r.x) / 2 }; };
+    const root = build(n, 0); const H = 40 + maxD * 40; let s = '';
+    const lx = []; (function f(nd) { if (nd.leaf) lx.push(nd.x); else nd.kids.forEach(f); })(root);
+    const lw = Math.max(320, 56 + idx * 44), shift = lw / 2 - (Math.min(...lx) + Math.max(...lx)) / 2;
+    (function f(nd) { nd.x += shift; if (nd.kids) nd.kids.forEach(f); })(root);
+    const draw = nd => { if (nd.kids) { nd.kids.forEach(k => { s += L(nd.x, 22 + nd.d * 40 + 12, k.x, 22 + k.d * 40 - 14, 'ln thin'); draw(k); }); } s += C(nd.x, 22 + nd.d * 40, 15, nd.leaf ? 'dot acc' : 'box') ; s += T(nd.x, 22 + nd.d * 40 + 5, nd.v, nd.leaf ? 'lb big w' : 'lb big'); };
+    draw(root);
+    const leaves = []; (function f(nd) { if (nd.leaf) leaves.push(nd.v); else nd.kids.forEach(f); })(root);
+    s += T(lw / 2, H + 22, `${n} = ${leaves.slice().sort((a, b) => a - b).join(' · ')}`, 'lb big acc');
+    return svg(lw, H + 34, s, 'Primtalsfaktorisering');
+  };
+  V.prec = ({ hl = -1 } = {}) => chainBoxes([{ t: '1  Parenteser ( )', hl: hl === 0 }, { t: '2  Potenser  aⁿ', hl: hl === 1 }, { t: '3  Gånger · och delat ÷', s: 'från vänster till höger', hl: hl === 2 }, { t: '4  Plus + och minus −', hl: hl === 3 }].map((r, i, a) => i === 2 ? r : r), 320, 'Börja överst – räkna alltid det viktigaste först');
+  V.bigarea = ({ hl } = {}) => {
+    let b = arrowDefs;
+    b += RECT(14, 12, 84, 56, hl === 'm2' ? 'box hl' : 'box', 9) + T(56, 36, 'm²', 'lb big') + T(56, 56, 'kvadratmeter', 'lbs mut');
+    b += RECT(118, 12, 84, 56, hl === 'ha' ? 'box hl' : 'box', 9) + T(160, 36, 'ha', 'lb big') + T(160, 56, 'hektar', 'lbs mut');
+    b += RECT(222, 12, 84, 56, hl === 'km2' ? 'box hl' : 'box', 9) + T(264, 36, 'km²', 'lb big') + T(264, 56, 'kvadratkilometer', 'lbs mut');
+    b += ARR(100, 40, 116, 40) + ARR(204, 40, 220, 40);
+    b += T(108, 28, '', 'lbs') + T(160, 90, '1 ha = 10 000 m²', 'lb acc') + T(160, 110, '(100 m · 100 m)', 'lbs mut') + T(160, 134, '1 km² = 100 ha = 1 000 000 m²', 'lb acc') + T(160, 154, '(1000 m · 1000 m)', 'lbs mut');
+    return svg(320, 164, b, 'Stora ytor: m², hektar, km²');
+  };
+
   function render(spec) {
     if (!spec || !spec.t || !V[spec.t]) return '';
     try { return V[spec.t](spec); } catch (e) { console.warn('visual failed', spec, e); return ''; }

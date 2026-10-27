@@ -53,3 +53,9 @@ Playwright/Chromium med iPhone 13 (390×664), iPhone SE (320×568) och desktop (
 - Innehållet är skrivet och maskinkontrollerat men **inte granskat av en lärare** mot exakt läroboken. Sidhänvisningar ur planen finns inte med i appen.
 - Restprovsdatum och exakta provdatum är okända och måste läggas in lokalt.
 - Inga verkliga elevtester har gjorts; "15–16-åringsperspektivet" är en designbedömning.
+
+## v5.1.0 – restavstämning mot originalplanerna
+
+Utgångsläge v5.0.0: 49 moment / 262 uppgifter. Avstämning mot Drive-originalen visade 3 saknade (mer om kvadratrötter, division med kvadratrötter, andragradsekvationer) och 11 delvis täckta punkter. v5.1.0: 63 moment (Åk 9: 27, Åk 8: 36), 403 uppgifter (guidade + övning), 14 nya diagramtyper (58 totalt), nya svarstyper `roots` (lösningsmängd) och `radical` (exakt k√n). Fullständig matris: `docs/COVERAGE_V5_1.md`. Förmågetaggar (`ab`) och motexempel/motiveringsuppgifter tillagda (R/K) – se `node tests/qa.js`.
+
+Kvarstående gränser: andragradsekvationer begränsade till x²=a, ax²+b=c (pq-formel ej belagd i planen) [FA]; Åk 8-PDF veckoordning 40–46 overifierad visuellt [FA]; ej testat på fysisk iPhone; ingen lärargranskning.

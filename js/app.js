@@ -231,8 +231,11 @@
     } else {
       const unit = x.u || x.ul || '';
       const cls = ex.done && !test ? (ex.ok ? 'ok' : '') : ex.status === 'wrong' ? 'no' : '';
-      input = `<div class="ans-field ${cls}"><input id="ans" ${type === 'expr' ? 'inputmode="text" autocapitalize="off" spellcheck="false"' : 'inputmode="decimal"'} autocomplete="off" aria-label="Ditt svar${unit ? ' i ' + esc(unit) : ''}" placeholder="${type === 'expr' ? 'Skriv uttrycket' : x.answerHint ? esc(x.answerHint) : 'Ditt svar'}" value="${esc(ex.val)}" ${ex.done ? 'disabled' : ''} enterkeyhint="done">${unit ? `<span class="u">${esc(unit)}</span>` : ''}</div>
-        ${ex.done ? '' : `<div class="keys">${type === 'expr' ? ['x', 'x²', '(', ')', '−', '+'].map(k => `<button type="button" data-a="key" data-k="${k}" data-t="ans">${k}</button>`).join('') : `<button type="button" data-a="key" data-k="−" data-t="ans">− (minus)</button><button type="button" data-a="key" data-k="/" data-t="ans">/ (bråk)</button>`}</div>`}`;
+      const textual = type === 'expr' || type === 'roots' || !!x.radical;
+      const keyset = type === 'expr' ? ['x', 'x²', '(', ')', '−', '+'] : type === 'roots' ? ['−', '±', ' och ', 'ingen'] : x.radical ? ['√', '−'] : null;
+      const ph = type === 'expr' ? 'Skriv uttrycket' : type === 'roots' ? 'T.ex. 4 och −4' : x.radical ? 'T.ex. 3√2' : x.answerHint ? esc(x.answerHint) : 'Ditt svar';
+      input = `<div class="ans-field ${cls}"><input id="ans" ${textual ? 'inputmode="text" autocapitalize="off" spellcheck="false"' : 'inputmode="decimal"'} autocomplete="off" aria-label="Ditt svar${unit ? ' i ' + esc(unit) : ''}" placeholder="${ph}" value="${esc(ex.val)}" ${ex.done ? 'disabled' : ''} enterkeyhint="done">${unit ? `<span class="u">${esc(unit)}</span>` : ''}</div>
+        ${ex.done ? '' : `<div class="keys">${keyset ? keyset.map(k => `<button type="button" data-a="key" data-k="${k}" data-t="ans">${k.trim()}</button>`).join('') : `<button type="button" data-a="key" data-k="−" data-t="ans">− (minus)</button><button type="button" data-a="key" data-k="/" data-t="ans">/ (bråk)</button>`}</div>`}`;
     }
     // återkoppling
     let fb = '';
@@ -273,6 +276,8 @@
     if (t === 'choice') return esc(x.a);
     if (t === 'sci') return `$${M.fmt(x.a[0]).replace(',', '{,}')} \\cdot 10^{${x.a[1]}}$`;
     if (t === 'expr') return `$${x.a.replace(/\*/g, '\\cdot ')}$`;
+    if (t === 'roots') return x.a.length ? x.a.map(v => `$x = ${M.fmt(v, x.dec).replace(',', '{,}')}$`).join(' och ') : 'ingen reell lösning';
+    if (x.radical) return `$${x.radical[0] === 1 ? '' : x.radical[0]}\\sqrt{${x.radical[1]}}$`;
     if (x.mustFraction) return `${x.mustFraction[0]}/${x.mustFraction[1]}`;
     return `${M.fmt(x.a, x.dec)}${x.u ? ' ' + esc(x.u) : x.ul ? ' ' + esc(x.ul) : ''}`;
   }

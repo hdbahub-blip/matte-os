@@ -205,6 +205,47 @@
     return (neg ? '−' : '') + int + (frac ? ',' + frac : '');
   };
 
+
+  /* ---------- 5b. Rötter och andragradsekvationer ---------- */
+  const largestSq = n => { let best = 1; for (let k = 2; k * k <= n; k++) if (n % (k * k) === 0) best = k * k; return best; };
+  /* Läser "3 och -3", "±3", "x = 3 eller x = −3", "3; -3", "ingen lösning" → {vals} | {none} | {empty} | {bad} */
+  function parseRoots(raw) {
+    let s = String(raw == null ? '' : raw).trim();
+    if (!s) return { empty: true };
+    if (/^(ingen|inga|saknas|saknar|lösning saknas|∅|ej|finns inte|reell lösning saknas)/i.test(s)) return { none: true };
+    s = s.replace(/x\s*[₁₂12]?\s*=/gi, ' ').trim();
+    const pm = /^(?:±|\+\/-|\+\/−|\+-)\s*(.+)$/.exec(s);
+    try {
+      if (pm) { const v = numericValue(pm[1]); if (!Number.isFinite(v)) return { bad: true }; return { vals: [...new Set([-v, v])].sort((a, b) => a - b), pm: true }; }
+      const parts = s.split(/\s*(?:;|&|\boch\b|\beller\b)\s*|,\s+|,(?=\s*[-−–+])/i).map(t => t.trim()).filter(Boolean);
+      if (!parts.length || parts.length > 4) return { bad: true };
+      const vals = parts.map(t => numericValue(t));
+      if (vals.some(v => !Number.isFinite(v))) return { bad: true };
+      return { vals: vals.filter((v, i) => vals.findIndex(w => Math.abs(w - v) < 1e-9) === i).sort((a, b) => a - b) };
+    } catch (e) { return { bad: true }; }
+  }
+  const sameSet = (A, B, tol) => A.length === B.length && A.every((v, i) => near(v, B[i], tol));
+  function checkRoots(ex, raw) {
+    const r = parseRoots(raw);
+    if (r.empty) return { ok: false, status: 'empty', msg: 'Skriv lösningarna, t.ex. 4 och −4 (eller ±4). Saknas lösning: skriv "ingen".' };
+    if (r.bad) return { ok: false, status: 'invalid', msg: 'Svaret gick inte att läsa. Skriv t.ex. 4 och −4, eller ±4. Finns ingen lösning: skriv "ingen".' };
+    const A = [...ex.a].sort((a, b) => a - b);
+    const tol = ex.tol != null ? ex.tol : (ex.dec != null ? 0.5 * Math.pow(10, -ex.dec) : 1e-9);
+    const mine = r.none ? [] : r.vals;
+    if (sameSet(mine, A, tol)) return { ok: true, status: 'correct' };
+    for (const [tv, msg] of ex.traps || []) {
+      const t = parseRoots(String(tv));
+      const tvals = t.none ? [] : t.vals;
+      if (tvals && sameSet(mine, tvals, ex.dec != null ? tol * 1.01 : Math.max(tol, 1e-9))) return { ok: false, status: 'wrong', msg };
+    }
+    if (A.length === 0) return { ok: false, status: 'wrong', msg: 'Ett tal i kvadrat kan aldrig bli negativt. Då finns ingen reell lösning – skriv "ingen".' };
+    if (r.none) return { ok: false, status: 'wrong', msg: 'Det finns lösningar. Pröva att sätta in ett tal i ekvationen.' };
+    if (mine.length === 1 && A.length === 2 && near(Math.abs(mine[0]), Math.abs(A[0]), tol)) return { ok: false, status: 'wrong', msg: `Du har hittat en av lösningarna. Men både ett positivt och ett negativt tal blir positivt när man kvadrerar det, så det finns **två** lösningar – ange båda, t.ex. ${fmt(A[0])} och ${fmt(A[1])}.` };
+    if (mine.length === 2 && A.length === 2 && near(Math.abs(mine[0]), Math.abs(A[0]), tol) && near(Math.abs(mine[1]), Math.abs(A[1]), tol)) return { ok: false, status: 'wrong', msg: 'Rätt storlek, men kontrollera tecknen: lösningarna ska ligga lika långt från noll på var sin sida.' };
+    if (A.length === 1) return { ok: false, status: 'wrong', msg: 'Här finns bara en lösning. Kontrollera vilket tal som ger rätt värde.' };
+    return { ok: false, status: 'wrong', msg: null };
+  }
+
   /* ex: {type, a, tol, dec, u, traps:[[value,msg]], form:'factored'|'expanded', opts}
      returns {ok, status:'correct'|'wrong'|'invalid'|'empty', msg, note} */
   function check(ex, raw) {
@@ -230,6 +271,7 @@
       if (near(mv, am, 1e-9)) return { ok: false, status: 'wrong', msg: 'Första talet är rätt. Räkna stegen som decimaltecknet flyttas en gång till.' };
       return { ok: false, status: 'wrong', msg: null };
     }
+    if (type === 'roots') return checkRoots(ex, raw);
     const str = String(raw == null ? '' : raw).trim();
     if (!str) return { ok: false, status: 'empty', msg: 'Skriv ett svar först.' };
 
@@ -269,6 +311,17 @@
       return { ok: false, status: 'invalid', msg: 'Svaret gick inte att läsa som ett tal. Skriv t.ex. 12,5 eller 3/4.' };
     }
     if (!Number.isFinite(v)) return { ok: false, status: 'invalid', msg: 'Svaret gick inte att läsa som ett tal.' };
+    if (ex.radical && near(v, ex.a, 1e-9)) { // exakt svar med rot: k√n i enklaste form
+      const [rk, rn] = ex.radical, nn = normalize(num);
+      const m = /^(?:(\d+(?:\.\d+)?)\*?)?sqrt\(?(\d+)\)?$/.exec(nn);
+      if (!m) return { ok: false, status: 'wrong', msg: `Rätt värde! Men skriv det exakt, med rot, i formen $${rk === 1 ? '' : rk}\\sqrt{${rn}}$ (talet först, sedan roten).` };
+      const kk = m[1] ? parseFloat(m[1]) : 1, nr = parseInt(m[2], 10);
+      if (kk === rk && nr === rn) return { ok: true, status: 'correct' };
+      const big = largestSq(nr);
+      if (big > 1) return { ok: false, status: 'wrong', msg: `Rätt värde, men roten kan förenklas. $\\sqrt{${nr}} = \\sqrt{${big}} \\cdot \\sqrt{${nr / big}} = ${Math.sqrt(big)}\\sqrt{${nr / big}}$. Dra ut den största kvadraten under roten.` };
+      return { ok: false, status: 'wrong', msg: `Rätt värde, men skriv det i enklaste form: $${rk === 1 ? '' : rk}\\sqrt{${rn}}$.` };
+    }
+    if (ex.radical && Math.abs(v - ex.a) < 0.006 * Math.max(1, ex.a) && /^[0-9.]+$/.test(normalize(num))) return { ok: false, status: 'wrong', msg: `Det där är ett närmevärde. Uppgiften vill ha det exakta svaret med rot: $${ex.radical[0] === 1 ? '' : ex.radical[0]}\\sqrt{${ex.radical[1]}}$.` };
     const tol = ex.tol != null ? ex.tol : (ex.dec != null ? 0.5 * Math.pow(10, -ex.dec) : 1e-9);
     if (ex.mustFraction) {
       const fm = /^(-?\d+)\/(-?\d+)$/.exec(normalize(num));
@@ -308,6 +361,6 @@
     return { ok: false, status: 'wrong', msg: null };
   }
 
-  const M = { tex, texBlock, rich, esc, normalize, parse, evaluate, numericValue, splitUnit, check, fmt, near, isProductForm, hasParen };
+  const M = { tex, texBlock, rich, esc, normalize, parse, evaluate, numericValue, splitUnit, check, fmt, near, isProductForm, hasParen, parseRoots, largestSq };
   if (typeof module !== 'undefined' && module.exports) module.exports = M; else root.MOMath = M;
 })(typeof window !== 'undefined' ? window : globalThis);

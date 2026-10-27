@@ -570,6 +570,266 @@
     kw: 'faktorisera bryt ut gemensam faktor faktorisering produkt'
   });
 
+
+  /* ================= TILLÄGG v5.1 · ÅK 8 (källa: HT-2026 år 8, kap. Tal, Geometri, Algebra + centralt innehåll) ================= */
+  S.push({
+    id: 'f8-powers-ten', ch: 'f8-tal', w: [36], title: 'Tiopotenser och grundpotensform', sub: '10ⁿ, små och stora tal',
+    idea: 'En **tiopotens** $10^n$ är 1 med n nollor: $10^3 = 1000$. Med **negativ** exponent blir talet litet: $10^{-2} = 0{,}01$. **Grundpotensform** skriver ett tal som ett tal mellan 1 och 10 gånger en tiopotens: $45\\,000 = 4{,}5 \\cdot 10^4$. Positiv exponent = stort tal, negativ = litet tal.',
+    anchor: 'Stort tal → positiv exponent. Litet tal (under 1) → negativ exponent. Första talet ska vara mellan 1 och 10.',
+    cue: ['Mycket stora eller små tal, tiopotens, 10 upphöjt till något.', 'Orden "grundpotensform" eller "potensform".'],
+    cvis: { t: 'sci', num: '45000', a: '4,5', n: 4 },
+    f: {
+      name: 'Tiopotenser och grundpotensform', main: 'a \\cdot 10^n, \\quad 1 \\le a < 10', when: 'Mycket stora eller mycket små tal ska skrivas kort.',
+      sym: [['10³', '1 000 (tre nollor)'], ['10⁻²', '0,01 (två decimaler)'], ['a', 'tal mellan 1 och 10'], ['n', 'antal steg decimaltecknet flyttas']],
+      forms: [['Stort tal → potensform', '45\\,000 = 4{,}5 \\cdot 10^4'], ['Litet tal → potensform', '0{,}0003 = 3 \\cdot 10^{-4}'], ['Potensform → vanligt tal', '2{,}5 \\cdot 10^3 = 2500']],
+      ex: '$45\\,000 = 4{,}5 \\cdot 10^{4}$', trap: '$32 \\cdot 10^4$ har rätt värde men är inte grundpotensform – första talet måste vara under 10.'
+    },
+    h1: 'Stort eller litet tal? Flytta decimaltecknet tills du har ett tal mellan 1 och 10 och räkna stegen.',
+    ex: {
+      q: 'Skriv $10^4$ som ett vanligt tal.', vis: { t: 'sci', num: '10000', a: '1', n: 4 }, given: ['10⁴'], find: 'talet med siffror', rule: '10^n = 1 \\text{ och n nollor}',
+      steps: [['Vad betyder exponenten 4?', 'Fyra nollor efter en 1'], ['Skriv talet', '$10\\,000$']], ans: '10 000'
+    },
+    g: {
+      q: 'Skriv 7 200 000 i grundpotensform.', vis: { t: 'sci', num: '7200000', a: '7,2', n: 6 }, given: ['7 200 000'], find: 'a · 10ⁿ',
+      opts: ['7{,}2 \\cdot 10^{6}', '72 \\cdot 10^{5}', '7{,}2 \\cdot 10^{-6}'], oc: 0, why: 'Första talet 7,2 ligger mellan 1 och 10, och stort tal → positiv exponent.',
+      type: 'sci', a: [7.2, 6], start: 'Komma efter 7 → 7,2. Räkna stegen.', sol: ['Komma efter första siffran: $7{,}2$', '6 steg åt vänster → $10^6$', '$7{,}2 \\cdot 10^6$'], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Skriv $10^5$ som ett vanligt tal.', type: 'num', a: 100000, calc: '10**5', given: ['10⁵'], find: 'talet med siffror', start: 'En 1:a och 5 nollor.', sol: ['$10^5 = 100\\,000$'], traps: [[10000, 'Fyra nollor är $10^4$. $10^5$ har fem nollor.'], [50, 'Exponenten betyder antal nollor – det är inte 10 · 5.']], ab: ['M'] },
+      { lv: 'B', q: 'Skriv $10^{-2}$ som decimaltal.', type: 'num', a: 0.01, calc: '10**-2', given: ['10⁻²'], find: 'decimaltalet', start: 'Negativ exponent → litet tal. Två decimaler.', sol: ['$10^{-2} = \\dfrac{1}{100} = 0{,}01$'], traps: [[100, 'Negativ exponent ger ett tal under 1, inte ett stort tal.'], [-100, 'Negativ exponent betyder litet tal, inte negativt tal.']], ab: ['B', 'M'] },
+      { lv: 'B', q: 'Skriv 45 000 i grundpotensform.', vis: { t: 'sci', num: '45000', a: '4,5', n: 4 }, type: 'sci', a: [4.5, 4], given: ['45 000'], find: 'a · 10ⁿ', start: 'Komma efter 4 → 4,5. Fyra steg.', sol: ['$4{,}5$', '4 steg → $10^4$', '$4{,}5 \\cdot 10^4$'], ab: ['M'] },
+      { lv: 'C', q: 'Skriv 0,0003 i grundpotensform.', vis: { t: 'sci', num: '0,0003', a: '3', n: -4 }, type: 'sci', a: [3, -4], given: ['0,0003'], find: 'a · 10ⁿ', start: 'Flytta kommat till efter 3. Räkna stegen åt höger.', sol: ['Komma efter 3 → 3', '4 steg åt höger → $10^{-4}$', '$3 \\cdot 10^{-4}$'], ab: ['M'] },
+      { lv: 'C', q: 'Skriv $2{,}5 \\cdot 10^3$ som ett vanligt tal.', type: 'num', a: 2500, calc: '2.5*10**3', given: ['2,5 · 10³'], find: 'talet med siffror', start: 'Flytta kommat 3 steg åt höger.', sol: ['$2{,}5 \\to 25 \\to 250 \\to 2500$'], traps: [[0.0025, 'Positiv exponent ger ett stort tal – flytta kommat åt höger.']], ab: ['M'] },
+      { lv: 'D', q: 'Ett hårstrå är 0,00008 m tjockt. Skriv tjockleken i grundpotensform.', type: 'sci', a: [8, -5], given: ['0,00008 m'], find: 'a · 10ⁿ m', start: 'Kommat efter 8, fem steg åt höger.', sol: ['$8 \\cdot 10^{-5}$ m'], ab: ['M', 'P'] },
+      { lv: 'D', q: 'En fil är 3,2 MB, och 1 MB = $10^6$ byte. Hur många byte är filen? Svara som vanligt tal.', type: 'num', a: 3200000, calc: '3.2*10**6', given: ['3,2 MB', '1 MB = 10⁶ B'], find: 'antal byte', start: '$3{,}2 \\cdot 10^6$', sol: ['$3{,}2 \\cdot 10^6 = 3\\,200\\,000$ byte'], traps: [[320000, 'Det är $3{,}2 \\cdot 10^5$. Exponenten ska vara 6.']], ab: ['P'] },
+      { lv: 'F', q: 'Vilket tal är störst?', type: 'choice', opts: ['4,5 · 10³', '9,9 · 10²', '1,2 · 10⁴', '8 · 10⁻²'], a: '1,2 · 10⁴', traps: [['4,5 · 10³', 'Jämför exponenten först: 10⁴ är tio gånger större än 10³.'], ['9,9 · 10²', 'Det är 990. Jämför exponenterna först.'], ['8 · 10⁻²', 'Negativ exponent ger ett litet tal (0,08).']], sol: ['Jämför exponenten först: störst exponent vinner', '$1{,}2 \\cdot 10^4 = 12\\,000$'], ab: ['B', 'R'] },
+      { lv: 'F', q: 'Vilket tal är skrivet i grundpotensform?', type: 'choice', opts: ['32 · 10⁴', '3,2 · 10⁵', '0,32 · 10⁶', '3,2 · 5'], a: '3,2 · 10⁵', traps: [['32 · 10⁴', 'Värdet är rätt men 32 är större än 10. Grundpotensform kräver ett tal mellan 1 och 10.'], ['0,32 · 10⁶', 'Första talet 0,32 är mindre än 1. Det ska vara mellan 1 och 10.'], ['3,2 · 5', 'Det saknas en tiopotens – det är bara en multiplikation.']], sol: ['Första talet mellan 1 och 10, sedan en tiopotens: $3{,}2 \\cdot 10^5$'], ab: ['K', 'B'] }
+    ],
+    kw: 'tiopotenser grundpotensform potensform stora tal små tal 10 upphöjt negativ exponent prefix häfte'
+  });
+
+  S.push({
+    id: 'f8-primes', ch: 'f8-tal', w: [39], title: 'Primtal och faktorisering', sub: 'delare, primtal, primtalsfaktorer',
+    idea: 'Ett **primtal** har exakt **två** delare: 1 och sig självt (2, 3, 5, 7, 11 …). Talet 1 är inget primtal. Alla andra tal kan skrivas som en produkt av primtal – **primtalsfaktorisering**: $60 = 2 \\cdot 2 \\cdot 3 \\cdot 5$. Det hjälper dig att förkorta bråk.',
+    anchor: 'Primtal: bara 1 och sig självt. Testa små primtal först: 2 (jämnt), 3 (siffersumman), 5 (slutar på 0/5).',
+    cue: ['Orden primtal, delare, faktorisera eller "går jämnt upp".', 'Du ska förkorta ett bråk så långt som möjligt.'],
+    cvis: { t: 'ftree', n: 60 },
+    f: {
+      name: 'Primtal och faktorisering', main: '\\text{primtal} = \\text{exakt två delare}', when: 'Du ska avgöra om ett tal är primtal, dela upp ett tal i faktorer eller förkorta bråk.',
+      sym: [['Delbart med 2', 'sista siffran är jämn'], ['Delbart med 3', 'siffersumman är delbar med 3'], ['Delbart med 5', 'slutar på 0 eller 5'], ['1', 'är inget primtal']],
+      forms: [['Faktorisera', '60 = 2 \\cdot 2 \\cdot 3 \\cdot 5'], ['Största gemensamma delare', '84 = 2^2 \\cdot 3 \\cdot 7,\\ 126 = 2 \\cdot 3^2 \\cdot 7'], ['Förkorta', '\\dfrac{84}{126} = \\dfrac{2 \\cdot 42}{3 \\cdot 42} = \\dfrac{2}{3}']],
+      ex: '$91 = 7 \\cdot 13$ → inte ett primtal', trap: 'Talet 2 är ett primtal (och det enda jämna). Talet 1 är **inte** ett primtal.'
+    },
+    h1: 'Går talet att dela jämnt med något annat än 1 och sig självt? Prova 2, 3, 5, 7 …',
+    ex: {
+      q: 'Är 91 ett primtal?', vis: { t: 'ftree', n: 91 }, type: 'choice', opts: ['ja', 'nej'], a: 'nej', given: ['91'], find: 'primtal eller inte', rule: '\\text{primtal} = \\text{exakt två delare}',
+      steps: [['Prova delbarhet', '2: nej (udda). 3: 9 + 1 = 10 → nej. 5: nej. 7: ja!'], ['Skriv som produkt', '$91 = 7 \\cdot 13$'], ['Slutsats', '91 har fler delare än 1 och 91 → inte ett primtal']], ans: 'nej, 91 = 7 · 13'
+    },
+    g: {
+      q: 'Vilket av talen är ett primtal?', type: 'choice', opts: ['10', '15', '11', '35', '6', '56'], a: '11', given: ['10 · 15 · 11 · 35 · 6 · 56'], find: 'talet med exakt två delare',
+      start: 'Pröva om talet går att dela jämnt med 2, 3 eller 5.', sol: ['10 = 2 · 5, 15 = 3 · 5, 35 = 5 · 7, 6 = 2 · 3, 56 = 7 · 8', '11 kan bara delas med 1 och 11 → primtal'],
+      traps: [['10', '10 = 2 · 5 – flera delare.'], ['15', '15 = 3 · 5 – flera delare.'], ['35', '35 = 5 · 7 – flera delare.'], ['6', '6 = 2 · 3 – flera delare.'], ['56', '56 = 7 · 8 – flera delare.']], ab: ['B']
+    },
+    p: [
+      { lv: 'A', q: 'Vilket är det minsta primtalet?', type: 'num', a: 2, calc: '2', given: ['primtal = exakt två delare'], find: 'det minsta primtalet', start: 'Har 1 två delare?', sol: ['1 har bara en delare (sig självt) → inget primtal', '2 har delarna 1 och 2 → minsta primtalet'], traps: [[1, '1 är inget primtal: ett primtal har exakt två delare, och 1 har bara en.']], ab: ['B'] },
+      { lv: 'B', q: 'Primtalsfaktorisera 84 och ange den största primtalsfaktorn.', vis: { t: 'ftree', n: 84 }, type: 'num', a: 7, calc: '(()=>{let n=84,p=2,l=1;while(n>1){if(n%p===0){l=p;n/=p}else p++}return l})()', given: ['84'], find: 'största primtalsfaktorn', start: 'Dela med 2 så länge det går, sedan 3, sedan 5 …', sol: ['$84 = 2 \\cdot 42 = 2 \\cdot 2 \\cdot 21 = 2 \\cdot 2 \\cdot 3 \\cdot 7$', 'Största primtalsfaktorn: 7'], traps: [[21, '21 = 3 · 7 är inte ett primtal. Dela upp den också.'], [42, '42 är inte ett primtal. Fortsätt dela.']], ab: ['M'] },
+      { lv: 'C', q: 'Hur många olika primtal går 60 att dela jämnt med?', vis: { t: 'ftree', n: 60 }, type: 'num', a: 3, calc: '3', given: ['60 = 2 · 2 · 3 · 5'], find: 'antal olika primtalsfaktorer', start: 'Faktorisera 60 och räkna de olika primtalen.', sol: ['$60 = 2 \\cdot 2 \\cdot 3 \\cdot 5$', 'Olika primtal: 2, 3 och 5 → 3 st'], traps: [[4, 'Du räknade 2 två gånger. Fråga: hur många OLIKA primtal?']], ab: ['M', 'B'] },
+      { lv: 'D', q: 'Vilken motivering visar att 51 inte är ett primtal?', type: 'choice', opts: ['51 slutar på 1', '51 = 3 · 17', '51 är udda', '51 är större än 50'], a: '51 = 3 · 17', traps: [['51 slutar på 1', 'Många primtal slutar på 1 (t.ex. 11). Det avgör inte.'], ['51 är udda', 'Många primtal är udda (3, 5, 7 …). Det visar ingenting.']], sol: ['$3 \\cdot 17 = 51$, så 51 har fler delare än 1 och 51', 'En produkt av två mindre tal är en bra motivering'], ab: ['R', 'K'] },
+      { lv: 'D', q: 'Du ska förkorta $\\dfrac{84}{126}$ så långt som möjligt. Med vilket tal ska du dela både täljare och nämnare?', type: 'num', a: 42, calc: '(()=>{const g=(a,b)=>b?g(b,a%b):a;return g(84,126)})()', given: ['84/126', '84 = 2·2·3·7', '126 = 2·3·3·7'], find: 'största gemensamma delaren', start: 'Vilka primtalsfaktorer finns i båda talen?', sol: ['$84 = 2 \\cdot 2 \\cdot 3 \\cdot 7$ och $126 = 2 \\cdot 3 \\cdot 3 \\cdot 7$', 'Gemensamt: $2 \\cdot 3 \\cdot 7 = 42$'], traps: [[6, '6 är en gemensam delare men inte den största. Använd alla gemensamma primtalsfaktorer: 2 · 3 · 7.'], [2, '2 delar båda, men det går att förkorta mer: 2 · 3 · 7 = 42.']], ab: ['M', 'P'] },
+      { lv: 'F', q: 'Hur många primtal finns mellan 20 och 40?', type: 'num', a: 4, calc: '(()=>{let c=0;for(let n=21;n<40;n++){let p=true;for(let k=2;k*k<=n;k++)if(n%k===0){p=false;break}if(p)c++}return c})()', given: ['talen 21 till 39'], find: 'antal primtal', start: 'Stryk jämna tal och tal som slutar på 5. Testa resten med 3 och 7.', sol: ['23, 29, 31, 37 är primtal', '→ 4 st'], traps: [[3, 'Du har missat ett av dem: 23, 29, 31 och 37.']], ab: ['M', 'B'] },
+      { lv: 'F', q: 'Alla primtal är udda tal. Stämmer det?', type: 'choice', opts: ['Ja', 'Nej – 2 är ett jämnt primtal'], a: 'Nej – 2 är ett jämnt primtal', traps: [['Ja', '2 har exakt två delare (1 och 2). Det är ett primtal – och jämnt.']], sol: ['Motexempel: 2 är primtal men jämnt'], ab: ['R'] }
+    ],
+    kw: 'primtal faktorisera primtalsfaktorer delare delbarhet förkorta största gemensamma delare faktorträd'
+  });
+
+  S.push({
+    id: 'f8-order', ch: 'f8-tal', w: [37, 39], title: 'Räkneordning', sub: 'parentes, potens, gånger/delat, plus/minus',
+    idea: 'Räknesätten har en **ordning**: **1.** parenteser, **2.** potenser, **3.** multiplikation och division (från vänster), **4.** addition och subtraktion (från vänster). Räknar du i fel ordning får du fel svar – även om varje enskild räkning är rätt.',
+    anchor: 'Parentes → potens → gånger/delat → plus/minus. Lika viktiga: från vänster till höger.',
+    cue: ['Ett uttryck med flera olika räknesätt eller parenteser.', 'Frågan "beräkna" följt av ett långt uttryck.'],
+    cvis: { t: 'prec', hl: 2 },
+    f: {
+      name: 'Räkneordning', main: '\\text{parentes} \\to \\text{potens} \\to \\cdot\\ \\div \\to +\\ -', when: 'Ett uttryck innehåller mer än ett räknesätt.',
+      sym: [['( )', 'räknas först'], ['aⁿ', 'potens före gånger'], ['· och ÷', 'före + och −'], ['Lika nivå', 'från vänster till höger']],
+      forms: [['Gånger före plus', '8 + 2 \\cdot 5 = 8 + 10 = 18'], ['Parentes först', '(8 + 2) \\cdot 5 = 50'], ['Negativa tal', '-2 \\cdot (3 - 7) = -2 \\cdot (-4) = 8']],
+      ex: '$35 - 2 \\cdot (8 + 3) = 35 - 22 = 13$', trap: '$8 + 2 \\cdot 5$ är 18, inte 50: gånger räknas före plus.'
+    },
+    h1: 'Vilket räknesätt ska du ta först? Börja med parenteserna.',
+    ex: {
+      q: 'Beräkna $35 - 2 \\cdot (8 + 3)$.', vis: { t: 'prec', hl: 0 }, given: ['35 − 2 · (8 + 3)'], find: 'värdet', rule: '\\text{parentes, gånger, minus}',
+      steps: [['Parentesen först', '$8 + 3 = 11$ → $35 - 2 \\cdot 11$'], ['Gånger före minus', '$2 \\cdot 11 = 22$ → $35 - 22$'], ['Sist minus', '$35 - 22 = 13$']], ans: '13'
+    },
+    g: {
+      q: 'Beräkna $40 - 3 \\cdot (2 + 4)$.', vis: { t: 'prec', hl: 0 }, given: ['40 − 3 · (2 + 4)'], find: 'värdet',
+      opts: ['\\text{parentes först}', '\\text{från vänster}', '\\text{minus först}'], oc: 0, why: 'Parentes först, sedan gånger, sist minus.',
+      type: 'num', a: 22, calc: '40-3*(2+4)', start: '$2 + 4 = ?$ först.', sol: ['$2 + 4 = 6$', '$3 \\cdot 6 = 18$', '$40 - 18 = 22$'], traps: [[222, 'Du räknade 40 − 3 först (37) och sedan · 6. Parentesen först, sedan gånger.']], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Beräkna $8 + 2 \\cdot 5$.', vis: { t: 'prec', hl: 2 }, type: 'num', a: 18, calc: '8+2*5', given: ['8 + 2 · 5'], find: 'värdet', start: 'Gånger före plus.', sol: ['$2 \\cdot 5 = 10$', '$8 + 10 = 18$'], traps: [[50, 'Du räknade från vänster. Gånger räknas före plus: 2 · 5 = 10 först.']], ab: ['M'] },
+      { lv: 'B', q: 'Beräkna $(8 + 2) \\cdot 5$.', type: 'num', a: 50, calc: '(8+2)*5', given: ['(8 + 2) · 5'], find: 'värdet', start: 'Parentesen först.', sol: ['$8 + 2 = 10$', '$10 \\cdot 5 = 50$'], traps: [[18, 'Parentesen räknas först: 8 + 2 = 10.']], ab: ['M'] },
+      { lv: 'B', q: 'Beräkna $20 - 12 \\div 4$.', type: 'num', a: 17, calc: '20-12/4', given: ['20 − 12 ÷ 4'], find: 'värdet', start: 'Delat före minus.', sol: ['$12 \\div 4 = 3$', '$20 - 3 = 17$'], traps: [[2, 'Du räknade 20 − 12 först. Division går före subtraktion: 12 ÷ 4 = 3.']], ab: ['M'] },
+      { lv: 'C', q: 'Beräkna $2 + 3^2 \\cdot 2$.', type: 'num', a: 20, calc: '2+3**2*2', given: ['2 + 3² · 2'], find: 'värdet', start: 'Potens först, sedan gånger, sist plus.', sol: ['$3^2 = 9$', '$9 \\cdot 2 = 18$', '$2 + 18 = 20$'], traps: [[50, 'Du räknade (2 + 3)² · 2. Potensen gäller bara talet 3.']], ab: ['M'] },
+      { lv: 'C', q: 'Beräkna $-2 \\cdot (3 - 7) + 5$.', type: 'num', a: 13, calc: '-2*(3-7)+5', given: ['−2 · (3 − 7) + 5'], find: 'värdet', start: 'Parentesen först: 3 − 7 = ?', sol: ['$3 - 7 = -4$', '$-2 \\cdot (-4) = 8$', '$8 + 5 = 13$'], traps: [[-8, 'Du multiplicerade bara med 3. Allt i parentesen ska räknas först: 3 − 7 = −4.']], ab: ['M'] },
+      { lv: 'D', q: 'Du handlar en påse äpplen för 12,95 kr, en glass för 14 kr och 5 liter mjölk. Mjölken kostar 8,05 kr för en liter. Hur mycket får du tillbaka på en hundralapp? Avrunda som i affären.', type: 'num', a: 33, u: 'kr', calc: '100-Math.round(12.95+14+5*8.05)', given: ['äpplen 12,95 kr', 'glass 14 kr', '5 liter · 8,05 kr', 'betalar 100 kr'], find: 'växeln i kr', start: 'Först mjölken: 5 · 8,05. Lägg ihop allt, avrunda summan till hela kronor och dra från 100.', sol: ['Mjölk: $5 \\cdot 8{,}05 = 40{,}25$ kr', 'Summa: $12{,}95 + 14 + 40{,}25 = 67{,}20$ kr', 'Avrundat som i affären: 67 kr', '$100 - 67 = 33$ kr'], traps: [[32.8, 'Du har inte avrundat. I affären avrundas totalsumman 67,20 kr till närmaste krona (67 kr).'], [88.05, 'Du har glömt att mjölken är 5 liter: 5 · 8,05 = 40,25 kr.']], ab: ['P', 'M'] },
+      { lv: 'F', q: 'Sara räknade $6 + 4 \\cdot 2 = 20$. Vad gjorde hon fel?', type: 'choice', opts: ['Inget – svaret är rätt', 'Hon räknade plus före gånger; rätt är 4 · 2 = 8 först, och 6 + 8 = 14', 'Hon skulle ha räknat 6 · 4 först', 'Hon skulle ha dividerat'], a: 'Hon räknade plus före gånger; rätt är 4 · 2 = 8 först, och 6 + 8 = 14', traps: [['Inget – svaret är rätt', '(6 + 4) · 2 = 20 stämmer bara om det står en parentes. Utan parentes går gånger före plus: 6 + 8 = 14.']], sol: ['Gånger före plus: $4 \\cdot 2 = 8$', '$6 + 8 = 14$'], ab: ['R', 'K'] },
+      { lv: 'F', q: 'Beräkna $5 \\cdot (-3)^2 - 2 \\cdot (4 - 6)$.', type: 'num', a: 49, calc: '5*(-3)**2-2*(4-6)', given: ['5 · (−3)² − 2 · (4 − 6)'], find: 'värdet', start: 'Parenteser: (−3)² och (4 − 6). Sedan gånger, sist minus.', sol: ['$(-3)^2 = 9$ och $4 - 6 = -2$', '$5 \\cdot 9 = 45$ och $2 \\cdot (-2) = -4$', '$45 - (-4) = 49$'], traps: [[41, 'Minus minus blir plus: $45 - (-4) = 45 + 4 = 49$.'], [-45, 'Kvadraten av ett negativt tal är positiv: $(-3)^2 = 9$.']], ab: ['M'] }
+    ],
+    kw: 'räkneordning prioritet parentes gånger före plus räkna i rätt ordning beräkna uttryck avrunda som i affären växel öresavrundning'
+  });
+
+  S.push({
+    id: 'f8-large-area', ch: 'f8-geo', w: [41], title: 'Area av stora områden', sub: 'hektar och kvadratkilometer',
+    idea: 'För stora ytor (skogar, åkrar, städer) finns egna enheter. **1 hektar (ha)** är en kvadrat på 100 m · 100 m = **10 000 m²**. **1 km²** är en kvadrat på 1000 m · 1000 m = **1 000 000 m²** = **100 ha**.',
+    anchor: '1 ha = 10 000 m². 1 km² = 100 ha. Från ha till km²: dela med 100.',
+    cue: ['Hektar (ha), km² eller en stor yta som skog, åker eller fotbollsplan.', 'Du ska byta mellan m², ha och km².'],
+    cvis: { t: 'bigarea', hl: 'ha' },
+    f: {
+      name: 'Hektar och kvadratkilometer', main: '1\\,\\text{ha} = 10\\,000\\,\\text{m}^2, \\quad 1\\,\\text{km}^2 = 100\\,\\text{ha}', when: 'En stor area ska skrivas i m², hektar eller km².',
+      sym: [['1 ha', '100 m · 100 m = 10 000 m²'], ['1 km²', '1000 m · 1000 m = 1 000 000 m²'], ['1 km²', '= 100 ha']],
+      forms: [['ha → m²', '\\text{ha} \\cdot 10\\,000'], ['km² → ha', '\\text{km}^2 \\cdot 100'], ['m² → ha', '\\text{m}^2 \\div 10\\,000']],
+      ex: '$3$ ha $= 3 \\cdot 10\\,000 = 30\\,000$ m²', trap: '1 km² är **inte** 1000 ha – det är 100 ha, eftersom area har två dimensioner.'
+    },
+    h1: 'Vilka enheter är det: m², ha eller km²? Använd 10 000 och 100.',
+    ex: {
+      q: 'Skriv 3 ha i m².', vis: { t: 'bigarea', hl: 'ha' }, given: ['3 ha', '1 ha = 10 000 m²'], find: 'arean i m²', rule: '\\text{ha} \\cdot 10\\,000',
+      steps: [['Från större enhet till mindre → gånger', 'ha → m²'], ['1 ha i m²', '10 000 m²'], ['Räkna', '$3 \\cdot 10\\,000 = 30\\,000$ m²']], ans: '30 000 m²'
+    },
+    g: {
+      q: 'Skriv 2,5 km² i hektar.', vis: { t: 'bigarea', hl: 'km2' }, given: ['2,5 km²', '1 km² = 100 ha'], find: 'arean i ha',
+      opts: ['2{,}5 \\cdot 100', '2{,}5 \\cdot 1000', '2{,}5 \\div 100'], oc: 0, why: '1 km² = 100 ha, och vi går till en mindre enhet → gånger.',
+      type: 'num', a: 250, u: 'ha', calc: '2.5*100', unitSkill: true, start: '$2{,}5 \\cdot 100$', sol: ['$1$ km² $= 100$ ha', '$2{,}5 \\cdot 100 = 250$ ha'], traps: [[2500, '1 km² är 100 ha, inte 1000 ha. Area har två dimensioner (10 · 10).']], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Skriv 5 ha i m².', type: 'num', a: 50000, u: 'm²', calc: '5*10000', unitSkill: true, given: ['5 ha'], find: 'arean i m²', start: '$5 \\cdot 10\\,000$', sol: ['$5 \\cdot 10\\,000 = 50\\,000$ m²'], ab: ['M'] },
+      { lv: 'B', q: 'Skriv 40 000 m² i hektar.', type: 'num', a: 4, u: 'ha', calc: '40000/10000', unitSkill: true, given: ['40 000 m²'], find: 'arean i ha', start: 'Till större enhet → dela med 10 000.', sol: ['$40\\,000 / 10\\,000 = 4$ ha'], ab: ['M'] },
+      { lv: 'C', q: 'Skriv 0,6 km² i hektar.', vis: { t: 'bigarea', hl: 'km2' }, type: 'num', a: 60, u: 'ha', calc: '0.6*100', unitSkill: true, given: ['0,6 km²'], find: 'arean i ha', start: '$0{,}6 \\cdot 100$', sol: ['$0{,}6 \\cdot 100 = 60$ ha'], ab: ['M'] },
+      { lv: 'C', q: 'Skriv 250 ha i km².', type: 'num', a: 2.5, u: 'km²', calc: '250/100', unitSkill: true, given: ['250 ha'], find: 'arean i km²', start: 'Till större enhet → dela med 100.', sol: ['$250 / 100 = 2{,}5$ km²'], ab: ['M'] },
+      { lv: 'D', q: 'En fotbollsplan är 100 m lång och 60 m bred. Hur många hektar är den?', type: 'num', a: 0.6, u: 'ha', calc: '100*60/10000', given: ['100 m', '60 m'], find: 'arean i ha', start: 'Area i m² först, sedan till hektar.', sol: ['$100 \\cdot 60 = 6000$ m²', '$6000 / 10\\,000 = 0{,}6$ ha'], traps: [[6000, 'Det är arean i m². Dela med 10 000 för att få hektar.']], ab: ['P', 'M'] },
+      { lv: 'F', q: 'Ett skogsområde är 2 km långt och 3 km brett. Hur många hektar är det?', type: 'num', a: 600, u: 'ha', calc: '2*3*100', given: ['2 km', '3 km'], find: 'arean i ha', start: 'Arean i km² först: 2 · 3. Sedan till ha.', sol: ['$2 \\cdot 3 = 6$ km²', '$6 \\cdot 100 = 600$ ha'], traps: [[6, 'Det är arean i km². Gånga med 100 för att få hektar.'], [6000, '1 km² är 100 ha, inte 1000 ha.']], ab: ['P', 'M'] },
+      { lv: 'F', q: 'Är 1 hektar större eller mindre än 1 km²?', type: 'choice', opts: ['Mindre – 1 ha är en hundradel av 1 km²', 'Större – 1 ha är 100 km²', 'Lika stora', 'Går inte att jämföra'], a: 'Mindre – 1 ha är en hundradel av 1 km²', traps: [['Större – 1 ha är 100 km²', '1 km² = 100 ha, alltså är 1 ha en hundradel av 1 km².']], sol: ['$1$ km² $= 100$ ha → 1 ha är en hundradel'], ab: ['B', 'R'] }
+    ],
+    kw: 'hektar ha km² kvadratkilometer area av stora områden stor yta skog åker byta enhet fotbollsplan'
+  });
+
+  S.push({
+    id: 'f8-area-more', ch: 'f8-geo', w: [45], title: 'Trapets och sammansatta figurer', sub: 'mer om area och omkrets',
+    idea: 'Den **parallella** sidorna i ett **trapets** är $a$ och $b$. Arean är **medelvärdet** av dem gånger höjden: $\\frac{(a+b) \\cdot h}{2}$. En **sammansatt** figur (t.ex. en L-form) kan du dela upp i rektanglar – eller räkna som en hel rektangel minus biten som saknas.',
+    anchor: 'Trapets: (a + b) · h / 2. Sammansatt: dela upp, eller hela minus biten som saknas.',
+    cue: ['En fyrhörning med två parallella sidor (trapets).', 'En figur med "hack" eller en L-form.'],
+    cvis: { t: 'trapezoid', a: 4, b: 10, h: 5 },
+    f: {
+      name: 'Trapets och sammansatta figurer', main: 'A = \\dfrac{(a + b) \\cdot h}{2}', when: 'Du ska bestämma arean av ett trapets, eller av en figur som består av flera delar.',
+      sym: [['a, b', 'de två parallella sidorna'], ['h', 'höjden mellan dem (vinkelrät)']],
+      forms: [['Söker höjden', 'h = \\dfrac{2A}{a + b}'], ['L-form', 'A = \\text{hela} - \\text{biten som saknas}'], ['Omkrets av L-form', '\\text{lika med hela rektangelns omkrets}']],
+      ex: '$A = \\dfrac{(4 + 10) \\cdot 5}{2} = 35$ cm²', trap: 'Höjden är det **vinkelräta** avståndet mellan de parallella sidorna – inte den sneda sidan.'
+    },
+    h1: 'Trapets: medelvärdet av de parallella sidorna gånger höjden. Annars: dela upp figuren.',
+    ex: {
+      q: 'Ett trapets har de parallella sidorna 4 cm och 10 cm, och höjden 5 cm. Bestäm arean.', vis: { t: 'trapezoid', a: 4, b: 10, h: 5 }, given: ['a = 4 cm', 'b = 10 cm', 'h = 5 cm'], find: 'arean', rule: '\\dfrac{(a+b) \\cdot h}{2}',
+      steps: [['Lägg ihop de parallella sidorna', '$4 + 10 = 14$'], ['Gånger höjden', '$14 \\cdot 5 = 70$'], ['Dela med 2', '$70 / 2 = 35$ cm²']], ans: '35 cm²'
+    },
+    g: {
+      q: 'Ett trapets har de parallella sidorna 6 cm och 12 cm, och höjden 4 cm. Bestäm arean.', vis: { t: 'trapezoid', a: 6, b: 12, h: 4 }, given: ['a = 6 cm', 'b = 12 cm', 'h = 4 cm'], find: 'arean',
+      opts: ['\\dfrac{(a+b) \\cdot h}{2}', 'a \\cdot b \\cdot h', '\\dfrac{a \\cdot h}{2}'], oc: 0, why: 'Trapets: medelvärdet av de parallella sidorna gånger höjden.',
+      type: 'num', a: 36, u: 'cm²', calc: '(6+12)*4/2', start: '$(6 + 12) \\cdot 4 / 2$', sol: ['$6 + 12 = 18$', '$18 \\cdot 4 / 2 = 36$ cm²'], traps: [[72, 'Du glömde dela med 2.']], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Ett trapets har de parallella sidorna 5 cm och 9 cm, och höjden 4 cm. Bestäm arean.', vis: { t: 'trapezoid', a: 5, b: 9, h: 4 }, type: 'num', a: 28, u: 'cm²', calc: '(5+9)*4/2', given: ['a = 5 cm', 'b = 9 cm', 'h = 4 cm'], find: 'arean', start: '$(5 + 9) \\cdot 4 / 2$', sol: ['$14 \\cdot 4 / 2 = 28$ cm²'], traps: [[56, 'Du glömde dela med 2.']], ab: ['M'] },
+      { lv: 'B', q: 'Ett trapets har de parallella sidorna 7 cm och 13 cm, och höjden 6 cm. Bestäm arean.', type: 'num', a: 60, u: 'cm²', calc: '(7+13)*6/2', given: ['a = 7 cm', 'b = 13 cm', 'h = 6 cm'], find: 'arean', start: '$(7 + 13) \\cdot 6 / 2$', sol: ['$20 \\cdot 6 / 2 = 60$ cm²'], ab: ['M'] },
+      { lv: 'C', q: 'Ett trapets har arean 54 cm², och de parallella sidorna 5 cm och 13 cm. Hur hög är det?', vis: { t: 'trapezoid', a: 5, b: 13, h: '?' }, type: 'num', a: 6, u: 'cm', calc: '54*2/(5+13)', given: ['A = 54 cm²', 'a = 5 cm', 'b = 13 cm'], find: 'höjden', start: '$54 = (5 + 13) \\cdot h / 2$. Lös ut h.', sol: ['$54 = 18 \\cdot h / 2 = 9h$', '$h = 54 / 9 = 6$ cm'], traps: [[3, 'Du dividerade inte rätt: $2 \\cdot 54 / 18 = 6$.']], ab: ['M', 'R'] },
+      { lv: 'D', q: 'En L-formad figur är 10 cm hög och 8 cm bred, men ett hörn på 4 cm · 3 cm saknas. Bestäm arean.', vis: { t: 'lshape', W: 10, H: 8, w: 4, h: 3 }, type: 'num', a: 68, u: 'cm²', calc: '10*8-4*3', given: ['hela: 10 · 8', 'saknas: 4 · 3'], find: 'arean', start: 'Hela rektangeln minus biten som saknas.', sol: ['Hela: $10 \\cdot 8 = 80$', 'Biten: $4 \\cdot 3 = 12$', '$80 - 12 = 68$ cm²'], traps: [[80, 'Det är hela rektangeln. Dra bort biten som saknas.']], ab: ['M', 'P'] },
+      { lv: 'D', q: 'Hur lång är omkretsen av L-figuren (10 cm · 8 cm med ett hörn på 4 cm · 3 cm borta)?', vis: { t: 'lshape', W: 10, H: 8, w: 4, h: 3 }, type: 'num', a: 36, u: 'cm', calc: '2*(10+8)', given: ['10 cm · 8 cm', 'hörn 4 · 3 saknas'], find: 'omkretsen', start: 'Vad händer med omkretsen när ett hörn tas bort?', sol: ['Hacket flyttar sidorna inåt men lägger till lika mycket: omkretsen är lika med hela rektangelns', '$2 \\cdot (10 + 8) = 36$ cm'], traps: [[68, 'Det är arean. Omkretsen är längden runt: 2 · (10 + 8).']], ab: ['R', 'M'] },
+      { lv: 'F', q: 'Golvet i ett L-format rum har arean 68 m². Golvläggning kostar 250 kr/m². Vad kostar det?', type: 'num', a: 17000, u: 'kr', calc: '68*250', given: ['68 m²', '250 kr/m²'], find: 'kostnaden', start: 'Pris = area · pris per m².', sol: ['$68 \\cdot 250 = 17\\,000$ kr'], traps: [[318, 'Du adderade. Kostnad = area · pris per m².']], ab: ['P'] },
+      { lv: 'F', q: 'Två rektanglar har samma omkrets. Har de alltid samma area?', type: 'choice', opts: ['Ja, alltid', 'Nej – 4 · 6 och 3 · 7 har båda omkrets 20, men areorna 24 och 21', 'Ja, om de är lika långa', 'Nej – omkretsen bestämmer inte höjden'], a: 'Nej – 4 · 6 och 3 · 7 har båda omkrets 20, men areorna 24 och 21', traps: [['Ja, alltid', 'Motexempel: 4 · 6 och 3 · 7 har omkrets 20 men areorna 24 och 21.']], sol: ['$2(4 + 6) = 20$ och $2(3 + 7) = 20$', '$4 \\cdot 6 = 24 \\ne 3 \\cdot 7 = 21$'], ab: ['R'] }
+    ],
+    kw: 'trapets sammansatt figur L-form area omkrets mer om area mer om omkrets parallella sidor höjd'
+  });
+
+  S.push({
+    id: 'f8-equations-more', ch: 'f8-alg', w: [49], title: 'Mer om ekvationer', sub: 'parenteser och x i båda leden',
+    idea: 'Svårare ekvationer har **parenteser** och **x i båda leden**. Gör i ordning: **1.** multiplicera in i parenteserna, **2.** samla lika termer i varje led, **3.** flytta alla x till ena sidan och talen till den andra, **4.** dela. Minus framför en parentes byter tecken på allt inuti.',
+    anchor: 'Först bort med parenteserna. Sedan samla x på ena sidan. Kontrollera alltid genom att sätta in svaret.',
+    cue: ['En ekvation med parenteser och x på båda sidor.', 'Ordet "lös ekvationen" med mer än ett steg.'],
+    cvis: { t: 'balance', left: '3(x − 2)', right: 'x + 8' },
+    f: {
+      name: 'Ekvationer med parenteser', main: 'a(x + b) = cx + d', when: 'Ekvationen har parenteser, x i båda leden, eller båda.',
+      sym: [['1', 'multiplicera in'], ['2', 'förenkla varje led'], ['3', 'x till ena sidan, tal till andra'], ['4', 'dela med x-termens tal']],
+      forms: [['Multiplicera in', '3(x - 2) = 3x - 6'], ['Minus framför parentes', '10 - (x - 2) = 10 - x + 2'], ['Kontroll', '\\text{sätt in x i båda leden}']],
+      ex: '$3(x - 2) = x + 8 \\Rightarrow 3x - 6 = x + 8 \\Rightarrow 2x = 14 \\Rightarrow x = 7$', trap: 'Multiplicera in i **båda** termerna: $3(x - 2) = 3x - 6$, inte $3x - 2$.'
+    },
+    h1: 'Är det parenteser? Multiplicera in först. Sedan samlar du x på en sida.',
+    ex: {
+      q: 'Lös ekvationen $3(x - 2) = x + 8$.', vis: { t: 'balance', left: '3(x − 2)', right: 'x + 8' }, given: ['3(x − 2) = x + 8'], find: 'x', rule: '\\text{multiplicera in, samla x, dela}',
+      steps: [['Multiplicera in', '$3x - 6 = x + 8$'], ['Samla x: ta bort x från båda sidor', '$2x - 6 = 8$'], ['Lägg till 6', '$2x = 14$'], ['Dela med 2', '$x = 7$ (kontroll: $3 \\cdot 5 = 15 = 7 + 8$ ✓)']], ans: 'x = 7'
+    },
+    g: {
+      q: 'Lös ekvationen $2(x + 3) = x + 11$.', vis: { t: 'balance', left: '2(x + 3)', right: 'x + 11' }, given: ['2(x + 3) = x + 11'], find: 'x',
+      opts: ['\\text{multiplicera in först}', '\\text{lägg till 3 först}', '\\text{dela med 2 först}'], oc: 0, why: 'Parentesen i vänstra ledet försvinner när du multiplicerar in.',
+      type: 'num', a: 5, calc: '11-6', start: '$2(x + 3) = 2x + 6$', sol: ['$2x + 6 = x + 11$', '$x + 6 = 11$', '$x = 5$'], traps: [[8, 'Du multiplicerade bara in i x: $2(x+3) = 2x + 6$, inte $2x + 3$.']], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Lös ekvationen $4(x + 1) = 2x + 12$.', type: 'num', a: 4, calc: '(12-4)/2', given: ['4(x + 1) = 2x + 12'], find: 'x', start: '$4x + 4 = 2x + 12$', sol: ['$4x + 4 = 2x + 12$', '$2x = 8$', '$x = 4$'], ab: ['M'] },
+      { lv: 'B', q: 'Lös ekvationen $3(x + 4) - 2x = 20$.', type: 'num', a: 8, calc: '20-12', given: ['3(x + 4) − 2x = 20'], find: 'x', start: 'Multiplicera in och samla x: $3x + 12 - 2x$', sol: ['$3x + 12 - 2x = x + 12$', '$x + 12 = 20$', '$x = 8$'], ab: ['M'] },
+      { lv: 'C', q: 'Lös ekvationen $10 - (x - 2) = 2x + 3$.', type: 'num', a: 3, calc: '9/3', given: ['10 − (x − 2) = 2x + 3'], find: 'x', start: 'Minus framför parentesen byter tecken: $10 - x + 2$.', sol: ['$10 - x + 2 = 2x + 3$', '$12 - x = 2x + 3$', '$9 = 3x$', '$x = 3$'], traps: [[1.67, 'Minus framför parentesen byter tecken på båda termerna: −(x − 2) = −x + 2, inte −x − 2.']], tol: 0.01, ab: ['M'] },
+      { lv: 'D', q: 'Ett tal ökas med 4 och multipliceras med 3. Det blir lika mycket som när talet multipliceras med 5 och minskas med 2. Vilket är talet?', type: 'num', a: 7, calc: '14/2', given: ['3(x + 4) = 5x − 2'], find: 'talet x', start: 'Skriv ekvationen: $3(x + 4) = 5x - 2$.', sol: ['$3(x + 4) = 5x - 2$', '$3x + 12 = 5x - 2$', '$14 = 2x$', '$x = 7$'], ab: ['P', 'M'] },
+      { lv: 'F', q: 'Lös ekvationen $4(2x - 3) = 3(x + 6) - 5$.', type: 'num', a: 5, calc: '25/5', given: ['4(2x − 3) = 3(x + 6) − 5'], find: 'x', start: 'Multiplicera in i båda leden och förenkla.', sol: ['$8x - 12 = 3x + 18 - 5 = 3x + 13$', '$5x = 25$', '$x = 5$'], ab: ['M'] },
+      { lv: 'F', q: 'Vilken lösning är rätt uppställd?', type: 'choice', opts: ['2(x + 3) = x + 11 ⇒ 2x + 6 = x + 11 ⇒ x = 5', '2(x + 3) = x + 11 = 2x + 6 = x + 11 = 5', '2(x + 3) = x + 11 ⇒ 2x + 3 = x + 11 ⇒ x = 8', '2(x + 3) = x + 11 ⇒ 2x + 6 = x + 11 ⇒ x = 17'], a: '2(x + 3) = x + 11 ⇒ 2x + 6 = x + 11 ⇒ x = 5', traps: [['2(x + 3) = x + 11 = 2x + 6 = x + 11 = 5', 'Likhetstecknet betyder att båda sidor är lika. Skriv en ny ekvation på varje rad – kedja inte ihop dem.'], ['2(x + 3) = x + 11 ⇒ 2x + 3 = x + 11 ⇒ x = 8', 'Felet är i rad 2: 2(x + 3) = 2x + 6, inte 2x + 3.'], ['2(x + 3) = x + 11 ⇒ 2x + 6 = x + 11 ⇒ x = 17', 'Uppställningen är rätt men sista raden är fel: 2x − x = 11 − 6, alltså x = 5.']], sol: ['Varje rad är en ny, jämngod ekvation', '$2x + 6 = x + 11 \\Rightarrow x = 5$'], ab: ['K', 'R'] }
+    ],
+    kw: 'mer om ekvationer ekvationslösning parenteser x i båda leden lös ekvationen mer om ekvationslösning problemlösning ekvation'
+  });
+
+  S.push({
+    id: 'f8-formulas', ch: 'f8-alg', w: [49], title: 'Formler', sub: 'sätta in värden och lösa ut',
+    idea: 'En **formel** är en regel med variabler, t.ex. $s = v \\cdot t$ (sträcka = hastighet · tid). Du kan **sätta in** värden och räkna, eller **lösa ut** en variabel precis som i en ekvation: $t = s / v$.',
+    anchor: 'Skriv av formeln, sätt in det du vet, lös ut det du söker.',
+    cue: ['En formel som s = v · t, A = b · h / 2 eller O = 2(b + h).', 'Värden för variablerna är givna och en saknas.'],
+    cvis: { t: 'balance', left: 's', right: 'v · t' },
+    f: {
+      name: 'Formler', main: 's = v \\cdot t', when: 'En formel med variabler ska användas, eller en variabel ska lösas ut.',
+      sym: [['s', 'sträcka'], ['v', 'hastighet'], ['t', 'tid']],
+      forms: [['Lös ut v', 'v = \\dfrac{s}{t}'], ['Lös ut t', 't = \\dfrac{s}{v}'], ['Sätt in', 's = 80 \\cdot 3 = 240']],
+      ex: '$s = v \\cdot t = 80 \\cdot 3 = 240$ km', trap: 'Sätt in tal med rätt enhet, och lös ut precis som i en ekvation: samma sak på båda sidor.'
+    },
+    h1: 'Vilken variabel söker du? Sätt in de andra och lös ut.',
+    ex: {
+      q: 'En bil kör med hastigheten 80 km/h i 3 timmar. Hur långt kör den? ($s = v \\cdot t$)', given: ['v = 80 km/h', 't = 3 h'], find: 's', rule: 's = v \\cdot t',
+      steps: [['Skriv formeln', '$s = v \\cdot t$'], ['Sätt in värdena', '$s = 80 \\cdot 3$'], ['Räkna', '$240$ km']], ans: '240 km'
+    },
+    g: {
+      q: 'Omkretsen av en rektangel är $O = 2(b + h)$. Bestäm O när b = 7 cm och h = 4 cm.', given: ['b = 7', 'h = 4'], find: 'O',
+      opts: ['O = 2(7 + 4)', 'O = 2 \\cdot 7 + 4', 'O = 7 \\cdot 4'], oc: 0, why: 'Sätt in b och h i formeln – parentesen gäller både b och h.',
+      type: 'num', a: 22, u: 'cm', calc: '2*(7+4)', start: '$2(7 + 4)$', sol: ['$O = 2(7 + 4) = 2 \\cdot 11$', '$= 22$ cm'], traps: [[18, 'Du multiplicerade bara b med 2: $2 \\cdot 7 + 4$. Parentesen gäller båda.'], [28, 'Det är arean (7 · 4). Omkretsen är 2(b + h).']], ab: ['M']
+    },
+    p: [
+      { lv: 'A', q: 'Arean av en triangel är $A = \\dfrac{b \\cdot h}{2}$. Bestäm A när b = 10 cm och h = 6 cm.', type: 'num', a: 30, u: 'cm²', calc: '10*6/2', given: ['b = 10', 'h = 6'], find: 'A', start: '$10 \\cdot 6 / 2$', sol: ['$A = 10 \\cdot 6 / 2 = 30$ cm²'], traps: [[60, 'Du glömde dela med 2.']], ab: ['M'] },
+      { lv: 'B', q: 'Temperaturen i °F beräknas med $F = \\dfrac{9C}{5} + 32$. Bestäm F när C = 25.', type: 'num', a: 77, calc: '9*25/5+32', given: ['C = 25'], find: 'F (i °F)', start: '$9 \\cdot 25 / 5 + 32$', sol: ['$9 \\cdot 25 = 225$ och $225 / 5 = 45$', '$45 + 32 = 77$'], traps: [[45, 'Du glömde + 32.']], ab: ['M'] },
+      { lv: 'C', q: 'Sträckan är $s = v \\cdot t$. Det gäller att s = 150 km och v = 50 km/h. Bestäm t.', type: 'num', a: 3, u: 'h', calc: '150/50', given: ['s = 150', 'v = 50'], find: 't', start: 'Lös ut t: $t = s / v$.', sol: ['$150 = 50 \\cdot t$', '$t = 150 / 50 = 3$ h'], traps: [[7500, 'Du multiplicerade. Lös ut t: dela s med v.']], ab: ['M', 'R'] },
+      { lv: 'D', q: 'En taxiresa kostar $p = 45 + 12k$ kronor, där k är antal km. Vad kostar en resa på 18 km?', type: 'num', a: 261, u: 'kr', calc: '45+12*18', given: ['p = 45 + 12k', 'k = 18'], find: 'p i kr', start: 'Sätt in k = 18.', sol: ['$p = 45 + 12 \\cdot 18$', '$= 45 + 216 = 261$ kr'], traps: [[1026, 'Du räknade (45 + 12) · 18. Gånger före plus: 12 · 18 först.']], ab: ['P', 'M'] },
+      { lv: 'D', q: 'Vilken formel visar kostnaden K för n biljetter à 85 kr plus en avgift på 20 kr?', type: 'choice', opts: ['K = 85n + 20', 'K = 85 + 20n', 'K = 105n', 'K = 85 · 20 · n'], a: 'K = 85n + 20', traps: [['K = 85 + 20n', 'Här är det avgiften som multipliceras med n. Avgiften betalas bara en gång.'], ['K = 105n', 'Avgiften 20 kr tillkommer en gång – den multipliceras inte med n.']], sol: ['n biljetter: $85 \\cdot n$', 'plus avgiften en gång: $+ 20$'], ab: ['K', 'P'] },
+      { lv: 'F', q: 'Taxiresan kostar $p = 45 + 12k$ kronor. En resa kostade 333 kr. Hur många km var den?', type: 'num', a: 24, u: 'km', calc: '(333-45)/12', given: ['p = 333', 'p = 45 + 12k'], find: 'k', start: 'Sätt in p = 333 och lös ut k: $333 = 45 + 12k$.', sol: ['$333 = 45 + 12k$', '$12k = 288$', '$k = 24$ km'], traps: [[27.75, 'Du delade 333 med 12 men glömde dra bort startavgiften 45 först.']], ab: ['P', 'M'] }
+    ],
+    kw: 'formel formler sätta in värden lösa ut variabel sträcka hastighet tid omkrets area temperatur taxi'
+  });
+
+  /* ===== v5.1 förmågeberikning (Resonemang/Kommunikation): motexempel och motiveringar ===== */
+  S.find(s => s.id === 'f8-negative').p.push(
+      { lv: 'F', q: 'Är $(-3)^2$ och $-3^2$ samma tal?', type: 'choice', opts: ['Ja, båda är 9', 'Nej – (−3)² = 9 men −3² = −9', 'Ja, båda är −9', 'Nej – (−3)² = −9 men −3² = 9'], a: 'Nej – (−3)² = 9 men −3² = −9', traps: [['Ja, båda är 9', 'Utan parentes kvadreras bara 3: −3² = −(3·3) = −9.'], ['Nej – (−3)² = −9 men −3² = 9', 'Tvärtom: minus gånger minus är plus, så (−3)² = 9.']], sol: ['(−3)² = (−3)·(−3) = 9', '−3² = −(3·3) = −9'], ab: ['R', 'K'] });
+  S.find(s => s.id === 'f8-equations').p.push(
+      { lv: 'F', q: 'Vilken lösning är korrekt uppställd?', type: 'choice', opts: ['3x + 5 = 20 ⇒ 3x = 15 ⇒ x = 5', '3x + 5 = 20 = 3x = 15 = x = 5', '3x + 5 = 20 ⇒ 3x = 25 ⇒ x = 25/3', '3x + 5 = 20 ⇒ x = 15'], a: '3x + 5 = 20 ⇒ 3x = 15 ⇒ x = 5', traps: [['3x + 5 = 20 = 3x = 15 = x = 5', 'Likhetstecken betyder att båda sidor är lika. Skriv varje steg som en ny ekvation på en egen rad.'], ['3x + 5 = 20 ⇒ 3x = 25 ⇒ x = 25/3', 'Du ska subtrahera 5, inte addera: 20 − 5 = 15.'], ['3x + 5 = 20 ⇒ x = 15', 'Du måste också dela med 3: 3x = 15 ⇒ x = 5.']], sol: ['Subtrahera 5 från båda led, sedan dela med 3'], ab: ['K', 'M'] });
+  S.find(s => s.id === 'f8-equation-problems').p.push(
+      { lv: 'F', q: 'Anna har dubbelt så många kort som Ben. Tillsammans har de 36 kort. Vilken inledning på lösningen är tydligast?', type: 'choice', opts: ['Låt x vara antal kort Ben har. Då har Anna 2x kort, och x + 2x = 36.', 'x + 2 = 36', 'x = Anna', '2 · 36 = 72'], a: 'Låt x vara antal kort Ben har. Då har Anna 2x kort, och x + 2x = 36.', traps: [['x + 2 = 36', '"Dubbelt så många" betyder gånger 2, inte plus 2. Och säg vad x betyder.'], ['x = Anna', 'Definiera x som ett antal, inte en person.']], sol: ['Definiera x, uttryck det andra med x, ställ upp ekvationen', '3x = 36 ⇒ x = 12 (Ben), Anna 24'], ab: ['K', 'P'] });
+  S.find(s => s.id === 'f8-area').p.push(
+      { lv: 'F', q: 'Alla sidor i en kvadrat dubblas. Hur många gånger större blir arean?', type: 'choice', opts: ['2 gånger', '4 gånger', '8 gånger'], a: '4 gånger', traps: [['2 gånger', 'Arean har två dimensioner: 2 · 2 = 4.'], ['8 gånger', '8 gånger gäller volymen.']], sol: ['(2s)² = 4s²'], ab: ['R'] });
+  S.find(s => s.id === 'f8-perimeter').p.push(
+      { lv: 'F', q: 'Alla sidor i en rektangel dubblas. Vad händer med omkretsen?', type: 'choice', opts: ['Den dubblas', 'Den fyrdubblas', 'Den förblir lika'], a: 'Den dubblas', traps: [['Den fyrdubblas', 'Det gäller arean. Omkretsen är en längd och dubblas.']], sol: ['O = 2(b + h); dubbla sidor ger 2 · O'], ab: ['R'] });
+  S.find(s => s.id === 'f8-conjugate').p.push(
+      { lv: 'F', q: 'Stämmer det att $(x + 3)^2 = x^2 + 9$?', type: 'choice', opts: ['Ja', 'Nej – (x + 3)² = x² + 6x + 9'], a: 'Nej – (x + 3)² = x² + 6x + 9', traps: [['Ja', '(x + 3)² = (x + 3)(x + 3). Multiplicera alla termer: x² + 3x + 3x + 9 = x² + 6x + 9. Mittentermen försvinner bara i konjugatregeln (x+3)(x−3).']], sol: ['(x+3)(x+3) = x² + 3x + 3x + 9'], ab: ['R', 'K'] });
+  S.find(s => s.id === 'f8-expressions').p.push(
+      { lv: 'F', q: 'Stämmer det att $2x + 3x = 5x^2$?', type: 'choice', opts: ['Ja', 'Nej – 2x + 3x = 5x'], a: 'Nej – 2x + 3x = 5x', traps: [['Ja', 'Vid addition läggs bara talen framför x ihop; x² uppstår först vid multiplikation (x · x).']], sol: ['2x + 3x = (2+3)x = 5x'], ab: ['R', 'K'] });
+
+  const ORDER = ["f8-fractions-compare","f8-fractions-add","f8-fractions-multiply","f8-fractions-divide","f8-decimals","f8-powers","f8-powers-ten","f8-negative","f8-order","f8-primes","f8-simplify-fraction","f8-units","f8-perimeter","f8-area","f8-large-area","f8-circle-circ","f8-circle-area","f8-sector","f8-volume-units","f8-cylinder","f8-pyramid","f8-cone","f8-sphere","f8-surface-area","f8-area-more","f8-density","f8-expressions","f8-equations","f8-x-both-sides","f8-parentheses-add","f8-parentheses-multiply","f8-equations-more","f8-equation-problems","f8-formulas","f8-conjugate","f8-factor"];
+  S.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
+
   root.MO_CONTENT8 = S;
   if (typeof module !== 'undefined' && module.exports) module.exports = S;
 })(typeof window !== 'undefined' ? window : globalThis);

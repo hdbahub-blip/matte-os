@@ -21,10 +21,12 @@ async function shot(p, name) { if (SHOTS) await p.screenshot({ path: `${SHOTS}/$
 async function answerCurrent(p, { wrong } = {}) {
   // läser aktuell uppgift ur appens tillstånd och svarar med kanoniskt (svenskt) svar
   await p.waitForFunction(() => window.__MO_UI.ex && !window.__MO_UI.ex.done && document.querySelector('form[data-form=answer] button[type=submit]'));
-  const info = await p.evaluate(() => { const ex = window.__MO_UI.ex; const x = window.MOEngine.item(ex.sid, ex.key); return { type: x.type || 'num', a: x.a, mf: x.mustFraction || null, dec: x.dec }; });
+  const info = await p.evaluate(() => { const ex = window.__MO_UI.ex; const x = window.MOEngine.item(ex.sid, ex.key); return { type: x.type || 'num', a: x.a, mf: x.mustFraction || null, dec: x.dec, rad: x.radical || null }; });
   if (info.type === 'choice') { await p.click(`.opt[data-v="${info.a.replace(/"/g, '\\"')}"]`); }
   else if (info.type === 'sci') { await p.fill('#ansm', String(info.a[0]).replace('.', ',')); await p.fill('#anse', String(info.a[1])); }
   else if (info.type === 'expr') { await p.fill('#ans', info.a); }
+  else if (info.type === 'roots') { await p.fill('#ans', wrong ? '12345' : (info.a.length ? info.a.map(r => String(r).replace('.', ',')).join(' och ') : 'ingen')); }
+  else if (info.rad) { await p.fill('#ans', wrong ? '12345' : (info.rad[1] === 1 ? String(info.rad[0]) : (info.rad[0] === 1 ? '' : info.rad[0]) + '√' + info.rad[1])); }
   else { const v = info.mf ? `${info.mf[0]}/${info.mf[1]}` : wrong ? String(info.a + 1) : (info.dec != null ? info.a.toFixed(info.dec) : String(+info.a.toFixed(9))).replace('.', ','); await p.fill('#ans', v); }
   await p.click('form[data-form=answer] button[type=submit]');
   await p.waitForTimeout(60);

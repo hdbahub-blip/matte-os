@@ -44,7 +44,7 @@ for (const s of ALL) {
     exercises++;
     const w = `${W}/${key}`;
     const type = x.type || 'num';
-    ok(['num', 'choice', 'expr', 'sci'].includes(type), w, 'bad type');
+    ok(['num', 'choice', 'expr', 'sci', 'roots'].includes(type), w, 'bad type');
     ok(x.q && x.q.length > 5, w, 'missing question');
     ok(Array.isArray(x.sol) && x.sol.length >= 1, w, 'missing worked solution');
     if (type !== 'choice') {
@@ -58,6 +58,19 @@ for (const s of ALL) {
     if (type === 'num') {
       ok(typeof x.a === 'number', w, 'answer must be a number');
       ok(typeof x.calc === 'string', w, 'missing calc (independent computation)');
+      if (x.radical) { // exakt svar k√n i enklaste form
+        const [rk, rn] = x.radical; ok(rn > 1 && M.largestSq(rn) === 1 && rk >= 1, w, 'radical must be k√n with n square-free');
+        ok(Math.abs(x.a - rk * Math.sqrt(rn)) < 1e-9, w, 'radical value does not match a');
+        let cv; try { cv = Function('"use strict";return (' + x.calc + ')')(); } catch (err) { fail(w, 'calc error'); continue; }
+        ok(Math.abs(cv - x.a) < 1e-9, w, `calc ${cv} ≠ answer ${x.a}`);
+        const canonR = `${rk === 1 ? '' : rk}√${rn}`;
+        ok(M.check(x, canonR).ok, w, `radical canonical "${canonR}" rejected`);
+        ok(M.check(x, canonR + (x.u ? ' ' + x.u : '')).ok, w, 'radical with unit rejected');
+        ok(M.check(x, `${rk === 1 ? '' : rk + '*'}√(${rn})`).ok, w, 'radical alt notation rejected');
+        const unsimp = M.check(x, `√${rk * rk * rn}`); ok(!unsimp.ok && /förenklas/.test(unsimp.msg || ''), w, 'unsimplified root not flagged');
+        const dcm = M.check(x, M.fmt(x.a, 2)); ok(!dcm.ok && dcm.msg, w, 'decimal approximation not flagged');
+        for (const wv of [x.a + 1, x.a * 2 + 3]) ok(!M.check(x, sv(wv)).ok, w, 'wrong radical answer accepted');
+      } else {
       let c; try { c = Function('"use strict";return (' + x.calc + ')')(); } catch (err) { fail(w, 'calc error ' + err.message); continue; }
       if (x.dec != null) ok(round(c, x.dec) === x.a, w, `rounded calc ${round(c, x.dec)} ≠ answer ${x.a}`);
       else { const tol = x.tol != null ? x.tol : 1e-9; ok(Math.abs(c - x.a) <= Math.max(tol, 1e-9 * Math.abs(c)), w, `calc ${c} ≠ answer ${x.a} (tol ${tol})`); }
@@ -78,6 +91,31 @@ for (const s of ALL) {
         const other = x.u === 'cm' ? 'm' : x.u === 'm' ? 'cm' : x.u === 'cm²' ? 'cm³' : x.u === 'cm³' ? 'cm²' : 'cm';
         const r = M.check(x, sv(x.a) + ' ' + other); ok(!r.ok && /enhet/.test(r.msg || ''), w, `wrong unit "${other}" not flagged`);
       }
+      }
+    }
+    if (type === 'roots') { // andragradsekvationer: mängden lösningar
+      ok(Array.isArray(x.a) && x.a.length <= 2, w, 'roots answer must be an array of ≤ 2 numbers');
+      ok(typeof x.calc === 'string', w, 'missing calc');
+      let cv; try { cv = Function('"use strict";return (' + x.calc + ')')(); } catch (err) { fail(w, 'calc error ' + err.message); continue; }
+      const norm = arr => arr.map(v => (x.dec != null ? round(v, x.dec) : v)).sort((a, b) => a - b);
+      const A = norm(x.a), Cc = norm(cv);
+      ok(A.length === Cc.length && A.every((v, i) => Math.abs(v - Cc[i]) < 1e-9), w, `calc ${JSON.stringify(Cc)} ≠ answer ${JSON.stringify(A)}`);
+      if (x.a.length === 0) {
+        ok(M.check(x, 'ingen').ok, w, '"ingen" rejected'); ok(M.check(x, 'ingen lösning').ok, w, '"ingen lösning" rejected');
+        ok(!M.check(x, '4').ok && !M.check(x, '4 och -4').ok, w, 'numbers accepted when no solution');
+      } else {
+        const s2 = x.a.map(v => sv(v)).join(' och '); ok(M.check(x, s2).ok, w, `canonical "${s2}" rejected`);
+        ok(M.check(x, 'x = ' + x.a.map(v => sv(v)).join(' eller x = ')).ok, w, 'x = … eller x = … rejected');
+        ok(M.check(x, x.a.map(v => String(v).replace('.', ',')).join('; ')).ok, w, 'semicolon list rejected');
+        if (x.a.length === 2) {
+          const hi = Math.max(...x.a); ok(M.check(x, '±' + sv(hi)).ok, w, '± form rejected');
+          const one = M.check(x, sv(hi)); ok(!one.ok && /två/.test(one.msg || ''), w, 'single root not flagged as incomplete');
+          ok(!M.check(x, sv(hi) + ' och ' + sv(hi + 1)).ok, w, 'wrong second root accepted');
+        }
+        ok(!M.check(x, 'ingen').ok, w, '"ingen" accepted although solutions exist');
+      }
+      for (const t of x.traps || []) { const r = M.check(x, String(t[0])); ok(!r.ok && r.msg === t[1], w, `trap "${t[0]}" does not give its message (got: ${r.msg})`); }
+      continue;
     }
     if (type === 'choice') {
       ok(Array.isArray(x.opts) && x.opts.includes(x.a), w, 'choice answer not among options');
@@ -116,6 +154,38 @@ for (const s of ALL) for (const x of [s.g, ...s.p]) for (const gv of x.given || 
 console.log(`Moment: ${ALL.length} (åk 9: ${S9.length}, åk 8: ${S8.length})`);
 console.log(`Uppgifter (guidad + övning): ${exercises}  · genomgångna exempel: ${ALL.length}`);
 console.log(`Kontroller: ${checks}`);
+
+// ---- Täckningsmatris mot originalplanerna ----
+{
+  const COV = require(path.join(__dirname, 'coverage.js'));
+  const byId = new Map(ALL.map(x => [x.id, x]));
+  const count = { COMPLETE: 0, PARTIAL: 0, MISSING: 0 };
+  for (const [g, w, item, sk, st] of COV) {
+    const W = `täckning ${g}/v${w} "${item}"`;
+    count[st]++;
+    ok(st !== 'MISSING', W, 'MISSING kvar');
+    ok(st === 'PARTIAL' || sk.length > 0, W, 'COMPLETE utan moment');
+    for (const id of sk) {
+      if (id.startsWith('ENGINE:')) continue;
+      const k = byId.get(id);
+      ok(!!k, W, 'okänt moment-id ' + id);
+      if (k && w) ok(k.w.includes(w) || ALL.some(x => x.id === id && Math.abs(Math.min(...x.w) - w) <= 4), W, `vecka ${w} ej nära ${id} (${k.w})`);
+      if (k) ok(k.id.startsWith(g === 9 ? 's9-' : 'f8-'), W, 'fel årskurs för ' + id);
+    }
+  }
+  const used = new Set(COV.flatMap(r => r[3]));
+  for (const x of ALL) ok(used.has(x.id), x.id, 'moment saknas i täckningsmatrisen (föräldralöst)');
+  console.log(`Täckning mot originalplan: ${COV.length} punkter · COMPLETE ${count.COMPLETE} · PARTIAL ${count.PARTIAL} · MISSING ${count.MISSING}`);
+}
+// ---- Förmågor (Begrepp B, Metod M, Problemlösning P, Resonemang R, Kommunikation K) ----
+{
+  const tot = { B: 0, M: 0, P: 0, R: 0, K: 0 };
+  for (const x of ALL) for (const e of [x.g, ...x.p]) for (const a of (e.ab || [])) tot[a]++;
+  const tagged = ALL.filter(x => [x.g, ...x.p].some(e => (e.ab || []).length)).length;
+  const withRK = ALL.filter(x => [x.g, ...x.p].some(e => (e.ab || []).some(a => a === 'R' || a === 'K'))).length;
+  console.log(`Förmågetaggar (explicita): B ${tot.B} · M ${tot.M} · P ${tot.P} · R ${tot.R} · K ${tot.K} · moment med taggar ${tagged}/${ALL.length} · moment med R/K ${withRK}/${ALL.length}`);
+  ok(tot.R >= 30 && tot.K >= 15 && tot.P >= 20, 'förmågor', 'för få R/K/P-uppgifter');
+}
 console.log(`Diagramtyper som används: ${used.size}`);
 if (fails.length) { console.log(`\nFEL (${fails.length}):`); fails.forEach(f => console.log(' ✗ ' + f)); process.exit(1); }
 console.log('\nALLA KONTROLLER GODKÄNDA ✓');
