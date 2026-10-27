@@ -1,11 +1,16 @@
 {
-  "name":"Matte OS — Åk 8 & Åk 9",
-  "short_name":"Matte OS",
-  "description":"Offline-first matteverktyg för åk 8 och åk 9.",
-  "start_url":"./",
-  "scope":"./",
-  "display":"standalone",
-  "background_color":"#f6f0e7",
-  "theme_color":"#541424",
-  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+  "name": "Matte OS",
+  "short_name": "Matte OS",
+  "description": "Matte för åk 8 och åk 9 – en sak i taget. Fungerar offline.",
+  "lang": "sv",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f1e9",
+  "theme_color": "#f6f1e9",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
 }
