@@ -36,7 +36,7 @@
   function preferred(skill, mode, r, used){
     const order=LEVEL_ORDER[mode]||LEVEL_ORDER.diagnos;
     for(const lv of order){
-      const xs=skill.p.map((q,i)=>({q,i})).filter(x=>x.q.lv===lv&&!used.has(i));
+      const xs=skill.p.map((q,i)=>({q,i})).filter(x=>x.q.lv===lv&&!used.has(x.i));
       if(xs.length) return xs[Math.floor(r()*xs.length)];
     }
     const xs=skill.p.map((q,i)=>({q,i})).filter(x=>!used.has(i));
