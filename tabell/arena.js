@@ -167,5 +167,6 @@ window.addEventListener('keydown',e=>{
 });
 window.addEventListener('hashchange',()=>{draw();scrollTo(0,0)});
 draw();
+if('serviceWorker' in navigator && location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 window.__TABELL_QA={info,mixedQs,tableQs,stables};
 })();
