@@ -106,6 +106,79 @@
       ${hero}${progress}${restCards}${lookup}${planHtml}`, 'home');
   }
 
+function boostCard() {
+  const s = T.stats(pid());
+  const weak = T.weakFacts(pid(), 3);
+  const weekly = Array.from({ length: s.weekGoal }, (_, i) => `<i class="${i < Math.min(s.weekSessions, s.weekGoal) ? 'on' : ''}"></i>`).join('');
+  const weakText = s.started ? weak.map(f => `${f.a}×${f.b}`).join(' · ') : 'Första rundan hittar vad som behöver mest repetition';
+  return `<section class="boost-card">
+    <div class="boost-top">
+      <div class="boost-icon">${I.grid}</div>
+      <div class="boost-copy"><p class="eyebrow">Multiplikationsboost · ca 2 min</p><h2>Gör resten av matten lättare.</h2><p class="mut small">${esc(weakText)}</p></div>
+    </div>
+    <div class="boost-meta">
+      <div><span>Veckomål</span><div class="boost-week">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} korta pass</small></div>
+      <div><span>Tabellflyt</span><b>${s.percent}%</b><small>${esc(s.level)}</small></div>
+    </div>
+    <button class="btn block boost-btn" data-a="multStart">Starta dagens 10</button>
+  </section>`;
+}
+
+function tableMap() {
+  return `<div class="table-map">${Array.from({ length: 9 }, (_, i) => i + 2).map(n => {
+    const x = T.tableStats(pid(), n);
+    return `<div class="table-row"><span class="table-name">${n}:ans tabell</span><div class="table-track"><i style="width:${x.percent}%"></i></div><b>${x.percent}%</b></div>`;
+  }).join('')}</div>`;
+}
+
+function viewTables(mode) {
+  const s = T.stats(pid());
+  if (mode === 'run' && UI.mult) return viewMultRun();
+  if (mode === 'result' && UI.mult && UI.mult.finished) return viewMultResult();
+  const weekly = Array.from({ length: s.weekGoal }, (_, i) => `<i class="${i < Math.min(s.weekSessions, s.weekGoal) ? 'on' : ''}"></i>`).join('');
+  return shell(`<button class="btn text" data-a="nav" data-h="#/">${I.back.replace('<svg', '<svg width="18" height="18"')} Hem</button>
+    <p class="eyebrow">Grundträning</p><h1>Multiplikationsboost</h1>
+    <p class="mut">10 korta frågor. Systemet väljer automatiskt det som behöver mest repetition och låter missade fakta komma tillbaka som revansch.</p>
+    <section class="card boost-overview">
+      <div class="boost-score"><div><span>Tabellflyt</span><strong>${s.percent}%</strong><small>${esc(s.level)}</small></div><div><span>Veckomål</span><div class="boost-week big">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} pass</small></div></div>
+      <button class="btn block" data-a="multStart">Starta 10 frågor</button>
+    </section>
+    <details class="fold" ${s.started ? 'open' : ''}><summary>Tabellkarta 2–10</summary><div class="in">${tableMap()}</div></details>
+    <div class="box neutral"><div class="k">Så fungerar det</div><p class="small" style="margin:0">Ingen nedräkning. Rätt på första försöket bygger flyt. Ett fel ger direkt rätt svar och samma fakta kommer tillbaka senare. Målet är säkra svar – farten kommer efteråt.</p></div>`, 'home');
+}
+
+function viewMultRun() {
+  const r = UI.mult, q = T.current(r);
+  if (!q) { r.finished = T.finish(pid(), r); return viewMultResult(); }
+  const retry = !!q.retry;
+  const step = retry ? Math.min(r.idx + 1, r.questions.length) : Math.min(r.idx + 1, r.baseN);
+  const pct = retry ? 100 : Math.round(100 * r.idx / r.baseN);
+  const fb = r.feedback;
+  const body = `<section class="mult-run">
+    <div class="mult-status"><span>${retry ? 'REVANSCH' : `FRÅGA ${step} AV ${r.baseN}`}</span><span>${r.streak ? `Serie ${r.streak}` : 'Bygg flyt'}</span></div>
+    <div class="mult-progress"><i style="width:${pct}%"></i></div>
+    <div class="mult-question" aria-label="${q.a} gånger ${q.b}">${q.a} <span>×</span> ${q.b}</div>
+    ${fb ? `<div class="mult-feedback ${fb.ok ? 'good' : 'try'}"><b>${fb.ok ? 'Rätt.' : 'Inte än.'}</b><span>${q.a} × ${q.b} = ${fb.correct}${fb.ok ? '' : ' · den kommer tillbaka.'}</span></div>
+      <button class="btn block" data-a="multNext">${r.idx + 1 >= r.questions.length ? 'Visa resultat' : 'Nästa'}</button>`
+    : `<form data-form="mult" class="mult-form"><label for="multans" class="sr">Svar</label><input id="multans" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autofocus placeholder="?" aria-label="Skriv svaret"><button class="btn block" type="submit">Svara</button></form>`}
+  </section>`;
+  return focusShell(body, { title: 'Multiplikationsboost', sub: retry ? 'Revansch' : '10 korta frågor', steps: 10, cur: Math.min(r.baseAnswered, 10), exit: '#/tabell' });
+}
+
+function viewMultResult() {
+  const r = UI.mult, x = r.finished || { correctFirst: r.baseCorrect, baseN: r.baseN, missed: r.missed, bestStreak: r.bestStreak };
+  const pct = Math.round(100 * x.correctFirst / x.baseN);
+  const title = pct === 100 ? 'Fullträff.' : pct >= 80 ? 'Bra flyt.' : pct >= 60 ? 'På väg.' : 'Bra – nu vet vi vad som ska nötas.';
+  const missed = x.missed && x.missed.length ? x.missed.map(k => k.replace('x','×')).join(' · ') : 'Inga missade fakta den här rundan.';
+  const s = T.stats(pid());
+  return shell(`<section class="mult-result">
+    <p class="eyebrow">Rundan klar</p><div class="mult-score">${x.correctFirst}/${x.baseN}</div><h1>${title}</h1>
+    <p class="mut">Rätt på första försöket. Bästa serie: <b>${x.bestStreak}</b>.</p>
+    <div class="card"><div class="row between"><span>Tabellflyt totalt</span><b>${s.percent}%</b></div><div class="mult-result-bar"><i style="width:${s.percent}%"></i></div><p class="mut small" style="margin:10px 0 0">Nästa runda prioriterar: ${esc(missed)}</p></div>
+    <div class="actions"><button class="btn" data-a="multStart">Kör en till</button><button class="btn ghost" data-a="multHome">Till Matte OS</button></div>
+  </section>`, 'home');
+}
+
   /* ================= KAPITELKARTA ================= */
   function viewChapter(chId) {
     const p = pid(), st = E.chapterStats(p, chId), sk = E.chapterSkills(p, chId);
