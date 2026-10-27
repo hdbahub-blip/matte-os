@@ -147,7 +147,49 @@ main{max-width:1040px;padding-top:22px}
 .card.clickable:hover,.btn:hover{transform:none}
 @media(max-width:780px){main{padding:15px 12px 90px}.topbar-inner{min-height:64px;padding:9px 12px}.brand small{display:none}.top-search summary span{display:none}.top-search summary{padding:10px}.profile-switch .pname{display:none}.next-step-card,.lesson-body-v3,.zero-grid-v3,.worked-v3,.guided-v3,.question-card-v3{grid-template-columns:1fr}.next-step-card{padding:20px}.next-step-visual{min-height:205px;order:-1}.next-step-visual svg{height:205px}.deadline-strip{align-items:flex-start;flex-direction:column}.home-small-actions{display:grid;grid-template-columns:1fr 1fr}.home-small-actions .btn{padding:11px 9px}.lesson-focus-v3{padding:18px 15px;min-height:0}.lesson-body-v3 aside{position:static;order:-1}.lesson-path-v3{grid-template-columns:1fr;gap:8px}.lesson-path-v3>div:first-child{white-space:normal;flex-wrap:wrap}.lesson-path-v3 span{display:none}.concept-visual-v3,.worked-visual-v3,.exercise-visual-v3,.question-visual-v3{min-height:220px}.concept-visual-v3 svg,.worked-visual-v3 svg,.exercise-visual-v3 svg,.question-visual-v3 svg{height:220px}.lesson-controls-v3 .btn{flex:1}.question-card-v3{padding:16px}.question-visual-v3{order:0}.question-main-v3{order:1}.phase-strip-v3 span{font-size:.65rem;padding:8px 5px}.session-meter-v3{grid-template-columns:auto 100px}.practice-actions-v3{display:grid}.practice-actions-v3>div{display:grid}.practice-actions-v3 .btn{width:100%}.single-action{display:grid}.single-action .btn{width:100%}.solo-card-v3{display:grid}.solo-card-v3 .btn{width:100%}.bottomnav button span{display:inline}.bottomnav button{padding:9px 5px}.ui-icon{width:19px;height:19px}}
 
-</style><meta name="matte-os-build" content="3.0.1"></head><body><div id="app" aria-live="polite"></div><div id="toast" class="toast" role="status" aria-live="polite"></div><script>window.MATTE_DATA = {
+
+/* MATTE OS V4 — independent audit corrections */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif}
+main{max-width:1020px;padding-top:14px}
+.topbar-inner{max-width:1020px;flex-wrap:nowrap!important}.brand{order:0!important}.topbar-actions{order:1!important;margin-left:auto!important;display:flex;align-items:center;gap:8px}.focus-profile{display:grid;place-items:center;min-width:40px;height:40px;border:1px solid var(--v3-line);border-radius:12px;background:#fffaf3;color:var(--accent);font-weight:900}
+.brand b{font-family:Georgia,serif;letter-spacing:.01em}.brand small{color:#7c726b}
+.today-v4{display:grid;gap:14px}.today-intro h1{font-family:inherit!important;font-size:clamp(1.9rem,5vw,2.65rem)!important;font-weight:850;letter-spacing:-.035em}
+.next-step-card h2,.lesson-header-v3 h1,.stage-copy-v3 h2,.question-main-v3 h2,.guided-v3 h3,.finish-card-v3 h1{font-family:inherit!important;letter-spacing:-.025em}
+.next-step-card h2{font-size:clamp(1.65rem,4vw,2.25rem)!important}.lesson-header-v3 h1{font-size:clamp(1.9rem,5vw,3rem)!important}.stage-copy-v3 h2{font-size:clamp(1.45rem,3.8vw,1.9rem)!important}.question-main-v3 h2{font-size:clamp(1.3rem,3.5vw,1.72rem)!important}
+.next-step-card,.lesson-focus-v3,.question-card-v3{border-radius:19px;box-shadow:0 8px 24px rgba(49,30,22,.055)}.next-step-card{padding:22px}.lesson-focus-v3{min-height:0;padding:20px}.kicker{letter-spacing:.075em}
+.home-status-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:13px 15px;border:1px solid var(--v3-line);border-radius:14px;background:#fbf6ef}.home-status-row>div{display:grid;gap:3px}.home-status-row small{font-size:.65rem;letter-spacing:.08em;color:var(--v3-muted);font-weight:850}.home-status-row b{font-size:.88rem}
+.home-tools-v4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.tool-link-v4{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center;text-align:left;border:1px solid var(--v3-line);border-radius:14px;background:#fffaf3;padding:11px 12px;color:var(--v3-ink)}.tool-link-v4 .ui-icon{color:var(--accent)}.tool-link-v4 span{display:grid;gap:2px}.tool-link-v4 b{font-size:.88rem}.tool-link-v4 small{color:var(--v3-muted);font-size:.7rem;line-height:1.3}
+.formula-page-v4{display:grid;gap:16px}.formula-page-head{padding:4px 2px 8px}.formula-page-head h1{font-size:clamp(1.9rem,5vw,2.8rem);letter-spacing:-.035em;margin:5px 0 8px}.formula-page-head p{max-width:720px;color:var(--v3-muted);line-height:1.55;margin:0}
+.formula-index-v4{display:grid;gap:10px}.formula-chapter-v4{border:1px solid var(--v3-line);border-radius:17px;background:var(--v3-paper);overflow:hidden}.formula-chapter-v4>summary{list-style:none;display:flex;justify-content:space-between;gap:14px;align-items:center;padding:15px 17px;cursor:pointer}.formula-chapter-v4>summary::-webkit-details-marker{display:none}.formula-chapter-v4>summary div{display:grid;gap:3px}.formula-chapter-v4>summary small{font-size:.63rem;letter-spacing:.08em;color:var(--v3-muted);font-weight:850}.formula-chapter-v4>summary b{font-size:1.02rem}.formula-chapter-v4>summary>span{font-size:.75rem;color:var(--v3-muted)}
+.formula-list-v4{display:grid;gap:8px;padding:0 12px 12px}.formula-card-v4{border:1px solid #eadfd3;border-radius:13px;background:#fff}.formula-card-v4>summary{list-style:none;display:grid;grid-template-columns:34px 1fr 26px;gap:10px;align-items:center;padding:12px 13px;cursor:pointer}.formula-card-v4>summary::-webkit-details-marker{display:none}.formula-card-icon{width:32px;height:32px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}.formula-card-head{display:grid;gap:3px}.formula-card-head b{font-size:.9rem}.formula-card-head span{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;color:var(--accent);line-height:1.3}.formula-chevron{font-size:1.2rem;color:var(--v3-muted);text-align:center}.formula-card-v4[open] .formula-chevron{transform:rotate(45deg)}
+.formula-card-body{display:grid;gap:10px;padding:0 13px 13px}.formula-card-body small{font-size:.62rem;letter-spacing:.08em;color:var(--v3-muted);font-weight:850}.formula-card-body p{margin:3px 0 0;line-height:1.48;font-size:.86rem}.formula-core-v4,.formula-example-v4,.formula-trap-v4,.formula-when{padding:11px 12px;border-radius:11px;background:#faf5ed}.formula-core-v4 b{display:block;margin-top:5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--accent);font-size:.9rem}.formula-core-v4 p{color:var(--v3-muted)}.formula-variants{display:grid;gap:6px}.formula-variants>div{display:grid;gap:3px;padding:9px 11px;border-left:3px solid var(--accent);background:#fbf7f0;border-radius:9px}.formula-variants b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.86rem}.formula-variants span{font-size:.78rem;color:var(--v3-muted)}.formula-example-v4 b{display:block;margin-top:5px;color:var(--good)}.formula-trap-v4{background:#fbf3e8}
+.profile-tools-v4{display:grid;gap:8px;margin:12px 0}.profile-tools-v4 button{display:grid;grid-template-columns:30px 1fr;gap:9px;align-items:center;text-align:left;border:1px solid var(--v3-line);border-radius:12px;background:#fffaf3;padding:10px}.profile-tools-v4 span{display:grid}.profile-tools-v4 b{font-size:.88rem}.profile-tools-v4 small{font-size:.69rem;color:var(--v3-muted)}.profile-divider{height:1px;background:var(--v3-line);margin:15px 0}
+.lesson-path-v3{padding:10px 12px}.lesson-path-v3 b{font-size:.82rem}.lesson-path-v3 small{font-size:.6rem}
+.worked-step-v3.locked{opacity:.66}.before-calc>div{background:#f8f3ec}.formula-dock summary{padding:12px 13px}.formula-main{font-family:ui-monospace,SFMono-Regular,Menlo,monospace!important}
+.bottomnav{z-index:65;bottom:calc(8px + env(safe-area-inset-bottom));box-shadow:0 10px 28px rgba(40,28,22,.14)}
+@media(max-width:780px){
+ body{background:#f5efe7}
+ main{padding:12px 12px calc(128px + env(safe-area-inset-bottom))}
+ .topbar-inner{min-height:60px!important;padding:8px 11px!important;gap:8px!important}
+ .brand{order:0!important;gap:8px}.brand-mark{width:38px!important;height:38px!important;border-radius:11px!important}.brand b{font-size:.98rem!important}.brand small{display:none!important}
+ .topbar-actions{order:1!important;margin-left:auto!important;gap:7px}.top-search summary{padding:9px!important}.profile-switch{padding:6px 8px!important}.avatar{width:34px!important;height:34px!important}
+ .today-intro h1{font-size:1.95rem!important}.next-step-card{padding:16px!important;gap:14px!important}.next-step-visual{min-height:185px!important}.next-step-visual svg{height:185px!important}
+ .home-status-row{grid-template-columns:1fr auto;padding:11px 12px}.home-status-row b{font-size:.78rem}.home-tools-v4{grid-template-columns:1fr}.tool-link-v4{padding:10px 11px}
+ .lesson-header-v3{padding-bottom:8px}.lesson-header-v3 h1{font-size:1.85rem!important}.lesson-header-v3 p{font-size:.92rem}.lesson-focus-v3{padding:15px 13px!important;border-radius:17px!important}.lesson-body-v3{gap:10px!important}
+ .lesson-path-v3{margin-bottom:10px!important}.concept-visual-v3,.worked-visual-v3,.exercise-visual-v3,.question-visual-v3{min-height:190px!important}.concept-visual-v3 svg,.worked-visual-v3 svg,.exercise-visual-v3 svg,.question-visual-v3 svg{height:190px!important}
+ .stage-v3{gap:14px}.stage-copy-v3 h2{font-size:1.45rem!important}.stage-copy-v3 p{font-size:.9rem}.one-note{padding:11px 12px}.worked-step-v3{padding:9px 10px}.before-calc>div{padding:8px 10px}
+ .guided-v3 h3{font-size:1.25rem!important}.question-card-v3{padding:14px!important;gap:14px!important}.question-main-v3 h2{font-size:1.35rem!important}.phase-strip-v3{gap:5px}.phase-strip-v3 span{font-size:.62rem;padding:7px 4px}
+ .bottomnav{width:calc(100% - 22px)!important;border-radius:16px!important;padding:5px!important}.bottomnav button{font-size:.74rem!important;padding:9px 5px!important}
+ .formula-page-head h1{font-size:1.9rem}.formula-page-head p{font-size:.9rem}.formula-chapter-v4>summary{padding:13px}.formula-list-v4{padding:0 8px 8px}.formula-card-v4>summary{grid-template-columns:30px 1fr 22px;padding:10px}.formula-card-icon{width:29px;height:29px}.formula-card-head span{font-size:.72rem}
+}
+
+
+.practice-hub-v4{display:grid;gap:14px}.practice-hub-head{padding:5px 2px}.practice-hub-head h1{font-size:clamp(1.9rem,5vw,2.7rem);letter-spacing:-.035em;margin:5px 0 7px}.practice-hub-head p{margin:0;color:var(--v3-muted);max-width:620px}
+.practice-recommended-v4{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(220px,.85fr);gap:20px;align-items:center;padding:22px;border:1px solid var(--v3-line);border-radius:19px;background:var(--v3-paper)}.practice-recommended-v4 small{font-size:.66rem;letter-spacing:.08em;color:var(--v3-muted);font-weight:850}.practice-recommended-v4 h2{font-size:1.75rem;letter-spacing:-.025em;margin:6px 0}.practice-recommended-v4 p{color:var(--v3-muted);line-height:1.5;margin:0 0 16px}.practice-mini-visual{display:grid;place-items:center;background:#faf5ed;border-radius:15px;min-height:190px}.practice-mini-visual svg{width:100%;height:185px;max-width:310px}.practice-secondary-v4{display:flex;justify-content:flex-start}.other-practice-v4{border:1px solid var(--v3-line);border-radius:14px;background:#fbf7f0;overflow:hidden}.other-practice-v4>summary{list-style:none;padding:12px 14px;font-weight:800;cursor:pointer}.other-practice-v4>summary::-webkit-details-marker{display:none}.other-practice-list-v4{display:grid;padding:0 8px 8px}.other-practice-list-v4 button{display:flex;justify-content:space-between;gap:12px;align-items:center;text-align:left;border:0;border-top:1px solid var(--v3-line);background:transparent;padding:11px 8px}.other-practice-list-v4 span:first-child{display:grid}.other-practice-list-v4 small{color:var(--v3-muted);font-size:.7rem}
+@media(max-width:780px){.practice-recommended-v4{grid-template-columns:1fr;padding:16px}.practice-mini-visual{order:-1;min-height:170px}.practice-mini-visual svg{height:170px}.practice-recommended-v4 h2{font-size:1.5rem}}
+
+</style><meta name="matte-os-build" content="4.0.0"></head><body><div id="app" aria-live="polite"></div><div id="toast" class="toast" role="status" aria-live="polite"></div><script>window.MATTE_DATA = {
   "profiles": {
     "grade9": {
       "name": "Åk 9",
@@ -4118,7 +4160,7 @@ const PED=window.MATTE_PEDAGOGY||{};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 const clone=o=>JSON.parse(JSON.stringify(o));
-const APP_VERSION='3.0.1';
+const APP_VERSION='4.0.0';
 const DB_NAME='matte-os-db', STORE='kv', KEY='state';
 let installPrompt=null;
 let route={view:'home',skillId:null,chapterId:null,stage:0,reveal:1};
@@ -4197,45 +4239,83 @@ function icon(name){
   home:'<path d="M3 11.5 12 4l9 7.5v8a1.5 1.5 0 0 1-1.5 1.5H15v-6H9v6H4.5A1.5 1.5 0 0 1 3 19.5z"/>',
   practice:'<path d="M4 19.5 5.2 15 15.8 4.4a2.1 2.1 0 0 1 3 0l.8.8a2.1 2.1 0 0 1 0 3L9 18.8z"/><path d="m14.5 5.7 3.8 3.8"/>',
   progress:'<path d="M5 19V11M12 19V5M19 19v-8"/><path d="M3 21h18"/>',
+  formulas:'<path d="M6 3h9l3 3v15H6z"/><path d="M15 3v4h4M9 11h6M9 15h4"/>',
   search:'<circle cx="10.5" cy="10.5" r="5.8"/><path d="m15 15 5 5"/>',
   settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2M12 19.2v2M2.8 12h2M19.2 12h2M5.5 5.5l1.4 1.4M17.1 17.1l1.4 1.4M18.5 5.5l-1.4 1.4M6.9 17.1l-1.4 1.4"/>',
   plan:'<rect x="4" y="5.5" width="16" height="14" rx="2"/><path d="M8 3v5M16 3v5M4 10h16"/>',
   library:'<path d="M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M8 4v16"/>',
   rest:'<path d="M4 8a8 8 0 1 1-.4 7"/><path d="M4 3v5h5"/>'
  };
- return `<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p[name]||p.home}</svg>`
+ return `<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p[name]||p.home}</svg>`;
 }
-function nav(){const items=[['home','Hem'],['practice','Träna'],['progress','Framsteg']];return `<nav class="bottomnav">${items.map(([v,l])=>`<button data-nav="${v}" class="${route.view===v?'active':''}"><span class="nav-icon">${icon(v)}</span><span>${l}</span></button>`).join('')}</nav>`}
+function nav(){
+ const items=[['home','Hem'],['formulas','Formler'],['practice','Träna']];
+ return `<nav class="bottomnav">${items.map(([v,l])=>`<button data-nav="${v}" class="${route.view===v?'active':''}"><span class="nav-icon">${icon(v)}</span><span>${l}</span></button>`).join('')}</nav>`;
+}
 function shell(content){
- const p=profile();
+ const p=profile(),focus=route.view==='skill'||route.view==='session';
+ const actions=focus
+  ?`<div class="topbar-actions focus-actions"><span class="focus-profile">Å${p.grade}</span></div>`
+  :`<div class="topbar-actions">
+    <details class="top-search"><summary>${icon('search')}<span>Sök</span></summary><div class="top-search-panel"><div class="search-wrap"><span class="search-icon">${icon('search')}</span><input id="globalSearch" class="search" autocomplete="off" placeholder="Sök t.ex. bråk, cirkel eller Pythagoras"/><div id="searchResults"></div></div></div></details>
+    <button class="profile-switch" id="profileSwitch"><span class="avatar">Å${p.grade}</span><span class="pname"><b>${esc(p.name)}</b></span><span class="chevron">⌄</span></button>
+   </div>`;
  return `<div class="app-shell"><header class="topbar"><div class="topbar-inner">
-  <div class="brand" data-nav="home" role="button" tabindex="0"><div class="brand-mark">M</div><div><b>MATTE OS</b><small>Åk 8–9 · en sak i taget</small></div></div>
-  <div class="topbar-actions">
-   <details class="top-search"><summary>${icon('search')}<span>Sök</span></summary><div class="top-search-panel"><div class="search-wrap"><span class="search-icon">${icon('search')}</span><input id="globalSearch" class="search" autocomplete="off" placeholder="Sök t.ex. bråk, cirkel eller Pythagoras"/><div id="searchResults"></div></div></div></details>
-   <button class="profile-switch" id="profileSwitch"><span class="avatar">Å${p.grade}</span><span class="pname"><b>${esc(p.name)}</b></span><span class="chevron">⌄</span></button>
-  </div>
- </div></header><main>${content}</main>${route.view==='session'?'':nav()}</div>`;
+  <div class="brand" data-nav="home" role="button" tabindex="0"><div class="brand-mark">M</div><div><b>MATTE OS</b><small>Åk 8–9 · lugnt, tydligt, steg för steg</small></div></div>
+  ${actions}
+ </div></header><main>${content}</main>${focus?'':nav()}</div>`;
 }
 function render(){setTheme();let content='';switch(route.view){
- case'home':content=renderHome();break;case'plan':content=renderPlan();break;case'library':content=renderLibrary();break;case'skill':content=renderSkill(route.skillId);break;case'practice':content=renderPracticeHub();break;case'session':content=renderSession();break;case'rest':content=renderRest();break;case'progress':content=renderProgress();break;case'settings':content=renderSettings();break;default:content=renderHome();}
+ case'home':content=renderHome();break;case'formulas':content=renderFormulas();break;case'plan':content=renderPlan();break;case'library':content=renderLibrary();break;case'skill':content=renderSkill(route.skillId);break;case'practice':content=renderPracticeHub();break;case'session':content=renderSession();break;case'rest':content=renderRest();break;case'progress':content=renderProgress();break;case'settings':content=renderSettings();break;default:content=renderHome();}
  $('#app').innerHTML=shell(content);bindCommon();if(route.view==='session')bindSession();
 }
 
 function renderHome(){
- const p=profile(),cp=currentPlan(),exam=nextChapterExam(),rec=skillById(recommendedSkill());
+ const p=profile(),cp=currentPlan(),exam=nextChapterExam(),rec=skillById(recommendedSkill()),op=overallProgress();
  const datedRests=allRestExams().filter(r=>r.date).sort((a,b)=>new Date(a.date)-new Date(b.date));
  const nearestRest=datedRests.find(r=>daysUntil(r.date)>=0),undated=allRestExams().filter(r=>!r.date);
  const deadline=nearestRest?`${esc(nearestRest.title)} · ${fmtDate(nearestRest.date)} · ${daysUntil(nearestRest.date)} dagar kvar`:exam?`${esc(exam.name)} · prov vecka ${exam.examWeek}`:'Ingen deadline inlagd';
- return `<section class="today-v3">
-  <div class="today-intro"><div class="kicker">VECKA ${isoWeek()} · ${esc(p.name)}</div><h1>Du behöver bara göra nästa sak.</h1><p>${esc(cp?.area||'Matematik')} · ${esc(cp?.detail||'Fortsätt där du slutade.')}</p></div>
-  ${rec?`<article class="next-step-card"><div class="next-step-copy"><div class="kicker">NÄSTA STEG</div><h2>${esc(rec.title)}</h2><p>${esc(rec.subtitle)}</p><div class="today-rule"><small>När använder jag det?</small><b>${esc(rec.when)}</b></div><button class="btn btn-primary btn-big" data-open-skill="${rec.id}">Börja här</button></div><div class="next-step-visual">${renderVisual(rec.visual,rec)}</div></article>`:''}
-  <div class="deadline-strip"><div><small>NÄRMAST I PLANEN</small><b>${deadline}</b></div>${undated.length?`<button class="text-button" data-nav="rest">${undated.length} restprov saknar datum</button>`:''}</div>
-  <div class="home-small-actions"><button class="btn btn-secondary" data-nav="plan">${icon('plan')} Veckoplan</button><button class="btn btn-secondary" data-nav="library">${icon('library')} Hitta regel</button></div>
+ return `<section class="today-v4">
+  <div class="today-intro"><div class="kicker">VECKA ${isoWeek()} · ${esc(p.name)}</div><h1>En sak i taget.</h1><p>${esc(cp?.area||'Matematik')} · ${esc(cp?.detail||'Fortsätt där du slutade.')}</p></div>
+  ${rec?`<article class="next-step-card"><div class="next-step-copy"><div class="kicker">NÄSTA STEG</div><h2>${esc(rec.title)}</h2><p>${esc(rec.subtitle)}</p><div class="today-rule"><small>Du använder det när</small><b>${esc(rec.when)}</b></div><button class="btn btn-primary btn-big" data-open-skill="${rec.id}">Fortsätt här</button></div><div class="next-step-visual">${renderVisual(rec.visual,rec)}</div></article>`:''}
+  <div class="home-status-row"><div><small>NÄRMAST</small><b>${deadline}</b></div><div><small>DIN PROGRESSION</small><b>${op}%</b></div></div>
+  <div class="home-tools-v4">
+   <button class="tool-link-v4" data-nav="formulas">${icon('formulas')}<span><b>Formelsamling</b><small>regler, baklängesformler och exempel</small></span></button>
+   <button class="tool-link-v4" data-nav="plan">${icon('plan')}<span><b>Veckoplan</b><small>vad skolan gör nu och vad som kommer</small></span></button>
+   ${undated.length?`<button class="tool-link-v4" data-nav="rest">${icon('rest')}<span><b>Restprov</b><small>${undated.length} saknar datum</small></span></button>`:''}
+  </div>
  </section>`;
 }
 function renderRecommended(s){const st=statusInfo(s.id);return `<div class="card clickable" data-skill="${s.id}"><div class="grid grid-2" style="align-items:center"><div><div class="kicker">${esc(s.chapter)} · <span class="status-dot ${st.cls}"></span>${st.label}</div><h3 style="font-size:1.5rem">${esc(s.title)}</h3><p>${esc(s.when)}</p><div style="margin-top:15px"><span class="pill">${esc(s.rule)}</span></div></div><div><div class="progress-row"><div class="progress-track"><div class="progress-fill" style="width:${st.score}%"></div></div><small>${st.score}%</small></div><button style="margin-top:16px" class="btn btn-primary" data-start-skill="${s.id}">Öva ${s.title}</button></div></div></div>`}
 function chapterSummary(ch){const pc=chapterProgress(ch);return `<div class="card clickable" data-chapter="${ch.id}"><div class="kicker">${ch.status==='current'?'AKTUELLT':ch.status==='past'?'TIDIGARE':'KOMMER'}</div><h3>${esc(ch.name)}</h3><p>${ch.skills.length} metodkort · prov vecka ${ch.examWeek}</p><div class="progress-row" style="margin-top:15px"><div class="progress-track"><div class="progress-fill" style="width:${pc}%"></div></div><small>${pc}%</small></div></div>`}
 
+function formulaCard(s){
+ const p=pedagogy(s),moves=p.rearrange||[],reverse=p.reverse||[],ex=s.example||{};
+ const variants=moves.length
+  ?`<div class="formula-variants">${moves.map(m=>`<div><small>OM DU SÖKER ${esc(m.find)}</small><b>${esc(m.form)}</b><span>${esc(m.why)}</span></div>`).join('')}</div>`
+  :reverse.length?`<div class="formula-variants">${reverse.slice(0,3).map(x=>`<div><small>REGEL / BAKLÄNGES</small><b>${esc(x)}</b></div>`).join('')}</div>`:'';
+ return `<details class="formula-card-v4">
+  <summary><div class="formula-card-icon">${visualGlyph(s.visual)}</div><div class="formula-card-head"><b>${esc(s.title)}</b><span>${esc(s.rule)}</span></div><span class="formula-chevron">+</span></summary>
+  <div class="formula-card-body">
+   <div class="formula-when"><small>NÄR?</small><p>${esc(s.when)}</p></div>
+   <div class="formula-core-v4"><small>KÄRNA</small><b>${esc(s.rule)}</b><p>${esc(formulaMeaning(s))}</p></div>
+   ${variants}
+   ${ex.problem?`<div class="formula-example-v4"><small>MINIEXEMPEL</small><p>${esc(ex.problem)}</p><b>${esc(ex.answer||'')}</b></div>`:''}
+   ${(p.mistakes||[]).length?`<div class="formula-trap-v4"><small>VANLIG FÄLLA</small><p>${esc(p.mistakes[0])}</p></div>`:''}
+   <button class="btn btn-secondary" data-formula-skill="${s.id}">Öppna hela förklaringen</button>
+  </div>
+ </details>`;
+}
+function renderFormulas(){
+ const current=profile().chapters.find(ch=>ch.status==='current')?.id;
+ return `<section class="formula-page-v4">
+  <div class="formula-page-head"><div class="kicker">FORMELSAMLING · ÅK ${profile().grade}</div><h1>Allt du behöver kunna – samlat.</h1><p>Öppna bara området du behöver. Varje kort visar regeln först; baklängestänk, exempel och vanliga fel ligger under.</p></div>
+  <div class="formula-index-v4">${profile().chapters.map(ch=>`<details class="formula-chapter-v4" ${ch.id===current?'open':''}>
+    <summary><div><small>${ch.status==='current'?'JUST NU':ch.status==='past'?'TIDIGARE':'KOMMER'}</small><b>${esc(ch.name)}</b></div><span>${ch.skills.length} regler</span></summary>
+    <div class="formula-list-v4">${ch.skills.map(id=>formulaCard(skillById(id))).join('')}</div>
+  </details>`).join('')}</div>
+ </section>`;
+}
 function renderPlan(){const w=isoWeek();return `<section class="section" style="margin-top:0"><div class="section-head"><div><div class="kicker">KÄLLA: SKOLANS HT-26-PLANERING</div><h2>${profile().name} · årskurs ${profile().grade}</h2><p>Exakt ordning och sidor från planeringen i Drive. Provdatum som inte anges exakt visas bara som vecka.</p></div></div><div class="timeline">${profile().plan.map(x=>`<div class="week-row ${x.week===w?'current':''} ${x.exam?'exam':''}"><div class="week-no">v.${x.week}<small style="display:block;font-family:inherit;color:var(--muted);font-weight:500">${esc(x.range)}</small></div><div><strong>${esc(x.area)}</strong><small>${esc(x.detail)} · ${esc(x.pages)}</small></div>${x.exam?'<span class="pill bad">PROV</span>':x.week===w?'<span class="pill">NU</span>':''}</div>`).join('')}</div></section>`}
 
 function renderLibrary(){return `<section class="section" style="margin-top:0"><div class="section-head"><div><div class="kicker">HELA DIN MATTE · HT-26</div><h2>Metodbibliotek</h2><p>Öppna ett kort för regel, när den används, steg, exempel och övningar.</p></div></div><div class="grid">${profile().chapters.map(ch=>renderChapter(ch)).join('')}</div></section>`}
@@ -4256,7 +4336,7 @@ function visualGlyph(v){
  };
  return `<svg class="skill-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${map[v]||map.default}</svg>`;
 }
-function lessonStages(){return [['FATTA','Vad är det?'],['GÖR MED MIG','Se hur det går till'],['PROVA MED STÖD','Vi gör en ihop'],['GÖR SJÄLV','Tre korta uppgifter']]}
+function lessonStages(){return [['FATTA','Vad är idén?'],['SE EXEMPEL','Följ en lösning'],['PROVA MED STÖD','Din tur med hjälp'],['GÖR SJÄLV','Tre korta uppgifter']]}
 function renderLessonPath(stage){const x=lessonStages()[stage]||lessonStages()[0];return `<div class="lesson-path-v3"><div><small>DEL ${stage+1} AV 4</small><b>${x[0]}</b><span>${x[1]}</span></div><div class="quiet-progress"><i style="width:${((stage+1)/4)*100}%"></i></div></div>`}
 function formulaMeaning(s){
  const id=s.id||'',v=s.visual||'';
@@ -4271,15 +4351,17 @@ function formulaMeaning(s){
  return s.when;
 }
 function renderFormulaPeek(s,p){
- const moves=(p.rearrange||[]).slice(0,3);
- return `<details class="formula-dock"><summary><span>Formel</span><small>kika när du behöver</small></summary><div class="formula-dock-body"><div class="formula-main">${esc(s.rule)}</div><p>${esc(formulaMeaning(s))}</p>${moves.length?`<div class="formula-ways">${moves.map(m=>`<div><small>Om du söker ${esc(m.find)}</small><b>${esc(m.form)}</b></div>`).join('')}</div>`:''}</div></details>`;
+ const moves=(p.rearrange||[]).slice(0,3),reverse=(p.reverse||[]).slice(0,3);
+ const extras=moves.length?moves.map(m=>`<div><small>Om du söker ${esc(m.find)}</small><b>${esc(m.form)}</b></div>`).join('')
+ :reverse.map(x=>`<div><small>Tänk så här</small><b>${esc(x)}</b></div>`).join('');
+ return `<details class="formula-dock"><summary><span>Formelstöd</span><small>öppna vid behov</small></summary><div class="formula-dock-body"><div class="formula-main">${esc(s.rule)}</div><p>${esc(formulaMeaning(s))}</p>${extras?`<div class="formula-ways">${extras}</div>`:''}</div></details>`;
 }
 function renderFormulaMoves(s,p){const moves=p.rearrange||[];if(!moves.length)return `<div class="logic-strip">${(p.reverse||[]).map((x,i)=>`<div><span>${i+1}</span><p>${esc(x)}</p></div>`).join('')}</div>`;return `<div class="formula-moves">${moves.map((m,i)=>`<article><div class="move-number">${i+1}</div><div><small>OM DU SÖKER</small><h4>${esc(m.find)}</h4><div class="formula compact">${esc(m.form)}</div><p>${esc(m.why)}</p></div></article>`).join('')}</div>`}
 function renderStageContent(s,p,stage){
- if(stage===0)return `<div class="stage-v3"><div class="stage-copy-v3"><div class="kicker">BÖRJA HÄR</div><h2>${esc(p.plain)}</h2><p>Först ska du bara förstå idén. Du behöver inte räkna ännu.</p></div><div class="zero-grid-v3"><div class="concept-visual-v3">${renderVisual(s.visual,s)}</div><div class="zero-notes-v3"><div class="one-note"><small>EN SAK ATT MINNAS</small><b>${esc(p.memory)}</b></div><div class="one-note"><small>SÅ KÄNNER DU IGEN DEN</small><b>${esc((p.recognize||[])[0]||s.when)}</b></div></div></div></div>`;
- if(stage===1){const n=Math.max(1,Math.min(route.reveal||1,s.example.steps.length));return `<div class="stage-v3"><div class="stage-copy-v3"><div class="kicker">GÖR MED MIG</div><h2>${esc(s.example.problem)}</h2><p>Vi tar ett steg åt gången. Försök gissa nästa steg innan du visar det.</p></div><div class="worked-v3"><div class="worked-visual-v3">${renderVisual(s.visual,s,s.example)}</div><div class="worked-steps-v3"><div class="before-calc"><div><small>GIVET</small><b>${esc(extractKnown(s.example.problem))}</b></div><div><small>SÖK</small><b>${esc(extractUnknown(s.example.problem))}</b></div><div><small>SAMBAND</small><b>${esc(s.rule)}</b></div></div>${s.example.steps.map((x,i)=>`<div class="worked-step-v3 ${i<n?'shown':'locked'}"><span>${i+1}</span><div>${i<n?`<b>${esc(x)}</b>`:'<b>Vad tror du kommer nu?</b>'}</div></div>`).join('')}${n>=s.example.steps.length?`<div class="worked-answer-v3"><small>SVAR</small><b>${esc(s.example.answer)}</b></div>`:''}<div class="single-action">${n<s.example.steps.length?`<button class="btn btn-primary" data-reveal-next>Visa nästa steg</button>`:`<button class="btn btn-primary" data-lesson-next>Nu provar vi tillsammans →</button>`}</div></div></div></div>`}
- if(stage===2){const e=s.exercises[0];return `<div class="stage-v3"><div class="stage-copy-v3"><div class="kicker">PROVA MED STÖD</div><h2>Nu gör vi en ihop.</h2><p>Du får en sak i taget. Om du fastnar finns formeln och ledtrådar nära till hands.</p></div><div class="guided-v3"><div class="exercise-visual-v3">${renderExerciseVisual(s,e)}</div><div><small>UPPGIFT</small><h3>${esc(e.prompt)}</h3><button class="btn btn-primary btn-big" data-start-guided="${s.id}">Starta uppgiften</button></div></div></div>`}
- return `<div class="stage-v3"><div class="stage-copy-v3"><div class="kicker">GÖR SJÄLV</div><h2>Tre korta uppgifter.</h2><p>En uppgift i taget. Hjälp finns om du behöver den – men prova själv först.</p></div><div class="solo-card-v3"><div><b>${s.exercises.length} uppgifter</b><span>${esc(s.title)}</span></div><button class="btn btn-primary btn-big" data-start-skill="${s.id}">Börja</button></div></div>`;
+ if(stage===0)return `<div class="stage-v3"><div class="stage-copy-v3"><div class="kicker">FATTA IDÉN</div><h2>${esc(p.plain)}</h2><p>Ingen uträkning ännu. Först bygger vi en tydlig bild av vad regeln betyder.</p></div><div class="zero-grid-v3"><div class="concept-visual-v3">${renderVisual(s.visual,s)}</div><div class="zero-notes-v3"><div class="one-note"><small>MINNESREGEL</small><b>${esc(p.memory)}</b></div><div class="one-note"><small>KÄNN IGEN</small><b>${esc((p.recognize||[])[0]||s.when)}</b></div></div></div></div>`;
+ if(stage===1){const n=Math.max(1,Math.min(route.reveal||1,s.example.steps.length));return `<div class="stage-v3"><div class="stage-copy-v3"><div class="kicker">SE EXEMPEL</div><h2>${esc(s.example.problem)}</h2><p>Följ en rad i taget. Försök själv tänka ut nästa rad innan du visar den.</p></div><div class="worked-v3"><div class="worked-visual-v3">${renderVisual(s.visual,s,s.example)}</div><div class="worked-steps-v3"><div class="before-calc"><div><small>GIVET</small><b>${esc(extractKnown(s.example.problem,s,s.example))}</b></div><div><small>SÖK</small><b>${esc(extractUnknown(s.example.problem,s,s.example))}</b></div><div><small>REGEL</small><b>${esc(s.rule)}</b></div></div>${s.example.steps.map((x,i)=>`<div class="worked-step-v3 ${i<n?'shown':'locked'}"><span>${i+1}</span><div>${i<n?`<b>${esc(x)}</b>`:'<b>Tänk: vad blir nästa rad?</b>'}</div></div>`).join('')}${n>=s.example.steps.length?`<div class="worked-answer-v3"><small>SVAR</small><b>${esc(s.example.answer)}</b></div>`:''}<div class="single-action">${n<s.example.steps.length?`<button class="btn btn-primary" data-reveal-next>Visa nästa rad</button>`:`<button class="btn btn-primary" data-lesson-next>Prova med stöd →</button>`}</div></div></div></div>`}
+ if(stage===2){const e=s.exercises[0];return `<div class="stage-v3"><div class="stage-copy-v3"><div class="kicker">PROVA MED STÖD</div><h2>Din tur – vi tar den steg för steg.</h2><p>Du börjar själv. Om du fastnar finns formelstöd och en ledtråd i taget.</p></div><div class="guided-v3"><div class="exercise-visual-v3">${renderExerciseVisual(s,e)}</div><div><small>UPPGIFT</small><h3>${esc(e.prompt)}</h3><button class="btn btn-primary btn-big" data-start-guided="${s.id}">Starta</button></div></div></div>`}
+ return `<div class="stage-v3"><div class="stage-copy-v3"><div class="kicker">GÖR SJÄLV</div><h2>Nu testar du utan att någon visar vägen först.</h2><p>Tre korta uppgifter, en i taget. Du kan fortfarande be om hjälp om du fastnar.</p></div><div class="solo-card-v3"><div><b>${s.exercises.length} uppgifter</b><span>${esc(s.title)}</span></div><button class="btn btn-primary btn-big" data-start-skill="${s.id}">Börja</button></div></div>`;
 }
 function renderSkill(id){
  const s=skillById(id);if(!s)return renderLibrary();
@@ -4287,10 +4369,15 @@ function renderSkill(id){
  const controls=stage===0?`<div class="lesson-controls-v3"><span></span><button class="btn btn-primary" data-lesson-next>Nästa: gör med mig →</button></div>`:`<div class="lesson-controls-v3"><button class="btn btn-secondary" data-lesson-prev>← Tillbaka</button><span></span></div>`;
  return `<section class="lesson-page-v3"><div class="lesson-toolbar-v3"><button class="back-button" data-nav="library">← Till momenten</button><span class="lesson-state"><span class="status-dot ${st.cls}"></span>${st.label}</span></div><header class="lesson-header-v3"><div class="kicker">${esc(s.chapter)} · ÅK ${profile().grade}</div><h1>${esc(s.title)}</h1><p>${esc(s.subtitle)}</p></header>${renderLessonPath(stage)}<div class="lesson-body-v3"><div class="lesson-focus-v3">${renderStageContent(s,p,stage)}</div><aside>${renderFormulaPeek(s,p)}</aside></div>${controls}</section>`;
 }
-function renderPracticeHub(){const cur=profile().chapters.find(c=>c.status==='current');return `<section class="hero"><div class="hero-grid"><div><div class="eyebrow">ÖVA</div><h1>Kort, riktat och rättat direkt.</h1><p>Välj aktuellt kapitel, svaga färdigheter eller provläge. Hjälpen trappas upp först när du ber om den.</p></div><div class="hero-side"><strong>Din status: ${overallProgress()}%</strong><div class="meta"><span>${pstate().attempts.length} försök sparade</span><span>lokalt på enheten</span></div></div></div></section>
- <section class="section"><div class="grid grid-3"><div class="card"><div class="kicker">REKOMMENDERAT</div><h3>10 min · ${esc(cur.name)}</h3><p>Svagaste färdigheterna i det ni arbetar med nu.</p><button class="btn btn-primary btn-wide" style="margin-top:16px" data-start-auto="current">Starta</button></div><div class="card"><div class="kicker">BLANDAT PROVLÄGE</div><h3>Utan metodnamn</h3><p>Frågan säger inte vilken regel som behövs. Ingen hint förrän efteråt.</p><button class="btn btn-secondary btn-wide" style="margin-top:16px" data-start-auto="test">Testa mig</button></div><div class="card"><div class="kicker">RESTPROV</div><h3>Träna efter datum</h3><p>Appen prioriterar restprov som fått ett datum.</p><button class="btn btn-soft btn-wide" style="margin-top:16px" data-nav="rest">Öppna restprov</button></div></div></section>
- <section class="section"><div class="section-head"><div><h2>Välj kapitel</h2></div></div><div class="grid grid-3">${profile().chapters.map(ch=>`<div class="card"><h3>${esc(ch.name)}</h3><p>${ch.skills.length} färdigheter · ${chapterProgress(ch)}% progression</p><div class="section-actions" style="margin-top:14px"><button class="btn btn-soft" data-start-chapter="${ch.id}" data-mode="practice">Öva</button><button class="btn btn-secondary" data-start-chapter="${ch.id}" data-mode="test">Provträna</button></div></div>`).join('')}</div></section>`}
-
+function renderPracticeHub(){
+ const cur=profile().chapters.find(c=>c.status==='current')||profile().chapters[0],weak=skillById(weakSkills(cur.skills)[0]);
+ return `<section class="practice-hub-v4">
+  <div class="practice-hub-head"><div class="kicker">TRÄNA</div><h1>Kort pass. Tydligt mål.</h1><p>Du behöver inte välja bland allt. Vi börjar med det som är mest relevant just nu.</p></div>
+  <article class="practice-recommended-v4"><div><small>REKOMMENDERAT · ${esc(cur.name)}</small><h2>${esc(weak?.title||cur.name)}</h2><p>Fem uppgifter, en i taget. Stödet visas bara när du ber om det.</p><button class="btn btn-primary btn-big" data-start-auto="current">Starta 5 uppgifter</button></div><div class="practice-mini-visual">${weak?renderVisual(weak.visual,weak):''}</div></article>
+  <div class="practice-secondary-v4"><button class="btn btn-secondary" data-start-auto="test">Provträna utan ledtrådar</button></div>
+  <details class="other-practice-v4"><summary>Välj ett annat område</summary><div class="other-practice-list-v4">${profile().chapters.map(ch=>`<button data-start-chapter="${ch.id}" data-mode="practice"><span><b>${esc(ch.name)}</b><small>${chapterProgress(ch)}% progression</small></span><span>→</span></button>`).join('')}</div></details>
+ </section>`;
+}
 function renderRest(){const rests=allRestExams();return `<section class="section" style="margin-top:0"><div class="section-head"><div><div class="kicker">RESTPROV / KOMPLETTERING</div><h2>Datum styr prioriteringen</h2><p>Gamla kapitel finns kvar för återtagning. Exakta restprovsdatum saknas i skolplanen och läggs in här när ni får dem.</p></div><button class="btn btn-primary" id="addRest">+ Lägg till</button></div><div class="grid">${rests.map(renderRestCard).join('')}</div></section>`}
 function renderRestCard(r){const d=r.date?daysUntil(r.date):null;const isCustom=pstate().createdRestExams.some(x=>x.id===r.id);return `<div class="card rest-card"><div><div class="kicker">${r.date?(d<0?'PASSERAT':d===0?'IDAG':d+' DAGAR KVAR'):'DATUM SAKNAS'}</div><h3>${esc(r.title)}</h3><p>${r.date?'Planerat '+fmtDate(r.date):'Originalprov vecka '+(r.originalWeek||'—')+'. Lägg in nytt datum när skolan bekräftar.'}</p><div style="margin-top:10px"><span class="pill neutral">${r.skillIds.length} färdigheter</span></div></div><div><input class="date-input rest-date" data-rest-id="${r.id}" type="date" value="${r.date||''}" aria-label="Restprovsdatum"/><div class="section-actions" style="margin-top:10px;justify-content:flex-end"><button class="btn btn-primary" data-start-rest="${r.id}">Träna</button>${isCustom?`<button class="btn btn-danger" data-delete-rest="${r.id}">Ta bort</button>`:''}</div></div></div>`}
 
@@ -4308,7 +4395,7 @@ function renderSession(){
  const step=phase===0?0:phase===2?1:2,labels=['Förstå frågan','Räkna','Lär av svaret'];
  return `<div class="practice-shell-v3"><div class="practice-top-v3"><button class="back-button" id="exitSession">← Avsluta</button><div class="session-meter-v3"><span>${session.index+1} av ${session.items.length}</span><div class="quiet-progress"><i style="width:${pct}%"></i></div></div></div><div class="phase-strip-v3">${labels.map((x,i)=>`<span class="${i===step?'active':''} ${i<step?'done':''}">${i<step?'✓':i+1} ${x}</span>`).join('')}</div><div class="question-card-v3"><div class="question-visual-v3">${renderExerciseVisual(s,e)}</div><div class="question-main-v3"><div class="kicker">${session.mode==='test'?'PROVLÄGE':esc(s.title)}</div><h2>${esc(e.prompt)}</h2>${phase===0?renderOrientPhase(s,e,p):phase===2?renderSolvePhase(s,e,p):renderFeedbackPhase(s,e,p)}</div></div></div>`;
 }
-function renderOrientPhase(s,e,p){return `<div class="phase-panel-v3"><p class="phase-lead-v3">Räkna inte ännu. Gör bara två saker:</p><div class="orient-v3"><div><span>1</span><p><small>VAD VET JAG?</small><b>${esc(extractKnown(e.prompt))}</b></p></div><div><span>2</span><p><small>VAD SKA JAG HITTA?</small><b>${esc(extractUnknown(e.prompt))}</b></p></div></div><div class="single-action"><button class="btn btn-primary btn-big" data-session-phase="2">Jag vet vad jag söker</button></div></div>`}
+function renderOrientPhase(s,e,p){return `<div class="phase-panel-v3"><p class="phase-lead-v3">Räkna inte ännu. Gör bara två saker:</p><div class="orient-v3"><div><span>1</span><p><small>VAD VET JAG?</small><b>${esc(extractKnown(e.prompt,s,e))}</b></p></div><div><span>2</span><p><small>VAD SKA JAG HITTA?</small><b>${esc(extractUnknown(e.prompt,s,e))}</b></p></div></div><div class="single-action"><button class="btn btn-primary btn-big" data-session-phase="2">Jag vet vad jag söker</button></div></div>`}
 function renderChoosePhase(s,e,p){const opts=methodOptions(s);return `<div class="phase-panel"><p class="phase-lead">Vilken metod kopplar ihop det du vet med det du söker?</p><div class="method-options">${opts.map(o=>`<button class="method-option ${session.methodChoice===o.id?(o.id===s.id?'correct':'wrong'):''}" data-method-choice="${o.id}"><span>${visualGlyph(o.visual)}</span><div><b>${esc(o.title)}</b><small>${esc(o.subtitle)}</small></div></button>`).join('')}</div>${session.methodFeedback?`<div class="feedback ${session.methodChoice===s.id?'good':'neutral'}"><strong>${session.methodChoice===s.id?'Ja – rätt väg.':'Titta igen.'}</strong>${esc(session.methodFeedback)}</div>`:''}<div class="practice-actions"><button class="btn btn-secondary" data-session-phase="0">← Tillbaka</button><button class="btn btn-primary" data-session-phase="2" ${session.methodChoice!==s.id?'disabled':''}>Nu räknar jag →</button></div></div>`}
 function renderSolvePhase(s,e,p){return `<div class="phase-panel-v3">${session.mode!=='test'?renderFormulaPeek(s,p):''}<div class="solve-start-v3"><small>BÖRJA SÅ HÄR</small><b>${esc((p.think||[])[0]||'Skriv vad du vet och vad du söker.')}</b></div>${renderAnswerControl(e)}<div id="hintArea">${session.currentHints?.map((h,i)=>`<div class="hint-box-v3"><small>LEDTRÅD ${i+1}</small><b>${esc(h)}</b></div>`).join('')||''}</div><div class="practice-actions-v3"><div>${session.mode!=='test'?`<button class="btn btn-secondary" id="hintBtn">Jag fastnar · ge en ledtråd</button>`:''}<button class="btn btn-secondary" id="keypadToggle">Visa matteknappar</button></div><button class="btn btn-primary btn-big" id="checkAnswer">${session.mode==='test'?'Spara svar':'Kontrollera'}</button></div><div id="keypad" class="keypad" hidden>${['7','8','9','+','−','4','5','6','×','÷','1','2','3','(',')','0',',','x','²','√','π','⌫'].map(k=>`<button type="button" data-key="${k}">${k}</button>`).join('')}</div></div>`}
 function renderFeedbackPhase(s,e,p){const f=session.feedback||{correct:false,title:'',text:''};return `<div class="phase-panel-v3"><div id="feedbackArea">${feedbackHtml(f)}</div><div class="takeaway-v3"><small>TA MED DIG</small><b>${esc(f.correct?p.memory:smartFeedback(s,e,session.lastAnswer||'',session.wrongCount))}</b></div><div class="single-action">${!f.correct&&session.mode!=='test'?`<button class="btn btn-secondary" data-try-again>Försök igen</button>`:''}${f.correct||f.canSkip?`<button class="btn btn-primary btn-big" id="nextQuestion">Nästa uppgift</button>`:''}</div></div>`}
@@ -4318,10 +4405,118 @@ function renderResults(){
  const r=session.results,correct=r.filter(x=>x.correct).length,total=r.length,guided=!!session.returnSkillId;
  return `<div class="practice-shell-v3"><div class="finish-card-v3"><div class="kicker">${guided?'BRA · FÖRSTA UPPGIFTEN KLAR':'PASSET ÄR KLART'}</div><h1>${correct} av ${total} rätt</h1><p>${guided?'Nu har du sett idén och gjort en med stöd. Nästa steg är tre korta uppgifter själv.':correct===total?'Bra. Nu får hjärnan vila en stund.':'Det som blev fel används för att välja nästa träningssteg.'}</p>${guided?`<button class="btn btn-primary btn-big" data-return-skill="${session.returnSkillId}">Fortsätt: gör själv →</button>`:`<button class="btn btn-primary btn-big" data-nav="home">Till dagens steg</button>`}</div></div>`;
 }
-function nums(text){return (String(text||'').match(/\d+(?:[.,]\d+)?/g)||[]).map(x=>x.replace(',','.'))}
-function extractKnown(prompt){const ns=nums(prompt);if(ns.length)return ns.slice(0,4).join(' · ') + (String(prompt).match(/cm²|cm³|cm|m²|m³|m|%/i)?.[0]?' '+String(prompt).match(/cm²|cm³|cm|m²|m³|m|%/i)[0]:'');return 'De uppgifter som står i texten och bilden.'}
-function extractUnknown(prompt){const t=String(prompt).toLowerCase();if(t.includes('hypoten'))return 'hypotenusan';if(t.includes('katet'))return 'den saknade kateten';if(t.includes('radie'))return t.includes('bestäm radien')?'radien':'det frågan ber om';if(t.includes('diameter'))return t.includes('bestäm diamet')?'diametern':'det frågan ber om';if(t.includes('area'))return 'arean / den saknade storheten';if(t.includes('omkrets'))return 'omkretsen / den saknade storheten';if(t.includes('volym'))return 'volymen / den saknade storheten';if(t.includes('x'))return 'x';return 'det frågan ber dig bestämma'}
+function nums(text){return (String(text||'').match(/-?\d+(?:[.,]\d+)?/g)||[]).map(x=>x.replace(',','.'))}
+function valueTokens(text){
+ const src=String(text||'');
+ const re=/-?\d+(?:[.,]\d+)?(?:\s*×\s*10(?:\^?-?\d+|[⁰¹²³⁴⁵⁶⁷⁸⁹]+))?\s*(?:inv\/km²|procentenheter|km³|m³|dm³|cm³|mm³|km²|m²|dm²|cm²|mm²|km|dm|cm|mm|m|kr|°|%)?/gi;
+ return (src.match(re)||[]).map(x=>x.trim()).filter(Boolean);
+}
+function extractKnown(prompt,s,e){
+ const t=String(prompt||''),id=s?.id||''; let m;
+ if((m=t.match(/Omvandla\s+(-?\d+(?:[.,]\d+)?)\s*(km³|m³|dm³|cm³|mm³|km²|m²|dm²|cm²|mm²|km|m|dm|cm|mm)\s+till\s+(km³|m³|dm³|cm³|mm³|km²|m²|dm²|cm²|mm²|km|m|dm|cm|mm)/i)))return `${m[1]} ${m[2]}`;
+ if(id==='s9-angles'){const a=[...t.matchAll(/(-?\d+(?:[.,]\d+)?)°/g)].map(x=>x[1]+'°');if(a.length)return a.join(' och ')}
+ if(id==='f8-sphere'&&/fördubblas/i.test(t))return 'radien blir 2 gånger så stor';
+ if(id==='s9-symmetry'){
+  if(/kvadrat/i.test(t))return 'en kvadrat';
+  if(/rektangel/i.test(t))return 'en rektangel som inte är en kvadrat';
+  return 'figuren i uppgiften';
+ }
+ if(/skala\s+1\s*:\s*[\d\s]+/i.test(t)){
+  const sc=t.match(/skala\s+(1\s*:\s*[\d\s]+)/i)?.[1]?.replace(/\s+/g,'')||'';
+  const vals=valueTokens(t).filter(x=>!/^1$/.test(x)&&!x.includes(':'));
+  return [sc?`skala ${sc}`:'',...vals.slice(-2)].filter(Boolean).join(' · ');
+ }
+ if(/^(Lös|Förenkla|Faktorisera)\b/i.test(t)){
+  const expr=t.replace(/^(Lös|Förenkla|Faktorisera)\s*/i,'').split(/Svara|Bestäm/i)[0].trim().replace(/\.$/,'');
+  return expr||'uttrycket i uppgiften';
+ }
+ const vals=valueTokens(t);
+ if(vals.length)return vals.slice(0,4).join(' · ');
+ if(e?.options?.length)return 'svarsalternativen';
+ return 'det som beskrivs i uppgiften';
+}
+function extractUnknown(prompt,s,e){
+ const t=String(prompt||''),low=t.toLowerCase(); let m;
+ if((m=t.match(/Omvandla\s+.+?\s+till\s+(km³|m³|dm³|cm³|mm³|km²|m²|dm²|cm²|mm²|km|m|dm|cm|mm)/i)))return `samma värde i ${m[1]}`;
+ if(low.includes('tredje vinkeln'))return 'den tredje vinkeln';
+ if(low.includes('intilliggande vinkeln'))return 'den intilliggande vinkeln';
+ if(low.includes('mellan vilka heltal'))return 'de två heltalen som √-värdet ligger mellan';
+ if(low.includes('minsta rotationsvinkel'))return 'minsta rotationsvinkeln';
+ if(low.includes('symmetrilinjer'))return 'antal symmetrilinjer';
+ if(low.includes('bestäm hypotenusan'))return 'hypotenusan';
+ if(low.includes('andra kateten'))return 'den andra kateten';
+ if(low.includes('bestäm diagonalen'))return 'diagonalen';
+ if(low.includes('rymddiagonalen'))return 'rymd diagonalen';
+ if(low.includes('bestäm radien'))return 'radien';
+ if(low.includes('bestäm diametern'))return 'diametern';
+ if(/\bbestäm x\b/i.test(t)||(/^Lös\b/i.test(t)&&t.includes('x')))return 'x';
+ if(low.includes('hur många procent'))return 'andelen i procent';
+ if(low.includes('procentenheter'))return 'skillnaden i procentenheter';
+ if(/^[-\d,.]+\s*%\s+av\s+/i.test(t))return 'delen';
+ if(/är\s+[-\d,.]+\s*%\s+av\s+vilket tal/i.test(low))return 'det hela';
+ if(low.includes('nytt pris'))return 'det nya priset';
+ if(low.includes('nytt värde'))return 'det nya värdet';
+ if(low.includes('slutvärde'))return 'slutvärdet';
+ if(low.includes('ordinarie pris'))return 'ordinarie pris';
+ if(low.includes('ny lön'))return 'den nya lönen';
+ if(low.includes('sidlängd'))return 'sidlängden';
+ if(low.includes('talet?')||low.endsWith('talet.'))return 'talet';
+ if(low.includes('hur många gånger större')&&low.includes('volym'))return 'hur många gånger volymen blir större';
+ if(low.includes('höjd?')||low.includes('höjd.'))return 'höjden';
+ if(low.includes('omkrets'))return low.includes('omkretsen är')?'den saknade storheten':'omkretsen';
+ if(low.includes('area'))return low.includes('arean är')?'den saknade storheten':'arean';
+ if(low.includes('volym'))return low.includes('volymen är')?'den saknade storheten':'volymen';
+ if(/^Förenkla\b/i.test(t))return 'ett förenklat uttryck';
+ if(/^Faktorisera\b/i.test(t))return 'ett faktoriserat uttryck';
+ if(low.includes('grundpotensform'))return 'talet i grundpotensform';
+ if(/^Beräkna\b/i.test(t))return 'resultatet';
+ if(/^Skriv\b/i.test(t))return 'det efterfrågade värdet';
+ if(/^Vilket|^Vilken|^Är\b/i.test(t))return 'rätt alternativ';
+ return e?.unit?`svaret i ${e.unit}`:'det efterfrågade svaret';
+}
 function renderVisual(type,s,ctx){const accent='var(--accent)',soft='var(--accent-soft)';const id=s?.id||'',text=ctx?.prompt||ctx?.problem||'',n=nums(text);const label=(i,fallback='?')=>esc(n[i]||fallback);
+ // Context-first visuals: show only what helps solve the current task.
+ if(id==='f8-units'){
+  const low=text.toLowerCase(),isArea=/²|area/.test(text),isVol=/³|volym/.test(text);
+  if(text){
+   if(isVol)return `<svg viewBox="0 0 380 220"><text x="30" y="38" font-size="14" font-weight="800">VOLYM = 3 dimensioner</text><path d="M82 78h62v62H82z M99 61h62v62h-17 M144 78l17-17 M144 140l17-17 M82 78l17-17" fill="${soft}" fill-opacity=".5" stroke="${accent}" stroke-width="3"/><text x="196" y="92" font-size="15" fill="${accent}">ett enhetssteg</text><text x="196" y="122" font-size="25" font-weight="800" fill="${accent}">×1000</text><text x="30" y="190" font-size="14">tre riktningar ändras samtidigt</text></svg>`;
+   if(isArea)return `<svg viewBox="0 0 380 220"><text x="30" y="38" font-size="14" font-weight="800">AREA = 2 dimensioner</text><rect x="82" y="72" width="82" height="82" rx="8" fill="${soft}" stroke="${accent}" stroke-width="3"/><path d="M82 170h82M180 72v82" stroke="${accent}" stroke-width="2" stroke-dasharray="5 5"/><text x="196" y="92" font-size="15" fill="${accent}">ett enhetssteg</text><text x="196" y="122" font-size="25" font-weight="800" fill="${accent}">×100</text><text x="30" y="190" font-size="14">två riktningar ändras samtidigt</text></svg>`;
+   return `<svg viewBox="0 0 380 220"><text x="30" y="38" font-size="14" font-weight="800">LÄNGD = 1 dimension</text><line x1="70" y1="105" x2="190" y2="105" stroke="${accent}" stroke-width="7" stroke-linecap="round"/><path d="M200 105h75" stroke="${accent}" stroke-width="2"/><text x="215" y="88" font-size="15">ett enhetssteg</text><text x="215" y="128" font-size="25" font-weight="800" fill="${accent}">×10</text><text x="30" y="190" font-size="14">en riktning ändras</text></svg>`;
+  }
+  return `<svg viewBox="0 0 380 240"><g transform="translate(24 26)"><text x="0" y="18" font-size="14" font-weight="800">LÄNGD</text><line x1="92" y1="12" x2="176" y2="12" stroke="${accent}" stroke-width="5" stroke-linecap="round"/><text x="205" y="18" font-size="15" fill="${accent}">×10</text></g><g transform="translate(24 94)"><text x="0" y="24" font-size="14" font-weight="800">AREA</text><rect x="107" y="0" width="38" height="38" rx="5" fill="${soft}" stroke="${accent}" stroke-width="3"/><text x="205" y="24" font-size="15" fill="${accent}">×10 · ×10 = ×100</text></g><g transform="translate(24 168)"><text x="0" y="25" font-size="14" font-weight="800">VOLYM</text><path d="M112 3h34v34h-34z M121 -6h34v34h-9 M146 3l9-9 M146 37l9-9 M112 3l9-9" fill="${soft}" fill-opacity=".45" stroke="${accent}" stroke-width="2.5"/><text x="205" y="25" font-size="15" fill="${accent}">×10³ = ×1000</text></g></svg>`;
+ }
+ if(type==='angles'){
+  const low=text.toLowerCase(),vals=[...text.matchAll(/(-?\d+(?:[.,]\d+)?)°/g)].map(x=>x[1]+'°');
+  if(low.includes('rak linje'))return `<svg viewBox="0 0 380 230"><line x1="40" y1="170" x2="340" y2="170" stroke="${accent}" stroke-width="5"/><line x1="190" y1="170" x2="255" y2="55" stroke="${accent}" stroke-width="5"/><path d="M146 170 A44 44 0 0 1 212 132" fill="none" stroke="${accent}" stroke-width="3"/><path d="M212 132 A52 52 0 0 1 240 170" fill="none" stroke="${accent}" stroke-width="3"/><text x="118" y="137" font-size="18">${esc(vals[0]||'128°')}</text><text x="250" y="142" font-size="22" fill="${accent}">?</text><text x="125" y="210" font-size="14">rak linje = 180°</text></svg>`;
+  if(low.includes('runt en punkt'))return `<svg viewBox="0 0 380 230"><circle cx="190" cy="118" r="7" fill="${accent}"/><path d="M190 118 L190 35 M190 118 L305 118 M190 118 L95 55 M190 118 L88 180" stroke="${accent}" stroke-width="4"/><text x="212" y="72" font-size="16">${esc(vals[0]||'90°')}</text><text x="112" y="76" font-size="16">${esc(vals[1]||'110°')}</text><text x="117" y="157" font-size="22" fill="${accent}">x</text><text x="118" y="215" font-size="14">ett helt varv = 360°</text></svg>`;
+  return `<svg viewBox="0 0 380 240"><path d="M55 190 L190 40 L325 190 Z" fill="${soft}" fill-opacity=".18" stroke="${accent}" stroke-width="5"/><path d="M89 190 A36 36 0 0 1 111 162 M291 190 A36 36 0 0 0 269 162 M168 64 A30 30 0 0 1 212 64" fill="none" stroke="${accent}" stroke-width="3"/><text x="82" y="156" font-size="18">${esc(vals[0]||'?')}</text><text x="272" y="156" font-size="18">${esc(vals[1]||'?')}</text><text x="181" y="92" font-size="24" fill="${accent}">?</text><text x="122" y="224" font-size="14">vinkelsumma = 180°</text></svg>`;
+ }
+ if(id==='f8-perimeter'){
+  const low=text.toLowerCase(),v=valueTokens(text);
+  if(low.includes('triangel'))return `<svg viewBox="0 0 380 230"><path d="M70 185 L190 42 L315 185 Z" fill="${soft}" fill-opacity=".16" stroke="${accent}" stroke-width="5"/><text x="96" y="116" font-size="17">${esc(v[0]||'a')}</text><text x="252" y="116" font-size="17">${esc(v[1]||'b')}</text><text x="180" y="211" font-size="17">${esc(v[2]||'c')}</text><text x="96" y="28" font-size="14">omkrets = runt hela kanten</text></svg>`;
+  const a=v[0]||'a',b=low.includes('kvadrat')?(v[0]||'a'):(v[1]||'b');
+  return `<svg viewBox="0 0 380 230"><rect x="73" y="55" width="230" height="125" rx="5" fill="${soft}" fill-opacity=".14" stroke="${accent}" stroke-width="5"/><text x="176" y="207" font-size="17">${esc(a)}</text><text x="32" y="125" font-size="17">${esc(b)}</text><path d="M65 42h246" stroke="${accent}" stroke-width="2" stroke-dasharray="6 5"/><text x="120" y="28" font-size="14">lägg ihop alla sidlängder</text></svg>`;
+ }
+ if(id==='f8-area'){
+  const low=text.toLowerCase(),v=valueTokens(text);
+  if(low.includes('triangel'))return `<svg viewBox="0 0 380 230"><path d="M65 185 L185 45 L315 185 Z" fill="${soft}" stroke="${accent}" stroke-width="4"/><line x1="185" y1="45" x2="185" y2="185" stroke="${accent}" stroke-width="2" stroke-dasharray="6 5"/><text x="165" y="126" font-size="16">h = ${esc(v[1]||'?')}</text><text x="155" y="213" font-size="16">b = ${esc(v[0]||'?')}</text><text x="91" y="28" font-size="14">triangelarea = bas · höjd ÷ 2</text></svg>`;
+  if(low.includes('parallellogram'))return `<svg viewBox="0 0 380 230"><path d="M100 55 H300 L260 180 H60 Z" fill="${soft}" stroke="${accent}" stroke-width="4"/><line x1="100" y1="55" x2="100" y2="180" stroke="${accent}" stroke-width="2" stroke-dasharray="6 5"/><text x="108" y="122" font-size="16">h = ${esc(v[1]||'?')}</text><text x="150" y="208" font-size="16">b = ${esc(v[0]||'?')}</text><text x="104" y="28" font-size="14">area = bas · höjd</text></svg>`;
+  return `<svg viewBox="0 0 380 230"><rect x="70" y="55" width="240" height="125" rx="4" fill="${soft}" stroke="${accent}" stroke-width="4"/><text x="170" y="207" font-size="16">${esc(v[0]||'längd')}</text><text x="28" y="125" font-size="16">${esc(v[1]||'bredd')}</text><text x="122" y="28" font-size="14">area = längd · bredd</text></svg>`;
+ }
+ if(id==='f8-density'){
+  const v=valueTokens(text);return `<svg viewBox="0 0 380 230"><rect x="48" y="48" width="122" height="122" rx="14" fill="${soft}" stroke="${accent}" stroke-width="3"/>${Array.from({length:12},(_,i)=>`<circle cx="${72+(i%4)*26}" cy="${72+Math.floor(i/4)*34}" r="6" fill="${accent}"/>`).join('')}<path d="M205 112h125" stroke="${accent}" stroke-width="3"/><text x="220" y="88" font-size="14">invånare</text><text x="232" y="143" font-size="14">km²</text><text x="80" y="203" font-size="14">täthet = invånare ÷ area</text></svg>`;
+ }
+ if(id==='f8-decimals')return `<svg viewBox="0 0 380 230"><text x="76" y="62" font-size="30" fill="${accent}">4,75</text><text x="76" y="110" font-size="30">+ 2,60</text><line x1="65" y1="126" x2="210" y2="126" stroke="${accent}" stroke-width="3"/><line x1="130" y1="37" x2="130" y2="145" stroke="${accent}" stroke-width="2" stroke-dasharray="5 5"/><text x="232" y="78" font-size="15">decimaltecken</text><text x="232" y="104" font-size="15">under varandra</text><text x="78" y="198" font-size="14">börja med en rimlig uppskattning</text></svg>`;
+ if(id==='s9-prefix')return `<svg viewBox="0 0 380 230"><text x="42" y="42" font-size="14" font-weight="800">PREFIX = en tiopotens i ett namn</text><g transform="translate(38 78)">${[['k','10³'],['','10⁰'],['m','10⁻³'],['µ','10⁻⁶']].map((x,i)=>`<rect x="${i*78}" y="0" width="64" height="58" rx="10" fill="${i===1?'#fff':soft}" stroke="${accent}"/><text x="${i*78+24}" y="23" font-size="18" fill="${accent}">${x[0]||'1'}</text><text x="${i*78+16}" y="45" font-size="12">${x[1]}</text>`).join('')}</g><text x="77" y="186" font-size="14">stort tal ← 1 → litet tal</text></svg>`;
+ if(id==='s9-scientific')return `<svg viewBox="0 0 380 230"><text x="55" y="55" font-size="30" fill="${accent}">450 000</text><path d="M105 78 C150 108 205 108 250 78" fill="none" stroke="${accent}" stroke-width="3"/><text x="83" y="136" font-size="36">4,5 × 10⁵</text><text x="70" y="184" font-size="14">ett tal mellan 1 och 10 framför tiopotensen</text></svg>`;
+ if(id==='s9-similarity')return `<svg viewBox="0 0 380 230"><path d="M52 182 L125 72 L198 182 Z" fill="${soft}" fill-opacity=".22" stroke="${accent}" stroke-width="4"/><path d="M225 182 L285 92 L345 182 Z" fill="${soft}" fill-opacity=".12" stroke="${accent}" stroke-width="4"/><path d="M125 55v18M285 75v18" stroke="${accent}" stroke-width="2"/><text x="84" y="212" font-size="14">samma form</text><text x="238" y="212" font-size="14">samma vinklar</text><text x="113" y="40" font-size="13">motsvarande sidor har samma faktor</text></svg>`;
+ if(id==='f8-surface-area'){
+  const low=text.toLowerCase();
+  if(low.includes('klot'))return `<svg viewBox="0 0 380 230"><circle cx="190" cy="112" r="75" fill="${soft}" stroke="${accent}" stroke-width="4"/><path d="M115 112 C145 88 235 88 265 112 C235 136 145 136 115 112" fill="none" stroke="${accent}" stroke-width="2" stroke-dasharray="5 5"/><text x="165" y="205" font-size="16">A = 4πr²</text></svg>`;
+  if(low.includes('kub'))return `<svg viewBox="0 0 380 230"><path d="M100 75h95v95h-95z M135 45h95v95h-35 M195 75l35-30 M195 170l35-30 M100 75l35-30" fill="${soft}" fill-opacity=".45" stroke="${accent}" stroke-width="4"/><text x="128" y="207" font-size="15">6 lika kvadratiska ytor</text></svg>`;
+  return `<svg viewBox="0 0 380 230"><path d="M75 85h145v90H75z M110 55h145v90h-35 M220 85l35-30 M220 175l35-30 M75 85l35-30" fill="${soft}" fill-opacity=".35" stroke="${accent}" stroke-width="4"/><text x="93" y="210" font-size="15">addera arean av alla 6 ytor</text></svg>`;
+ }
+
  if(id==='s9-number-sets')return `<svg viewBox="0 0 360 240"><ellipse cx="180" cy="120" rx="154" ry="98" fill="#fbf6ee" stroke="${accent}" stroke-width="3"/><ellipse cx="180" cy="120" rx="118" ry="73" fill="${soft}" stroke="${accent}"/><ellipse cx="180" cy="120" rx="82" ry="50" fill="#fff" stroke="${accent}"/><ellipse cx="180" cy="120" rx="44" ry="28" fill="${soft}" stroke="${accent}"/><text x="318" y="52">R</text><text x="278" y="86">Q</text><text x="236" y="118">Z</text><text x="170" y="128">N</text></svg>`;
  if(id==='f8-negative')return `<svg viewBox="0 0 360 220"><line x1="35" y1="115" x2="325" y2="115" stroke="${accent}" stroke-width="4"/><path d="M35 115 l14 -8 v16z M325 115 l-14 -8 v16z" fill="${accent}"/>${[-3,-2,-1,0,1,2,3].map((x,i)=>`<line x1="${70+i*37}" y1="103" x2="${70+i*37}" y2="127" stroke="${accent}"/><text x="${64+i*37}" y="151">${x}</text>`).join('')}<text x="55" y="72" fill="${accent}">← mindre</text><text x="248" y="72" fill="${accent}">större →</text></svg>`;
  if(id==='f8-units')return `<svg viewBox="0 0 380 240" aria-label="Längd, area och volym"><g transform="translate(26 28)"><text x="0" y="18" font-size="14" font-weight="700">LÄNGD</text><line x1="92" y1="12" x2="182" y2="12" stroke="${accent}" stroke-width="5" stroke-linecap="round"/><text x="214" y="18" font-size="15" fill="${accent}">ett steg = ×10</text></g><g transform="translate(26 92)"><text x="0" y="24" font-size="14" font-weight="700">AREA</text><rect x="105" y="0" width="38" height="38" rx="5" fill="${soft}" stroke="${accent}" stroke-width="3"/><text x="165" y="24" font-size="15" fill="${accent}">×10 · ×10 = ×100</text></g><g transform="translate(26 164)"><text x="0" y="26" font-size="14" font-weight="700">VOLYM</text><path d="M112 4h34v34h-34z M121 -5h34v34h-9 M146 4l9-9 M146 38l9-9 M112 4l9-9" fill="${soft}" fill-opacity=".45" stroke="${accent}" stroke-width="2.5"/><text x="175" y="26" font-size="15" fill="${accent}">×10 · ×10 · ×10 = ×1000</text></g></svg>`;
@@ -4342,8 +4537,8 @@ function renderExerciseVisual(s,e){return renderVisual(s.visual,s,e)}
 // ---------- Exercise selection and session ----------
 function startSkill(id){const s=skillById(id);startSession(s.exercises.map(e=>({skillId:id,exercise:e})),'practice')}
 function startGuided(id){const s=skillById(id);startSession([{skillId:id,exercise:s.exercises[0]}],'practice');session.returnSkillId=id;session.returnStage=3}
-function startChapter(id,mode='practice'){const ch=chapterById(id);let items=[];let ids=mode==='practice'?weakSkills(ch.skills):[...ch.skills];ids.forEach(sid=>{const s=skillById(sid);const pool=[...s.exercises];if(mode==='test')items.push({skillId:sid,exercise:pool[Math.floor(Math.random()*pool.length)]});else items.push(...pool.slice(0,2).map(e=>({skillId:sid,exercise:e}))) });if(mode==='practice')items=items.slice(0,10);items=shuffle(items);startSession(items,mode)}
-function startAuto(mode){const cur=profile().chapters.find(c=>c.status==='current')||profile().chapters[0];if(mode==='test')return startChapter(cur.id,'test');const ids=weakSkills(cur.skills).slice(0,5);let items=[];ids.forEach(id=>{const s=skillById(id);items.push({skillId:id,exercise:s.exercises[0]});if(s.exercises[1])items.push({skillId:id,exercise:s.exercises[1]})});startSession(items.slice(0,8),'practice')}
+function startChapter(id,mode='practice'){const ch=chapterById(id);let items=[];let ids=mode==='practice'?weakSkills(ch.skills):[...ch.skills];ids.forEach(sid=>{const s=skillById(sid);const pool=[...s.exercises];if(mode==='test')items.push({skillId:sid,exercise:pool[Math.floor(Math.random()*pool.length)]});else items.push(...pool.slice(0,2).map(e=>({skillId:sid,exercise:e}))) });if(mode==='practice')items=items.slice(0,6);items=shuffle(items);startSession(items,mode)}
+function startAuto(mode){const cur=profile().chapters.find(c=>c.status==='current')||profile().chapters[0];if(mode==='test')return startChapter(cur.id,'test');const ids=weakSkills(cur.skills).slice(0,5);let items=[];ids.forEach(id=>{const s=skillById(id);items.push({skillId:id,exercise:s.exercises[0]});if(s.exercises[1])items.push({skillId:id,exercise:s.exercises[1]})});startSession(items.slice(0,5),'practice')}
 function startRest(id){const r=allRestExams().find(x=>x.id===id);if(!r)return;let items=[];weakSkills(r.skillIds).forEach(sid=>{const s=skillById(sid);items.push({skillId:sid,exercise:s.exercises[Math.floor(Math.random()*s.exercises.length)]})});startSession(items.slice(0,10),'practice')}
 function startSession(items,mode){session={items,index:0,mode,results:[],feedback:null,currentAnswer:'',currentChoice:null,currentHints:[],wrongCount:0,done:false,phase:mode==='test'?2:0,methodChoice:null,methodFeedback:'',lastAnswer:''};route={view:'session'};render()}
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
@@ -4392,6 +4587,7 @@ function resetCurrent(){session.feedback=null;session.currentAnswer='';session.c
 function bindCommon(){
  document.querySelectorAll('[data-nav]').forEach(el=>el.addEventListener('click',()=>{session=null;route={view:el.dataset.nav};render()}));
  document.querySelectorAll('[data-open-skill]').forEach(el=>el.addEventListener('click',()=>{session=null;route={view:'skill',skillId:el.dataset.openSkill,stage:0,reveal:1};render()}));
+ document.querySelectorAll('[data-formula-skill]').forEach(el=>el.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();session=null;route={view:'skill',skillId:el.dataset.formulaSkill,stage:0,reveal:1};render()}));
  document.querySelectorAll('[data-skill]').forEach(el=>el.addEventListener('click',e=>{const nested=e.target.closest('button');if(nested&&nested!==el)return;route={view:'skill',skillId:el.dataset.skill,stage:0,reveal:1};render()}));
  document.querySelectorAll('[data-chapter]').forEach(el=>el.addEventListener('click',()=>{const ch=el.dataset.chapter;route={view:'library'};render();setTimeout(()=>document.querySelector(`[data-start-chapter="${ch}"]`)?.scrollIntoView({behavior:'smooth'}),0)}));
  document.querySelectorAll('[data-start-skill]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();startSkill(el.dataset.startSkill)}));
@@ -4419,7 +4615,13 @@ function bindCommon(){
 
 function onSearch(e){const q=e.target.value.trim().toLowerCase();const box=$('#searchResults');if(!q){box.innerHTML='';return}const ids=new Set(profile().chapters.flatMap(c=>c.skills));const terms=q.split(/\s+/);const res=DATA.skills.filter(s=>ids.has(s.id)).map(s=>{const hay=[s.title,s.subtitle,s.when,s.rule,...s.keywords].join(' ').toLowerCase();const score=terms.reduce((n,t)=>n+(hay.includes(t)?1:0),0)+(s.title.toLowerCase().includes(q)?3:0);return{s,score}}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,8);box.innerHTML=res.length?`<div class="search-results">${res.map(({s})=>`<div class="search-result" data-search-skill="${s.id}"><div><strong>${esc(s.title)}</strong><small>${esc(s.chapter)} · ${esc(s.when)}</small></div><span>→</span></div>`).join('')}</div>`:`<div class="search-results"><div class="empty"><b>Ingen direkt träff</b>Prova ett enklare ord, t.ex. “cirkel”, “bråk” eller “skala”.</div></div>`;document.querySelectorAll('[data-search-skill]').forEach(x=>x.addEventListener('click',()=>{route={view:'skill',skillId:x.dataset.searchSkill};render()}))}
 
-function showProfileModal(){showModal(`<button class="modal-close" data-close>×</button><div class="kicker">BYT PROFIL</div><h2>Vem pluggar?</h2><div class="grid grid-2">${Object.entries(DATA.profiles).map(([id,p])=>`<button class="card clickable" data-pick-profile="${id}" style="text-align:left;border-color:${id===state.activeProfile?'var(--accent)':'var(--line)'}"><div class="avatar" style="background:${p.accent};margin-bottom:14px">${p.name[0]}</div><h3>${p.name}</h3><p>Årskurs ${p.grade}</p></button>`).join('')}</div>`);document.querySelectorAll('[data-pick-profile]').forEach(x=>x.addEventListener('click',async()=>{state.activeProfile=x.dataset.pickProfile;await saveState();closeModal();route={view:'home'};render()}))}
+function showProfileModal(){
+ showModal(`<button class="modal-close" data-close>×</button><div class="kicker">PROFIL</div><h2>Årskurs ${profile().grade}</h2>
+ <div class="profile-tools-v4"><button data-profile-nav="progress">${icon('progress')}<span><b>Framsteg</b><small>vad som sitter och vad som behöver mer träning</small></span></button><button data-profile-nav="plan">${icon('plan')}<span><b>Veckoplan</b><small>skolans planering</small></span></button><button data-profile-nav="rest">${icon('rest')}<span><b>Restprov</b><small>datum och träning</small></span></button><button data-profile-nav="settings">${icon('settings')}<span><b>Inställningar</b><small>backup och läsbarhet</small></span></button></div>
+ <div class="profile-divider"></div><div class="kicker">BYT ÅRSKURS</div><div class="grid grid-2">${Object.entries(DATA.profiles).map(([id,p])=>`<button class="card clickable" data-pick-profile="${id}" style="text-align:left;border-color:${id===state.activeProfile?'var(--accent)':'var(--line)'}"><div class="avatar" style="background:${p.accent};margin-bottom:10px">Å${p.grade}</div><h3>${p.name}</h3></button>`).join('')}</div>`);
+ document.querySelectorAll('[data-profile-nav]').forEach(x=>x.addEventListener('click',()=>{closeModal();session=null;route={view:x.dataset.profileNav};render()}));
+ document.querySelectorAll('[data-pick-profile]').forEach(x=>x.addEventListener('click',async()=>{state.activeProfile=x.dataset.pickProfile;await saveState();closeModal();route={view:'home'};render()}));
+}
 function showAddRestModal(){showModal(`<button class="modal-close" data-close>×</button><div class="kicker">NYTT RESTPROV</div><h2>Lägg in det skolan har sagt</h2><div class="form-grid"><div class="field full"><label>Namn</label><input id="restTitle" placeholder="t.ex. Restprov Geometri"/></div><div class="field"><label>Datum</label><input id="restDate" type="date"/></div><div class="field"><label>Kapitel</label><select id="restChapter">${profile().chapters.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div><div class="field full"><button class="btn btn-primary btn-wide" id="saveRest">Spara restprov</button></div></div>`);$('#saveRest').addEventListener('click',async()=>{const title=$('#restTitle').value.trim();if(!title){toast('Skriv ett namn');return}const ch=chapterById($('#restChapter').value);pstate().createdRestExams.push({id:'custom-'+Date.now(),title,date:$('#restDate').value||null,originalWeek:null,skillIds:[...ch.skills]});await saveState();closeModal();render();toast('Restprov tillagt')})}
 function showModal(html){const d=document.createElement('div');d.className='modal-backdrop';d.id='modalLayer';d.innerHTML=`<div class="modal">${html}</div>`;document.body.appendChild(d);d.addEventListener('click',e=>{if(e.target===d||e.target.closest('[data-close]'))closeModal()})}
 function closeModal(){$('#modalLayer')?.remove()}
