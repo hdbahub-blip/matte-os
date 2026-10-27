@@ -5,8 +5,8 @@
 
 const GOAL=3, BASE_N=10;
 const FACTS=[];
-for(let a=2;a<=10;a++)for(let b=a;b<=10;b++)FACTS.push({a,b,key:a+'x'+b});
-const STARTER=[[2,7],[3,4],[4,6],[5,8],[6,7],[6,9],[7,8],[8,9],[9,4],[10,7]];
+for(let a=1;a<=10;a++)for(let b=a;b<=10;b++)FACTS.push({a,b,key:a+'x'+b});
+const STARTER=[[1,8],[2,7],[3,4],[4,6],[5,8],[6,9],[7,8],[8,9],[9,4],[10,7]];
 
 function engine(){return root.MOEngine}
 function canon(a,b){a=Number(a);b=Number(b);return a<=b?{a,b,key:a+'x'+b}:{a:b,b:a,key:b+'x'+a}}
@@ -39,7 +39,7 @@ function mastery(pid,key){return masteryFrom(factState(pid,key))}
 function strength(st){return Math.min(3,Math.max(0,Number(st?.score)||0)/3)}
 function tableStats(pid,n){
  let sum=0,secure=0,count=0;
- for(let k=2;k<=10;k++){
+ for(let k=1;k<=10;k++){
    const c=canon(n,k),st=factState(pid,c.key),m=masteryFrom(st);sum+=strength(st);count++;if(m>=3)secure++;
  }
  return {n,percent:Math.round(100*sum/(3*count)),secure,total:count};
