@@ -103,7 +103,7 @@
     return shell(`<div class="ctx">${ctx}</div>
       <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'En sak i taget.')}</h1>
       <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Här är det viktigaste att göra nu.</p>
-      ${hero}${progress}${restCards}${lookup}${planHtml}`, 'home');
+      ${hero}${boostCard()}${progress}${restCards}${lookup}${planHtml}`, 'home');
   }
 
 function boostCard() {
@@ -541,6 +541,7 @@ function viewMultResult() {
         case undefined: case '': html = viewHome(); break;
         case 'formler': html = viewFormler(); break;
         case 'trana': html = viewTrana(); break;
+        case 'tabell': html = viewTables(parts[1]); break;
         case 'k': html = viewChapter(parts[1]); break;
         case 'l': html = viewLesson(parts[1], parts[2]); break;
         case 'run': case 'prov': html = viewRun(); break;
@@ -576,6 +577,9 @@ function viewMultResult() {
     fch: b => { UI.fch = b.dataset.ch; UI.fopen.clear(); render(); },
     startTrain: b => { closeSheet(); startRun('train', b.dataset.sid ? { skill: b.dataset.sid } : { chapter: b.dataset.ch }); },
     startTest: b => { closeSheet(); startRun('test', { chapter: b.dataset.ch }); },
+    multStart: () => { closeSheet(); UI.mult = T.start(pid()); UI.mult.questionStarted = Date.now(); go('#/tabell/run'); },
+    multNext: () => { if (!UI.mult) return; if (T.next(UI.mult)) render(); else { UI.mult.finished = T.finish(pid(), UI.mult); go('#/tabell/result'); } },
+    multHome: () => { UI.mult = null; go('#/'); },
     reveal: () => { UI.lesson.reveal++; rerenderKeepScroll(); },
     gsr: b => { UI.lesson[b.dataset.k] = true; rerenderKeepScroll(); },
     rule: b => { const L = UI.lesson, i = +b.dataset.i; L.rule = i; if (i === E.SKILLS[L.sid].g.rc) L.ruleOk = true; rerenderKeepScroll(); },
@@ -609,6 +613,14 @@ function viewMultResult() {
     e.preventDefault(); a(b, e);
   });
   document.addEventListener('submit', e => {
+    const mf = e.target.closest('form[data-form="mult"]');
+    if (mf) {
+      e.preventDefault();
+      if (!UI.mult || UI.mult.answered) return;
+      const inp = document.getElementById('multans'), v = inp ? inp.value : '';
+      if (!String(v).trim()) return;
+      T.answer(pid(), UI.mult, v); render(); return;
+    }
     const f = e.target.closest('form[data-form="answer"]'); if (!f) return;
     e.preventDefault();
     const ex = UI.ex; if (!ex) return;
@@ -657,11 +669,11 @@ function viewMultResult() {
     let reloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (reloaded) return;
-      const busy = /^#\/(l|run|prov)\//.test(location.hash + '/');
+      const busy = /^#\/(l|run|prov)(\/|$)/.test(location.hash + '/') || /^#\/tabell\/run(\/|$)/.test(location.hash + '/');
       if (busy) { window.__moPendingReload = true; return; }
       reloaded = true; location.reload();
     });
-    window.addEventListener('hashchange', () => { if (window.__moPendingReload && !/^#\/(l|run|prov)\//.test(location.hash + '/')) { window.__moPendingReload = false; location.reload(); } });
+    window.addEventListener('hashchange', () => { if (window.__moPendingReload && !(/^#\/(l|run|prov)(\/|$)/.test(location.hash + '/') || /^#\/tabell\/run(\/|$)/.test(location.hash + '/'))) { window.__moPendingReload = false; location.reload(); } });
   }
   window.__MO_UI = UI; // för automatiska tester
 })();
