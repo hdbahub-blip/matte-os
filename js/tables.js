@@ -36,17 +36,18 @@ function masteryFrom(st){
  return 0;
 }
 function mastery(pid,key){return masteryFrom(factState(pid,key))}
+function strength(st){return Math.min(3,Math.max(0,Number(st?.score)||0)/3)}
 function tableStats(pid,n){
  let sum=0,secure=0,count=0;
  for(let k=2;k<=10;k++){
-   const c=canon(n,k),m=mastery(pid,c.key);sum+=m;count++;if(m>=3)secure++;
+   const c=canon(n,k),st=factState(pid,c.key),m=masteryFrom(st);sum+=strength(st);count++;if(m>=3)secure++;
  }
  return {n,percent:Math.round(100*sum/(3*count)),secure,total:count};
 }
 function stats(pid){
  const t=ensure(pid);
  let sum=0,secure=0,started=0;
- for(const f of FACTS){const m=mastery(pid,f.key);sum+=m;if(m>=3)secure++;if((t.facts[f.key]?.attempts||0)>0)started++}
+ for(const f of FACTS){const st=factState(pid,f.key),m=masteryFrom(st);sum+=strength(st);if(m>=3)secure++;if((st.attempts||0)>0)started++}
  const now=isoWeek(),weekSessions=t.sessions.filter(s=>{const w=isoWeek(new Date(s.finishedAt));return w.year===now.year&&w.week===now.week}).length;
  const last=t.sessions[t.sessions.length-1]||null;
  return {
