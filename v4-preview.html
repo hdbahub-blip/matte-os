@@ -4402,12 +4402,13 @@ function valueTokens(text){
  return (src.match(re)||[]).map(x=>x.trim()).filter(Boolean);
 }
 function extractKnown(prompt,s,e){
- const t=String(prompt||''),id=s?.id||'';
- let m;
+ const t=String(prompt||''),id=s?.id||''; let m;
  if((m=t.match(/Omvandla\s+(-?\d+(?:[.,]\d+)?)\s*(km³|m³|dm³|cm³|mm³|km²|m²|dm²|cm²|mm²|km|m|dm|cm|mm)\s+till\s+(km³|m³|dm³|cm³|mm³|km²|m²|dm²|cm²|mm²|km|m|dm|cm|mm)/i)))return `${m[1]} ${m[2]}`;
- if(id==='s9-angles'){
-  const a=[...t.matchAll(/(-?\d+(?:[.,]\d+)?)°/g)].map(x=>x[1]+'°');
-  if(a.length)return a.join(' och ');
+ if(id==='s9-angles'){const a=[...t.matchAll(/(-?\d+(?:[.,]\d+)?)°/g)].map(x=>x[1]+'°');if(a.length)return a.join(' och ')}
+ if(id==='s9-symmetry'){
+  if(/kvadrat/i.test(t))return 'en kvadrat';
+  if(/rektangel/i.test(t))return 'en rektangel som inte är en kvadrat';
+  return 'figuren i uppgiften';
  }
  if(/skala\s+1\s*:\s*[\d\s]+/i.test(t)){
   const sc=t.match(/skala\s+(1\s*:\s*[\d\s]+)/i)?.[1]?.replace(/\s+/g,'')||'';
@@ -4420,28 +4421,36 @@ function extractKnown(prompt,s,e){
  }
  const vals=valueTokens(t);
  if(vals.length)return vals.slice(0,4).join(' · ');
- return e?.options?.length?'svarsalternativen':'informationen i texten och bilden';
+ if(e?.options?.length)return 'svarsalternativen';
+ return 'det som beskrivs i uppgiften';
 }
 function extractUnknown(prompt,s,e){
  const t=String(prompt||''),low=t.toLowerCase(); let m;
  if((m=t.match(/Omvandla\s+.+?\s+till\s+(km³|m³|dm³|cm³|mm³|km²|m²|dm²|cm²|mm²|km|m|dm|cm|mm)/i)))return `samma värde i ${m[1]}`;
  if(low.includes('tredje vinkeln'))return 'den tredje vinkeln';
  if(low.includes('intilliggande vinkeln'))return 'den intilliggande vinkeln';
+ if(low.includes('mellan vilka heltal'))return 'de två heltalen som √-värdet ligger mellan';
+ if(low.includes('minsta rotationsvinkel'))return 'minsta rotationsvinkeln';
+ if(low.includes('symmetrilinjer'))return 'antal symmetrilinjer';
  if(low.includes('bestäm hypotenusan'))return 'hypotenusan';
  if(low.includes('andra kateten'))return 'den andra kateten';
  if(low.includes('bestäm diagonalen'))return 'diagonalen';
  if(low.includes('rymddiagonalen'))return 'rymd diagonalen';
  if(low.includes('bestäm radien'))return 'radien';
  if(low.includes('bestäm diametern'))return 'diametern';
- if(/\bbestäm x\b/i.test(t)||/^Lös\b/i.test(t)&&t.includes('x'))return 'x';
+ if(/\bbestäm x\b/i.test(t)||(/^Lös\b/i.test(t)&&t.includes('x')))return 'x';
  if(low.includes('hur många procent'))return 'andelen i procent';
  if(low.includes('procentenheter'))return 'skillnaden i procentenheter';
+ if(/^[-\d,.]+\s*%\s+av\s+/i.test(t))return 'delen';
+ if(/är\s+[-\d,.]+\s*%\s+av\s+vilket tal/i.test(low))return 'det hela';
  if(low.includes('nytt pris'))return 'det nya priset';
  if(low.includes('nytt värde'))return 'det nya värdet';
  if(low.includes('slutvärde'))return 'slutvärdet';
  if(low.includes('ordinarie pris'))return 'ordinarie pris';
  if(low.includes('ny lön'))return 'den nya lönen';
  if(low.includes('sidlängd'))return 'sidlängden';
+ if(low.includes('talet?')||low.endsWith('talet.'))return 'talet';
+ if(low.includes('hur många gånger större')&&low.includes('volym'))return 'hur många gånger volymen blir större';
  if(low.includes('höjd?')||low.includes('höjd.'))return 'höjden';
  if(low.includes('omkrets'))return low.includes('omkretsen är')?'den saknade storheten':'omkretsen';
  if(low.includes('area'))return low.includes('arean är')?'den saknade storheten':'arean';
@@ -4452,7 +4461,7 @@ function extractUnknown(prompt,s,e){
  if(/^Beräkna\b/i.test(t))return 'resultatet';
  if(/^Skriv\b/i.test(t))return 'det efterfrågade värdet';
  if(/^Vilket|^Vilken|^Är\b/i.test(t))return 'rätt alternativ';
- return e?.unit?`svaret i ${e.unit}`:'det frågan ber om';
+ return e?.unit?`svaret i ${e.unit}`:'det efterfrågade svaret';
 }
 function renderVisual(type,s,ctx){const accent='var(--accent)',soft='var(--accent-soft)';const id=s?.id||'',text=ctx?.prompt||ctx?.problem||'',n=nums(text);const label=(i,fallback='?')=>esc(n[i]||fallback);
  // Context-first visuals: show only what helps solve the current task.
