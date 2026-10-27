@@ -232,7 +232,10 @@ function density(v,item){
 function netAsCube(v){return cuboid({l:v.a||4,b:v.a||4,h:v.a||4,cube:true,unit:'cm'},false)}
 function infer(item,sid){
  const q=item.q||'',g=item.given||[];
- if(sid==='s9-pythagoras' && /rektangulär skärm/i.test(q)) return rightTri({a:36,b:48,c:'?',unit:'cm'},'kvadrat rektangel');
+ if(sid==='s9-pythagoras' && /rektangulär skärm/i.test(q)){
+   let b=R(60,62,240,132)+L(60,194,300,62,'g-accent')+T(180,219,'48 cm','g-label')+T(37,132,'36 cm','g-label')+T(190,116,'d = ?','g-label');
+   return S(b,'Rektangulär skärm med diagonal');
+ }
  if(sid==='s9-pyth-more' && /sidorna är/i.test(q)){
    const nums=(q.match(/\d+(?:[.,]\d+)?/g)||[]).slice(0,3); if(nums.length===3){
     let b=P([[70,190],[295,190],[190,45]])+T(120,112,nums[0],'g-label')+T(250,112,nums[1],'g-label')+T(183,215,nums[2],'g-label');
