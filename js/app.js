@@ -1,11 +1,11 @@
 /* Matte OS v5 — gränssnitt. Vanilla JS, inga beroenden, fungerar offline. */
 (function () {
   'use strict';
-  const E = window.MOEngine, M = window.MOMath, V = window.MOVis, CORE = window.MO_CORE;
+  const E = window.MOEngine, M = window.MOMath, V = window.MOVis, CORE = window.MO_CORE, T = window.MOTables;
   const esc = M.esc, R = M.rich, TX = M.texBlock;
   const app = document.getElementById('app');
   const sheetRoot = document.getElementById('sheet');
-  const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, sheet: null, confirmReset: false };
+  const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, mult: null, sheet: null, confirmReset: false };
 
   /* ---------- ikoner ---------- */
   const svgI = (d, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
@@ -21,7 +21,8 @@
     f: svgI('<path d="M14 4h-2a3 3 0 0 0-3 3v13"/><path d="M6 11h7"/><path d="M15 14l5 5M20 14l-5 5"/>'),
     cal: svgI('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>'),
     flag: svgI('<path d="M5 21V4h11l-2 4 2 4H5"/>'),
-    gear: svgI('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>')
+    gear: svgI('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'),
+    grid: svgI('<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>')
   };
 
   /* ---------- hjälpare ---------- */
