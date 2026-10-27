@@ -130,7 +130,7 @@ function boostCard() {
       <div class="card">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>v. ${s.w.join(', ')} · ${lvl(s.id)}</small></div>
         <button class="btn sm ghost" data-a="nav" data-h="#/l/${s.id}/0">Lär</button>
         <button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div>
-      <div class="actions"><button class="btn" data-a="startTrain" data-ch="${chId}">Blandträna kapitlet</button><button class="btn ghost" data-a="startTest" data-ch="${chId}">Provläge</button></div>`, 'home');
+      <div class="actions"><button class="btn" data-a="startTrain" data-ch="${chId}">Blandträna kapitlet</button><button class="btn ghost" data-a="startTest" data-ch="${chId}">Till provsidan</button></div>`, 'home');
   }
 
   /* ================= FORMLER ================= */
@@ -180,11 +180,11 @@ function boostCard() {
         <div style="height:14px"></div>
         <button class="btn block" data-a="startTrain" data-ch="${rec.chapter}">Starta</button>
       </div></div>
-      <button class="tap" data-a="startTest" data-ch="${rec.chapter}"><div><div class="t">Provläge: ${esc(chName(rec.chapter))}</div><div class="s">Inga ledtrådar, ingen metod angiven. Analys efteråt.</div></div><span class="chev">${I.chev}</span></button>
+      <button class="tap" data-a="startTest" data-ch="${rec.chapter}"><div><div class="t">Öppna Matte Prov · ${esc(chName(rec.chapter))}</div><div class="s">Inga ledtrådar, ingen metod angiven. Analys efteråt.</div></div><span class="chev">${I.chev}</span></button>
       ${rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}"><div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? 'datum ' + esc(r.date) : 'datum saknas'} · beredskap ${r.readiness} %</div></div><span class="chev">${I.chev}</span></button>`).join('')}
       <details class="fold"><summary>Välj ett annat område</summary><div class="in">
         ${pr.chapters.map(c => `<p class="eyebrow mut" style="margin-top:10px">${esc(c.name)}</p>${E.chapterSkills(p, c.id).map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}
-          <div class="actions" style="margin-top:6px"><button class="btn sm ghost" data-a="startTrain" data-ch="${c.id}">Blanda ${esc(c.name.toLowerCase())}</button><button class="btn sm ghost" data-a="startTest" data-ch="${c.id}">Provläge</button></div>`).join('')}
+          <div class="actions" style="margin-top:6px"><button class="btn sm ghost" data-a="startTrain" data-ch="${c.id}">Blanda ${esc(c.name.toLowerCase())}</button><button class="btn sm ghost" data-a="startTest" data-ch="${c.id}">Till provsidan</button></div>`).join('')}
       </div></details>`, 'trana');
   }
 
@@ -200,7 +200,7 @@ function boostCard() {
       <div class="card"><div class="field"><label for="restdate">Datum för restprovet</label><input id="restdate" type="date" value="${esc(info.date || '')}" data-a="restdate" data-id="${id}"></div>
         <div class="row between small"><span>Beredskap</span><b>${info.readiness} %</b></div>${segBar(E.chapterStats(p, r.chapter).levels)}</div>
       <div class="card">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div>
-      <div class="actions"><button class="btn" data-a="startTrain" data-ch="${r.chapter}">Öva inför restprovet</button><button class="btn ghost" data-a="startTest" data-ch="${r.chapter}">Testa som ett prov</button></div>
+      <div class="actions"><button class="btn" data-a="startTrain" data-ch="${r.chapter}">Öva inför restprovet</button><button class="btn ghost" data-a="startTest" data-ch="${r.chapter}">Öppna provsidan</button></div>
       <div class="actions"><button class="btn text" data-a="restdone" data-id="${id}">Restprovet är gjort – dölj det</button></div>`, 'home');
   }
 
@@ -525,7 +525,7 @@ function boostCard() {
     ftoggle: b => { const id = b.dataset.sid; UI.fopen.has(id) ? UI.fopen.delete(id) : UI.fopen.add(id); rerenderKeepScroll(); },
     fch: b => { UI.fch = b.dataset.ch; UI.fopen.clear(); render(); },
     startTrain: b => { closeSheet(); startRun('train', b.dataset.sid ? { skill: b.dataset.sid } : { chapter: b.dataset.ch }); },
-    startTest: b => { closeSheet(); startRun('test', { chapter: b.dataset.ch }); },
+    startTest: b => { closeSheet(); window.location.assign('prov/?g=' + encodeURIComponent(pid()) + '&ch=' + encodeURIComponent(b.dataset.ch)); },
     reveal: () => { UI.lesson.reveal++; rerenderKeepScroll(); },
     gsr: b => { UI.lesson[b.dataset.k] = true; rerenderKeepScroll(); },
     rule: b => { const L = UI.lesson, i = +b.dataset.i; L.rule = i; if (i === E.SKILLS[L.sid].g.rc) L.ruleOk = true; rerenderKeepScroll(); },
