@@ -1,5 +1,5 @@
 /* Matte OS v5.2 — Multiplikationsboost.
-   Kort, adaptiv grundträning 2–10. Ingen leaderboard, ingen straffande daglig streak. */
+   Kort, adaptiv grundträning 1–10. Ingen leaderboard, ingen straffande daglig streak. */
 (function(root){
 'use strict';
 
