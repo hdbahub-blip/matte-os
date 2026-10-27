@@ -7,6 +7,13 @@ const app=document.getElementById('app');
 const M=window.MOMath, V=window.MOExamVisuals, C=window.MO_CORE, PC=window.MOProvCore;
 let store=loadStore();
 let run=loadActive();
+const entryParams=new URLSearchParams(location.search);
+const entryGrade=entryParams.get('g');
+const entryChapter=entryParams.get('ch');
+if(!run && (entryGrade==='grade8'||entryGrade==='grade9')){
+  store.grade=entryGrade;
+  saveStore();
+}
 
 function emptyStore(){return {grade:null,attempts:[],attemptNo:0}}
 function loadStore(){try{return {...emptyStore(),...(JSON.parse(localStorage.getItem(STORE_KEY))||{})}}catch{return emptyStore()}}
@@ -47,7 +54,7 @@ function renderGradePick(){
  </section>`;
 }
 function currentInfo(){
- const p=profile(),week=PC.isoWeek(),ch=PC.recommendedChapter(p,week);
+ const p=profile(),week=PC.isoWeek(),suggested=PC.recommendedChapter(p,week),ch=p.chapters.find(x=>x.id===entryChapter)||suggested;
  return {p,week,ch};
 }
 function countFor(ch,mode){return PC.selectRun(skills(),ch,mode,(store.attemptNo||0)+1).length}
@@ -57,7 +64,7 @@ function renderHome(){
  return `
  <section class="home-head"><div class="kicker">ÅK ${p.label.replace(/\D/g,'')} · VECKA ${week}</div><h1>Testa utan hjälp.</h1><p>Matte OS används för att lära och träna. Här mäter ni vad som går att lösa självständigt.</p></section>
  <section class="exam-card">
-   <div class="recommended"><div><div class="kicker">REKOMMENDERAT NU</div><h2>${esc(ch.name)}</h2><p>Enligt planeringen kommer kapitelprovet vecka ${ch.examWeek}.</p></div><div class="week-chip">v${ch.examWeek}</div></div>
+   <div class="recommended"><div><div class="kicker">${ch.id===entryChapter?'VALT FRÅN MATTE OS':'REKOMMENDERAT NU'}</div><h2>${esc(ch.name)}</h2><p>Enligt planeringen kommer kapitelprovet vecka ${ch.examWeek}.</p></div><div class="week-chip">v${ch.examWeek}</div></div>
    <div class="rules"><span>Ingen formelsamling</span><span>Inga ledtrådar</span><span>Rättning efter inlämning</span></div>
    <div class="modegrid">
      <button class="mode primary" data-start="diagnos" data-ch="${ch.id}"><span class="mode-num">01</span><span><b>Diagnos</b><small>${dc} frågor · en fråga per moment · hittar luckor snabbt</small></span></button>
