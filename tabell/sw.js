@@ -1,6 +1,6 @@
-/* Tabellarenan v1.0.0 – offline shell within /tabell/ */
-const CACHE='matte-tabellarena-v1.0.0-20261027';
-const ASSETS=['./','./index.html','./arena.js?v=1.0.0','./arena.css?v=1.0.0',
+/* Tabellarenan v1.0.1 – offline shell within /tabell/ */
+const CACHE='matte-tabellarena-v1.0.1-20261027';
+const ASSETS=['./','./index.html','./arena.js?v=1.0.1','./arena.css?v=1.0.1',
   '../js/core.js?v=5.2.1','../js/content9.js?v=5.2.1','../js/content8.js?v=5.2.1',
   '../js/engine.js?v=5.2.1','../js/tables.js?v=5.2.1'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS.map(x=>new Request(x,{cache:'reload'})))).then(()=>self.skipWaiting())));
