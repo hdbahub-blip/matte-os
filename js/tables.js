@@ -48,7 +48,8 @@ function stats(pid){
  const t=ensure(pid);
  let sum=0,secure=0,started=0;
  for(const f of FACTS){const st=factState(pid,f.key),m=masteryFrom(st);sum+=strength(st);if(m>=3)secure++;if((st.attempts||0)>0)started++}
- const now=isoWeek(),weekSessions=t.sessions.filter(s=>{const w=isoWeek(new Date(s.finishedAt));return w.year===now.year&&w.week===now.week}).length;
+ const now=isoWeek();
+ const weekSessions=new Set(t.sessions.filter(s=>{const w=isoWeek(new Date(s.finishedAt));return w.year===now.year&&w.week===now.week}).map(s=>String(s.finishedAt).slice(0,10))).size;
  const last=t.sessions[t.sessions.length-1]||null;
  return {
    percent:Math.round(100*sum/(3*FACTS.length)),secure,total:FACTS.length,started,
