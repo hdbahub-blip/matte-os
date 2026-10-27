@@ -121,7 +121,7 @@ function renderRun(){
  }).length;
  const pct=(run.index/run.items.length)*100;
  const vis=x.vis?V.render(x.vis):'';
- return `<div class="runhead"><button class="back" data-exit>Avsluta</button><div class="progress"><i style="width:${pct}%"></i></div>${run.limitMs?`<div class="timer" data-timer>${fmtTime(left)}</div>`:''}</div>
+ return `<div class="runhead"><button class="back" data-exit>Avsluta</button><div class="progress"><i style="width:${pct}%"></i></div>${run.limitMs?`<div class="timer" data-timer>${fmtTime(left)}</div>`:''}</div><div id="exitNotice"></div>
  <section class="qcard">
   <div class="qmeta"><b>Fråga ${run.index+1} av ${run.items.length} · ${answered} besvarade</b><button class="flag ${run.flags[run.index]?'on':''}" data-flag>${run.flags[run.index]?'Markerad':'Markera'}</button></div>
   ${vis?`<div class="visual">${vis}</div>`:''}
@@ -195,7 +195,13 @@ function bind(){
  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>begin(b.dataset.start,b.dataset.ch));
 }
 function bindRun(){
- document.querySelector('[data-exit]')?.addEventListener('click',()=>{if(confirm('Avsluta testet? Svaren i den här omgången sparas inte.')){clearInterval(timerId);timerId=null;run=null;clearRun();render()}});
+ document.querySelector('[data-exit]')?.addEventListener('click',()=>{
+   const box=document.getElementById('exitNotice');
+   if(!box)return;
+   box.innerHTML='<div class="notice"><b>Avsluta testet?</b> Svaren i den här omgången sparas inte. <button class="mini" data-cancel-exit>Fortsätt testet</button> <button class="mini dark" data-confirm-exit>Avsluta</button></div>';
+   box.querySelector('[data-cancel-exit]')?.addEventListener('click',()=>{box.innerHTML=''});
+   box.querySelector('[data-confirm-exit]')?.addEventListener('click',()=>{clearInterval(timerId);timerId=null;run=null;clearRun();render()});
+ });
  document.querySelector('[data-flag]')?.addEventListener('click',()=>{run.flags[run.index]=!run.flags[run.index];persistRun();render()});
  document.querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>{setResponse(current(),b.dataset.opt);render()});
  document.querySelector('[data-prev]')?.addEventListener('click',()=>{commitInput();if(run.index>0){run.index--;persistRun();render()}});
