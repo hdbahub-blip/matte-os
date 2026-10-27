@@ -99,7 +99,7 @@ function result(){
 }
 function setup(){
  shell(`<section class="duelsetup"><button class="linkback" data-to="home">← Alla tabeller</button><div class="eyebrow">2 SPELARE · EN ENHET</div><h1>Snabbast vinner.</h1><p class="lead">Båda ser samma fråga. Den som vet svaret trycker först och säger det högt. En tredje person, eller ni själva, markerar rätt eller fel.</p><form class="card" id="duelform"><div class="duel-fields"><div><label for="player1" class="field">Spelare 1</label><input id="player1" maxlength="18" class="text-input" value="${esc(duelPrefs.names[0])}"></div><div><label for="player2" class="field">Spelare 2</label><input id="player2" maxlength="18" class="text-input" value="${esc(duelPrefs.names[1])}"></div></div><div style="margin-top:14px"><label for="dueltable" class="field">Tävla på</label><select id="dueltable" class="selector"><option value="mixed">Blandat 1–10</option>${Array.from({length:10},(_,i)=>i+1).map(t=>`<option value="${t}">${t}:ans tabell</option>`).join('')}</select></div><div class="duel-descr">Mobil: varsin stor knapp. Dator: tryck <b>A</b> för spelare 1 och <b>L</b> för spelare 2. Först att trycka får svara. Vid fel får den andra chansen. Inga minuspoäng.</div><button class="btn full" type="submit">Starta duellen · 10 rundor</button></form><p class="subtle">Röstbedömningen görs av er, inte av appen. Tävlingspoäng räknas inte som individuell behärskning.</p></section>`);
- document.getElementById('dueltable').value=duelPrefs.table;
+ shadow.getElementById('dueltable').value=duelPrefs.table;
 }
 function beginDuel(){
  const t=duelPrefs.table,qs=t==='mixed'?mixedQs().slice(0,10):tableQs(Number(t));
