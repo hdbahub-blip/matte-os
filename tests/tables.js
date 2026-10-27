@@ -13,13 +13,13 @@ const ok=(x,m)=>{checks++;if(!x)fail.push(m)};
 E._reset();E.load();E.state().active='grade9';E.save();
 const pid='grade9';
 
-ok(T.FACTS.length===45,'45 unika kommutativa fakta 2–10');
-ok(new Set(T.FACTS.map(f=>f.key)).size===45,'inga duplicerade fakta');
+ok(T.FACTS.length===55,'55 unika kommutativa fakta 1–10');
+ok(new Set(T.FACTS.map(f=>f.key)).size===55,'inga duplicerade fakta');
 
 const r=T.start(pid);
 ok(r.baseN===10,'runda har 10 basfrågor');
 ok(new Set(r.questions.slice(0,10).map(q=>q.key)).size===10,'första rundan har 10 olika fakta');
-for(let n=2;n<=10;n++)ok(r.questions.slice(0,10).some(q=>q.a===n||q.b===n),'första rundan täcker tabell '+n);
+for(let n=1;n<=10;n++)ok(r.questions.slice(0,10).some(q=>q.a===n||q.b===n),'första rundan täcker tabell '+n);
 
 const first=T.current(r);
 const before=T.factState(pid,first.key).firstCorrect;
