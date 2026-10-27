@@ -55,14 +55,17 @@ function parallel(v,q){
  const marks=v.marks||{}; const crossing=!/parallell/i.test(q||'');
  let b='';
  if(crossing){
-   b+=L(70,190,290,50)+L(70,50,290,190);
-   const pos={1:[180,72],2:[236,120],3:[180,174],4:[124,120]};
-   for(const [k,t] of Object.entries(marks)){const p=pos[k]||[180,120];b+=T(p[0],p[1],t,'g-label')}
+   const acute=Math.max(20,Math.min(85,Number(v.acute)||65));
+   const half=acute*Math.PI/360,cx=180,cy=120,r=94;
+   const dx=r*Math.sin(half),dy=r*Math.cos(half);
+   b+=L(cx-dx,cy-dy,cx+dx,cy+dy)+L(cx+dx,cy-dy,cx-dx,cy+dy);
+   const pos={1:[cx,cy-39],2:[cx+48,cy+5],3:[cx,cy+43],4:[cx-48,cy+5]};
+   for(const [k,t] of Object.entries(marks))if(pos[k])b+=T(pos[k][0],pos[k][1],t,'g-label');
    return S(b,'Två korsande linjer');
  }
  b+=L(35,75,325,75)+L(35,175,325,175)+L(105,220,255,30);
  b+=`<path d="M58 69 l12 6 M58 169 l12 6" class="g-mark"/>`;
- const pos={1:[154,58],2:[205,59],3:[148,104],4:[215,105],5:[77,156],6:[133,155],7:[72,205],8:[142,204]};
+ const pos={1:[245,56],2:[187,56],3:[190,110],4:[245,110],5:[167,151],6:[107,151],7:[107,212],8:[166,212]};
  for(const [k,t] of Object.entries(marks)){const p=pos[k]||[180,120];b+=T(p[0],p[1],t,'g-label')}
  return S(b,'Två parallella linjer skurna av en transversal');
 }
@@ -74,10 +77,10 @@ function polygon(v,q){
  return S(b,`${N}-hörning`);
 }
 function rightTri(v,q){
- const u=v.unit||(/\bm\b/.test(q||'')?'m':'cm');
+ const u=v.unit||'cm';
  if(/kvadrat/i.test(q||'')){
-   let b=R(82,42,190,150)+L(82,192,272,42,'g-accent');
-   b+=T(177,216,label(v.a,u),'g-label')+T(183,108,label(v.c,u),'g-label');
+   let b=R(101,47,150,150)+L(101,197,251,47,'g-accent');
+   b+=T(176,221,label(v.a,u),'g-label')+T(77,124,label(v.b,u),'g-label')+T(190,112,label(v.c,u),'g-label');
    return S(b,'Kvadrat med diagonal');
  }
  if(/stege|vägg/i.test(q||'')){
@@ -112,8 +115,8 @@ function areaScale(item){
 function similar(v){
  let b=R(38,91,94,64,'g-shape')+R(190,55,132,100,'g-shape2');
  const sm=v.small||['?','?'],bg=v.big||['?','?'];
- b+=T(85,177,label(sm[0],'cm'),'g-label')+T(22,126,label(sm[1],'cm'),'g-label');
- b+=T(256,177,label(bg[0],'cm'),'g-label')+T(337,109,label(bg[1],'cm'),'g-label');
+ b+=T(85,177,label(sm[0],v.unit||'cm'),'g-label')+T(22,126,label(sm[1],v.unit||'cm'),'g-label');
+ b+=T(256,177,label(bg[0],v.unit||'cm'),'g-label')+T(337,109,label(bg[1],v.unit||'cm'),'g-label');
  return S(b,'Två likformiga rektanglar');
 }
 function circleFig(v,item){
@@ -253,20 +256,26 @@ function infer(item,sid){
  return '';
 }
 
+function examUnit(item,v){
+ const given=(item.given||[]).join(' ');
+ const m=given.match(/\d+(?:[.,]\d+)?\s*(mm|cm|dm|km|m)(?![A-Za-z0-9²³])/);
+ return m?m[1]:(v.unit||'cm');
+}
 function render(item,sid){
  const v=item?.vis;
  if(!v) return infer(item||{},sid);
+ const vv={...v,unit:examUnit(item,v)};
  switch(v.t){
    case'triAngles':return triAngles(v);
    case'lineAngle':return lineAngle(v);
    case'pointAngles':return pointAngles(v);
    case'parallel':return parallel(v,item.q);
    case'polygon':return polygon(v,item.q);
-   case'rightTri':return rightTri(v,item.q);
-   case'isoTri':return isoTri(v);
+   case'rightTri':return rightTri(vv,item.q);
+   case'isoTri':return isoTri(vv);
    case'scaleMap':return scaleMap(v);
    case'areaScale':return areaScale(item);
-   case'similar':return similar(v);
+   case'similar':return similar(vv);
    case'circle':return circleFig(v,item);
    case'sector':return sector(v,item);
    case'cuboid':return cuboid(v,false);
