@@ -58,7 +58,7 @@ function stats(pid){
  };
 }
 function scorePriority(pid,f){
- const st=factState(pid,f.key),m=masteryFrom(st);
+ const st=factState(pid,f.key),m=strength(st);
  const err=st.attempts?st.wrong/st.attempts:0;
  const age=st.last?Math.min(3,(Date.now()-st.last)/(86400000*3)):3;
  return (3-m)*3 + err*3 + age + (st.attempts===0?2:0);
