@@ -31,7 +31,8 @@
 
   /* ---------- Lagring ---------- */
   const KEY = 'matteos.v5';
-  const blankProfile = () => ({ name: '', attempts: [], lessons: {}, rests: {}, tests: [] });
+  const blankTables = () => ({ v: 1, facts: {}, sessions: [] });
+  const blankProfile = () => ({ name: '', attempts: [], lessons: {}, rests: {}, tests: [], tables: blankTables() });
   const defaultState = () => ({ v: 5, active: null, profiles: { grade9: blankProfile(), grade8: blankProfile() }, settings: {}, created: new Date().toISOString() });
   let mem = null;
   function safeGet() { try { return root.localStorage ? root.localStorage.getItem(KEY) : null; } catch (e) { return null; } }
@@ -47,7 +48,10 @@
         attempts: Array.isArray(p.attempts) ? p.attempts.filter(a => a && SKILLS[a.s]).slice(-3000) : [],
         lessons: p.lessons && typeof p.lessons === 'object' ? p.lessons : {},
         rests: p.rests && typeof p.rests === 'object' ? p.rests : {},
-        tests: Array.isArray(p.tests) ? p.tests.slice(-50) : []
+        tests: Array.isArray(p.tests) ? p.tests.slice(-50) : [],
+        tables: p.tables && typeof p.tables === 'object'
+          ? { v: 1, facts: p.tables.facts && typeof p.tables.facts === 'object' ? p.tables.facts : {}, sessions: Array.isArray(p.tables.sessions) ? p.tables.sessions.slice(-120) : [] }
+          : blankTables()
       };
     }
     if (!['grade9', 'grade8', null].includes(out.active)) out.active = null;
