@@ -1,4 +1,4 @@
-const CACHE='matte-os-v3.0.1-20261027';
+const CACHE='matte-os-v4-20261027';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()));
