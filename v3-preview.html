@@ -4391,7 +4391,7 @@ function resetCurrent(){session.feedback=null;session.currentAnswer='';session.c
 
 function bindCommon(){
  document.querySelectorAll('[data-nav]').forEach(el=>el.addEventListener('click',()=>{session=null;route={view:el.dataset.nav};render()}));
- document.querySelectorAll('[data-skill]').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('button'))return;route={view:'skill',skillId:el.dataset.skill,stage:0,reveal:1};render()}));
+ document.querySelectorAll('[data-skill]').forEach(el=>el.addEventListener('click',e=>{const nested=e.target.closest('button');if(nested&&nested!==el)return;route={view:'skill',skillId:el.dataset.skill,stage:0,reveal:1};render()}));
  document.querySelectorAll('[data-chapter]').forEach(el=>el.addEventListener('click',()=>{const ch=el.dataset.chapter;route={view:'library'};render();setTimeout(()=>document.querySelector(`[data-start-chapter="${ch}"]`)?.scrollIntoView({behavior:'smooth'}),0)}));
  document.querySelectorAll('[data-start-skill]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();startSkill(el.dataset.startSkill)}));
  document.querySelectorAll('[data-start-chapter]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();startChapter(el.dataset.startChapter,el.dataset.mode||'practice')}));
