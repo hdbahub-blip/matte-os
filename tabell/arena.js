@@ -19,6 +19,17 @@ const info=t=>{
  return {best,stable,tries:a.length,status:stable?'Sitter stabilt':a.length?best>=8?'Nästan där':'Påbörjad':'Ny',percent:stable?100:Math.min(92,best*8+a.length*2)};
 };
 const stables=()=>Array.from({length:10},(_,i)=>i+1).filter(t=>info(t).stable).length;
+const weekDays=()=>{
+ const now=new Date(),day=(now.getDay()+6)%7;
+ const monday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-day).getTime();
+ const days=new Set();
+ for(const s of log()){
+   if(s.mode!=='table'&&s.mode!=='mixed')continue;
+   const d=new Date((s.localDate||String(s.finishedAt).slice(0,10))+'T12:00:00');
+   if(d.getTime()>=monday&&d.getTime()<monday+7*86400000)days.add(s.localDate||String(s.finishedAt).slice(0,10));
+ }
+ return days.size;
+};
 function shell(content){
  document.body.dataset.grade=pid()||'grade9';
  host.innerHTML=`<div class="shell"><header class="top"><div class="topin"><a class="brand" href="../"><span class="symbol">×</span><span class="brandname"><b>TABELLARENAN</b><small>en del av Matte OS</small></span></a><div class="topright"><button class="pillbtn" data-to="home">Översikt</button>${pid()?`<button class="pillbtn" data-act="profile">${pid()==='grade8'?'Åk 8':'Åk 9'} ▾</button>`:''}</div></div></header><main class="container">${content}</main></div>`;
@@ -31,7 +42,7 @@ function home(){
  const t=i+1,x=info(t);
  return `<button class="tabtile" data-act="table" data-value="${t}"><span class="tabtile-top"><span>${t}:ans tabell</span><span>↗</span></span><span class="tabtile-num">${t}<small style="font-size:1.1rem;color:var(--accent)"> ×</small></span><span class="tbar"><i style="width:${x.percent}%"></i></span><span class="tabtile-bottom"><i class="status-dot ${x.stable?'stable':x.tries?'progress':''}"></i>${x.status}</span></button>`;
  }).join('');
- shell(`<section class="home-hero"><div><div class="eyebrow">Matte OS · Grundträning</div><h1>En tabell i taget.<br>Sen blandar vi.</h1><p class="lead">Välj 7:an eller någon annan tabell. Se först alla svar, träna tio frågor och bygg säkerhet. Sedan kan du testa dig på hela blandningen.</p><span class="ribbon">${stables()} av 10 tabeller sitter stabilt</span></div><div class="hero-graphic" aria-hidden="true"><span class="hero-calc">7<span> × </span>8<span> = </span>56</span></div></section><div class="sectionheading"><div><h2>Välj din tabell</h2><p>Alla tio tabeller finns här, med hela tabellen utskriven.</p></div></div><div class="grid">${tiles}</div><div class="extras"><section class="extra mixed"><div class="extra-sign">∑</div><div><div class="eyebrow">NÄSTA NIVÅ</div><h2>Blandad utmaning</h2><p>20 frågor från alla tabeller. Utan ledtrådar, facit först efter inlämning.</p></div><button class="btn" data-act="mixed">Starta blandprovet</button></section><section class="extra duel"><div class="extra-sign">VS</div><div><div class="eyebrow">SPELA TILLSAMMANS</div><h2>Snabbast vinner</h2><p>Två spelare. Först att trycka får svara. Spela på en mobil eller dator.</p></div><button class="btn" data-to="duel/setup">Spela duell</button></section></div><p class="subtle">Progressen sparas lokalt på enheten och följer med Matte OS-säkerhetskopian. Inga offentliga resultatlistor.</p>`);
+ shell(`<section class="home-hero"><div><div class="eyebrow">Matte OS · Grundträning</div><h1>En tabell i taget.<br>Sen blandar vi.</h1><p class="lead">Välj 7:an eller någon annan tabell. Se först alla svar, träna tio frågor och bygg säkerhet. Sedan kan du testa dig på hela blandningen.</p><span class="ribbon">${stables()} av 10 tabeller sitter stabilt</span> <span class="ribbon" style="margin-top:7px">Veckouppdrag: ${Math.min(weekDays(),3)}/3 träningsdagar</span></div><div class="hero-graphic" aria-hidden="true"><span class="hero-calc">7<span> × </span>8<span> = </span>56</span></div></section><div class="sectionheading"><div><h2>Välj din tabell</h2><p>Alla tio tabeller finns här, med hela tabellen utskriven.</p></div></div><div class="grid">${tiles}</div><div class="extras"><section class="extra mixed"><div class="extra-sign">∑</div><div><div class="eyebrow">NÄSTA NIVÅ</div><h2>Blandad utmaning</h2><p>20 frågor från alla tabeller. Utan ledtrådar, facit först efter inlämning.</p></div><button class="btn" data-act="mixed">Starta blandprovet</button></section><section class="extra duel"><div class="extra-sign">VS</div><div><div class="eyebrow">SPELA TILLSAMMANS</div><h2>Snabbast vinner</h2><p>Två spelare. Först att trycka får svara. Spela på en mobil eller dator.</p></div><button class="btn" data-to="duel/setup">Spela duell</button></section></div><p class="subtle">Progressen sparas lokalt på enheten och följer med Matte OS-säkerhetskopian. Inga offentliga resultatlistor.</p>`);
 }
 function table(v){
  n=Number(v);if(!(n>=1&&n<=10)){go('home');return}
