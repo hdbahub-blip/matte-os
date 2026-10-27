@@ -108,22 +108,18 @@
 
 function boostCard() {
   const s = T.stats(pid());
-  const weak = T.weakFacts(pid(), 3);
-  const weekly = Array.from({ length: s.weekGoal }, (_, i) => `<i class="${i < Math.min(s.weekSessions, s.weekGoal) ? 'on' : ''}"></i>`).join('');
-  const weakText = s.started ? weak.map(f => `${f.a}×${f.b}`).join(' · ') : 'Första rundan hittar vad som behöver mest repetition';
   return `<section class="boost-card">
     <div class="boost-top">
       <div class="boost-icon">${I.grid}</div>
-      <div class="boost-copy"><p class="eyebrow">Multiplikationsboost · ca 2 min</p><h2>Gör resten av matten lättare.</h2><p class="mut small">${esc(weakText)}</p></div>
+      <div class="boost-copy"><p class="eyebrow">NYTT · TABELLARENAN</p><h2>Välj en tabell. Bygg flytet.</h2><p class="mut small">Läs hela 7:an, 8:an eller vilken tabell du vill. Öva, testa blandat eller utmana någon i duell.</p></div>
     </div>
     <div class="boost-meta">
-      <div><span>Veckomål</span><div class="boost-week">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} dagar den här veckan</small></div>
-      <div><span>Tabellflyt</span><b>${s.percent}%</b><small>${esc(s.level)}</small></div>
+      <div><span>Alla tabeller</span><b>1–10</b><small>Läs · Öva · Bemästra</small></div>
+      <div><span>Din träning</span><b>${s.percent}%</b><small>Tabellflyt över tid</small></div>
     </div>
-    <button class="btn block boost-btn" data-a="multStart">Starta dagens 10</button>
+    <a class="btn block boost-btn" href="tabell/?g=${pid()}">Öppna Tabellarenan →</a>
   </section>`;
 }
-
 function tableMap() {
   return `<div class="table-map">${Array.from({ length: 10 }, (_, i) => i + 1).map(n => {
     const x = T.tableStats(pid(), n);
@@ -541,7 +537,7 @@ function viewMultResult() {
         case undefined: case '': html = viewHome(); break;
         case 'formler': html = viewFormler(); break;
         case 'trana': html = viewTrana(); break;
-        case 'tabell': html = viewTables(parts[1]); break;
+        case 'tabell': window.location.assign('tabell/?g=' + pid()); return;
         case 'k': html = viewChapter(parts[1]); break;
         case 'l': html = viewLesson(parts[1], parts[2]); break;
         case 'run': case 'prov': html = viewRun(); break;
