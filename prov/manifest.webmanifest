@@ -1,0 +1,18 @@
+{
+  "name": "Matte Prov — Diagnos & Prov",
+  "short_name": "Matte Prov",
+  "description": "Separat testmiljö för åk 8 och åk 9. Diagnoser och träningsprov utan ledtrådar.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4efe7",
+  "theme_color": "#f4efe7",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
