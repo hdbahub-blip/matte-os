@@ -1,6 +1,6 @@
-const CACHE='matte-prov-v1.1.0-20261027';
+const CACHE='matte-prov-v1.2.0-20261027';
 const CORE=[
- './','./index.html','./css/app.css?v=1.1.0','./js/exam-core.js?v=1.1.0','./js/exam-visuals.js?v=1.1.0','./js/app.js?v=1.1.0',
+ './','./index.html','./css/app.css?v=1.2.0','./js/exam-core.js?v=1.2.0','./js/exam-visuals.js?v=1.2.0','./js/app.js?v=1.2.0',
  './manifest.webmanifest','./icon.svg',
  '../js/math.js?v=5.1.0','../js/core.js?v=5.1.0','../js/content9.js?v=5.1.0','../js/content8.js?v=5.1.0'
 ];
