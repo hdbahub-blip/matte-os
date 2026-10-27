@@ -1,19 +1,11 @@
 {
-  "name": "Matte OS — Åk 8 & Åk 9",
-  "short_name": "Matte OS",
-  "description": "Visuellt matematikverktyg för årskurs 8 och 9.",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#f6f0e7",
-  "theme_color": "#541424",
-  "lang": "sv",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ]
+  "name":"Matte OS — Åk 8 & Åk 9",
+  "short_name":"Matte OS",
+  "description":"Offline-first matteverktyg för åk 8 och åk 9.",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#f6f0e7",
+  "theme_color":"#541424",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
 }
