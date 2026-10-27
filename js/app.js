@@ -117,7 +117,7 @@ function boostCard() {
       <div><span>Alla tabeller</span><b>1–10</b><small>Läs · Öva · Bemästra</small></div>
       <div><span>Din träning</span><b>${s.percent}%</b><small>Tabellflyt över tid</small></div>
     </div>
-    <a class="btn block boost-btn" href="tabell/?g=${pid()}">Öppna Tabellarenan →</a>
+    <a class="btn block boost-btn" href="#/tabell/home">Öppna Tabellarenan →</a>
   </section>`;
 }
 /* ================= KAPITELKARTA ================= */
@@ -482,7 +482,14 @@ function boostCard() {
         case undefined: case '': html = viewHome(); break;
         case 'formler': html = viewFormler(); break;
         case 'trana': html = viewTrana(); break;
-        case 'tabell': window.location.assign('tabell/?g=' + pid()); return;
+        case 'tabell': {
+          const sub = parts.slice(1).join('/');
+          const inside = '<div id="arena" aria-label="Tabellarenan"></div>';
+          html = ['practice','mixed','duel/play'].includes(sub)
+            ? focusShell(inside,{title:'Tabellarenan',sub:'Träna och spela',exit:'#/tabell/home'})
+            : shell(inside,'trana');
+          break;
+        }
         case 'k': html = viewChapter(parts[1]); break;
         case 'l': html = viewLesson(parts[1], parts[2]); break;
         case 'run': case 'prov': html = viewRun(); break;
@@ -495,6 +502,7 @@ function boostCard() {
       html = shell(`<div class="card"><h2>Något gick fel</h2><p class="mut">Sidan kunde inte visas. Dina framsteg är sparade.</p><button class="btn" data-a="nav" data-h="#/">Till start</button></div>`, 'home');
     }
     if (html) app.innerHTML = html;
+    if(parts[0]==='tabell' && window.MOTabellArena) window.MOTabellArena.mount();
     markReveals(h !== lastRoute);
     if (h !== lastRoute) { window.scrollTo(0, 0); lastRoute = h; const m = document.getElementById('main'); if (m && !document.activeElement.closest('#app')) { /* behåll fokus */ } }
   }
@@ -599,7 +607,7 @@ function boostCard() {
     let reloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (reloaded) return;
-      const busy = /^#\/(l|run|prov)(\/|$)/.test(location.hash + '/') || /^#\/tabell\/run(\/|$)/.test(location.hash + '/');
+      const busy = /^#\/(l|run|prov)(\/|$)/.test(location.hash + '/') || /^#\/tabell\/(practice|mixed|duel\/play)(\/|$)/.test(location.hash + '/');
       if (busy) { window.__moPendingReload = true; return; }
       reloaded = true; location.reload();
     });
