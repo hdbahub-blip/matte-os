@@ -717,7 +717,17 @@
     }
     return svg(320, 176, b, 'Parabeln y = x² och en vågrät linje');
   };
-  V.parallel = ({ acute = 65, marks = {}, note } = {}) => {
+  V.parallel = ({ acute = 65, marks = {}, note, single = false } = {}) => {
+    if (single) {
+      const half = Math.max(20, Math.min(85, Number(acute))) * Math.PI / 360;
+      const cx = 160, cy = 85, r = 77, dx = r * Math.sin(half), dy = r * Math.cos(half);
+      let b = L(cx-dx,cy-dy,cx+dx,cy+dy,'ln') + L(cx+dx,cy-dy,cx-dx,cy+dy,'ln');
+      const pos = { 1:[cx,cy-29], 2:[cx+50,cy+5], 3:[cx,cy+38], 4:[cx-50,cy+5] };
+      for (const [id,val] of Object.entries(marks)) if (pos[id]) {
+        const unk=isUnk(val); b+=T(pos[id][0],pos[id][1],unk?'?':val,unk?'lb acc':'lb');
+      }
+      return svg(320,176,b,'Två korsande linjer, vertikalvinklar och sidovinklar');
+    }
     const th = Math.max(30, Math.min(80, +acute)) * Math.PI / 180, y1 = 54, y2 = 128, dx = (y2 - y1) / Math.tan(th), cx1 = 160 - dx / 2, cx2 = cx1 + dx;
     const u = [Math.cos(th), Math.sin(th)];
     let b = L(20, y1, 288, y1, 'ln') + L(20, y2, 288, y2, 'ln') + L(cx1 - u[0] * 34, y1 - u[1] * 34, cx2 + u[0] * 34, y2 + u[1] * 34, 'ln acc2');
