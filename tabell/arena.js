@@ -14,7 +14,7 @@ const log=()=>data().sessions||[];
 const info=t=>{
  const a=log().filter(s=>s.mode==='table'&&s.table===t);
  const best=a.reduce((x,s)=>Math.max(x,s.correctFirst||0),0);
- const days=new Set(a.filter(s=>s.total===10&&s.correctFirst>=9).map(s=>String(s.finishedAt).slice(0,10))).size;
+ const days=new Set(a.filter(s=>s.total===10&&s.correctFirst>=9).map(s=>s.localDate||String(s.finishedAt).slice(0,10))).size;
  const stable=days>=2;
  return {best,stable,tries:a.length,status:stable?'Sitter stabilt':a.length?best>=8?'Nästan där':'Påbörjad':'Ny',percent:stable?100:Math.min(92,best*8+a.length*2)};
 };
@@ -78,7 +78,7 @@ function next(){
 }
 function finish(){
  if(!round)return;
- const a={mode:round.type,table:round.table,total:round.qs.length,correctFirst:round.results.filter(x=>x.ok).length,finishedAt:new Date().toISOString(),elapsedMs:Date.now()-round.start};
+ const a={mode:round.type,table:round.table,total:round.qs.length,correctFirst:round.results.filter(x=>x.ok).length,finishedAt:new Date().toISOString(),localDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-'),elapsedMs:Date.now()-round.start};
  data().sessions.push(a);if(data().sessions.length>120)data().sessions=data().sessions.slice(-100);E.save();
  finished={...a,results:round.results};round=null;go('result');
 }
