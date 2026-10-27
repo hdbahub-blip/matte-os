@@ -141,7 +141,7 @@ function viewTables(mode) {
     <p class="mut">10 korta frågor. Systemet väljer automatiskt det som behöver mest repetition och låter missade fakta komma tillbaka som revansch.</p>
     <section class="card boost-overview">
       <div class="boost-score"><div><span>Tabellflyt</span><strong>${s.percent}%</strong><small>${esc(s.level)}</small></div><div><span>Veckomål</span><div class="boost-week big">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} dagar</small></div></div>
-      <button class="btn block" data-a="multStart">Starta 10 frågor</button>
+      <button class="btn block" data-a="multStart">Starta dagens 10</button>
     </section>
     <details class="fold" ${s.started ? 'open' : ''}><summary>Tabellkarta 1–10</summary><div class="in">${tableMap()}</div></details>
     <div class="box neutral"><div class="k">Så fungerar det</div><p class="small" style="margin:0">Ingen nedräkning. Rätt på första försöket bygger flyt. Ett fel ger direkt rätt svar och samma fakta kommer tillbaka senare. Målet är säkra svar – farten kommer efteråt.</p></div>`, 'home');
