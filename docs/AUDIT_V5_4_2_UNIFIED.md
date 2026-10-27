@@ -1,4 +1,4 @@
-# Matte OS v5.4.2 + Matte Prov v1.2.1 — independent cross-site audit
+# Matte OS v5.4.3 + Matte Prov v1.2.2 — independent cross-site audit
 
 Datum: 2026-10-27
 Resultat: **ACCEPT_BOUNDED_CORE / HOLD_PHYSICAL_MOBILE_ACCEPTANCE**.
@@ -39,10 +39,24 @@ Direkt utvärdering av `js/content8.js`, `js/content9.js`, `js/math.js`, `js/vis
 Automatiska kontroller **bevisar inte** att alla figurer är visuellt och pedagogiskt perfekta. De kompletteras av riktade semantiska regressionskontroller i `tests/figure-consistency.js`.
 
 ## Live / drift
-- Huvudapp: https://mohamed321966-wq.github.io/matte-os/ — build **5.4.2**
+- Huvudapp: https://mohamed321966-wq.github.io/matte-os/ — build **5.4.3**
 - Integrerad Tabellarena: https://mohamed321966-wq.github.io/matte-os/#/tabell/home
-- Separat provsida: https://mohamed321966-wq.github.io/matte-os/prov/ — build **1.2.1**
+- Separat provsida: https://mohamed321966-wq.github.io/matte-os/prov/ — build **1.2.2**
 - Rollback-gren före ingreppen: `rollback-before-unified-matte-os-full-audit-20261027` från commit `dcf67e922f919a71b82e5754ea6a68d1c6f80080`.
+
+## Korrigering under final acceptance (v5.4.3)
+En sista simulerad genomspelning upptäckte ett verkligt Shadow DOM-fel: duellens inställning sökte `dueltable` på `document`, men efter integrationen ligger den inne i komponenten. Detta är rättat till `shadow.getElementById('dueltable')`.
+
+Ny reproducerbar regressionssvit: `tests/tabell-integration.js`, körs med `node tests/tabell-integration.js`.
+En isolerad genomspelning direkt mot källkoden passerade **51/51 kontroller**, inklusive:
+- alla 100 n×k-svar för tabell 1–10;
+- direktlänk `#/tabell/practice/7`, 10 uppgifter och svar/återkoppling/resultat;
+- 20 frågor utan direkt facit i blandat läge;
+- duellstart, första buzzer, övertag vid felsvar, poäng och resultat efter 10 rundor;
+- ingen duellpoäng i elevens tabellprogress;
+- sparade pass i Matte OS-backup.
+
+Extern livebrowser bekräftade efter integration att direktlänkad 7:an-träning faktiskt öppnas i Matte OS med frågeräknare 1/10 och matematiskt korrekt text; den kunde däremot inte mata in ett svar eftersom webbläsarautomationen återkommande rapporterade *stale element IDs*. Detta är fortsatt en separat oavslutad UI-acceptansgrind.
 
 ## Verifieringsgränser / acceptance gate
 1. Browser-QA bekräftade att hela tabellkortvyn och 7:ans tio uträkningar nu finns inuti huvudappens URL och navigation. Klickverktyget tappade därefter elementreferenser i tidigare körningar. Efter ombyggnad till native interna länkar krävs en ny full live-klickrunda.
