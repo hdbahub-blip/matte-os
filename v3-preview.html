@@ -147,7 +147,7 @@ main{max-width:1040px;padding-top:22px}
 .card.clickable:hover,.btn:hover{transform:none}
 @media(max-width:780px){main{padding:15px 12px 90px}.topbar-inner{min-height:64px;padding:9px 12px}.brand small{display:none}.top-search summary span{display:none}.top-search summary{padding:10px}.profile-switch .pname{display:none}.next-step-card,.lesson-body-v3,.zero-grid-v3,.worked-v3,.guided-v3,.question-card-v3{grid-template-columns:1fr}.next-step-card{padding:20px}.next-step-visual{min-height:205px;order:-1}.next-step-visual svg{height:205px}.deadline-strip{align-items:flex-start;flex-direction:column}.home-small-actions{display:grid;grid-template-columns:1fr 1fr}.home-small-actions .btn{padding:11px 9px}.lesson-focus-v3{padding:18px 15px;min-height:0}.lesson-body-v3 aside{position:static;order:-1}.lesson-path-v3{grid-template-columns:1fr;gap:8px}.lesson-path-v3>div:first-child{white-space:normal;flex-wrap:wrap}.lesson-path-v3 span{display:none}.concept-visual-v3,.worked-visual-v3,.exercise-visual-v3,.question-visual-v3{min-height:220px}.concept-visual-v3 svg,.worked-visual-v3 svg,.exercise-visual-v3 svg,.question-visual-v3 svg{height:220px}.lesson-controls-v3 .btn{flex:1}.question-card-v3{padding:16px}.question-visual-v3{order:0}.question-main-v3{order:1}.phase-strip-v3 span{font-size:.65rem;padding:8px 5px}.session-meter-v3{grid-template-columns:auto 100px}.practice-actions-v3{display:grid}.practice-actions-v3>div{display:grid}.practice-actions-v3 .btn{width:100%}.single-action{display:grid}.single-action .btn{width:100%}.solo-card-v3{display:grid}.solo-card-v3 .btn{width:100%}.bottomnav button span{display:inline}.bottomnav button{padding:9px 5px}.ui-icon{width:19px;height:19px}}
 
-</style></head><body><div id="app" aria-live="polite"></div><div id="toast" class="toast" role="status" aria-live="polite"></div><script>window.MATTE_DATA = {
+</style><meta name="matte-os-build" content="3.0.1"></head><body><div id="app" aria-live="polite"></div><div id="toast" class="toast" role="status" aria-live="polite"></div><script>window.MATTE_DATA = {
   "profiles": {
     "grade9": {
       "name": "Åk 9",
@@ -4118,7 +4118,7 @@ const PED=window.MATTE_PEDAGOGY||{};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
 const clone=o=>JSON.parse(JSON.stringify(o));
-const APP_VERSION='3.0.0';
+const APP_VERSION='3.0.1';
 const DB_NAME='matte-os-db', STORE='kv', KEY='state';
 let installPrompt=null;
 let route={view:'home',skillId:null,chapterId:null,stage:0,reveal:1};
@@ -4228,7 +4228,7 @@ function renderHome(){
  const deadline=nearestRest?`${esc(nearestRest.title)} · ${fmtDate(nearestRest.date)} · ${daysUntil(nearestRest.date)} dagar kvar`:exam?`${esc(exam.name)} · prov vecka ${exam.examWeek}`:'Ingen deadline inlagd';
  return `<section class="today-v3">
   <div class="today-intro"><div class="kicker">VECKA ${isoWeek()} · ${esc(p.name)}</div><h1>Du behöver bara göra nästa sak.</h1><p>${esc(cp?.area||'Matematik')} · ${esc(cp?.detail||'Fortsätt där du slutade.')}</p></div>
-  ${rec?`<article class="next-step-card"><div class="next-step-copy"><div class="kicker">NÄSTA STEG</div><h2>${esc(rec.title)}</h2><p>${esc(rec.subtitle)}</p><div class="today-rule"><small>När använder jag det?</small><b>${esc(rec.when)}</b></div><button class="btn btn-primary btn-big" data-skill="${rec.id}">Börja här</button></div><div class="next-step-visual">${renderVisual(rec.visual,rec)}</div></article>`:''}
+  ${rec?`<article class="next-step-card"><div class="next-step-copy"><div class="kicker">NÄSTA STEG</div><h2>${esc(rec.title)}</h2><p>${esc(rec.subtitle)}</p><div class="today-rule"><small>När använder jag det?</small><b>${esc(rec.when)}</b></div><button class="btn btn-primary btn-big" data-open-skill="${rec.id}">Börja här</button></div><div class="next-step-visual">${renderVisual(rec.visual,rec)}</div></article>`:''}
   <div class="deadline-strip"><div><small>NÄRMAST I PLANEN</small><b>${deadline}</b></div>${undated.length?`<button class="text-button" data-nav="rest">${undated.length} restprov saknar datum</button>`:''}</div>
   <div class="home-small-actions"><button class="btn btn-secondary" data-nav="plan">${icon('plan')} Veckoplan</button><button class="btn btn-secondary" data-nav="library">${icon('library')} Hitta regel</button></div>
  </section>`;
@@ -4391,6 +4391,7 @@ function resetCurrent(){session.feedback=null;session.currentAnswer='';session.c
 
 function bindCommon(){
  document.querySelectorAll('[data-nav]').forEach(el=>el.addEventListener('click',()=>{session=null;route={view:el.dataset.nav};render()}));
+ document.querySelectorAll('[data-open-skill]').forEach(el=>el.addEventListener('click',()=>{session=null;route={view:'skill',skillId:el.dataset.openSkill,stage:0,reveal:1};render()}));
  document.querySelectorAll('[data-skill]').forEach(el=>el.addEventListener('click',e=>{const nested=e.target.closest('button');if(nested&&nested!==el)return;route={view:'skill',skillId:el.dataset.skill,stage:0,reveal:1};render()}));
  document.querySelectorAll('[data-chapter]').forEach(el=>el.addEventListener('click',()=>{const ch=el.dataset.chapter;route={view:'library'};render();setTimeout(()=>document.querySelector(`[data-start-chapter="${ch}"]`)?.scrollIntoView({behavior:'smooth'}),0)}));
  document.querySelectorAll('[data-start-skill]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();startSkill(el.dataset.startSkill)}));
