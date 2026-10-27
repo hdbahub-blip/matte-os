@@ -125,7 +125,7 @@ function boostCard() {
 }
 
 function tableMap() {
-  return `<div class="table-map">${Array.from({ length: 9 }, (_, i) => i + 2).map(n => {
+  return `<div class="table-map">${Array.from({ length: 10 }, (_, i) => i + 1).map(n => {
     const x = T.tableStats(pid(), n);
     return `<div class="table-row"><span class="table-name">${n}:ans tabell</span><div class="table-track"><i style="width:${x.percent}%"></i></div><b>${x.percent}%</b></div>`;
   }).join('')}</div>`;
@@ -143,7 +143,7 @@ function viewTables(mode) {
       <div class="boost-score"><div><span>Tabellflyt</span><strong>${s.percent}%</strong><small>${esc(s.level)}</small></div><div><span>Veckomål</span><div class="boost-week big">${weekly}</div><small>${Math.min(s.weekSessions,s.weekGoal)}/${s.weekGoal} dagar</small></div></div>
       <button class="btn block" data-a="multStart">Starta 10 frågor</button>
     </section>
-    <details class="fold" ${s.started ? 'open' : ''}><summary>Tabellkarta 2–10</summary><div class="in">${tableMap()}</div></details>
+    <details class="fold" ${s.started ? 'open' : ''}><summary>Tabellkarta 1–10</summary><div class="in">${tableMap()}</div></details>
     <div class="box neutral"><div class="k">Så fungerar det</div><p class="small" style="margin:0">Ingen nedräkning. Rätt på första försöket bygger flyt. Ett fel ger direkt rätt svar och samma fakta kommer tillbaka senare. Målet är säkra svar – farten kommer efteråt.</p></div>`, 'home');
 }
 
