@@ -67,6 +67,10 @@
     const plan = pr.plan.find(x => x.w === sw.week);
     const exam = E.upcomingExam(p);
     const rests = E.restInfo(p);
+    // Tidsnära restprov först. Aldrig elevnamn eller privat datum i publik kod.
+    const restFocus = rests.find(r => r.date && r.days >= 0 && r.days <= 14)
+      || (p === 'grade9' && E.now().getFullYear() === 2026 && sw.week >= 43 && sw.week <= 45
+        ? rests.find(r => r.chapter === 's9-tal' && !r.date) : null);
     let ctx = sw.phase === 'term' ? `<span>Vecka ${sw.week}${plan ? ' · ' + esc(plan.a) : ''}</span>` : `<span>Vecka ${sw.week} · repetition</span>`;
     if (exam) ctx += `<span class="pill">${I.flag.replace('<svg', '<svg width="14" height="14"')} Prov ${esc(exam.ch.name)} v. ${exam.week}${exam.inWeeks === 0 ? ' · denna vecka' : exam.inWeeks === 1 ? ' · nästa vecka' : ` · om ${exam.inWeeks} veckor`}</span>`;
 
@@ -89,11 +93,17 @@
           <button class="btn block" data-a="nav" data-h="#/l/${s.id}/${cont ? ls.step : 0}">${label}</button>
         </div></div>`;
     }
+    if (restFocus) hero = `<div class="card hero"><div class="hero-body">
+      <p class="eyebrow">Det viktigaste just nu</p>
+      <h2>Förbered ${esc(chName(restFocus.chapter))} inför restprovet</h2>
+      <p class="mut">Börja med det som står i matteboken. Träna i lugn takt, ett område i taget.</p>
+      <button class="btn block" data-a="nav" data-h="#/rest/${restFocus.id}">Börja här</button>
+    </div></div>`;
     const chId = rec.chapter, st = E.chapterStats(p, chId);
     const progress = `<button class="tap" data-a="nav" data-h="#/k/${chId}">
       <div style="flex:1;min-width:0"><div class="row between" style="margin-bottom:8px"><span class="t">${esc(chName(chId))}</span><span class="s">${st.solo} av ${st.total} klarar du själv</span></div>${segBar(st.levels)}</div>
       <span class="chev">${I.chev}</span></button>`;
-    const restCards = rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}">
+    const restCards = rests.filter(r => !restFocus || r.id !== restFocus.id).map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}">
       <div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? (r.days < 0 ? 'datum passerat' : r.days === 0 ? 'idag' : `om ${r.days} dagar`) : 'datum saknas'} · beredskap ${r.readiness} %</div></div>
       <span class="chev">${I.chev}</span></button>`).join('');
     const lookup = `<button class="tap" data-a="search"><span style="color:var(--muted)">${I.search.replace('<svg', '<svg width="20" height="20"')}</span><div><div class="t">Slå upp en formel</div><div class="s">t.ex. "cirkel area" eller "triangel sida"</div></div></button>`;
@@ -103,7 +113,7 @@
     return shell(`<div class="ctx">${ctx}</div>
       <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'En sak i taget.')}</h1>
       <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Här är det viktigaste att göra nu.</p>
-      ${hero}${boostCard()}${progress}${restCards}${lookup}${planHtml}`, 'home');
+      ${hero}<details class="fold"><summary>Andra sätt att öva</summary><div class="in">${progress}${restCards}${lookup}${boostCard()}${planHtml}</div></details>`, 'home');
   }
 
 function boostCard() {
@@ -127,7 +137,7 @@ function boostCard() {
     return shell(`<button class="btn text" data-a="nav" data-h="#/">${I.back.replace('<svg', '<svg width="18" height="18"')} Hem</button>
       <p class="eyebrow">Kapitel</p><h1>${esc(chName(chId))}</h1>
       <p class="mut">${st.solo} av ${st.total} moment klarar du själv. Ordningen följer skolans plan.</p>
-      <div class="card">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>v. ${s.w.join(', ')} · ${lvl(s.id)}</small></div>
+      ${bookGuide}<details class="fold"><summary>Alla moment i kapitlet</summary><div class="in">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>v. ${s.w.join(', ')} · ${lvl(s.id)}</small></div>
         <button class="btn sm ghost" data-a="nav" data-h="#/l/${s.id}/0">Lär</button>
         <button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div>
       <div class="actions"><button class="btn" data-a="startTrain" data-ch="${chId}">Blandträna kapitlet</button><button class="btn ghost" data-a="startTest" data-ch="${chId}">Till provsidan</button></div>`, 'home');
@@ -198,13 +208,23 @@ function boostCard() {
     if (!r) return viewHome();
     const info = E.restInfo(p).find(x => x.id === id) || { ...r, readiness: E.chapterStats(p, r.chapter).readiness };
     const sk = E.chapterSkills(p, r.chapter);
+    const bookGuide = p === 'grade9' && r.chapter === 's9-tal' ? `
+      <div class="card">
+        <p class="eyebrow">Arbeta med din bok</p><h2>Matte Direkt 9 · Tal</h2>
+        <p class="mut small">Välj en del, läs exemplet i boken och gör sedan liknande uppgifter i appen.</p>
+        <a class="tap" href="#/l/s9-scientific/0"><div><div class="t">1. Stora tal och grundpotensform</div><div class="s">Boken s. 26–29</div></div><span class="chev">${I.chev}</span></a>
+        <a class="tap" href="#/l/s9-sci-calc/0"><div><div class="t">2. Räkna med tiopotenser</div><div class="s">Boken s. 30–31</div></div><span class="chev">${I.chev}</span></a>
+        <a class="tap" href="#/l/s9-prefix/0"><div><div class="t">3. Små tal och prefix</div><div class="s">Boken s. 32–33</div></div><span class="chev">${I.chev}</span></a>
+        <a class="tap" href="#/l/s9-sqrt/0"><div><div class="t">4. Kvadrater och kvadratrötter</div><div class="s">Boken s. 34–35</div></div><span class="chev">${I.chev}</span></a>
+        <a class="tap" href="#/l/s9-number-sets/0"><div><div class="t">5. Talmängder</div><div class="s">Boken s. 36</div></div><span class="chev">${I.chev}</span></a>
+      </div>` : '';
     return shell(`<button class="btn text" data-a="nav" data-h="#/">${I.back.replace('<svg', '<svg width="18" height="18"')} Hem</button>
       <p class="eyebrow">Restprov</p><h1>${esc(r.title)}</h1>
-      <p class="mut">Ursprungligt prov vecka ${r.originalWeek}. ${info.date ? '' : 'Datum är inte bestämt – lägg in det när du vet, så prioriterar appen förberedelserna.'}</p>
+      <p class="mut">Fokusera på ett område i taget. Lägg in ditt provdatum nedan så visar appen rätt prioritet.</p>
       <div class="card"><div class="field"><label for="restdate">Datum för restprovet</label><input id="restdate" type="date" value="${esc(info.date || '')}" data-a="restdate" data-id="${id}"></div>
         <div class="row between small"><span>Beredskap</span><b>${info.readiness} %</b></div>${segBar(E.chapterStats(p, r.chapter).levels)}</div>
-      <div class="card">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div>
-      <div class="actions"><button class="btn" data-a="startTrain" data-ch="${r.chapter}">Öva inför restprovet</button><button class="btn ghost" data-a="startTest" data-ch="${r.chapter}">Öppna provsidan</button></div>
+      <div class="card">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div></details>
+      <div class="actions"><button class="btn" data-a="startTrain" data-ch="${r.chapter}">Öva 5 blandade frågor</button><button class="btn ghost" data-a="startTest" data-ch="${r.chapter}">Öppna provsidan</button></div>
       <div class="actions"><button class="btn text" data-a="restdone" data-id="${id}">Restprovet är gjort – dölj det</button></div>`, 'home');
   }
 
@@ -360,9 +380,9 @@ function boostCard() {
     } else if (step === 2) {
       const g = s.g;
       if (!UI.ex || UI.ex.sid !== sid || UI.ex.key !== 'g') UI.ex = newEx(sid, 'g', 'guided');
-      const knowRow = (key, label, content) => `<div class="gsr" style="margin-bottom:8px"><div><span class="k">${label}</span>${L[key] ? `<span class="reveal">${content}</span>` : `<span><button class="btn sm ghost" data-a="gsr" data-k="${key}">Tänk själv – visa sen</button></span>`}</div></div>`;
-      let stage = knowRow('given', 'Vet', g.given.map(esc).join(' · ')) + knowRow('find', 'Söker', esc(g.find));
-      const ready = L.given && L.find;
+      // Visa givet och sökt direkt: två klick färre per uppgift.
+      let stage = `<div class="gsr"><div><span class="k">Vet</span><span>${g.given.map(esc).join(' · ')}</span></div><div><span class="k">Söker</span><span>${esc(g.find)}</span></div></div>`;
+      const ready = true;
       if (ready && g.ro) {
         stage += `<div class="card" style="margin-top:12px"><h3>Vilken uträkning passar?</h3><div class="opts">${g.ro.map((o, i) => {
           const st = L.rule === i ? (i === g.rc ? 'ok' : 'no') : (L.ruleOk && i === g.rc ? 'ok' : '');
@@ -370,7 +390,7 @@ function boostCard() {
         }).join('')}</div>
         ${L.rule != null ? (L.ruleOk ? `<div class="box good reveal" style="margin-top:10px"><div class="k">Precis</div>${R(g.why)}</div>` : `<div class="box bad reveal" style="margin-top:10px"><div class="k">Inte den</div>Titta igen på vad du söker: <b>${esc(g.find)}</b>. Vilken uträkning ger just det? Prova ett annat alternativ.</div>`) : ''}</div>`;
       }
-      const showCalc = ready && (!g.ro || L.ruleOk);
+      const showCalc = ready; // Metodval är stöd, aldrig en spärr för att få räkna.
       c = `<p class="eyebrow">Del 3 av 4 · Prova med stöd</p><p class="q">${R(g.q)}</p>${visHTML(g.vis)}${stage}
         ${showCalc ? `<div class="card reveal" style="margin-top:12px"><h3>Räkna</h3>${exerciseHTML(UI.ex, { hideQ: true, hideVis: true })}</div>` : ''}
         ${UI.ex.done ? `<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/${sid}/3">Gör själv</button></div>` : ''}`;
