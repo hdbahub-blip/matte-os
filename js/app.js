@@ -506,7 +506,15 @@ function boostCard() {
       html = shell(`<div class="card"><h2>Något gick fel</h2><p class="mut">Sidan kunde inte visas. Dina framsteg är sparade.</p><button class="btn" data-a="nav" data-h="#/">Till start</button></div>`, 'home');
     }
     if (html) app.innerHTML = html;
-    if(parts[0]==='tabell' && window.MOTabellArena) window.MOTabellArena.mount();
+    if(parts[0]==='tabell'){
+      try{
+        if(!window.MOTabellArena)throw new Error('Tabellarenan module not loaded');
+        window.MOTabellArena.mount();
+      }catch(error){
+        console.error('Tabellarenan could not mount',error);
+        app.innerHTML=shell('<div class="card"><h2>Tabellarenan kunde inte öppnas</h2><p class="mut">Prova att ladda om sidan. Dina sparade framsteg finns kvar.</p><a class="btn" href="#/">Till Matte OS</a></div>','trana');
+      }
+    }
     markReveals(h !== lastRoute);
     if (h !== lastRoute) { window.scrollTo(0, 0); lastRoute = h; const m = document.getElementById('main'); if (m && !document.activeElement.closest('#app')) { /* behåll fokus */ } }
   }
