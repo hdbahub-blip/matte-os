@@ -146,14 +146,14 @@ function boostCard() {
 
   /* ================= FORMLER ================= */
   /* Samma innehåll och korrekt matematik finns kvar, men visas inte i ansiktet på nybörjaren. */
-  function paperSteps(s, { short = false } = {}) {
+  function paperSteps(s, { intro = false } = {}) {
     const d = SIMPLE && SIMPLE.DATA[s.id];
     if (!d) return '<p class="mut">Se ett exempel i genomgången.</p>';
-    const steps = short ? d[2].slice(0, 2) : d[2];
+    const steps = intro ? d[2].slice(0, 1) : d[2];
     return '<div class="paper-flow"><div class="paper-question"><span class="paper-label">EXEMPEL</span><p>'+esc(d[1])+'</p></div>'
       + (SIMPLE.diagram(s.id) || '')
       + steps.map((x,i)=>'<div class="paper-step"><span class="paper-num">'+(i+1)+'</span><p>'+esc(x)+'</p></div>').join('')
-      + '<div class="paper-answer"><span>SVAR</span><strong>'+esc(d[3])+'</strong></div></div>';
+      + (intro ? '' : '<div class="paper-answer"><span>SVAR</span><strong>'+esc(d[3])+'</strong></div>')+'</div>';
   }
   function formulaBody(s, opts = {}) {
     const f = s.f, d = SIMPLE && SIMPLE.DATA[s.id];
@@ -387,21 +387,21 @@ function boostCard() {
     if (step === 0) {
       const d = SIMPLE && SIMPLE.DATA[s.id];
       c = '<p class="eyebrow">Del 1 av 4 · Förstå</p><h1>'+esc(s.title)+'</h1>'
-        + (d ? '<p class="paper-lead">'+esc(d[0])+'</p>'+paperSteps(s)
+        + (d ? '<p class="paper-lead">'+esc(d[0])+'</p>'+paperSteps(s,{intro:true})
           : '<p class="paper-lead">'+R(s.idea)+'</p><div class="box">'+R(s.anchor)+'</div>')
         + '<details class="paper-more"><summary>Visa fler bilder och förklaringar</summary><div class="paper-more-in">'
           + visHTML(s.cvis)
           + '<div class="box neutral"><div class="k">Mer att veta</div>'+R(s.idea)+'</div>'
           + '<ul class="clean">'+s.cue.map(q=>'<li>'+R(q)+'</li>').join('')+'</ul></div></details>'
-        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/1">Se ett exempel till</button></div>';
+        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/1">Visa resten av uträkningen</button></div>';
     } else if (step === 1) {
       const e = s.ex;
       const lines = e.steps.map(([ask,res],i)=>'<div class="paper-step"><span class="paper-num">'+(i+1)+'</span><div><p>'+R(ask)+'</p><strong>'+R(res)+'</strong></div></div>').join('');
-      c = '<p class="eyebrow">Del 2 av 4 · Exempel</p><h1 class="paper-question-title">'+R(e.q)+'</h1>'
-        + '<div class="paper-flow">'+lines
-        + '<div class="paper-answer"><span>SVAR</span><strong>'+R(e.ans)+'</strong></div></div>'
-        + '<details class="paper-more"><summary>Visa bild och formel (valfritt)</summary><div class="paper-more-in">'
-          + visHTML(e.vis)
+      c = '<p class="eyebrow">Del 2 av 4 · Så här räknar du</p><h1 class="paper-question-title">'+esc(s.title)+'</h1>'
+        + paperSteps(s)
+        + '<details class="paper-more"><summary>Visa ett svårare exempel och formel (valfritt)</summary><div class="paper-more-in">'
+          + '<h2>'+R(e.q)+'</h2>'+visHTML(e.vis)
+          + '<div class="paper-flow">'+lines+'<div class="paper-answer"><span>SVAR</span><strong>'+R(e.ans)+'</strong></div></div>'
           + '<div class="gsr"><div><span class="k">Vi vet</span><span>'+e.given.map(esc).join(' · ')+'</span></div><div><span class="k">Vi söker</span><span>'+esc(e.find)+'</span></div>'
           + '<div><span class="k">Formeln</span><span>'+TX(e.rule)+'</span></div></div></div></details>'
         + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/2">Nu provar jag</button></div>';
