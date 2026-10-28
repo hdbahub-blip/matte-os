@@ -9,13 +9,13 @@
   S.push({
     id: 's9-prefix', ch: 's9-tal', w: [34, 35], title: 'Prefix', sub: 'kilo, mega, milli, mikro …',
     idea: 'Ett prefix är en förkortning för en tiopotens. **k** (kilo) betyder tusen, **m** (milli) betyder en tusendel. Själva mängden ändras inte – bara hur du skriver den.',
-    anchor: 'Varje steg i prefixtrappan = 1000 gånger. Större enhet → mindre tal.',
+    anchor: 'Jämför enheterna: 1 km = 1 000 m, 1 m = 100 cm och 1 m = 1 000 mm. Till mindre enhet blir talet större.',
     cue: ['Du ser k, M, G, m, µ eller n framför en enhet.', 'Frågan ber dig skriva samma sak med ett annat prefix.'],
     cvis: { t: 'prefix', from: 'k', to: '', note: '4,2 km = 4,2 · 1000 m = 4 200 m' },
     f: {
       name: 'Prefix', main: 'k=10^3 \\quad M=10^6 \\quad G=10^9', when: 'När en enhet har ett prefix och du ska byta till en annan storlek.',
-      sym: [['k (kilo)', '1 000'], ['M (mega)', '1 000 000'], ['G (giga)', '10⁹'], ['m (milli)', '0,001'], ['µ (mikro)', '10⁻⁶'], ['n (nano)', '10⁻⁹']],
-      forms: [['Till mindre enhet', '\\text{tal} \\cdot 10^{\\text{steg}}'], ['Till större enhet', '\\text{tal} / 10^{\\text{steg}}']],
+      sym: [['k (kilo)', '1 000'], ['h (hekto)', '100'], ['d (deci)', '0,1'], ['c (centi)', '0,01'], ['M (mega)', '1 000 000'], ['G (giga)', '10⁹'], ['m (milli)', '0,001'], ['µ (mikro)', '10⁻⁶'], ['n (nano)', '10⁻⁹']],
+      forms: [['Kilometer till meter', '3{,}6 \\cdot 1000 = 3600'], ['Centimeter till meter', '450 / 100 = 4{,}5']],
       ex: '$3{,}6$ km $= 3{,}6 \\cdot 1000 = 3600$ m', trap: 'Byter du till en mindre enhet ska talet bli **större** – inte mindre.'
     },
     h1: 'Det här är ett prefixbyte. Vilket prefix har du – och vilket ska du till?',
@@ -113,10 +113,10 @@
     cue: ['Tecknet √ eller ordet "kvadratrot".', 'Du vet x² och söker x.'],
     cvis: { t: 'sqrt', a: 81, r: '?' },
     f: {
-      name: 'Kvadratrot', main: 'x^2 = a \\Rightarrow x = \\sqrt{a}', when: 'Du vet arean av en kvadrat (eller x²) och söker sidan (x).',
+      name: 'Kvadratrot', main: '\\sqrt{81} = 9', when: 'Du ska beräkna den positiva kvadratroten, eller söker en kvadrats sidlängd utifrån arean.',
       sym: [['√a', 'det positiva tal som gånger sig självt blir a']],
-      forms: [['Framåt', 'x^2 = x \\cdot x'], ['Baklänges', 'x = \\sqrt{x^2}'], ['Uppskatta', '7^2 = 49 < 50 < 64 = 8^2']],
-      ex: '$\\sqrt{81} = 9$ eftersom $9 \\cdot 9 = 81$', trap: '$\\sqrt{81}$ är inte $81/2$. Fråga: vilket tal gånger sig självt?'
+      forms: [['Kvadrera ett tal', 'x^2 = x \\cdot x'], ['Kvadratroten av 49', '\\sqrt{49} = 7'], ['Lös ekvationen x² = 49', 'x = \\pm 7'], ['Uppskatta', '7^2 = 49 < 50 < 64 = 8^2']],
+      ex: '$\\sqrt{81} = 9$ eftersom $9 \\cdot 9 = 81$', trap: '$\\sqrt{81}=9$, inte $81/2$. Ekvationen $x^2=81$ har däremot två lösningar: 9 och −9.'
     },
     h1: 'Det handlar om kvadrater: vilket tal gånger sig självt ger talet?',
     ex: {
