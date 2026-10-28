@@ -113,9 +113,9 @@
     cue: ['Tecknet √ eller ordet "kvadratrot".', 'Du vet x² och söker x.'],
     cvis: { t: 'sqrt', a: 81, r: '?' },
     f: {
-      name: 'Kvadratrot', main: 'x^2 = a \\Rightarrow x = \\sqrt{a}', when: 'Du vet arean av en kvadrat (eller x²) och söker sidan (x).',
+      name: 'Kvadratrot', main: '\\sqrt{a}', when: 'Du söker den icke-negativa kvadratroten ur ett tal. Ekvationen x² = a kan ha två lösningar.',
       sym: [['√a', 'det positiva tal som gånger sig självt blir a']],
-      forms: [['Framåt', 'x^2 = x \\cdot x'], ['Baklänges', 'x = \\sqrt{x^2}'], ['Uppskatta', '7^2 = 49 < 50 < 64 = 8^2']],
+      forms: [['Tal i kvadrat', 'x^2 = x \\cdot x'], ['Roten ur', '\\sqrt{81} = 9'], ['Lös x² = 49', 'x=7 \\text{ eller } x=-7'], ['Uppskatta', '7^2 = 49 < 50 < 64 = 8^2']],
       ex: '$\\sqrt{81} = 9$ eftersom $9 \\cdot 9 = 81$', trap: '$\\sqrt{81}$ är inte $81/2$. Fråga: vilket tal gånger sig självt?'
     },
     h1: 'Det handlar om kvadrater: vilket tal gånger sig självt ger talet?',
