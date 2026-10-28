@@ -7,6 +7,7 @@ on:
       - fix/saamiya-tal-book-first-20261028
       - feature/burgundy-posters-20261028
       - feature/grade8-navy-burgundy-posters-20261028
+      - feature/plain-paper-math-lessons-audit-20261029
 
 jobs:
   unit-and-content:
@@ -22,6 +23,8 @@ jobs:
           node --check js/app.js
           node --check js/content9.js
           node --check js/core.js
+          node --check js/teach-simple.js
+          node tests/paper-lessons.js
           node --check js/engine.js
           node --check sw.js
           node --check prov/sw.js
@@ -57,6 +60,7 @@ jobs:
           sleep 2
           node tests/book-first-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/posters-e2e.js http://127.0.0.1:8765/ test-screenshots
+          node tests/paper-lessons-e2e.js http://127.0.0.1:8765/ test-screenshots
       - uses: actions/upload-artifact@v4
         if: always()
         with:
