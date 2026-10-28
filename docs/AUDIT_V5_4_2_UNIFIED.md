@@ -68,3 +68,14 @@ Extern livebrowser bekräftade efter integration att direktlänkad 7:an-träning
 
 ## Nästa acceptance
 Använd en fysisk iPhone för en hel Åk 8/9-mattegenomgång, ett 10-frågors tabellpass, ett blandtest och en 10-rundors touchduell. Genomför därefter separat geometri-diagnos i Matte Prov. Kontrollera svar, övergångar, symboler, lokalt sparande och offline. Först då kan FINAL PRODUCT ACCEPTED diskuteras.
+
+
+## Oberoende efterkontroll 2026-10-28
+Följande kontroller gjordes mot aktuell `main` efter release och separat från de tidigare redovisade kontrollerna:
+
+- Matte OS Tabellarenan kördes igenom med simulerat Shadow DOM/lokal elevstate: **52/52 godkända kontroller**; alla 10 tabelluppslagningar, en fullständig 10-frågors 7:an-runda, ett 20-frågors blandprov utan direkt feedback, en 10-rundors duell med övertag efter fel, rätt poäng, separat elevprogress och backup.
+- Matte Prov **v1.2.2** öppnades i verklig extern browser med `?g=grade8&ch=f8-geo`: direktval Åk 8/Geometri PASS, Diagnos **15 frågor** PASS, inga ledtrådar/formler/timer/direkt rättning PASS, frågetext och `0,6 km² → ? ha`-figur renderades utan upptäckt klippning, navigering 1/15 → 2/15 PASS.
+- Vid en ytterligare PWA-kontroll visade det sig att huvudarbetarens fetch-handler bara undantog **navigering** till prov/legacy, inte andra resursanrop. Den är nu hårdare isolerad: **alla** requests under `/prov/` och legacy `/tabell/` lämnas till deras egna nät-/service-worker-flöden. Versionens `sw.js`-innehåll ändrades; buildmarkören är fortsatt Matte OS 5.4.3.
+- Revisionsrapporten är en verifierad **teknisk och pedagogisk strukturgranskning**, inte en garanti att samtliga 288 individuella undervisningsfigurer eller samtliga elevtexter har granskats okulärt på riktig iPhone.
+
+Slutstatus oförändrad: **ACCEPT_BOUNDED_CORE / HOLD_PHYSICAL_MOBILE_ACCEPTANCE**.
