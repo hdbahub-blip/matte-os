@@ -57,11 +57,22 @@ function lineAngle(v){
  return S(b,'Två sidovinklar på en rak linje');
 }
 function pointAngles(v){
- const ls=v.list||[90,110,'?']; let b='';
- const O=[180,125], rays=[-Math.PI/2,0,2.35];
- rays.forEach(a=>b+=L(O[0],O[1],O[0]+92*Math.cos(a),O[1]+92*Math.sin(a)));
+ const ls=v.list||[90,110,'?'],O=[180,124],radius=87;
+ // The first known angle is measured clockwise from the upward ray,
+ // the second follows it. The last sector is the unknown (not labelled numerically).
+ const first=Number(ls[0])||90,second=Number(ls[1])||110;
+ const direction=[-Math.PI/2,-Math.PI/2+first*Math.PI/180,
+   -Math.PI/2+(first+second)*Math.PI/180];
+ let b='';
+ direction.forEach(a=>b+=L(O[0],O[1],O[0]+radius*Math.cos(a),O[1]+radius*Math.sin(a)));
  b+=C(O[0],O[1],3,'g-dot');
- b+=T(210,86,label(ls[0],'°'),'g-label')+T(133,94,label(ls[1],'°'),'g-label')+T(122,157,label(ls[2],'°'),'g-label');
+ const mid=[-Math.PI/2+first*Math.PI/360,
+  -Math.PI/2+(first+second/2)*Math.PI/180,
+  -Math.PI/2+(first+second+(360-first-second)/2)*Math.PI/180];
+ for(let i=0;i<3;i++){
+   const x=O[0]+46*Math.cos(mid[i]),y=O[1]+46*Math.sin(mid[i]);
+   b+=T(x,y,label(ls[i],'°'),'g-label');
+ }
  return S(b,'Vinklar runt en punkt');
 }
 function parallel(v,q){
