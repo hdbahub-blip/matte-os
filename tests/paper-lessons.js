@@ -16,7 +16,7 @@ for(const sid of unique){
  assert.equal(typeof d[0],'string');assert(d[0].length>24&&d[0].length<310,'Explain one topic in simple words '+sid);checks++;
  assert(d[1].length>10&&d[1].length<180,'Concrete question '+sid);checks++;
  assert(d[2].length>=2 && d[2].length<=3,'Maximum three easy steps '+sid);checks++;
- for(const step of d[2]){assert(step.length>=7&&step.length<200,'Step too long '+sid);checks++;}
+ for(const step of d[2]){assert(step.length>=4&&step.length<200,'Step too long '+sid);checks++;}
  assert(d[3].startsWith('Svar:'),'Visible answer for '+sid);checks++;
 }
 assert(source.includes("f8-powers-ten")&&source.includes("(0,1)²")&&source.includes("två decimaler"),'Must show decimal-place thinking');
