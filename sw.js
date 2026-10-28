@@ -2,11 +2,12 @@
    - Allt appinnehåll förcachas vid installation → fungerar offline.
    - Nätverk först för allt (färsk version när nätet finns), cache som reserv.
    - Ny version: CACHE-namnet byts → gamla cachar raderas vid aktivering. */
-const VERSION = '5.4.5-20261028';
+const VERSION = '5.4.6-20261028';
 const CACHE = 'matte-os-' + VERSION;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-512.png',
-  './css/app.css?v=5.4.5', './js/math.js?v=5.4.5', './js/visuals.js?v=5.4.5', './js/core.js?v=5.4.5',
-  './js/content9.js?v=5.4.5', './js/content8.js?v=5.4.5', './js/engine.js?v=5.4.5', './js/tables.js?v=5.4.5', './js/tabell-arena.js?v=5.4.5', './css/tabell-arena.css?v=5.4.5', './js/app.js?v=5.4.5'];
+  './css/app.css?v=5.4.6', './js/math.js?v=5.4.6', './js/visuals.js?v=5.4.6', './js/core.js?v=5.4.6',
+  './js/content9.js?v=5.4.6', './js/content8.js?v=5.4.6', './js/engine.js?v=5.4.6', './js/tables.js?v=5.4.6', './js/tabell-arena.js?v=5.4.6', './css/tabell-arena.css?v=5.4.6', './js/app.js?v=5.4.6',
+  './affischer/', './affischer/index.html', './affischer/posters.css?v=1.0.0', './affischer/posters.js?v=1.0.0'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
@@ -21,15 +22,17 @@ self.addEventListener('fetch', e => {
   const base = new URL(self.registration.scope).pathname;
   const path = new URL(req.url).pathname;
   if (path.startsWith(base + 'prov/') || path.startsWith(base + 'tabell/')) return;
-  if (req.mode === 'navigate' && path !== base && path !== base + 'index.html') return;
+  const posterNav = req.mode === 'navigate' && (path === base + 'affischer/' || path === base + 'affischer/index.html');
+  if (req.mode === 'navigate' && path !== base && path !== base + 'index.html' && !posterNav) return;
+  const offlineKey = posterNav ? './affischer/index.html' : './index.html';
   e.respondWith((async () => {
     try {
       const res = await fetch(req, { cache: 'no-cache' });
-      if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req.mode === 'navigate' ? './index.html' : req, copy)); }
+      if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req.mode === 'navigate' ? offlineKey : req, copy)); }
       return res;
     } catch (err) {
-      const hit = await caches.match(req.mode === 'navigate' ? './index.html' : req, { ignoreSearch: req.mode === 'navigate' });
-      return hit || caches.match('./index.html');
+      const hit = await caches.match(req.mode === 'navigate' ? offlineKey : req, { ignoreSearch: req.mode === 'navigate' });
+      return hit || caches.match(offlineKey);
     }
   })());
 });

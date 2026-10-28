@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - fix/saamiya-tal-book-first-20261028
+      - feature/burgundy-posters-20261028
 
 jobs:
   unit-and-content:
@@ -23,6 +24,11 @@ jobs:
           node --check js/engine.js
           node --check sw.js
           node --check prov/sw.js
+      - name: Poster syntax and content checks
+        run: |
+          node --check affischer/posters.js
+          node --check tests/posters-e2e.js
+          node tests/posters-content.js
       - name: Math and content verification
         run: node tests/qa.js
       - name: Figure, unit and geometry checks
@@ -49,6 +55,7 @@ jobs:
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-server.log 2>&1 &
           sleep 2
           node tests/book-first-e2e.js http://127.0.0.1:8765/ test-screenshots
+          node tests/posters-e2e.js http://127.0.0.1:8765/ test-screenshots
       - uses: actions/upload-artifact@v4
         if: always()
         with:

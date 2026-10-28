@@ -128,6 +128,7 @@ function boostCard() {
       <div><span>Din träning</span><b>${s.percent}%</b><small>Tabellflyt över tid</small></div>
     </div>
     <a class="btn block boost-btn" href="#/tabell/home">Öppna Tabellarenan →</a>
+    <a class="btn ghost block" href="affischer/?visa=tabeller" style="margin-top:9px">Se hela tabellaffischen 1–10 ✦</a>
   </section>`;
 }
 /* ================= KAPITELKARTA ================= */
@@ -170,6 +171,12 @@ function boostCard() {
     const q = UI.fq.trim();
     const list = q ? E.search(p, q) : E.chapterSkills(p, UI.fch);
     return shell(`<p class="eyebrow">Formelsamling · ${esc(pr.label)}</p><h1>Formler och regler</h1>
+      <div class="card" style="border:1px solid #eac3cb;background:linear-gradient(115deg,#fff7f3,#f5dee6);padding:16px;margin-bottom:14px">
+        <p class="eyebrow" style="color:#7a1f35;margin:0 0 6px">NYTT · VISUELL AFFISCH</p>
+        <h2 style="font-family:Georgia,serif;font-size:23px;margin:0 0 6px;color:#67142e">Viktiga formler i Tal</h2>
+        <p class="mut small" style="margin:0 0 12px">Burgundy-affisch med tydliga exempel under varje formel. Dina vanliga formelkort finns kvar precis som tidigare.</p>
+        <a class="btn block" href="affischer/?visa=formler">Öppna formelaffischen ✦</a>
+      </div>
       <div class="searchbox">${I.search}<input id="fq" type="search" placeholder="Sök: cirkel, procent, x båda sidor…" value="${esc(UI.fq)}" aria-label="Sök i formelsamlingen" autocomplete="off"></div>
       ${q ? `<p class="mut small">${list.length} träffar</p>` : `<div class="seg-ctl" role="group" aria-label="Kapitel">${chOrder.map(c => `<button data-a="fch" data-ch="${c.id}" aria-pressed="${c.id === UI.fch}">${esc(c.name)}${c.id === rec.chapter ? ' ·&nbsp;nu' : ''}</button>`).join('')}</div>`}
       <div id="flist">${list.map(formulaCard).join('') || '<p class="mut">Inga träffar. Prova ett annat ord.</p>'}</div>`, 'formler');
@@ -190,6 +197,10 @@ function boostCard() {
         <div style="height:14px"></div>
         <button class="btn block" data-a="startTrain" data-ch="${rec.chapter}">Starta</button>
       </div></div>
+      <a class="tap" href="affischer/?visa=tabeller" style="text-decoration:none;color:inherit">
+        <div><div class="t">Se multiplikationstabellerna som affisch</div><div class="s">Alla 1:an till 10:an på en vacker, tydlig översikt.</div></div>
+        <span class="chev">${I.chev}</span>
+      </a>
       <a class="tap" href="#/tabell/home" style="text-decoration:none;color:inherit">
         <div><div class="t">Multiplikationstabellen 1–10</div><div class="s">Läs hela tabellen, träna en i taget, testa blandat eller spela duell.</div></div>
         <span class="chev">${I.chev}</span>

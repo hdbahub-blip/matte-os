@@ -28,8 +28,11 @@ assert(app.includes('const ready = true;'), 'Given/find requires avoidable click
 assert(!content.includes(String.raw`main: 'x^2 = a \\Rightarrow x = \\sqrt{a}'`), 'Principal-root error returned');
 assert(content.includes('det icke-negativa tal'), 'Principal square root must allow zero');
 assert(content.includes(String.raw`x = \\sqrt{a} \\text{ eller } x = -\\sqrt{a}`), 'Quadratic solutions are incomplete');
-for (const [path, src] of [['index',index],['root-worker',sw],['core',core],['prov',provIndex],['prov-worker',provSw]]) {
-  assert(src.includes('5.4.5'), path + ': stale core version');
+for (const [path, src] of [['index',index],['root-worker',sw],['core',core]]) {
+  assert(src.includes('5.4.6'), path + ': stale core version');
+}
+for (const [path, src] of [['prov',provIndex],['prov-worker',provSw]]) {
+  assert(src.includes('5.4.5'), path + ': unexpectedly changed independent prov shared asset version');
 }
 assert(provIndex.includes('1.2.4') && provSw.includes('1.2.4'), 'Prov worker/build version mismatch');
 console.log('Book-first and PWA version consistency: PASS');
