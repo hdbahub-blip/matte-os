@@ -163,9 +163,16 @@ function showExit(){
  box.querySelector('[data-cancel-exit]').onclick=()=>box.innerHTML='';
  box.querySelector('[data-confirm-exit]').onclick=()=>{run=null;clearActive();render()};
 }
+function clearIncomingSelection(){
+  try{
+    const u=new URL(location.href);
+    u.searchParams.delete('g');u.searchParams.delete('ch');
+    history.replaceState(null,'',u.pathname+u.search+u.hash);
+  }catch(e){}
+}
 function bindHome(){
- document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{store.grade=b.dataset.pick;saveStore();render()});
- document.querySelector('[data-grade]')?.addEventListener('click',()=>{store.grade=null;saveStore();render()});
+ document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{clearIncomingSelection();store.grade=b.dataset.pick;saveStore();render()});
+ document.querySelector('[data-grade]')?.addEventListener('click',()=>{clearIncomingSelection();store.grade=null;saveStore();render()});
  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>begin(b.dataset.start,b.dataset.ch));
 }
 function bindQuestion(){
