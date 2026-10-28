@@ -31,10 +31,23 @@ const dim=(x1,y1,x2,y2,txt,tx,ty)=>{
 };
 
 function triAngles(v){
- let b=P([[60,185],[300,185],[205,45]]);
- b+=arc(60,185,28,-0.55,0)+arc(300,185,28,Math.PI,Math.PI+0.65)+arc(205,45,28,0.75,2.35);
- b+=T(85,171,label(v.a,'°'),'g-label')+T(274,171,label(v.b,'°'),'g-label')+T(205,82,label(v.c,'°'),'g-label');
- if(Number(v.a)===90)b+=right(60,185,14); if(Number(v.b)===90)b+=right(286,185,14);
+ let b='';
+ if(Number(v.b)===90){
+   // A right angle belongs at vertex B, not in an arbitrary schematic triangle.
+   b+=P([[68,194],[300,194],[300,48]]);
+   b+=`<path d="M284 194 L284 178 L300 178" class="g-line thin"/>`;
+   b+=T(101,176,label(v.a,'°'),'g-label')+T(261,170,label(v.b,'°'),'g-label')+T(276,82,label(v.c,'°'),'g-label');
+   return S(b,'Triangel med rät vinkel i hörn B');
+ }
+ if(Number(v.a)===90){
+   b+=P([[65,194],[290,194],[65,48]]);
+   b+=`<path d="M65 178 L81 178 L81 194" class="g-line thin"/>`;
+   b+=T(102,176,label(v.a,'°'),'g-label')+T(260,176,label(v.b,'°'),'g-label')+T(90,84,label(v.c,'°'),'g-label');
+   return S(b,'Triangel med rät vinkel i hörn A');
+ }
+ // When two base angles are equal the apex must lie above the midpoint.
+ b+=P([[64,193],[296,193],[180,42]]);
+ b+=T(91,176,label(v.a,'°'),'g-label')+T(268,176,label(v.b,'°'),'g-label')+T(180,80,label(v.c,'°'),'g-label');
  return S(b,'Triangel med markerade vinklar');
 }
 function lineAngle(v){
