@@ -1,4 +1,4 @@
-# Matte OS v5.4.3 + Matte Prov v1.2.2 — independent cross-site audit
+# Matte OS v5.4.4 + Matte Prov v1.2.3 — independent cross-site audit
 
 Datum: 2026-10-27
 Resultat: **ACCEPT_BOUNDED_CORE / HOLD_PHYSICAL_MOBILE_ACCEPTANCE**.
@@ -39,9 +39,9 @@ Direkt utvärdering av `js/content8.js`, `js/content9.js`, `js/math.js`, `js/vis
 Automatiska kontroller **bevisar inte** att alla figurer är visuellt och pedagogiskt perfekta. De kompletteras av riktade semantiska regressionskontroller i `tests/figure-consistency.js`.
 
 ## Live / drift
-- Huvudapp: https://mohamed321966-wq.github.io/matte-os/ — build **5.4.3**
+- Huvudapp: https://mohamed321966-wq.github.io/matte-os/ — build **5.4.4**
 - Integrerad Tabellarena: https://mohamed321966-wq.github.io/matte-os/#/tabell/home
-- Separat provsida: https://mohamed321966-wq.github.io/matte-os/prov/ — build **1.2.2**
+- Separat provsida: https://mohamed321966-wq.github.io/matte-os/prov/ — build **1.2.3**
 - Rollback-gren före ingreppen: `rollback-before-unified-matte-os-full-audit-20261027` från commit `dcf67e922f919a71b82e5754ea6a68d1c6f80080`.
 
 ## Korrigering under final acceptance (v5.4.3)
@@ -79,3 +79,27 @@ Följande kontroller gjordes mot aktuell `main` efter release och separat från 
 - Revisionsrapporten är en verifierad **teknisk och pedagogisk strukturgranskning**, inte en garanti att samtliga 288 individuella undervisningsfigurer eller samtliga elevtexter har granskats okulärt på riktig iPhone.
 
 Slutstatus oförändrad: **ACCEPT_BOUNDED_CORE / HOLD_PHYSICAL_MOBILE_ACCEPTANCE**.
+
+
+## Självständig post-release precision revision 2026-10-28 — v5.4.4 / v1.2.3
+
+Denna extra revisionsomgång efter v5.4.3 fokuserade på kvarvarande geometrisk semantik, tydlig lär-/provseparation och användbarhet på dagliga träningsytan.
+
+**Korrigerat**
+- En triangel med markerad 90°-vinkel ritas nu faktiskt som en rätvinklig triangel på rätt hörn, inte bara med en 90°-etikett på en sned triangel. Figuren för en likbent triangel har en centralt placerad toppunkt.
+- Provsidans två parallella linjer och transversal ritas med samma lutningslogik och rätt regionsnumrering 1–8 som undervisningsbilden. Tidigare var diagonalen lutad åt motsatt håll och vinkel 2 kunde därför ritas som den spetsiga vinkeln trots att den gavs som 115°.
+- Vinklar runt en punkt med givna 90° och 110° byggs från explicita vinkelriktningar; den okända sista sektorn lämnas med frågetecken.
+- Åk 8/Åk 9-val via direktlänk till Matte Prov skriver inte över ett senare manuellt profilval vid omladdning.
+- Multiplikationsarenan kan även öppnas direkt från Matte OS:s flik **Träna**; inte enbart från startsidan.
+- Om den integrerade arenan inte kan monteras visas en säker återgång till Matte OS i stället för en tom vy.
+
+**Reproducerade QA-körningar med aktuella källmoduler**
+- `tests/qa.js`: **9 410/9 410** godkända matematik-/innehållskontroller; 63 moment, 403 uppgifter och 91-punktsmatris **84 COMPLETE / 7 PARTIAL / 0 MISSING**.
+- `tests/figure-consistency.js`: **603/603** godkända semantiska figur-/enhets-/matematikregressioner; 288 undervisnings-SVG, 403 uppgifter och 297 oberoende numeriska beräkningar.
+- `tests/tabell-integration.js`: **52/52** godkända simulerade Shadow DOM-flöden för tabellval, träning, blandning, duell, rättning och elevprogress.
+- Ytterligare generering av 360 diagnos-/kapitelprov omfattade 4 290 valda frågor med full momenttäckning och utan dubbletter.
+- Samtliga ändrade JavaScript-moduler syntaxkontrollerades. Revisionskörningarna utfördes med aktuella GitHub-filer i en isolerad JavaScript-runtime med moduladapter; de är inte samma sak som fysisk Safari-E2E.
+
+**Kvarstår uttryckligen:** En komplett visuellt observerad mobilgenomspelning, en faktisk iPhone/Safari/PWA/offline-kontroll, mänsklig granskning av alla individuella matematikfigurer i skilda uppgiftssammanhang samt direkt observation av de två elevernas begriplighet. Extern webbläsarautomation har tidigare tappat klickreferenser i Shadow DOM; detta är inte samma sak som ett bekräftat elevklickfel och kräver separat fysisk kontroll. Påståenden om att hela läsåret är täckt skulle också vara fel — källmatrisen gäller HT-26.
+
+**Beslut:** ACCEPT_BOUNDED_TECHNICAL_AND_CURRICULUM_CORE / HOLD_FINAL_REAL_DEVICE_ACCEPTANCE.
