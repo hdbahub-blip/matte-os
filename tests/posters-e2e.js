@@ -28,8 +28,8 @@ fs.mkdirSync(OUT,{recursive:true});
       const equations=await page.locator('.mult-row').allTextContents();
       for(let n=1;n<=10;n++){
         for(let m=1;m<=10;m++){
-          const actual=equations[(n-1)*10+(m-1)].replace(/\s+/g,' ').trim();
-          assert.equal(actual,n+' × '+m+' = '+(n*m),'Wrong multiplication '+n+' × '+m);
+          const actual=equations[(n-1)*10+(m-1)].replace(/\s+/g,'').trim();
+          assert.equal(actual,n+'×'+m+'='+(n*m),'Wrong multiplication '+n+' × '+m);
           checks++;
         }
       }
