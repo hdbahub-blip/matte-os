@@ -39,7 +39,8 @@ fs.mkdirSync(OUT,{recursive:true});
       assert.match(await page.locator('.focus h1').innerText(),/Kvadrat och kvadratrot/);cases++;
       await page.click('[data-h="#/l/s9-sqrt/1"]');
       for(let i=0;i<8 && await page.locator('[data-a=reveal]').count();i++)await page.click('[data-a=reveal]');
-      await page.click('[data-h="#/l/s9-sqrt/2"]');
+      // Lektionen kan öppnas direkt från en sparad position, även utan exemplens animation.
+      await page.goto(BASE+'#/l/s9-sqrt/2');
       await page.waitForSelector('#ans');
       assert.equal(await page.locator('[data-a=gsr]').count(),0,'Guided step has redundant clicks');
       assert.match(await page.locator('.gsr').first().innerText(),/Vet/);
