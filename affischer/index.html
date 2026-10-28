@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta name="theme-color" content="#6e0927">
+<meta name="theme-color" content="#6e0927" id="poster-theme-color">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Matte OS · Affischsamling</title>
 <link rel="icon" href="../icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="posters.css?v=1.0.0">
+<link rel="stylesheet" href="posters.css?v=1.1.0">
 </head>
 <body>
 <a class="skip" href="#poster">Hoppa till affischen</a>
@@ -18,6 +18,7 @@
  <button class="print-btn" type="button" id="print">Skriv ut / spara PDF <span aria-hidden="true">↗</span></button>
 </header>
 <main id="poster">
+ <nav class="grade-switch" aria-label="Välj årskurs"><button type="button" data-grade="9" aria-pressed="true">Åk 9 <small>Burgundy</small></button><button type="button" data-grade="8" aria-pressed="false">Åk 8 <small>Marinblå + burgundy</small></button></nav>
  <nav class="tabs" aria-label="Välj affisch">
   <button type="button" data-poster="formler" aria-pressed="true">Formler i Tal <small>Åk 9</small></button>
   <button type="button" data-poster="tabeller" aria-pressed="false">Multiplikation <small>1–10</small></button>
@@ -117,9 +118,98 @@
   <footer class="poster-footer"><span>MATTE OS <b>✦</b> KUNSKAP SOM FASTNAR</span><span>Formler · Exempel · Förståelse</span></footer>
  </section>
 
+<section class="poster formula-poster grade-eight-poster" id="poster-formler8" aria-labelledby="title-formler8" hidden>
+ <div class="masthead">
+  <div class="mast-top"><span class="mast-logo"><span class="crown" aria-hidden="true">♛</span> MATTE OS <small>ÅK 8 · MATEMATIK</small></span><span class="edition"><span aria-hidden="true">✧</span> FORMELSAMLING <small>FÖR PROV · FÖR TRÄNING</small></span></div>
+  <p class="mast-kicker">DIN VISUELLA FORMELSAMLING</p>
+  <h1 id="title-formler8">Formler &amp; regler <em>i åk 8</em></h1>
+  <p class="mast-sub">Marinblått <span aria-hidden="true">✦</span> burgundy <span aria-hidden="true">✦</span> exempel steg för steg</p>
+  <div class="stars" aria-hidden="true">✧ ✦ ✧</div>
+ </div>
+ <div class="formula-grid">
+  <article class="formula-card">
+   <header><span class="number">01</span><div><h2>Negativa tal</h2><p>Plus, minus, gånger och delat</p></div><span class="card-icon" aria-hidden="true">−3</span></header>
+   <div class="card-body">
+    <div class="rule"><span class="equation">−3 + 5 = 2</span><span class="explain">På tallinjen går du fem steg åt höger från −3.</span></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 1</span><p>Räkna ut 7 − 10.</p><p class="answer">7 − 10 = −3</p><p class="why">Du hamnar tre steg under noll.</p></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 2</span><p>Räkna ut (−4) · 6.</p><p class="answer">(−4) · 6 = −24</p><p class="why">Ett negativt gånger ett positivt tal ger ett negativt tal.</p></div>
+    <p class="tip"><span aria-hidden="true">✦</span> Vid multiplikation och division: två minustecken ger plus.</p>
+   </div>
+  </article>
+  <article class="formula-card">
+   <header><span class="number">02</span><div><h2>Bråk</h2><p>Jämför, förkorta och räkna</p></div><span class="card-icon" aria-hidden="true">½</span></header>
+   <div class="card-body">
+    <div class="rule"><span class="equation">a/n + b/n = (a+b)/n</span><span class="explain">Vid addition måste bråken ha samma nämnare.</span></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 1</span><p>Beräkna 1/3 + 1/6.</p><p class="answer">2/6 + 1/6 = 3/6 = 1/2</p><p class="why">Gör först om 1/3 till sjättedelar.</p></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 2</span><p>Förkorta 12/18.</p><p class="answer">12/18 = 2/3</p><p class="why">Dela både täljare och nämnare med 6.</p></div>
+    <p class="tip"><span aria-hidden="true">✦</span> Bråk · bråk: täljare gånger täljare, nämnare gånger nämnare.</p>
+   </div>
+  </article>
+  <article class="formula-card">
+   <header><span class="number">03</span><div><h2>Decimaltal</h2><p>Jämför och räkna rätt</p></div><span class="card-icon" aria-hidden="true">0,5</span></header>
+   <div class="card-body">
+    <div class="rule"><span class="equation">3/4 = 0,75</span><span class="explain">Bråk till decimal: dela täljaren med nämnaren.</span></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 1</span><p>Vilket är störst: 3/4 eller 0,7?</p><p class="answer">0,75 &gt; 0,70</p><p class="why">Skriv båda som decimaltal och jämför.</p></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 2</span><p>Beräkna 1,2 · 0,3.</p><p class="answer">1,2 · 0,3 = 0,36</p><p class="why">12 · 3 = 36, sedan två decimaler totalt.</p></div>
+    <p class="tip"><span aria-hidden="true">✦</span> 0,5 är större än 0,45, eftersom 0,50 &gt; 0,45.</p>
+   </div>
+  </article>
+  <article class="formula-card">
+   <header><span class="number">04</span><div><h2>Potenser</h2><p>Tal som multipliceras flera gånger</p></div><span class="card-icon" aria-hidden="true">aⁿ</span></header>
+   <div class="card-body">
+    <div class="rule"><span class="equation">a<sup>n</sup> = a · a · … · a</span><span class="explain">Faktorn a förekommer n gånger, för positivt heltal n.</span></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 1</span><p>Beräkna 2⁴.</p><p class="answer">2 · 2 · 2 · 2 = 16</p><p class="why">Fyra tvåor multipliceras.</p></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 2</span><p>Skriv 0,004 i grundpotensform.</p><p class="answer">0,004 = 4 · 10⁻³</p><p class="why">10⁻³ = 0,001 och 4 · 0,001 = 0,004.</p></div>
+    <p class="tip"><span aria-hidden="true">✦</span> 3² = 9, inte 6. Exponenten betyder antal faktorer.</p>
+   </div>
+  </article>
+  <article class="formula-card">
+   <header><span class="number">05</span><div><h2>Mått och enheter</h2><p>Längd, area och volym</p></div><span class="card-icon" aria-hidden="true">cm²</span></header>
+   <div class="card-body">
+    <div class="rule compact"><span class="equation">1 m = 100 cm</span><span class="explain">Längdenheter: faktor 100 mellan m och cm.</span></div>
+    <div class="rule compact"><span class="equation">1 m² = 10 000 cm²</span><span class="explain">Area: 100 · 100.</span></div>
+    <div class="rule compact"><span class="equation">1 m³ = 1 000 liter</span><span class="explain">Volym: 1 000 dm³ = 1 000 l.</span></div>
+    <div class="worked"><span class="mini-label">EXEMPEL</span><p>Skriv 2,5 m i centimeter.</p><p class="answer">2,5 · 100 = 250 cm</p><p class="why">Fler centimeter än meter för samma längd.</p></div>
+    <p class="tip"><span aria-hidden="true">✦</span> Byt alltid till samma enhet innan du räknar.</p>
+   </div>
+  </article>
+  <article class="formula-card">
+   <header><span class="number">06</span><div><h2>Omkrets &amp; area</h2><p>Former i två dimensioner</p></div><span class="card-icon" aria-hidden="true">▱</span></header>
+   <div class="card-body">
+    <div class="rule compact"><span class="equation">Rektangel: A = b · h</span><span class="explain">Area = bas gånger höjd.</span></div>
+    <div class="rule compact"><span class="equation">Triangel: A = b · h / 2</span><span class="explain">Hälften av motsvarande rektangel.</span></div>
+    <div class="rule compact"><span class="equation">Omkrets: 2 · (l + b)</span><span class="explain">Rektangelns fyra sidor tillsammans.</span></div>
+    <div class="worked"><span class="mini-label">EXEMPEL</span><p>Rektangel med sidorna 4 och 5 cm.</p><p class="answer">A = 4 · 5 = 20 cm²</p><p class="why">Omkretsen är 2 · (4 + 5) = 18 cm.</p></div>
+    <p class="tip"><span aria-hidden="true">✦</span> Area mäts i cm², omkrets i cm.</p>
+   </div>
+  </article>
+  <article class="formula-card">
+   <header><span class="number">07</span><div><h2>Volym</h2><p>Rymden inuti en kropp</p></div><span class="card-icon" aria-hidden="true">▣</span></header>
+   <div class="card-body">
+    <div class="rule compact"><span class="equation">Rätblock: V = l · b · h</span><span class="explain">Längd gånger bredd gånger höjd.</span></div>
+    <div class="rule compact"><span class="equation">Cylinder: V = π · r² · h</span><span class="explain">Cirkelns basyta gånger höjden.</span></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 1</span><p>Ett rätblock: 3 cm × 4 cm × 5 cm.</p><p class="answer">V = 3 · 4 · 5 = 60 cm³</p><p class="why">Tre längder multipliceras.</p></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 2</span><p>En cylinder med r = 2 cm och h = 3 cm.</p><p class="answer">V = 12π cm³ ≈ 37,7 cm³</p><p class="why">π · 2² · 3 = 12π.</p></div>
+    <p class="tip"><span aria-hidden="true">✦</span> Volym mäts i cm³, dm³ eller m³.</p>
+   </div>
+  </article>
+  <article class="formula-card">
+   <header><span class="number">08</span><div><h2>Algebra</h2><p>Variabler och ekvationer</p></div><span class="card-icon" aria-hidden="true">x</span></header>
+   <div class="card-body">
+    <div class="rule compact"><span class="equation">a(b + c) = ab + ac</span><span class="explain">Multiplicera in i parentesen.</span></div>
+    <div class="rule compact"><span class="equation">3x + 2 = 14</span><span class="explain">Hitta x genom att göra samma sak i båda leden.</span></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 1</span><p>Lös 3x + 2 = 14.</p><p class="answer">3x = 12 → x = 4</p><p class="why">Minus 2 på båda sidor, sedan dela med 3.</p></div>
+    <div class="worked"><span class="mini-label">EXEMPEL 2</span><p>Förenkla 2(x + 3).</p><p class="answer">2x + 6</p><p class="why">2 · x + 2 · 3.</p></div>
+    <p class="tip"><span aria-hidden="true">✦</span> Kontrollera: 3 · 4 + 2 = 14.</p>
+   </div>
+  </article>
+ </div>
+ <footer class="poster-footer"><span>MATTE OS <b>✦</b> ÅK 8</span><span>Tal · Geometri · Algebra</span></footer>
+</section>
+
  <section class="poster tables-poster" id="poster-tabeller" aria-labelledby="title-tabeller" hidden>
   <div class="masthead">
-   <div class="mast-top"><span class="mast-logo"><span class="crown" aria-hidden="true">♛</span> MATTE OS <small>TABELLARENAN</small></span><span class="edition">✧ 10 TABELLER <small>100 UTTRYCK</small></span></div>
+   <div class="mast-top"><span class="mast-logo"><span class="crown" aria-hidden="true">♛</span> MATTE OS <small id="tables-grade">TABELLARENAN</small></span><span class="edition">✧ 10 TABELLER <small>100 UTTRYCK</small></span></div>
    <p class="mast-kicker">EN GÅNG I TAGET · HELA 1–10</p>
    <h1 id="title-tabeller">Multiplikations­tabellerna</h1>
    <p class="mast-sub">Läs <span aria-hidden="true">✦</span> förstå mönstret <span aria-hidden="true">✦</span> öva tills det sitter</p>
@@ -132,6 +222,6 @@
  </section>
  <p class="page-note">Affischerna är ett komplement. Alla vanliga formelkort, övningar och prov finns kvar i Matte OS.</p>
 </main>
-<script src="posters.js?v=1.0.0"></script>
+<script src="posters.js?v=1.1.0"></script>
 </body>
 </html>

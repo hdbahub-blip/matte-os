@@ -6,6 +6,7 @@ on:
     branches:
       - fix/saamiya-tal-book-first-20261028
       - feature/burgundy-posters-20261028
+      - feature/grade8-navy-burgundy-posters-20261028
 
 jobs:
   unit-and-content:
