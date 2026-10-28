@@ -114,7 +114,7 @@
     cvis: { t: 'sqrt', a: 81, r: '?' },
     f: {
       name: 'Kvadratrot', main: '\\sqrt{a}', when: 'Du söker den icke-negativa kvadratroten ur ett tal. Ekvationen x² = a kan ha två lösningar.',
-      sym: [['√a', 'det positiva tal som gånger sig självt blir a']],
+      sym: [['√a', 'det icke-negativa tal som gånger sig självt blir a']],
       forms: [['Tal i kvadrat', 'x^2 = x \\cdot x'], ['Roten ur', '\\sqrt{81} = 9'], ['Lös x² = 49', 'x=7 \\text{ eller } x=-7'], ['Uppskatta', '7^2 = 49 < 50 < 64 = 8^2']],
       ex: '$\\sqrt{81} = 9$ eftersom $9 \\cdot 9 = 81$', trap: '$\\sqrt{81}$ är inte $81/2$. Fråga: vilket tal gånger sig självt?'
     },
@@ -709,7 +709,7 @@
     f: {
       name: 'Andragradsekvation x² = a', main: 'x^2 = a \\;\\Rightarrow\\; x = \\pm\\sqrt{a}', when: 'Ekvationen har x i kvadrat och inget x på första gradens sätt.',
       sym: [['±', 'både plus och minus'], ['a > 0', 'två lösningar: +√a och −√a'], ['a = 0', 'en lösning: x = 0'], ['a < 0', 'ingen reell lösning']],
-      forms: [['Lös ut x² först', 'ax^2 + b = c \\;\\Rightarrow\\; x^2 = \\dfrac{c - b}{a}'], ['Sedan roten', 'x = \\sqrt{x^2} \\text{ eller } x = -\\sqrt{x^2}'], ['Kontrollera', '(-r)^2 = r^2 = a']],
+      forms: [['Lös ut x² först', 'ax^2 + b = c \\;\\Rightarrow\\; x^2 = \\dfrac{c - b}{a}'], ['Sedan roten', 'x = \\sqrt{a} \\text{ eller } x = -\\sqrt{a}'], ['Kontrollera', '(-r)^2 = r^2 = a']],
       ex: '$x^2 = 49 \\Rightarrow x = 7$ eller $x = -7$', trap: 'Svaret $x = 7$ räcker inte: även $(-7)^2 = 49$. Ange **båda** lösningarna.'
     },
     h1: 'Står x² ensamt? Ta roten ur båda sidor – och kom ihåg både + och −.',
