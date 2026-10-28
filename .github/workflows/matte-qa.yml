@@ -1,0 +1,57 @@
+name: Matte OS quality gates
+
+on:
+  pull_request:
+  push:
+    branches:
+      - fix/saamiya-tal-book-first-20261028
+
+jobs:
+  unit-and-content:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check js/app.js
+          node --check js/content9.js
+          node --check js/core.js
+          node --check js/engine.js
+          node --check sw.js
+          node --check prov/sw.js
+      - name: Math and content verification
+        run: node tests/qa.js
+      - name: Figure, unit and geometry checks
+        run: node tests/figure-consistency.js
+      - name: Table arena and progress integration
+        run: node tests/tabell-integration.js
+      - name: Book-first regression
+        run: node tests/book-first-regression.js
+
+  browser-mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright for Chromium-based visual checks
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Mobile emulation end-to-end
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-server.log 2>&1 &
+          sleep 2
+          node tests/book-first-e2e.js http://127.0.0.1:8765/ test-screenshots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matte-os-mobile-screenshots
+          path: test-screenshots/
+          if-no-files-found: ignore

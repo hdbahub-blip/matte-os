@@ -1,8 +1,8 @@
-const CACHE='matte-prov-v1.2.3-20261028';
+const CACHE='matte-prov-v1.2.4-20261028';
 const CORE=[
- './','./index.html','./css/app.css?v=1.2.3','./js/exam-core.js?v=1.2.3','./js/exam-visuals.js?v=1.2.3','./js/app.js?v=1.2.3',
+ './','./index.html','./css/app.css?v=1.2.4','./js/exam-core.js?v=1.2.4','./js/exam-visuals.js?v=1.2.4','./js/app.js?v=1.2.4',
  './manifest.webmanifest','./icon.svg',
- '../js/math.js?v=5.4.4','../js/core.js?v=5.4.4','../js/content9.js?v=5.4.4','../js/content8.js?v=5.4.4'
+ '../js/math.js?v=5.4.5','../js/core.js?v=5.4.5','../js/content9.js?v=5.4.5','../js/content8.js?v=5.4.5'
 ];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('matte-prov-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
