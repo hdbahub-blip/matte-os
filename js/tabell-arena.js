@@ -30,7 +30,7 @@ const weekDays=()=>{
 };
 function shell(content){
  if(!shadow)return;
- shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.4.3"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
+ shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.4.4"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
 }
 function go(v){const h='#/tabell/'+v;if(location.hash===h)draw();else location.hash=h;window.scrollTo(0,0)}
 const route=()=>location.hash.replace(/^#\/tabell\/?/,'')||'home';
