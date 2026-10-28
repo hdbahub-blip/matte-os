@@ -33,3 +33,54 @@ main{max-width:1492px;padding:22px 18px 45px;margin:0 auto}.tabs{display:flex;ju
 @media(max-width:380px){.toolbar-brand{display:none}.mult-grid{grid-template-columns:1fr}.mult-card .mult-row{font-size:20px;padding:4px 14px}.masthead h1{font-size:31px}.tabs button{font-size:12px}}
 @media(prefers-reduced-motion:no-preference){.formula-card,.mult-card{transition:transform .18s ease,box-shadow .18s ease}.formula-card:hover,.mult-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px #24001480}}
 @media print{@page{size:A3 landscape;margin:8mm}html,body{background:white!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.toolbar,.tabs,.page-note,.tables-outro .arena-link{display:none!important}main{padding:0;max-width:none}.poster{box-shadow:none;border-radius:0;padding:0 6px 6px;border:0}.masthead{margin:0 -6px 8px;min-height:135px;padding:12px 12px 18px}.masthead h1{font-size:46px}.mast-kicker{margin:4px auto}.formula-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.formula-card{box-shadow:none;break-inside:avoid}.formula-card header{min-height:52px;padding:5px 8px}.formula-card header h2{font-size:16px}.formula-card header p{font-size:9px}.formula-card .card-icon{font-size:16px}.number{width:28px;height:28px;font-size:12px}.card-body{padding:7px;gap:5px}.rule{padding:8px 5px}.rule .equation{font-size:20px}.rule.compact{padding:6px}.rule.compact .equation{font-size:16px}.rule .explain,.worked p.why,.tip,.notice{font-size:9px}.worked{padding:6px}.worked p{font-size:11px}.worked p.answer{font-size:17px}.pair b{font-size:12px}.prefix-table th,.prefix-table td{font-size:9px;padding:2px 3px}.sets .set{width:29px;font-size:18px}.sets strong,.sets small{font-size:8px}.poster-footer{padding-top:8px}.mult-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}.mult-card{box-shadow:none;break-inside:avoid}.mult-card .mult-row{font-size:15px;padding:3px 7px}.mult-card header h2{font-size:17px}.table-intro{min-height:80px;gap:8px}.table-intro>div{min-height:80px;padding:9px}.tables-outro{margin:8px 0 4px;padding:8px}.tables-outro h2{font-size:20px}.tables-outro p{margin:3px 0}.tables-outro .mini-label{display:none}}
+
+
+/* Åk 8: eget marinblått och burgundy designspråk. Åk 9:s burgundy lämnas oförändrat. */
+.grade-switch{display:flex;gap:8px;justify-content:center;align-items:center;margin:0 auto 13px;max-width:610px;border:1px solid #dfc8d2;padding:5px;border-radius:17px;background:#fffaf7;box-shadow:0 5px 16px #1a18310c}
+.grade-switch button{flex:1;min-width:0;cursor:pointer;padding:9px 12px;border-radius:12px;background:transparent;color:#57414b;font-size:15px;font-weight:800;border:1px solid transparent}
+.grade-switch button small{font-size:11px;font-weight:560;display:block;margin-top:1px;color:inherit;opacity:.82}
+.grade-switch button[aria-pressed="true"]{color:#fff;border-color:#b95270;background:linear-gradient(135deg,#801637,#500c29);box-shadow:0 4px 11px #5b03212c}
+body[data-grade="8"]{background:#eef3f9;--wine:#052342;--wine-dark:#041329;--red:#103f75;--berry:#852449;--cream:#f5faff;--paper:#eaf3ff;--gold:#ffe0b0;--edge:#2c70ae}
+body[data-grade="8"] .grade-switch{background:#f8fbff;border-color:#b9cde5}
+body[data-grade="8"] .grade-switch button[aria-pressed="true"]{background:linear-gradient(125deg,#061b36,#164b80 72%,#5f173b);border-color:#5d8cbe}
+body[data-grade="8"] .tabs button[aria-pressed="true"]{background:linear-gradient(125deg,#062241,#154b85 76%,#7e1840);border-color:#3d79b6;color:#fff}
+body[data-grade="8"] .tabs button{border-color:#c1d3e5}
+body[data-grade="8"] .return{color:#0b3b70}
+body[data-grade="8"] .toolbar-brand{color:#0a335e}
+body[data-grade="8"] .print-btn{background:#0a386d;border-color:#0a386d}
+body[data-grade="8"] .poster{background:linear-gradient(154deg,#031a37,#13558a 42%,#092744 75%,#0d345e);border-color:#164d85;box-shadow:0 25px 70px rgba(0,27,70,.23),inset 0 0 0 4px #8bbaf320}
+body[data-grade="8"] .masthead{background:radial-gradient(circle at 17% 5%,#a5d7ff35,transparent 30%),radial-gradient(circle at 87% 22%,#e9abc128,transparent 32%),linear-gradient(112deg,#061a36,#0f4e83 53%,#270f35)}
+body[data-grade="8"] .masthead:after{background:linear-gradient(90deg,transparent,#cdeaff,transparent);box-shadow:0 0 10px #65b6ff}
+body[data-grade="8"] .masthead h1 em{color:#ffe2af}
+body[data-grade="8"] .crown{color:#ffe1ae}
+body[data-grade="8"] .edition{background:#286b9b39;border-color:#6aaff6}
+body[data-grade="8"] .formula-card,body[data-grade="8"] .mult-card{background:#f6faff;border-color:#2e75ae;box-shadow:0 4px 16px #03183672,0 0 0 3px #afd7ff4d}
+body[data-grade="8"] .formula-card header,body[data-grade="8"] .mult-card header{background:linear-gradient(116deg,#05142e,#114d82 65%,#071830)}
+body[data-grade="8"] .formula-card header:after,body[data-grade="8"] .mult-card header:after{background:radial-gradient(circle,#9de0ff70,transparent 70%)}
+body[data-grade="8"] .number{background:linear-gradient(148deg,#1485bd,#12467d);border-color:#b3e2ff;box-shadow:0 1px 7px #7ccaff99}
+body[data-grade="8"] .card-icon{color:#bbddff}
+body[data-grade="8"] .card-body{background:linear-gradient(145deg,#fcfeff,#edf6ff 64%,#fff8fa)}
+body[data-grade="8"] .rule{background:linear-gradient(133deg,#d6eaff,#b7d7f8);box-shadow:inset 0 0 0 1px #8fc4f195}
+body[data-grade="8"] .rule .equation{color:#0b2546}
+body[data-grade="8"] .rule .explain{color:#294564}
+body[data-grade="8"] .worked{background:linear-gradient(142deg,#f1f8ff,#e0efff);border-color:#c7def7}
+body[data-grade="8"] .worked p.answer{color:#0b2a57}
+body[data-grade="8"] .worked p.why{color:#49627f}
+body[data-grade="8"] .mini-label{background:linear-gradient(132deg,#8b2147,#5d1232);box-shadow:0 2px 5px #852b562e}
+body[data-grade="8"] .tip{color:#184774}
+body[data-grade="8"] .tip span{color:#8b254f}
+body[data-grade="8"] .pair>div:not(.worked){background:#e2efff}
+body[data-grade="8"] .pair small{color:#174b81}
+body[data-grade="8"] .notice{background:#dceafa;border-left-color:#88264c;color:#1a3858}
+body[data-grade="8"] .notice strong{color:#842249}
+body[data-grade="8"] .mult-card .mult-row:nth-child(even){background:#e8f2ff}
+body[data-grade="8"] .mult-card .mult-row .answer-number{color:#81274a}
+body[data-grade="8"] .mult-card .mult-footer{background:#d8eafb;border-top-color:#bcd6ed;color:#124a7d}
+body[data-grade="8"] .table-intro>div{background:linear-gradient(113deg,#f2f9ff,#dceaff);border-color:#9cc8f0}
+body[data-grade="8"] .table-intro b{color:#134977}
+body[data-grade="8"] .table-intro .intro-math{color:#0b325a}
+body[data-grade="8"] .tables-outro{background:linear-gradient(115deg,#082a50,#154a79 80%,#671d4a);border-color:#a3d3f7}
+body[data-grade="8"] .arena-link{background:#ffe4cb;color:#102f55}
+body[data-grade="8"] .page-note{color:#496784}
+@media(max-width:720px){.grade-switch{margin:0 auto 9px}.grade-switch button{font-size:14px;padding:8px}.grade-switch button small{font-size:10px}}
+@media print{.grade-switch{display:none!important}body[data-grade="8"] .formula-card,body[data-grade="8"] .mult-card{box-shadow:none}}
