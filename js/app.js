@@ -137,7 +137,7 @@ function boostCard() {
     return shell(`<button class="btn text" data-a="nav" data-h="#/">${I.back.replace('<svg', '<svg width="18" height="18"')} Hem</button>
       <p class="eyebrow">Kapitel</p><h1>${esc(chName(chId))}</h1>
       <p class="mut">${st.solo} av ${st.total} moment klarar du själv. Ordningen följer skolans plan.</p>
-      ${bookGuide}<details class="fold"><summary>Alla moment i kapitlet</summary><div class="in">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>v. ${s.w.join(', ')} · ${lvl(s.id)}</small></div>
+      <div class="card">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>v. ${s.w.join(', ')} · ${lvl(s.id)}</small></div>
         <button class="btn sm ghost" data-a="nav" data-h="#/l/${s.id}/0">Lär</button>
         <button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div>
       <div class="actions"><button class="btn" data-a="startTrain" data-ch="${chId}">Blandträna kapitlet</button><button class="btn ghost" data-a="startTest" data-ch="${chId}">Till provsidan</button></div>`, 'home');
@@ -223,7 +223,7 @@ function boostCard() {
       <p class="mut">Fokusera på ett område i taget. Lägg in ditt provdatum nedan så visar appen rätt prioritet.</p>
       <div class="card"><div class="field"><label for="restdate">Datum för restprovet</label><input id="restdate" type="date" value="${esc(info.date || '')}" data-a="restdate" data-id="${id}"></div>
         <div class="row between small"><span>Beredskap</span><b>${info.readiness} %</b></div>${segBar(E.chapterStats(p, r.chapter).levels)}</div>
-      <div class="card">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div></details>
+      ${bookGuide}<details class="fold"><summary>Alla moment i kapitlet</summary><div class="in">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div></details>
       <div class="actions"><button class="btn" data-a="startTrain" data-ch="${r.chapter}">Öva 5 blandade frågor</button><button class="btn ghost" data-a="startTest" data-ch="${r.chapter}">Öppna provsidan</button></div>
       <div class="actions"><button class="btn text" data-a="restdone" data-id="${id}">Restprovet är gjort – dölj det</button></div>`, 'home');
   }
