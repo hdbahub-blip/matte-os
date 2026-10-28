@@ -20,6 +20,7 @@ self.addEventListener('fetch', e => {
   // The learning PWA must not intercept /prov/ or legacy /tabell/ navigations.
   const base = new URL(self.registration.scope).pathname;
   const path = new URL(req.url).pathname;
+  if (path.startsWith(base + 'prov/') || path.startsWith(base + 'tabell/')) return;
   if (req.mode === 'navigate' && path !== base && path !== base + 'index.html') return;
   e.respondWith((async () => {
     try {
