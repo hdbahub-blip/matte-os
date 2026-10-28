@@ -55,3 +55,18 @@ Vid observerat regressionsfel: revert release-commit mot före-uppdatering `105a
 
 ## Status
 Detta dokument är en metod- och kodbaserad audit; testrun-/deploymentnummer måste fyllas med **verifierat faktisk resultat** när grenen testats. Ingen fysisk elevacceptans ingår i denna fil.
+
+## Verifierad kontrollkörning — 2026-10-29
+
+**Källa:** GitHub Actions [run 40786522508](https://github.com/mohamed321966-wq/matte-os/actions/runs/40786522508), head `55264bd7dc7b0c07ba5942a458095467fec616e6`. Båda jobben `unit-and-content` och `browser-mobile` slutade SUCCESS.
+
+- 63 originalmoment (åk 8: 36, åk 9: 27) har varsin enkel intro och exempel. Nya tests `paper-lessons.js` hade **441/441 kontroller PASS** inklusive struktur, stegantal och länkning till original-ID. Observera att dessa strukturella kontroller inte ensamma bevisar matematiken i varje naturlig språkförklaring.
+- Ursprunglig matematisk/verifierad övningskorpus: **9 410/9 410 kontroller PASS**; 63 genomgångna exempel och 403 uppgifter.
+- Figur-/enhets- och beräkningskonsistens: **603/603 PASS**.
+- Tabellarenan: **52/52 PASS**.
+- Tidigare elevflöden: **57/57 PASS** via emulerad iPhone SE, iPhone 13 och desktop.
+- Affischer: **396/396 PASS**, även offline.
+- Nya papperslika lektioner: **335/335 PASS**: urval över 15 innehållstyper i båda årskurserna, stegvyerna, stängda frivilliga formelsektioner, fokus, responsivitet och lokal lagring efter omladdning.
+- **Publicering:** ännu inte verifierad i denna commit. GitHub Pages måste kontrolleras efter merge.
+
+**Återstående begränsning:** Fysisk iOS Safari/PWA samt elevernas egen förståelse och låg stimulansnivå är fortfarande OPEN. Ett fullständigt manuellt rad-för-rad-protokoll för samtliga 63 nyskrivna exempel jämfört med skolans varje bokuppslag ingick inte i denna testkörning. Autokontrollerad korrekthet av originalbank och handgranskade högriskexempel ersätter inte fysisk pedagogisk acceptans.
