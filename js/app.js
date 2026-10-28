@@ -180,6 +180,10 @@ function boostCard() {
         <div style="height:14px"></div>
         <button class="btn block" data-a="startTrain" data-ch="${rec.chapter}">Starta</button>
       </div></div>
+      <a class="tap" href="#/tabell/home" style="text-decoration:none;color:inherit">
+        <div><div class="t">Multiplikationstabellen 1–10</div><div class="s">Läs hela tabellen, träna en i taget, testa blandat eller spela duell.</div></div>
+        <span class="chev">${I.chev}</span>
+      </a>
       <button class="tap" data-a="startTest" data-ch="${rec.chapter}"><div><div class="t">Öppna Matte Prov · ${esc(chName(rec.chapter))}</div><div class="s">Inga ledtrådar, ingen metod angiven. Analys efteråt.</div></div><span class="chev">${I.chev}</span></button>
       ${rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}"><div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? 'datum ' + esc(r.date) : 'datum saknas'} · beredskap ${r.readiness} %</div></div><span class="chev">${I.chev}</span></button>`).join('')}
       <details class="fold"><summary>Välj ett annat område</summary><div class="in">
