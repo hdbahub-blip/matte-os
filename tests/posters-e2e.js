@@ -60,7 +60,7 @@ fs.mkdirSync(OUT,{recursive:true});
       await page.click('[data-p=grade9]');await page.waitForSelector('h1');
       await page.click('.nav [data-h="#/formler"]');await page.waitForSelector('text=Formler och regler');
       assert.equal(await page.locator('a[href="affischer/?visa=formler&ak=9"]').count(),1,'Formulas CTA missing');checks++;
-      await page.click('a[href="affischer/?visa=formler"]');
+      await page.click('a[href="affischer/?visa=formler&ak=9"]');
       await page.waitForSelector('.formula-card');
       assert.match(page.url(),/affischer\/\?visa=formler/);checks++;
       await page.goto(BASE+'#/trana',{waitUntil:'networkidle'});
