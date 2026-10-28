@@ -2,11 +2,11 @@
    - Allt appinnehåll förcachas vid installation → fungerar offline.
    - Nätverk först för allt (färsk version när nätet finns), cache som reserv.
    - Ny version: CACHE-namnet byts → gamla cachar raderas vid aktivering. */
-const VERSION = '5.4.7-20261028';
+const VERSION = '5.4.8-20261028';
 const CACHE = 'matte-os-' + VERSION;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-512.png',
-  './css/app.css?v=5.4.7', './js/math.js?v=5.4.7', './js/visuals.js?v=5.4.7', './js/core.js?v=5.4.7',
-  './js/content9.js?v=5.4.7', './js/content8.js?v=5.4.7', './js/engine.js?v=5.4.7', './js/tables.js?v=5.4.7', './js/tabell-arena.js?v=5.4.7', './css/tabell-arena.css?v=5.4.7', './js/app.js?v=5.4.7',
+  './css/app.css?v=5.4.8', './js/math.js?v=5.4.8', './js/visuals.js?v=5.4.8', './js/core.js?v=5.4.8',
+  './js/content9.js?v=5.4.8', './js/content8.js?v=5.4.8', './js/engine.js?v=5.4.8', './js/tables.js?v=5.4.8', './js/tabell-arena.js?v=5.4.8', './css/tabell-arena.css?v=5.4.8', './js/teach-simple.js?v=5.4.8', './js/app.js?v=5.4.8',
   './affischer/', './affischer/index.html', './affischer/posters.css?v=1.1.0', './affischer/posters.js?v=1.1.0'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));

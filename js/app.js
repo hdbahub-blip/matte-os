@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const E = window.MOEngine, M = window.MOMath, V = window.MOVis, CORE = window.MO_CORE, T = window.MOTables;
-  const esc = M.esc, R = M.rich, TX = M.texBlock;
+  const esc = M.esc, R = M.rich, TX = M.texBlock, SIMPLE = window.MOSimple;
   const app = document.getElementById('app');
   const sheetRoot = document.getElementById('sheet');
   const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, sheet: null, confirmReset: false };
@@ -145,23 +145,36 @@ function boostCard() {
   }
 
   /* ================= FORMLER ================= */
+  /* Samma innehåll och korrekt matematik finns kvar, men visas inte i ansiktet på nybörjaren. */
+  function paperSteps(s, { intro = false } = {}) {
+    const d = SIMPLE && SIMPLE.DATA[s.id];
+    if (!d) return '<p class="mut">Se ett exempel i genomgången.</p>';
+    const steps = intro ? d[2].slice(0, 1) : d[2];
+    return '<div class="paper-flow"><div class="paper-question"><span class="paper-label">EXEMPEL</span><p>'+esc(d[1])+'</p></div>'
+      + (SIMPLE.diagram(s.id) || '')
+      + steps.map((x,i)=>'<div class="paper-step"><span class="paper-num">'+(i+1)+'</span><p>'+esc(x)+'</p></div>').join('')
+      + (intro ? '' : '<div class="paper-answer"><span>SVAR</span><strong>'+esc(d[3])+'</strong></div>')+'</div>';
+  }
   function formulaBody(s, opts = {}) {
-    const f = s.f;
-    const forms = f.forms ? `<div class="fsec"><div class="k">${f.rules ? 'Formen åt olika håll' : 'Använd åt olika håll'}</div><div class="forms">${f.forms.map(([l, x]) => `<div><div class="lbl">${esc(l)}</div><div class="fx">${TX(x)}</div></div>`).join('')}</div></div>` : '';
-    const rules = f.rules ? `<div class="fsec"><div class="k">Så tänker du</div><ul class="clean">${f.rules.map(r => `<li>${R(r)}</li>`).join('')}</ul></div>` : '';
-    return `<div class="fsec"><div class="k">När?</div><p style="margin:0">${R(f.when)}</p></div>
-      ${opts.noVis ? '' : `<div class="fsec">${visHTML(s.cvis)}</div>`}
-      <div class="fsec"><div class="k">Betyder</div><dl class="symtab">${f.sym.map(([a, b]) => `<dt>${R(a)}</dt><dd>${R(b)}</dd>`).join('')}</dl></div>
-      ${forms}${rules}
-      <div class="fsec"><div class="k">Exempel</div><p style="margin:0" class="wrapm">${R(f.ex)}</p></div>
-      <div class="fsec"><div class="box warn" style="margin:0"><div class="k">Vanlig fälla</div>${R(f.trap)}</div></div>
-      ${opts.noLink ? '' : `<div class="actions"><button class="btn sm soft" data-a="nav" data-h="#/l/${s.id}/0">Hela genomgången</button><button class="btn sm ghost" data-a="startTrain" data-sid="${s.id}">Träna 5</button></div>`}`;
+    const f = s.f, d = SIMPLE && SIMPLE.DATA[s.id];
+    const forms = f.forms ? '<div class="fsec"><div class="k">Fler sätt att använda regeln</div><div class="forms">'+f.forms.map(([l,x])=>'<div><div class="lbl">'+esc(l)+'</div><div class="fx">'+TX(x)+'</div></div>').join('')+'</div></div>' : '';
+    const rules = f.rules ? '<div class="fsec"><div class="k">När du vill lära dig mer</div><ul class="clean">'+f.rules.map(r=>'<li>'+R(r)+'</li>').join('')+'</ul></div>' : '';
+    const deep = '<details class="paper-more"><summary>Visa formel, symboler och fler regler</summary><div class="paper-more-in">'
+      + '<div class="fsec"><div class="k">Matematisk formel</div><div class="big-f">'+TX(f.main)+'</div></div>'
+      + '<div class="fsec"><div class="k">När används den?</div>'+R(f.when)+'</div>'
+      + '<div class="fsec"><div class="k">Vad betyder tecknen?</div><dl class="symtab">'+f.sym.map(([a,b])=>'<dt>'+R(a)+'</dt><dd>'+R(b)+'</dd>').join('')+'</dl></div>'
+      + forms + rules + '<div class="fsec"><div class="k">Ett till exempel</div>'+R(f.ex)+'</div>'
+      + '<div class="fsec"><div class="k">Vanligt misstag</div>'+R(f.trap)+'</div>'
+      + (opts.noVis ? '' : '<div class="fsec">'+visHTML(s.cvis)+'</div>')+'</div></details>';
+    return (d ? '<p class="paper-lead">'+esc(d[0])+'</p>'+paperSteps(s) : '<div class="fsec">'+R(s.idea)+'</div>') + deep
+      + (opts.noLink ? '' : '<div class="paper-action"><button class="btn sm soft" data-a="nav" data-h="#/l/'+s.id+'/0">Förstå från början</button><button class="btn sm ghost" data-a="startTrain" data-sid="'+s.id+'">Öva 5 frågor</button></div>');
   }
   function formulaCard(s) {
-    const open = UI.fopen.has(s.id);
-    return `<div class="fcard ${open ? 'open' : ''}" id="f-${s.id}"><button class="fh" data-a="ftoggle" data-sid="${s.id}" aria-expanded="${open}">
-      <span class="fn">${esc(s.f.name)}</span><span class="chev">${I.chev}</span><span class="fm">${TX(s.f.main)}</span></button>
-      ${open ? `<div class="fbody">${formulaBody(s)}</div>` : ''}</div>`;
+    const open = UI.fopen.has(s.id), d = SIMPLE && SIMPLE.DATA[s.id];
+    return '<div class="fcard '+(open?'open':'')+'" id="f-'+s.id+'"><button class="fh paper-fh" data-a="ftoggle" data-sid="'+s.id+'" aria-expanded="'+open+'">'
+      + '<span class="fn">'+esc(s.f.name)+'</span><span class="chev">'+I.chev+'</span>'
+      + '<span class="fm paper-preview">'+esc(d ? d[0] : s.anchor)+'</span></button>'
+      + (open ? '<div class="fbody">'+formulaBody(s)+'</div>':'')+'</div>';
   }
   function viewFormler() {
     const p = pid(), pr = P();
@@ -170,12 +183,12 @@ function boostCard() {
     const chOrder = [pr.chapters.find(c => c.id === rec.chapter), ...pr.chapters.filter(c => c.id !== rec.chapter)];
     const q = UI.fq.trim();
     const list = q ? E.search(p, q) : E.chapterSkills(p, UI.fch);
-    return shell(`<p class="eyebrow">Formelsamling · ${esc(pr.label)}</p><h1>Formler och regler</h1>
+    return shell(`<p class="eyebrow">Formelsamling · ${esc(pr.label)}</p><h1>Matte förklarat enkelt</h1>
       <div class="card" style="border:1px solid #eac3cb;background:linear-gradient(115deg,#fff7f3,#f5dee6);padding:16px;margin-bottom:14px">
         <p class="eyebrow" style="color:#7a1f35;margin:0 0 6px">NYTT · VISUELL AFFISCH</p>
-        <h2 style="font-family:Georgia,serif;font-size:23px;margin:0 0 6px;color:#67142e">Viktiga formler i Tal</h2>
-        <p class="mut small" style="margin:0 0 12px">Burgundy-affisch med tydliga exempel under varje formel. Dina vanliga formelkort finns kvar precis som tidigare.</p>
-        <a class="btn block" href="affischer/?visa=formler&ak=${pid() === 'grade8' ? '8' : '9'}">Öppna formelaffischen ✦</a>
+        <h2 style="font-family:Georgia,serif;font-size:23px;margin:0 0 6px;color:#67142e">En lugn översikt i bilder</h2>
+        <p class="mut small" style="margin:0 0 12px">Affischen är för repetition. Här nedanför börjar varje moment med en enkel förklaring och ett exempel. Formlerna finns kvar om du vill se dem.</p>
+        <a class="btn block" href="affischer/?visa=formler&ak=${pid() === 'grade8' ? '8' : '9'}">Öppna översiktsaffischen</a>
       </div>
       <div class="searchbox">${I.search}<input id="fq" type="search" placeholder="Sök: cirkel, procent, x båda sidor…" value="${esc(UI.fq)}" aria-label="Sök i formelsamlingen" autocomplete="off"></div>
       ${q ? `<p class="mut small">${list.length} träffar</p>` : `<div class="seg-ctl" role="group" aria-label="Kapitel">${chOrder.map(c => `<button data-a="fch" data-ch="${c.id}" aria-pressed="${c.id === UI.fch}">${esc(c.name)}${c.id === rec.chapter ? ' ·&nbsp;nu' : ''}</button>`).join('')}</div>`}
@@ -291,7 +304,7 @@ function boostCard() {
     let fb = '';
     if (!test && ex.status) {
       if (ex.status === 'correct') fb = `<div class="box good reveal"><div class="k">Rätt</div>${ex.hints || ex.wrong ? 'Bra jobbat – du tog dig dit.' : 'Snyggt – helt själv.'}${ex.note ? '<br>' + R(ex.note) : ''}</div>`;
-      else if (ex.status === 'wrong') fb = `<div class="box bad reveal"><div class="k">Inte riktigt</div>${ex.msg ? R(ex.msg) : ex.wrong >= 2 ? 'Titta på lösningen och jämför steg för steg.' : 'Kontrollera ett steg i taget. Ta gärna en ledtråd.'}</div>`;
+      else if (ex.status === 'wrong') fb = `<div class="box bad reveal"><div class="k">Prova ett steg till</div><p>Vad är första lilla steget?</p>${ex.wrong >= 2 && ex.msg ? `<details class="paper-more"><summary>Visa en mer detaljerad ledtråd</summary>${R(ex.msg)}</details>` : ''}</div>`;
       else if (ex.status === 'invalid' || ex.status === 'empty') fb = `<div class="box warn reveal"><div class="k">Obs</div>${R(ex.msg)}</div>`;
       else if (ex.status === 'shown') fb = `<div class="box neutral reveal"><div class="k">Lösning visad</div>Läs igenom stegen. Du får en liknande uppgift senare.</div>`;
     }
@@ -299,7 +312,7 @@ function boostCard() {
     const hintBlocks = [];
     if (!test) {
       if (ex.hints >= 1) hintBlocks.push(`<div class="hint reveal"><div class="k">1 · Sortera</div><b>Vad vet du?</b> ${x.given ? x.given.map(g => esc(g)).join(' · ') : 'Läs frågan och alternativen.'}<br><b>Vad söker du?</b> ${x.find ? esc(x.find) : 'rätt alternativ'}</div>`);
-      if (ex.hints >= 2) hintBlocks.push(`<div class="hint reveal"><div class="k">2 · Känn igen och välj regel</div>${R(x.h1 || s.h1)}<div class="big-f" style="font-size:20px">${TX(s.f.main)}</div></div>`);
+      if (ex.hints >= 2) hintBlocks.push(`<div class="hint reveal"><div class="k">2 · Börja lugnt</div><p>${esc(SIMPLE && SIMPLE.DATA[s.id] ? SIMPLE.DATA[s.id][0] : 'Ta en sak i taget.')}</p><details class="paper-more"><summary>Visa formeln också</summary><div class="big-f">${TX(s.f.main)}</div></details></div>`);
       if (ex.hints >= 3 && x.start) hintBlocks.push(`<div class="hint reveal"><div class="k">3 · Starta så här</div>${R(x.start)}</div>`);
       if (ex.sol) hintBlocks.push(`<div class="hint reveal"><div class="k">Lösning</div><div class="solution">${x.sol.map((l, i) => `<div class="sline"><span class="n">${i + 1}</span><div class="res wrapm">${R(l)}</div></div>`).join('')}</div><div style="margin-top:6px"><b>Svar:</b> ${R(answerText(x))}</div></div>`);
     }
@@ -372,38 +385,42 @@ function boostCard() {
     const head = { title: s.title, sub: `${chName(s.ch)} · ${STEP_NAMES[step]}`, steps: 4, cur: step, exit: '#/', formula: sid };
     let c = '';
     if (step === 0) {
-      c = `<p class="eyebrow">Del 1 av 4 · Fatta</p><h1>${esc(s.title)}</h1>
-        <p class="lead">${R(s.idea)}</p>
-        ${visHTML(s.cvis)}
-        <div class="box"><div class="k">Kom ihåg</div>${R(s.anchor)}</div>
-        <div class="box neutral"><div class="k">Så känner du igen den</div><ul class="clean">${s.cue.map(q => `<li>${R(q)}</li>`).join('')}</ul></div>
-        <div class="actions"><button class="btn block" data-a="nav" data-h="#/l/${sid}/1">Se ett exempel</button></div>`;
+      const d = SIMPLE && SIMPLE.DATA[s.id];
+      c = '<p class="eyebrow">Del 1 av 4 · Förstå</p><h1>'+esc(s.title)+'</h1>'
+        + (d ? '<p class="paper-lead">'+esc(d[0])+'</p>'+paperSteps(s,{intro:true})
+          : '<p class="paper-lead">'+R(s.idea)+'</p><div class="box">'+R(s.anchor)+'</div>')
+        + '<details class="paper-more"><summary>Visa fler bilder och förklaringar</summary><div class="paper-more-in">'
+          + visHTML(s.cvis)
+          + '<div class="box neutral"><div class="k">Mer att veta</div>'+R(s.idea)+'</div>'
+          + '<ul class="clean">'+s.cue.map(q=>'<li>'+R(q)+'</li>').join('')+'</ul></div></details>'
+        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/1">Visa resten av uträkningen</button></div>';
     } else if (step === 1) {
-      const e = s.ex, n = e.steps.length, rv = Math.min(L.reveal, n);
-      const lines = e.steps.slice(0, rv).map(([ask, res], i) => `<div class="sline reveal"><span class="n">${i + 1}</span><div><div class="ask">${R(ask)}</div><div class="res wrapm">${R(res)}</div></div></div>`).join('');
-      const nextAsk = rv < n ? `<div class="box neutral reveal"><div class="k">Tänk först · steg ${rv + 1}</div>${R(e.steps[rv][0])}</div><button class="btn block soft" data-a="reveal">Visa steg ${rv + 1}</button>` : '';
-      const done = rv >= n ? `<div class="box good reveal"><div class="k">Svar</div>${R(e.ans)}</div>
-        ${s.f.forms ? `<div class="box neutral reveal"><div class="k">Samma regel – åt andra hållet</div><p class="small" style="margin-bottom:6px">En formel är ett samband, inte en mening som bara läses från vänster. Det som är okänt bestämmer hur du skriver den.</p><div class="forms">${s.f.forms.slice(0, 3).map(([l, x]) => `<div><div class="lbl">${esc(l)}</div><div class="fx">${TX(x)}</div></div>`).join('')}</div></div>` : ''}
-        <div class="actions"><button class="btn block" data-a="nav" data-h="#/l/${sid}/2">Din tur – med stöd</button></div>` : '';
-      c = `<p class="eyebrow">Del 2 av 4 · Se exempel</p><p class="q">${R(e.q)}</p>${visHTML(e.vis)}
-        <div class="gsr"><div><span class="k">Givet</span><span>${e.given.map(esc).join(' · ')}</span></div><div><span class="k">Sök</span><span>${esc(e.find)}</span></div><div><span class="k">Regel</span><span class="big-f" style="font-size:19px;padding:0">${TX(e.rule)}</span></div></div>
-        <div class="solution">${lines}</div>${nextAsk}${done}`;
+      const e = s.ex;
+      const lines = e.steps.map(([ask,res],i)=>'<div class="paper-step"><span class="paper-num">'+(i+1)+'</span><div><p>'+R(ask)+'</p><strong>'+R(res)+'</strong></div></div>').join('');
+      c = '<p class="eyebrow">Del 2 av 4 · Så här räknar du</p><h1 class="paper-question-title">'+esc(s.title)+'</h1>'
+        + paperSteps(s)
+        + '<details class="paper-more"><summary>Visa ett svårare exempel och formel (valfritt)</summary><div class="paper-more-in">'
+          + '<h2>'+R(e.q)+'</h2>'+visHTML(e.vis)
+          + '<div class="paper-flow">'+lines+'<div class="paper-answer"><span>SVAR</span><strong>'+R(e.ans)+'</strong></div></div>'
+          + '<div class="gsr"><div><span class="k">Vi vet</span><span>'+e.given.map(esc).join(' · ')+'</span></div><div><span class="k">Vi söker</span><span>'+esc(e.find)+'</span></div>'
+          + '<div><span class="k">Formeln</span><span>'+TX(e.rule)+'</span></div></div></div></details>'
+        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/2">Nu provar jag</button></div>';
     } else if (step === 2) {
       const g = s.g;
       if (!UI.ex || UI.ex.sid !== sid || UI.ex.key !== 'g') UI.ex = newEx(sid, 'g', 'guided');
       // Visa givet och sökt direkt: två klick färre per uppgift.
-      let stage = `<div class="gsr"><div><span class="k">Vet</span><span>${g.given.map(esc).join(' · ')}</span></div><div><span class="k">Söker</span><span>${esc(g.find)}</span></div></div>`;
+      let stage = `<div class="paper-known"><div><span>Vi vet</span><strong>${g.given.map(esc).join(' · ')}</strong></div><div><span>Vi söker</span><strong>${esc(g.find)}</strong></div></div>`;
       const ready = true;
       if (ready && g.ro) {
-        stage += `<div class="card" style="margin-top:12px"><h3>Vilken uträkning passar?</h3><div class="opts">${g.ro.map((o, i) => {
+        stage += `<details class="paper-more"><summary>Behöver du hjälp att välja uträkning?</summary><div class="paper-more-in"><h3>Vilken uträkning passar?</h3><div class="opts">${g.ro.map((o, i) => {
           const st = L.rule === i ? (i === g.rc ? 'ok' : 'no') : (L.ruleOk && i === g.rc ? 'ok' : '');
           return `<button class="opt ${st}" data-a="rule" data-i="${i}" ${L.ruleOk ? 'disabled' : ''}><span class="dot"></span><span>${TX(o)}</span></button>`;
         }).join('')}</div>
-        ${L.rule != null ? (L.ruleOk ? `<div class="box good reveal" style="margin-top:10px"><div class="k">Precis</div>${R(g.why)}</div>` : `<div class="box bad reveal" style="margin-top:10px"><div class="k">Inte den</div>Titta igen på vad du söker: <b>${esc(g.find)}</b>. Vilken uträkning ger just det? Prova ett annat alternativ.</div>`) : ''}</div>`;
+        ${L.rule != null ? (L.ruleOk ? `<div class="box good reveal" style="margin-top:10px"><div class="k">Precis</div>${R(g.why)}</div>` : `<div class="box bad reveal" style="margin-top:10px"><div class="k">Inte den</div>Titta igen på vad du söker: <b>${esc(g.find)}</b>. Vilken uträkning ger just det? Prova ett annat alternativ.</div>`) : ''}</div></details>`;
       }
       const showCalc = ready; // Metodval är stöd, aldrig en spärr för att få räkna.
       c = `<p class="eyebrow">Del 3 av 4 · Prova med stöd</p><p class="q">${R(g.q)}</p>${visHTML(g.vis)}${stage}
-        ${showCalc ? `<div class="card reveal" style="margin-top:12px"><h3>Räkna</h3>${exerciseHTML(UI.ex, { hideQ: true, hideVis: true })}</div>` : ''}
+        ${showCalc ? `<div class="card reveal" style="margin-top:12px"><h3>Din tur. Räkna ett steg i taget.</h3>${exerciseHTML(UI.ex, { hideQ: true, hideVis: true })}</div>` : ''}
         ${UI.ex.done ? `<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/${sid}/3">Gör själv</button></div>` : ''}`;
     } else if (step === 3) {
       const i = Math.min(L.soloIdx, L.solo.length - 1), x = L.solo[i];
