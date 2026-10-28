@@ -15,6 +15,11 @@ for (const id of bookLinks) {
   assert(content.includes("id: '" + id + "'"), 'Missing teaching skill ' + id);
   assert(app.includes('href="#/l/' + id + '/0"'), 'Missing book link ' + id);
 }
+const chapter = app.slice(app.indexOf('function viewChapter('), app.indexOf('/* ================= FORMLER'));
+const rest = app.slice(app.indexOf('function viewRest('), app.indexOf('/* ================= INSTÄLLNINGAR'));
+assert(!chapter.includes('bookGuide'), 'Book guide leaked into generic chapter route');
+assert(rest.includes('${bookGuide}<details'), 'Book guide not rendered on rest page');
+assert(rest.includes("join('')}</div></details>"), 'Missing closing tags in rest page');
 assert(app.includes('const restFocus ='), 'No upcoming restprov priority');
 assert(app.includes('Andra sätt att öva'), 'Secondary home features are not collapsed');
 assert(app.includes('Alla moment i kapitlet'), 'Hidden advanced topic list missing');
