@@ -52,7 +52,7 @@ function pointAngles(v){
  return S(b,'Vinklar runt en punkt');
 }
 function parallel(v,q){
- const marks=v.marks||{}; const crossing=!/parallell/i.test(q||'');
+ const marks=v.marks||{},crossing=v.single===true||(!/parallell/i.test(q||''));
  let b='';
  if(crossing){
    const acute=Math.max(20,Math.min(85,Number(v.acute)||65));
@@ -63,10 +63,21 @@ function parallel(v,q){
    for(const [k,t] of Object.entries(marks))if(pos[k])b+=T(pos[k][0],pos[k][1],t,'g-label');
    return S(b,'Två korsande linjer');
  }
- b+=L(35,75,325,75)+L(35,175,325,175)+L(105,220,255,30);
- b+=`<path d="M58 69 l12 6 M58 169 l12 6" class="g-mark"/>`;
- const pos={1:[245,56],2:[187,56],3:[190,110],4:[245,110],5:[167,151],6:[107,151],7:[107,212],8:[166,212]};
- for(const [k,t] of Object.entries(marks)){const p=pos[k]||[180,120];b+=T(p[0],p[1],t,'g-label')}
+ // Match the instructional figure's explicit angle numbering:
+ // 1=upper-left, 2=upper-right, 3=lower-right, 4=lower-left
+ // at the first intersection, 5..8 likewise at the second.
+ const acute=Math.max(25,Math.min(80,Number(v.acute)||65));
+ const angle=acute*Math.PI/180;
+ const y1=67,y2=164,cx1=139,cx2=cx1+(y2-y1)/Math.tan(angle);
+ const ux=Math.cos(angle),uy=Math.sin(angle);
+ b+=L(25,y1,332,y1)+L(25,y2,332,y2);
+ b+=L(cx1-37*ux,y1-37*uy,cx2+37*ux,y2+37*uy);
+ b+=`<path d="M40 ${y1-6} l11 6 M40 ${y2-6} l11 6" class="g-mark"/>`;
+ const pos={
+  1:[cx1-30,y1-18],2:[cx1+39,y1-18],3:[cx1+38,y1+29],4:[cx1-31,y1+29],
+  5:[cx2-30,y2-19],6:[cx2+38,y2-19],7:[cx2+38,y2+30],8:[cx2-31,y2+30]
+ };
+ for(const [k,t] of Object.entries(marks))if(pos[k])b+=T(pos[k][0],pos[k][1],t,'g-label');
  return S(b,'Två parallella linjer skurna av en transversal');
 }
 function polygon(v,q){
