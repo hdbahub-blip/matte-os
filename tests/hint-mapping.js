@@ -18,7 +18,7 @@ for (const [sid,hint] of Object.entries(hints)) {
 assert(!/kanten|runt|omkrets/.test(hints['f8-circle-area']),'Area hint still teaches perimeter');n++;
 assert(!/nollor|decimalplatser/.test(hints['f8-powers']+' '+hints['s9-powers']),'Powers hint still uses shortcut');n++;
 assert(/tre/.test(hints['s9-volume-scale']),'Volume scale does not mention all three dimensions');n++;
-assert(/både/.test(hints['s9-area-scale']),'Area scale does not mention two dimensions');n++;
+assert(/både/i.test(hints['s9-area-scale']),'Area scale does not mention two dimensions');n++;
 assert(/utsida/.test(hints['f8-surface-area']),'Surface area lacks faces/outsides');n++;
 assert(/procentenheter/.test(hints['s9-percentage-points']),'Percentage points is mislabeled');n++;
 console.log('HINT MAPPING '+n+'/'+n+' PASS');
