@@ -39,6 +39,7 @@ jobs:
           node --check affischer/posters.js
           node --check tests/posters-e2e.js
           node tests/posters-content.js
+          node tests/hint-mapping.js
       - name: Math and content verification
         run: node tests/qa.js
       - name: Figure, unit and geometry checks
