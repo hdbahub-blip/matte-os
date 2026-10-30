@@ -128,7 +128,7 @@
       <button class="tile" data-act="go" data-v="host" ${on ? '' : 'disabled'}><b>2 · Skapa spel</b><span>Du är värd och får en kod att dela.</span></button>
       <button class="tile" data-act="go" data-v="join" ${on ? '' : 'disabled'}><b>3 · Gå med i spel</b><span>Skriv koden från värden och välj ett smeknamn.</span></button>
       ${on ? '' : '<p class="note" id="offnote">Onlinespelet är inte påslaget ännu. Studieläget fungerar utan nät. Be värden slå på spelservern.</p>'}
-      <p class="small">Inga konton och inga riktiga namn. Använd ett smeknamn. Spelservern sparar tillfälliga smeknamn, sessioner och poäng. Utgångna spelrum rensas automatiskt.</p>`);
+      <p class="small">Inga konton och inga riktiga namn. Använd ett smeknamn. Spelservern sparar tillfälliga smeknamn, sessioner och poäng. Utgångna spelrum rensas automatiskt.</p><details class="cup-customize"><summary>Hur fungerar integriteten?</summary><div class="customize-in"><p class="small">För att förhindra missbruk används även en kortlivad, saltad hash av nätverksadressen. Den tas bort genom automatisk gallring. Använd ett smeknamn i spelet.</p></div></details><p hidden></p>`);
   }
 
   // --- studieläge ---
@@ -162,7 +162,7 @@
   function hostSetup() {
     shell(`${back('menu', 'Till spela tillsammans')}<span class="eyebrow">Du är värd</span><h1>Skapa spel</h1>${errBox()}
       <p class="lead">Alla spelar på sin egen mobil. En spelkod kommer upp när du skapar spelet.</p>
-      <div class="card"><h2>Snabbt spel</h2><p>Tabellerna 1–10 · ${S.setup.qual} frågor · ${S.setup.sec} sekunder per fråga.</p>
+      <div class="card"><h2>Snabbt spel</h2><p>${S.setup.tables.length===10 ? 'Tabellerna 1–10' : 'Tabellerna ' + S.setup.tables.join(', ')} · ${S.setup.qual} frågor · ${S.setup.sec} sekunder per fråga.</p>
       <button class="btn block" data-act="create" ${S.busy || !S.setup.tables.length ? 'disabled' : ''}>${S.busy ? 'Skapar…' : 'Skapa spel och visa koden'}</button></div>
       <details class="cup-customize" ${S.setup.expanded ? 'open' : ''}><summary>Anpassa spelet (valfritt)</summary><div class="customize-in">
         <h2 class="h2">Vilka tabeller ska ingå?</h2><div class="chips" role="group" aria-label="Tabeller i tävlingen">${chips(S.setup.tables, 'ctab')}</div>
