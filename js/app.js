@@ -354,7 +354,23 @@ function boostCard() {
 
   /* ================= LEKTION (fokusläge) ================= */
   /* Task-aware first step, never the answer or an extra assessment rule. */
-  function gentleHint(sid) {
+  // Per-moment exceptions: never route geometry, powers or scale problems by ambiguous id substrings.
+  const HINT_BY_SID = {
+    'f8-circle-area': 'Area är ytan inuti cirkeln, inte kanten runt. Har du radien eller diametern?',
+    'f8-sector': 'En sektor är en del av en cirkel. Hur stor del av hela varvet är vinkeln?',
+    's9-powers': 'Skriv ut potensen som en multiplikation. Hur många gånger används bastalet?',
+    'f8-powers': 'En potens är upprepad multiplikation. Vilket tal ska du multiplicera med sig självt?',
+    'f8-powers-ten': 'Tänk först på vad en tiopotens betyder som multiplikation, även när exponenten är negativ.',
+    's9-area-scale': 'Både längden och bredden ändras. Rita en liten rektangel och jämför båda måtten.',
+    's9-volume-scale': 'Längd, bredd och höjd påverkas. Hur blir det när alla tre måtten ändras?',
+    'f8-surface-area': 'Räkna arean av varje utsida för sig och lägg sedan ihop alla sidor.',
+    's9-percent-share': 'Vad är delen och vad är hela mängden? Skriv delen delat med hela.',
+    's9-change-factor': 'Är det en ökning eller minskning? Jämför med det ursprungliga värdet.',
+    's9-percentage-points': 'Jämför de två procenttalen. Hur stor skillnad är det mellan dem i procentenheter?',
+    's9-space-diagonal': 'Tänk en linje genom lådan mellan två motsatta hörn. Vilka mått behöver du?',
+    's9-scientific': 'Skriv talet som ett tal mellan 1 och 10 multiplicerat med en tiopotens.'
+  };
+  function gentleHint(sid) {\n    if (HINT_BY_SID[sid]) return HINT_BY_SID[sid];
     if (/perimeter|circ|arc/.test(sid)) return 'Följ kanten hela vägen runt. Vilka sidor eller delar behöver du lägga ihop?';
     if (/area|surface/.test(sid)) return 'Titta på ytan inuti figuren. Hur många rutor eller delar finns det?';
     if (/power|scientific|sci-calc|prefix/.test(sid)) return 'Skriv talet som en vanlig multiplikation först. Räkna sedan nollor eller decimalplatser.';
