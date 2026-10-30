@@ -4,6 +4,8 @@
 const API = require('../js/cup-api.js');
 const base = process.argv[2] || 'http://localhost:8787';
 const c = API.client({ url: base, anonKey: 'test' });
+// servern begränsar täta state-anrop per spelare (RATE); testerna väntar och försöker igen precis som klientens nästa poll
+const _st = c.state; c.state = async (...a) => { for (let i = 0; i < 8; i++) { try { return await _st(...a); } catch (e) { if (e.code !== 'RATE') throw e; await new Promise(r => setTimeout(r, 130)); } } return _st(...a); };
 let pass = 0, fail = 0; const bad = [];
 const ok = (cond, msg) => { if (cond) pass++; else { fail++; bad.push('✗ ' + msg); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -43,9 +45,12 @@ async function playRound(room, bots, acc) {
   await expectErr(c.join(code, '<script>alert(1)</script>', 'device-x-abcdefgh'), 'BAD_NICK', 'XSS-smeknamn nekas');
   await expectErr(c.join(code, '', 'device-y-abcdefgh'), 'BAD_NICK', 'tomt namn nekas');
   await expectErr(c.join(code, 'A'.repeat(17), 'device-z-abcdefgh'), 'BAD_NICK', 'för långt namn nekas');
+  // samma enhets-id ger ALDRIG tillgång till en befintlig plats: ny plats, gamla hemligheten fungerar fortfarande
   const rej = await c.join(code, 'Hax', bots[0].dev);
-  ok(rej.rejoined && rej.player_id === bots[0].id, 'samma enhet får samma spelare (ingen dubbel ranking)');
-  bots[0].secret = rej.secret;
+  ok(!rej.rejoined && rej.player_id !== bots[0].id, 'samma enhets-id tar inte över platsen (får en egen ny plats)');
+  await expectErr(c.state(code, bots[0].id, rej.secret), 'BAD_PLAYER', 'angriparens hemlighet fungerar inte på offrets spelar-id');
+  await c.state(code, bots[0].id, bots[0].secret); ok(true, 'offrets egen hemlighet gäller fortfarande');
+  await c.leave(code, rej.player_id, rej.secret);
   await expectErr(c.join('ZZZZZ', 'X', 'device-q-abcdefgh'), 'NO_ROOM', 'okänd kod nekas');
   let st = await c.state(code, bots[0].id, bots[0].secret);
   ok(st.players.length === 10 && st.status === 'LOBBY', 'lobby visar 10 spelare');

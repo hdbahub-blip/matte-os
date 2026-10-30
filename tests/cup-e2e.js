@@ -25,20 +25,29 @@ function target(nick, stage, game) {
   if (/^final/.test(stage)) return nick === 'Sara' ? (game === 1 ? 2 : 5) : (game === 1 ? 5 : 2);
   return 0;
 }
+// Atomisk ögonblicksbild av frågevyn (ett enda DOM-läsanrop, så en omritning mitt i läsningen kan inte ge blandade värden).
+const snap = p => p.locator('#cup').evaluate(e => {
+  const r = e.shadowRoot; if (!r) return null;
+  const ai = r.getElementById('ai'), eb = r.querySelector('.eyebrow'), eq = r.querySelector('.eq');
+  return { text: r.textContent.replace(/\s+/g, ' '), q: ai && eb && eq ? { eyebrow: eb.textContent, eq: eq.textContent, val: ai.value } : null };
+}).catch(() => null);
 async function drive(p, nick, state) {
-  let last = '';
+  let last = '', lastAt = 0;
   while (!state.done) {
-    const t = await sh(p).catch(() => '');
+    const s = await snap(p); const t = s ? s.text : '';
     if (/vinner!/.test(t) || /Spelet är slut/.test(t)) { state.done = true; break; }
-    if (await has(p, '#cup >> css=#ai')) {
-      const eyebrow = await p.locator('#cup >> css=.eyebrow').first().innerText();
-      const eb = eyebrow.toLowerCase(); const m = /fråga (\d+) av/.exec(eb); const stage = eb.split('·')[0].trim(); const g = /spel (\d)/.exec(eb);
-      const eq = await p.locator('#cup >> css=.eq').innerText(); const q = /(\d+)\s*×\s*(\d+)/.exec(eq);
-      const key = eyebrow + eq; if (key === last) { await sleep(120); continue; } last = key;
+    const Q = s && s.q; const eb = Q && Q.eyebrow.toLowerCase(), m = eb && /fråga (\d+) av/.exec(eb), q = Q && /(\d+)\s*×\s*(\d+)/.exec(Q.eq);
+    if (m && q) {
+      const key = Q.eyebrow + Q.eq;
+      // Samma fråga kvar efter 2,5 s = svaret tappades (nätavbrott eller omritning) → försök igen (servern är idempotent).
+      if (key === last && Date.now() - lastAt <= 2500) { await sleep(120); continue; }
+      if (key === last) state.retries = (state.retries || 0) + 1;
+      last = key; lastAt = Date.now();
+      const stage = eb.split('·')[0].trim(); const g = /spel (\d)/.exec(eb);
       const n = +m[1], right = n <= target(nick, stage, g ? +g[1] : 1);
       const v = right ? q[1] * q[2] : q[1] * q[2] + 1;
-      state.seen.push(`${stage}|${n}|${q[1]}x${q[2]}`);
-      await p.fill('#cup >> css=#ai', String(v)); await p.click('#cup >> css=#ab');
+      if (!state.seen.includes(`${stage}|${n}|${q[1]}x${q[2]}`)) state.seen.push(`${stage}|${n}|${q[1]}x${q[2]}`);
+      await p.fill('#cup >> css=#ai', String(v)).catch(() => {}); await p.click('#cup >> css=#ab').catch(() => {});
       await sleep(200);
     } else await sleep(150);
   }
@@ -87,7 +96,7 @@ async function drive(p, nick, state) {
   ok(nicks[1] === 'Sara 2', 'dubblettnamn hanteras i UI: ' + nicks[1]);
   for (const x of P) await x.p.click('#cup >> css=[data-act=ready]');
   await hp.waitForFunction(() => document.querySelector('#cup').shadowRoot.querySelectorAll('.plist li').length === 10, null, { timeout: 8000 });
-  await sleep(1500);
+  await hp.waitForFunction(() => [...document.querySelector('#cup').shadowRoot.querySelectorAll('.plist .rd')].filter(e => /Redo/.test(e.textContent)).length === 10, null, { timeout: 20000 }).catch(() => {});
   const readyCount = await hp.locator('#cup >> css=.plist .rd', { hasText: 'Redo' }).count(); ok(readyCount === 10, `värd ser 10 spelare redo (${readyCount})`);
   await shot(hp, 'host-05-lobby10'); await shot(P[0].p, 'player-02-lobby'); await overflow(P[0].p, 'spelare lobby SE');
   // återanslutning i lobbyn: ladda om spelare 3
@@ -107,7 +116,14 @@ async function drive(p, nick, state) {
     const t = await sh(hp); await sleep(400);
     await hp.click('#cup >> css=[data-act=next]'); return t;
   }
-  let scoredText = await (async () => { await hp.waitForSelector('#cup >> css=[data-act=next]', { timeout: 60000 }); return sh(hp); })();
+  let scoredText = await (async () => {
+    await hp.waitForSelector('#cup >> css=[data-act=next]', { timeout: 60000 }).catch(async e => {
+      console.log('HÄNGER i kvalet. värdvy: ' + (await sh(hp)).slice(0, 300));
+      for (let i = 0; i < P.length; i++) console.log(P[i].nick + ' [' + P[i].dev + '] skickade ' + states[i].seen.length + ' svar; vy: ' + (await sh(P[i].p)).slice(0, 120));
+      throw e;
+    });
+    return sh(hp);
+  })();
   ok(/Kval klar/.test(scoredText), 'värd ser Kval klar');
   for (const x of P) await x.p.waitForSelector('#cup >> css=ol.rank li', { timeout: 15000 });
   const rankRows = await P[0].p.locator('#cup >> css=ol.rank li').count(); ok(rankRows === 10, `alla ser topplista med 10 resultat (${rankRows})`);
@@ -116,6 +132,9 @@ async function drive(p, nick, state) {
   const sigs = states.map(s => s.seen.filter(x => x.startsWith('kval')).map(x => x.split('|').slice(2).join('')).join(','));
   ok(new Set(sigs).size === 1 && sigs[0].split(',').length === 10, 'alla 10 spelare fick samma 10 frågor i samma ordning'); await shot(P[0].p, 'player-05-resultat'); await shot(hp, 'host-06-resultat'); await overflow(P[0].p, 'resultat'); 
   await P[4].p.click('#cup >> css=details.review summary'); ok((await P[4].p.locator('#cup >> css=.rv').count()) === 10, 'genomgång av egna svar visas efter rundan');
+  // värdens telefon laddas om / skärmen har varit låst mitt i turneringen: värdsessionen ligger kvar och spelet fortsätter
+  await hp.reload({ waitUntil: 'networkidle' }); await hp.waitForSelector('#cup >> css=[data-act=next]', { timeout: 15000 });
+  ok(/Kval klar/.test(await sh(hp)), 'värd efter omladdning: samma spel, Kval klar, "nästa" finns kvar');
   // fortsätt: utslag, semi, final
   let guard = 0, sawTb = false, sawSemi = false, sawFinal = 0;
   await hp.click('#cup >> css=[data-act=next]'); await hp.waitForSelector('#cup >> css=[data-act=next]', { state: 'detached', timeout: 15000 });

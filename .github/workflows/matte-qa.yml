@@ -111,6 +111,9 @@ jobs:
           sleep 2
           node tests/cup-backend.js http://127.0.0.1:8787
           node tests/cup-security.js
+          node tests/cup-hardening.js
+          node tests/cup-seeding.js 300
+          node tests/cup-api-headers.js
       - name: Browser E2E with 1 host + 10 players
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-server.log 2>&1 &

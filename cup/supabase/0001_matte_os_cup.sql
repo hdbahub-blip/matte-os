@@ -31,9 +31,10 @@ create table cup.players (
   kicked boolean not null default false,
   joined_at timestamptz not null default now(),
   last_seen timestamptz not null default now(),
-  unique (room_id, nick_key),
-  unique (room_id, device)
+  last_poll timestamptz,
+  unique (room_id, nick_key)
 );
+create index players_room_device_idx on cup.players(room_id, device);
 create table cup.rounds (
   id uuid primary key default gen_random_uuid(),
   room_id uuid not null references cup.rooms(id) on delete cascade,
@@ -71,6 +72,14 @@ create table cup.answers (
   primary key (round_id, player_id, idx),
   foreign key (round_id, player_id) references cup.round_players(round_id, player_id) on delete cascade
 );
+-- begränsning av missbruk: en rad per (åtgärd, nyckel); fönstret rullar. Rensas i cup_create.
+create table cup.rate (
+  bucket text primary key,
+  win bigint not null,
+  n int not null,
+  until_at timestamptz not null
+);
+alter table cup.rate enable row level security;
 alter table cup.rooms enable row level security;
 alter table cup.players enable row level security;
 alter table cup.rounds enable row level security;
@@ -81,6 +90,30 @@ alter table cup.answers enable row level security;
 -- ---------- hjälpare ----------
 create function cup.err(code text, msg text) returns void language plpgsql as $$
 begin raise exception '%: %', code, msg using errcode = 'P0001'; end $$;
+
+-- Klientnyckel för begränsning: hash av IP (aldrig rå IP lagrad). Supabase/PostgREST lägger begäranshuvuden i GUC request.headers.
+-- cf-connecting-ip sätts av Supabases edge; annars används SISTA x-forwarded-for-värdet (det närmaste proxy la till).
+-- Saknas båda (direkt SQL/test) returneras null och per-klient-gränser hoppas över; globala gränser gäller alltid.
+create function cup.client_key() returns text language plpgsql stable as $$
+declare h jsonb; ip text;
+begin
+  begin h := nullif(current_setting('request.headers', true), '')::jsonb; exception when others then h := null; end;
+  if h is null then return null; end if;
+  ip := nullif(trim(coalesce(h->>'cf-connecting-ip', '')), '');
+  if ip is null then ip := nullif(trim(regexp_replace(coalesce(h->>'x-forwarded-for', ''), '^.*,', '')), ''); end if;
+  if ip is null then return null; end if;
+  return substr(encode(sha256(convert_to(ip, 'utf8')), 'hex'), 1, 16);
+end $$;
+
+create function cup.throttle(p_action text, p_key text, p_max int, p_secs int) returns void language plpgsql as $$
+declare w bigint := floor(extract(epoch from now()) / p_secs); c int;
+begin
+  insert into cup.rate(bucket, win, n, until_at) values (p_action || ':' || p_key, w, 1, now() + make_interval(secs => p_secs * 2))
+  on conflict (bucket) do update
+    set n = case when cup.rate.win = excluded.win then cup.rate.n + 1 else 1 end, win = excluded.win, until_at = excluded.until_at
+  returning n into c;
+  if c > p_max then perform cup.err('RATE', 'För många försök på kort tid. Vänta en stund.'); end if;
+end $$;
 
 create function cup.hash(t text) returns text language sql immutable as
 $$ select encode(sha256(convert_to(t, 'utf8')), 'hex') $$;
@@ -183,6 +216,8 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare alpha text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; c text; tries int := 0; secret text; tabs int[];
 begin
   delete from cup.rooms where expires_at < now();
+  delete from cup.rate where until_at < now();
+  if cup.client_key() is not null then perform cup.throttle('create', cup.client_key(), 6, 600); end if;
   if (select count(*) from cup.rooms where created_at > now() - interval '1 minute') >= 30 then
     perform cup.err('BUSY', 'För många nya spel just nu. Vänta en minut.');
   end if;
@@ -207,23 +242,30 @@ end $$;
 
 create function public.cup_join(p_code text, p_nick text, p_device text)
 returns jsonb language plpgsql security definer set search_path = '' as $$
-declare r cup.rooms; v_nick text; base text; n int := 1; secret text := cup.newtoken(); p cup.players; cnt int;
+declare r cup.rooms; v_nick text; base text; n int := 1; secret text := cup.newtoken(); p cup.players; cnt int; k text := cup.client_key();
 begin
-  r := cup.get_room(p_code, true);
+  -- Begränsa först (före alla fel), så att försök med fel kod också räknas. Okänd kod returneras som {error} i stället för
+  -- exception, annars rullas räknaren tillbaka och koduppräkning vore gratis.
+  if k is not null then perform cup.throttle('join', k, 80, 60); end if;
+  perform cup.throttle('join', 'all', 600, 60);
+  begin
+    r := cup.get_room(p_code, true);
+  exception when sqlstate 'P0001' then
+    return jsonb_build_object('error', sqlerrm);
+  end;
+  perform cup.throttle('joinroom', r.id::text, 150, 60);
   if p_device is null or length(p_device) < 8 or length(p_device) > 80 then perform cup.err('BAD_DEVICE', 'Ogiltig enhet.'); end if;
   base := regexp_replace(trim(coalesce(p_nick, '')), '\s+', ' ', 'g');
   if length(base) < 1 or length(base) > 16 then perform cup.err('BAD_NICK', 'Smeknamnet ska vara 1–16 tecken.'); end if;
   if base !~ '^[[:alpha:][:digit:] ._!-]+$' then perform cup.err('BAD_NICK', 'Använd bara bokstäver, siffror, mellanslag, punkt, bindestreck eller understreck.'); end if;
-  -- återanslutning från samma enhet: ny hemlighet, samma spelare, ingen ny post
-  select * into p from cup.players where room_id = r.id and device = p_device;
-  if found then
-    if p.kicked then perform cup.err('KICKED', 'Du har tagits bort från spelet.'); end if;
-    update cup.players set secret_hash = cup.hash(secret), last_seen = now() where id = p.id;
-    return jsonb_build_object('player_id', p.id, 'secret', secret, 'nick', p.nick, 'rejoined', true);
-  end if;
+  -- Ingen återanslutning på enhets-id: enhets-id är inte en hemlighet och får aldrig ge åtkomst till en befintlig plats.
+  -- En plats nås bara med (player_id, secret) som klienten fick vid anslutningen och sparar lokalt.
+  if exists (select 1 from cup.players where room_id = r.id and device = p_device and kicked) then perform cup.err('KICKED', 'Du har tagits bort från spelet.'); end if;
   if r.status <> 'LOBBY' then perform cup.err('STARTED', 'Spelet har redan startat. Be värden om ett nytt spel.'); end if;
   select count(*) into cnt from cup.players where room_id = r.id and not kicked;
   if cnt >= 24 then perform cup.err('FULL', 'Spelet är fullt (högst 24 spelare).'); end if;
+  if (select count(*) from cup.players where room_id = r.id) >= 40 then perform cup.err('FULL', 'Spelet är fullt.'); end if;
+  if (select count(*) from cup.players where room_id = r.id and device = p_device and not kicked) >= 3 then perform cup.err('FULL', 'Den här enheten har redan flera platser i spelet.'); end if;
   v_nick := base;
   while exists (select 1 from cup.players where room_id = r.id and nick_key = lower(v_nick)) loop
     n := n + 1; v_nick := left(base, 16 - length(n::text) - 1) || ' ' || n;
@@ -336,7 +378,7 @@ create function cup.tiers_from_scores(p_round uuid) returns jsonb language sql s
 $$;
 
 create function cup.uuids(j jsonb) returns uuid[] language sql immutable as
-$$ select coalesce(array_agg((e)::text::uuid), '{}') from (select jsonb_array_elements_text(j) e) x $$;
+$$ select coalesce(array_agg(t.e::uuid order by t.o), '{}') from jsonb_array_elements_text(j) with ordinality as t(e, o) $$;
 
 create function cup.start_final_game(r cup.rooms, p_game int) returns void language plpgsql as $$
 declare fin uuid[];
@@ -434,10 +476,9 @@ begin
     end if;
     m := jsonb_set(m, '{tiers}', tiers, true);
     -- platta ut seedning
-    select array_agg((e)::text::uuid order by o) into flat from (
-      select t.e as e, row_number() over () as o from (
-        select jsonb_array_elements_text(x) as e from jsonb_array_elements(tiers) x
-      ) t) q;
+    select array_agg(b.e::uuid order by a.ti, b.ei) into flat
+      from jsonb_array_elements(tiers) with ordinality as a(x, ti),
+           lateral jsonb_array_elements_text(a.x) with ordinality as b(e, ei);
     m := jsonb_set(m, '{seeds}', to_jsonb(flat), true);
     if cut = 4 then
       semi := jsonb_build_array(
@@ -491,10 +532,14 @@ begin
       perform cup.mk_round(r, 'semi', 'tb', 1, 3, ids, grps);
       return jsonb_build_object('ok', true, 'next', 'tiebreak');
     end if;
+    -- finalister och semifinalförlorare sorteras efter kvalplacering (seed): index 1 är alltid den bättre seedade
+    ids := cup.uuids(m->'seeds');
     winners := array[(semi->0->>'w')::uuid, (semi->1->>'w')::uuid];
     losers := array[
       case when (semi->0->>'w') = (semi->0->>'a') then (semi->0->>'b')::uuid else (semi->0->>'a')::uuid end,
       case when (semi->1->>'w') = (semi->1->>'a') then (semi->1->>'b')::uuid else (semi->1->>'a')::uuid end];
+    if array_position(ids, winners[2]) < array_position(ids, winners[1]) then winners := array[winners[2], winners[1]]; end if;
+    if array_position(ids, losers[2]) < array_position(ids, losers[1]) then losers := array[losers[2], losers[1]]; end if;
     m := jsonb_set(m, '{finalists}', to_jsonb(winners), true);
     m := jsonb_set(m, '{third}', to_jsonb(losers), true);
     m := jsonb_set(m, '{wins}', '{}'::jsonb, true);
@@ -543,6 +588,13 @@ begin
   if p_host_secret is not null then perform cup.auth_host(r, p_host_secret); is_host := true; end if;
   if p_player is not null then p := cup.auth_player(r, p_player, p_secret); end if;
   if p.id is null and not is_host then perform cup.err('BAD_PLAYER', 'Spelaren känns inte igen.'); end if;
+  -- begränsning: en spelare får fråga högst ~10 ggr/s; värdens polling begränsas per rum
+  if p.id is not null then
+    if p.last_poll is not null and clock_timestamp() - p.last_poll < interval '100 milliseconds' then perform cup.err('RATE', 'För många förfrågningar.'); end if;
+    update cup.players set last_poll = clock_timestamp() where id = p.id;
+  else
+    perform cup.throttle('hoststate', r.id::text, 100, 10);
+  end if;
   perform cup.tick(r.id);
   select * into r from cup.rooms where id = r.id;
   m := r.meta;
@@ -588,11 +640,17 @@ begin
 end $$;
 
 -- ---------- rättigheter ----------
-revoke all on all functions in schema public from public;
+-- Endast Cups egna objekt. Ingen global REVOKE i schema public (skulle ändra andra appars funktioner).
+-- Klienten får köra exakt de publika cup_*-funktionerna; allt i schema cup (tabeller, hjälpfunktioner) är stängt.
 do $$ declare f record; begin
   for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname = 'public' and p.proname like 'cup\_%' loop
-    execute format('revoke all on function %s from public', f.sig);
+    execute format('revoke all on function %s from public, anon, authenticated', f.sig);
     execute format('grant execute on function %s to anon, authenticated', f.sig);
   end loop;
+  for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'cup' loop
+    execute format('revoke all on function %s from public, anon, authenticated', f.sig);
+  end loop;
 end $$;
+revoke all on all tables in schema cup from public, anon, authenticated;
+revoke all on all sequences in schema cup from public, anon, authenticated;

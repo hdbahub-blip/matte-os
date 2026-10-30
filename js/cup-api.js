@@ -8,8 +8,17 @@
     BAD_PLAYER: 'Du känns inte igen i det här spelet. Gå med igen.', KICKED: 'Värden har tagit bort dig från spelet.',
     STARTED: 'Spelet har redan startat.', FULL: 'Spelet är fullt.', BAD_NICK: 'Smeknamnet ska vara 1–16 tecken: bokstäver, siffror, mellanslag, punkt, bindestreck.',
     TOO_FEW: 'Minst två spelare krävs.', LATE: 'Tiden var slut.', EARLY: 'Rundan har inte börjat.', BUSY: 'Servern är upptagen. Försök om en stund.',
-    BAD_STATE: 'Det går inte att göra just nu.', OUT_OF_ORDER: 'Fel fråga.', NET: 'Ingen kontakt med spelservern. Kontrollera nätet.'
+    BAD_STATE: 'Det går inte att göra just nu.', OUT_OF_ORDER: 'Fel fråga.', NET: 'Ingen kontakt med spelservern. Kontrollera nätet.', RATE: 'För många försök på kort tid. Vänta några sekunder.',
+    BAD_DEVICE: 'Enheten godkändes inte.'
   };
+  // Supabase: nya publishable keys (sb_publishable_...) är INTE JWT och får inte skickas som Authorization: Bearer
+  // (gatewayen försöker verifiera dem som JWT och svarar 401). De skickas bara i apikey-huvudet. Gamla anon-nycklar är JWT
+  // (tre punktseparerade delar) och kan fortfarande skickas som Bearer. Aldrig service_role här.
+  function authHeaders(key) {
+    const k = String(key || ''); const h = { 'content-type': 'application/json', apikey: k };
+    if (/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(k)) h.authorization = 'Bearer ' + k;
+    return h;
+  }
   function client(cfg) {
     const base = String(cfg.url || '').replace(/\/$/, '') + '/rest/v1/rpc/';
     async function rpc(name, args, opts) {
@@ -19,7 +28,7 @@
       try {
         res = await fetch(base + name, {
           method: 'POST', cache: 'no-store', signal: ctrl && ctrl.signal,
-          headers: { 'content-type': 'application/json', apikey: cfg.anonKey || '', authorization: 'Bearer ' + (cfg.anonKey || '') },
+          headers: authHeaders(cfg.anonKey),
           body: JSON.stringify(args || {})
         });
       } catch (e) { const er = new Error(MSG.NET); er.code = 'NET'; throw er; } finally { if (t) clearTimeout(t); }
@@ -29,6 +38,9 @@
         const m = /^([A-Z_]+): (.*)$/.exec(raw);
         const er = new Error(m ? (MSG[m[1]] || m[2]) : 'Något gick fel (' + res.status + ').');
         er.code = m ? m[1] : 'HTTP_' + res.status; er.status = res.status; throw er;
+      }
+      if (body && typeof body === 'object' && typeof body.error === 'string') { // t.ex. okänd rumskod vid anslutning
+        const m = /^([A-Z_]+): (.*)$/.exec(body.error); const er = new Error(m ? (MSG[m[1]] || m[2]) : body.error); er.code = m ? m[1] : 'ERR'; throw er;
       }
       return body;
     }
@@ -47,6 +59,6 @@
       _rpc: rpc
     };
   }
-  root.MOCupApi = { client, MSG };
+  root.MOCupApi = { client, MSG, authHeaders };
   if (typeof module !== 'undefined' && module.exports) module.exports = root.MOCupApi;
 })(typeof window !== 'undefined' ? window : globalThis);

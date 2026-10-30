@@ -62,18 +62,27 @@
   // ---------- polling ----------
   function startPoll() { stopPoll(); S.lastSig = ''; pollOnce().then(() => { scheduleTick(); }); }
   function stopPoll() { if (!S) return; clearTimeout(S.pollT); clearInterval(S.tickT); S.pollT = S.tickT = null; }
+  // En enda poll åt gången, och svar som kommer i fel ordning kastas (annars kan en gammal vy ritas över en ny
+  // och radera det som eleven just skrivit). seq ökar för varje utskickad förfrågan.
   async function pollOnce() {
     const a = api(); if (!a || !S.sess) return;
+    if (S.inflight) return S.inflight;
     clearTimeout(S.pollT);
-    try {
-      const st = await a.state(S.sess.code, S.sess.playerId, S.sess.secret, S.sess.hostSecret);
-      S.banner = ''; S.st = st; S.recvAt = performance.now();
-      const sig = sigOf(st); if (sig !== S.lastSig) { S.lastSig = sig; if (!S.local) draw(); }
-    } catch (e) {
-      if (['BAD_PLAYER', 'KICKED', 'GONE', 'NO_ROOM'].includes(e.code)) { clearSess(errText(e)); return; }
-      S.banner = e.code === 'NET' ? 'Ingen kontakt med spelservern – försöker igen…' : errText(e); setBanner();
-    }
-    if (S.sess) S.pollT = setTimeout(pollOnce, 1000);
+    const mySeq = S.pollSeq = (S.pollSeq || 0) + 1;
+    const run = (async () => {
+      try {
+        const st = await a.state(S.sess.code, S.sess.playerId, S.sess.secret, S.sess.hostSecret);
+        if (!S.sess || mySeq < (S.appliedSeq || 0)) return;
+        S.appliedSeq = mySeq; if (S.banner) { S.banner = ''; setBanner(); } S.st = st; S.recvAt = performance.now();
+        const sig = sigOf(st); if (sig !== S.lastSig) { S.lastSig = sig; if (!S.local) draw(); }
+      } catch (e) {
+        if (['BAD_PLAYER', 'KICKED', 'GONE', 'NO_ROOM'].includes(e.code)) { clearSess(errText(e)); return; }
+        if (e.code === 'RATE') { /* för tät polling: tyst, nästa försök om en sekund */ } else { S.banner = e.code === 'NET' ? 'Ingen kontakt med spelservern – försöker igen…' : errText(e); setBanner(); }
+      }
+    })();
+    S.inflight = run;
+    try { await run; } finally { S.inflight = null; }
+    if (S.sess) { clearTimeout(S.pollT); S.pollT = setTimeout(pollOnce, 1000); }
   }
   function sigOf(st) {
     const r = st.round;
@@ -204,11 +213,12 @@
       return;
     }
     const q = r.question;
+    const keep = shadow.querySelector('form[data-form=ans]'); const keepVal = keep && keep.dataset.r === String(r.id) && keep.dataset.i === String(q.idx) ? (shadow.getElementById('ai') || {}).value || '' : '';
     shell(`<span class="eyebrow">${stageName(r)} · fråga ${q.idx + 1} av ${r.n_q}</span><div class="bar"><i id="tbar"></i></div><p class="small right" id="tleft"></p>
       <div class="qcard"><div class="eq" aria-live="polite">${q.a} × ${q.b} = ?</div>
-      <form data-form="ans"><input id="ai" class="num" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="3" aria-label="Svar på ${q.a} gånger ${q.b}"><button class="btn block" type="submit" id="ab" ${S.busy ? 'disabled' : ''}>Svara</button></form></div>
+      <form data-form="ans" data-r="${r.id}" data-i="${q.idx}"><input id="ai" class="num" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="3" aria-label="Svar på ${q.a} gånger ${q.b}"><button class="btn block" type="submit" id="ab" ${S.busy ? 'disabled' : ''}>Svara</button></form></div>
       <p class="small">Du ser inte hur de andra ligger till förrän rundan är slut.</p>${hostBar()}`);
-    const i = shadow.getElementById('ai'); if (i) i.focus({ preventScroll: true });
+    const i = shadow.getElementById('ai'); if (i) { if (keepVal) i.value = keepVal; i.focus({ preventScroll: true }); }
   }
   function hostBar() { return S.st.is_host ? '<button class="link" data-act="endround">Avsluta rundan nu (värd)</button>' : ''; }
   function feedback() {
@@ -291,9 +301,11 @@
       case 'done': clearSess(); break;
     }
   }
-  async function submitAnswer(val) {
+  async function submitAnswer(val, form) {
     const st = S.st, r = st && st.round; if (!r || !r.question || S.busy) return;
     const q = r.question;
+    // Svaret gäller den fråga som visas på skärmen. Har servern hunnit gå vidare: ladda om i stället för att svara fel fråga.
+    if (form && (form.dataset.r !== String(r.id) || form.dataset.i !== String(q.idx))) { S.lastSig = ''; await pollOnce(); draw(); return; }
     S.busy = true; const ab = shadow.getElementById('ab'); if (ab) ab.disabled = true;
     try {
       const out = await api().answer(S.sess.code, S.sess.playerId, S.sess.secret, r.id, q.idx, val);
@@ -306,7 +318,7 @@
   }
   function onSubmit(e) {
     const f = e.target; const t = f.dataset.form; if (!t) return; e.preventDefault();
-    if (t === 'ans') { const v = shadow.getElementById('ai').value.trim(); if (/^\d{1,4}$/.test(v)) submitAnswer(+v); return; }
+    if (t === 'ans') { const v = shadow.getElementById('ai').value.trim(); if (/^\d{1,4}$/.test(v)) submitAnswer(+v, f); return; }
     if (t === 'mt') { const T = S.study.test, v = shadow.getElementById('mtin').value.trim(); if (!/^\d{1,3}$/.test(v)) return; const [a, b] = T.qs[T.i]; const ok = +v === a * b; if (ok) T.ok++; T.fb = { ok }; draw(); return; }
     if (t === 'join') { S.joinCode = shadow.getElementById('jc').value.toUpperCase().trim(); S.nick = shadow.getElementById('jn').value.trim(); join(S.joinCode, S.nick, false); return; }
     if (t === 'hostjoin') { const n = shadow.getElementById('hn').value.trim(); join(S.sess.code, n, true); }

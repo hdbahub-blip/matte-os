@@ -6,6 +6,8 @@ const { Pool } = require('pg');
 const port = +process.env.PORT || 8787;
 const pool = new Pool({ host: process.env.PGHOST || '/tmp/pgdata', port: +(process.env.PGPORT || 5544), user: 'postgres', database: process.env.PGDATABASE || 'cuptest', max: 20 });
 const stats = { calls: 0, errors: 0 };
+// Dev-only: LAG_MS=N fördröjer varje svar slumpmässigt 0..N ms (efterliknar mobilnät, ger svar i fel ordning).
+const LAG = +process.env.LAG_MS || 0; const lag = () => LAG ? new Promise(r => setTimeout(r, Math.random() * LAG)) : null;
 const server = http.createServer(async (req, res) => {
   const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST,GET,OPTIONS', 'content-type': 'application/json' };
   if (req.method === 'OPTIONS') { res.writeHead(204, cors); return res.end(); }
@@ -21,8 +23,10 @@ const server = http.createServer(async (req, res) => {
   const c = await pool.connect();
   try {
     await c.query('begin'); await c.query('set local role anon');
+    // som PostgREST: begäranshuvuden (endast de som klienten/proxyn skickat; ingen socket-IP) som GUC request.headers
+    await c.query("select set_config('request.headers', $1, true)", [JSON.stringify(req.headers)]);
     const r = await c.query(sql, vals);
-    await c.query('commit'); stats.calls++;
+    await c.query('commit'); stats.calls++; await lag();
     res.writeHead(200, cors); res.end(JSON.stringify(r.rows[0].r));
   } catch (e) {
     await c.query('rollback').catch(() => {}); stats.errors++;
