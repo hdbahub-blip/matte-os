@@ -356,7 +356,7 @@ function boostCard() {
   /* Task-aware first step, never the answer or an extra assessment rule. */
   // Per-moment exceptions: never route geometry, powers or scale problems by ambiguous id substrings.
   const HINT_BY_SID = {
-    'f8-circle-area': 'Area är ytan inuti cirkeln, inte kanten runt. Har du radien eller diametern?',
+    'f8-circle-area': 'Area är ytan inuti cirkeln. Har du radien eller diametern? Börja med radien.',
     'f8-sector': 'En sektor är en del av en cirkel. Hur stor del av hela varvet är vinkeln?',
     's9-powers': 'Skriv ut potensen som en multiplikation. Hur många gånger används bastalet?',
     'f8-powers': 'En potens är upprepad multiplikation. Vilket tal ska du multiplicera med sig självt?',
