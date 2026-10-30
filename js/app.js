@@ -368,15 +368,23 @@ function boostCard() {
     's9-change-factor': 'Är det en ökning eller minskning? Jämför med det ursprungliga värdet.',
     's9-percentage-points': 'Jämför de två procenttalen. Hur stor skillnad är det mellan dem i procentenheter?',
     's9-space-diagonal': 'Tänk en linje genom lådan mellan två motsatta hörn. Vilka mått behöver du?',
-    's9-scientific': 'Skriv talet som ett tal mellan 1 och 10 multiplicerat med en tiopotens.'
+    's9-scientific': 'Skriv talet som ett tal mellan 1 och 10 multiplicerat med en tiopotens.',
+    's9-prefix': 'Vilket tal står prefixet för? Kilo betyder tusen och milli betyder en tusendel. Byt ut prefixet mot det talet.',
+    's9-sci-calc': 'Räkna talen framför tiopotenserna för sig. Vid gånger adderas exponenterna, vid delat subtraheras de.',
+    'f8-fractions-multiply': 'Vid multiplikation behöver nämnarna inte vara lika. Vad blir täljare gånger täljare och nämnare gånger nämnare?',
+    'f8-fractions-divide': 'Hur många gånger får det andra bråket plats i det första? Du kan också multiplicera med det omvända bråket.',
+    'f8-simplify-fraction': 'Vilket tal går att dela både täljaren och nämnaren med? Dela båda med samma tal.',
+    's9-percent-part': 'Vilket tal är det hela? Räkna ut hur mycket 1 % av det är, eller skriv procenten som decimaltal.',
+    's9-percent-whole': 'Det hela är okänt. Delen du vet motsvarar några procent. Hur mycket blir då 1 %, och sedan 100 %?',
+    's9-percent-problem': 'Vad är det hela, vad är delen och vad är procenten? Bestäm först vilken av de tre du söker.'
   };
   function gentleHint(sid) {
     if (HINT_BY_SID[sid]) return HINT_BY_SID[sid];
     if (/perimeter|circ|arc/.test(sid)) return 'Följ kanten hela vägen runt. Vilka sidor eller delar behöver du lägga ihop?';
     if (/area|surface/.test(sid)) return 'Titta på ytan inuti figuren. Hur många rutor eller delar finns det?';
-    if (/power|scientific|sci-calc|prefix/.test(sid)) return 'Skriv talet som en vanlig multiplikation först. Räkna sedan nollor eller decimalplatser.';
+    if (/power|scientific|sci-calc|prefix/.test(sid)) return 'Skriv talet som en vanlig multiplikation först. Vad betyder varje del?';
     if (/fraction/.test(sid)) return 'Har bråken lika stora delar? Börja annars med att skriva om dem.';
-    if (/percent|change-factor/.test(sid)) return 'Vilket tal är hela mängden? Hur mycket är en tiondel av det?';
+    if (/percent|change-factor/.test(sid)) return 'Vad är det hela och vad är delen? Hur mycket är 1 % av det hela?';
     if (/equation|expression|factor|parenthes|quadratic/.test(sid)) return 'Ta en del i taget. Om det finns ett likhetstecken ska båda sidor vara lika.';
     if (/pyth|length-scale|similar|symmetry|angles/.test(sid)) return 'Rita en liten figur och markera vad du redan vet.';
     if (/volum|cylinder|pyramid|cone|sphere|space-diagonal/.test(sid)) return 'Tänk på hur mycket som får plats inuti. Vilka mått har du?';

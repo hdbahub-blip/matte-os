@@ -21,4 +21,18 @@ assert(/tre/.test(hints['s9-volume-scale']),'Volume scale does not mention all t
 assert(/både/i.test(hints['s9-area-scale']),'Area scale does not mention two dimensions');n++;
 assert(/utsida/.test(hints['f8-surface-area']),'Surface area lacks faces/outsides');n++;
 assert(/procentenheter/.test(hints['s9-percentage-points']),'Percentage points is mislabeled');n++;
+// Every curriculum item, including those routed by fallback patterns, must get a safe first hint.
+const fn=/(const HINT_BY_SID = \{[\s\S]*?\n  \};\s*function gentleHint[\s\S]*?\n  \})/.exec(app);
+assert(fn,'gentleHint function missing');
+const gentle=vm.runInNewContext(fn[1]+';gentleHint',{}, {timeout:1000});
+for (const sid of skills) {
+  const h=gentle(sid);
+  assert(typeof h==='string'&&h.length>26&&h.length<240,'Unclear first hint for '+sid);n++;
+  assert(!/\d+\s*[×=]\s*\d+/.test(h),'First hint is a worked answer: '+sid);n++;
+  assert(!/nollor|decimalplatser/.test(h),'First hint uses the zero/decimal-place shortcut: '+sid);n++;
+}
+for (const sid of ['f8-fractions-multiply','f8-fractions-divide'])
+  assert(!/lika stora delar|gemensam nämnare|skriva om dem/.test(gentle(sid)),'Fraction '+sid+' hint wrongly requires equal denominators'),n++;
+assert(!/hela mängden\?/.test(gentle('s9-percent-whole'))&&/okänt/.test(gentle('s9-percent-whole')),'Percent whole hint treats the unknown whole as given');n++;
+assert(!/tiondel/.test(gentle('s9-percent-part')+gentle('s9-percent-problem')),'Percent hint only works for multiples of ten');n++;
 console.log('HINT MAPPING '+n+'/'+n+' PASS');
