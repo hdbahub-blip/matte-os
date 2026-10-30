@@ -9,7 +9,7 @@ async function asAnon(sql, vals) {
   try { await c.query('begin'); await c.query('set local role anon'); const r = await c.query(sql, vals); await c.query('commit'); return { rows: r.rows }; }
   catch (e) { await c.query('rollback').catch(() => {}); return { err: e }; } finally { c.release(); }
 }
-const rpc = async (fn, args) => { const keys = Object.keys(args); const r = await asAnon(`select public.${fn}(${keys.map((k, i) => `${k} => $${i + 1}`).join(',')}) r`, keys.map(k => Array.isArray(args[k]) ? '{' + args[k].join(',') + '}' : args[k])); if (r.err) { r.err.msg = r.err.message; throw r.err; } return r.rows[0].r; };
+const rpc = async (fn, args) => { const keys = Object.keys(args); const r = await asAnon(`select public.${fn}(${keys.map((k, i) => `${k} => $${i + 1}`).join(',')}) r`, keys.map(k => Array.isArray(args[k]) ? '{' + args[k].join(',') + '}' : args[k])); if (r.err) { r.err.msg = r.err.message; throw r.err; } const v = r.rows[0].r; if (v && typeof v.error === 'string') throw new Error(v.error); return v; };
 const fails = async (p, re, m) => { try { await p; ok(false, m + ' (inget fel)'); } catch (e) { ok(re.test(e.message), m + ' → ' + e.message); } };
 
 (async () => {
@@ -46,8 +46,7 @@ const fails = async (p, re, m) => { try { await p; ok(false, m + ' (inget fel)')
   await fails(rpc('cup_start', { p_code: room2.code, p_host_secret: room.host_secret }), /NOT_HOST/, 'värdhemlighet från rum 1 startar inte rum 2');
   await fails(rpc('cup_kick', { p_code: room.code, p_host_secret: a.secret, p_player: b.player_id }), /NOT_HOST/, 'spelare kan inte kicka med spelarhemlighet');
   // 4) SQL-injektion i alla textparametrar
-  const inj = await rpc('cup_join', { p_code: "X'; drop table cup.rooms;--", p_nick: 'x', p_device: 'dev-cccccccc' });
-  ok(inj && /^NO_ROOM/.test(inj.error || ''), 'SQL-injektion i rumskod görs ofarlig (svar: ' + JSON.stringify(inj) + ')');
+  await fails(rpc('cup_join', { p_code: "X'; drop table cup.rooms;--", p_nick: 'x', p_device: 'dev-cccccccc' }), /NO_ROOM/, 'SQL-injektion i rumskod görs ofarlig');
   await fails(rpc('cup_join', { p_code: room.code, p_nick: "x'); drop table cup.rooms;--", p_device: 'dev-dddddddd' }), /BAD_NICK/, 'SQL-injektion i smeknamn nekas');
   for (const bad of ['<img src=x onerror=alert(1)>', 'a"b', "a'b", 'a&b', '‮rtl', 'a/b', 'a;b', 'a`b']) await fails(rpc('cup_join', { p_code: room.code, p_nick: bad, p_device: 'dev-eeeeeeee' }), /BAD_NICK/, 'smeknamn nekas: ' + JSON.stringify(bad));
   const ws = await rpc('cup_join', { p_code: room.code, p_nick: 'a\n\t b', p_device: 'dev-wsxxxxxx' });

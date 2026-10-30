@@ -35,6 +35,8 @@ async function drive(p, nick, state) {
   let last = '', lastAt = 0;
   while (!state.done) {
     const s = await snap(p); const t = s ? s.text : '';
+    if (/Svar skickat/.test(t)) state.fb = (state.fb || 0) + 1;
+    if ((/Svar skickat/.test(t) || (s && s.q)) && /Rätt!|Inte riktigt|Rätt svar/.test(t)) state.leak = (state.leak || 0) + 1;
     if (/vinner!/.test(t) || /Spelet är slut/.test(t)) { state.done = true; break; }
     const Q = s && s.q; const eb = Q && Q.eyebrow.toLowerCase(), m = eb && /fråga (\d+) av/.exec(eb), q = Q && /(\d+)\s*×\s*(\d+)/.exec(Q.eq);
     if (m && q) {
@@ -126,6 +128,7 @@ async function drive(p, nick, state) {
   })();
   ok(/Kval klar/.test(scoredText), 'värd ser Kval klar');
   for (const x of P) await x.p.waitForSelector('#cup >> css=ol.rank li', { timeout: 15000 });
+  ok(states.every(x => !x.leak) && states.every(x => x.fb > 0), `under pågående runda visar ingen spelares skärm rätt/fel eller facit (neutral bekräftelse hos alla; läckor: ${states.map(x => x.leak || 0).join(',')})`);
   const rankRows = await P[0].p.locator('#cup >> css=ol.rank li').count(); ok(rankRows === 10, `alla ser topplista med 10 resultat (${rankRows})`);
   const mine = []; for (const x of P) mine.push((await x.p.locator('#cup >> css=h1').first().innerText()));
   ok(mine.every((m, i) => m === `${QUAL[i]} av 10 rätt`), 'varje spelare ser sitt eget korrekta resultat: ' + mine.join(' | '));

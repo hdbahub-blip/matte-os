@@ -78,9 +78,9 @@ async function playRound(room, bots, acc) {
   const [r1, r2] = await Promise.all([
     c.answer(code, bots[2].id, bots[2].secret, st.round.id, 0, q0.a * q0.b),
     c.answer(code, bots[2].id, bots[2].secret, st.round.id, 0, q0.a * q0.b)]);
-  ok(r1.correct === true && r2.correct === true && (r1.duplicate !== r2.duplicate), 'dubbel inskickning räknas en gång');
+  ok(r1.ok && r2.ok && (r1.duplicate !== r2.duplicate), 'dubbel inskickning räknas en gång');
   const r3 = await c.answer(code, bots[2].id, bots[2].secret, st.round.id, 0, 9999);
-  ok(r3.duplicate === true && r3.correct === true, 'omsändning med annat värde ändrar inte resultat');
+  ok(r3.duplicate === true, 'omsändning med annat värde ändrar inte resultat (verifieras i slutresultatet)');
   await expectErr(c.answer(code, bots[2].id, bots[2].secret, st.round.id, 5, 1), 'OUT_OF_ORDER', 'hoppa över fråga nekas');
   await expectErr(c.answer(code, bots[2].id, bots[1].secret, st.round.id, 1, 1), 'BAD_PLAYER', 'svara som annan spelare nekas');
   bots[2].cnt = { [st.round.id]: 1 }; bots[2].seen = [[st.round.id, 0, q0.a, q0.b]];

@@ -223,7 +223,7 @@
   function hostBar() { return S.st.is_host ? '<button class="link" data-act="endround">Avsluta rundan nu (värd)</button>' : ''; }
   function feedback() {
     const l = S.local; const q = l.q;
-    shell(`<span class="eyebrow">${stageName(S.st.round)}</span><div class="qcard"><div class="eq">${q.a} × ${q.b}</div><p class="fb ${l.ok ? 'ok' : 'no'}" role="status">${l.ok ? 'Rätt!' : 'Inte riktigt. Rätt svar: ' + l.answer}</p></div>`);
+    shell(`<span class="eyebrow">${stageName(S.st.round)}</span><div class="qcard"><div class="eq">${q.a} × ${q.b}</div><p class="fb ok" role="status">Svar skickat ✓</p><p class="small">Facit och vad som var rätt visas när hela rundan är slut, så att ingen kan skicka svar vidare.</p></div>`);
   }
   function watching() {
     const st = S.st, r = st.round;
@@ -308,10 +308,10 @@
     if (form && (form.dataset.r !== String(r.id) || form.dataset.i !== String(q.idx))) { S.lastSig = ''; await pollOnce(); draw(); return; }
     S.busy = true; const ab = shadow.getElementById('ab'); if (ab) ab.disabled = true;
     try {
-      const out = await api().answer(S.sess.code, S.sess.playerId, S.sess.secret, r.id, q.idx, val);
-      S.local = { q, ok: out.correct, answer: out.answer != null ? out.answer : q.a * q.b };
+      await api().answer(S.sess.code, S.sess.playerId, S.sess.secret, r.id, q.idx, val);
+      S.local = { q };
       S.busy = false; draw();
-      setTimeout(async () => { S.local = null; await pollOnce(); S.lastSig = sigOf(S.st); draw(); }, out.correct ? 600 : 1500);
+      setTimeout(async () => { S.local = null; await pollOnce(); S.lastSig = sigOf(S.st); draw(); }, 450);
     } catch (e) {
       S.busy = false; S.err = errText(e); if (e.code === 'LATE') { await pollOnce(); } draw();
     }

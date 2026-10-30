@@ -114,6 +114,8 @@ jobs:
           node tests/cup-hardening.js
           node tests/cup-seeding.js 300
           node tests/cup-api-headers.js
+          node tests/cup-integrity-abuse.js
+          node tests/cup-rollback.js
       - name: Browser E2E with 1 host + 10 players
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-server.log 2>&1 &

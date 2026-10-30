@@ -80,6 +80,11 @@ create table cup.rate (
   until_at timestamptz not null
 );
 alter table cup.rate enable row level security;
+-- driftinställningar (läses bara av definer-funktioner): ip_salt (slumpad per databas), xff_from_right ('1' = sista x-forwarded-for,
+-- '2' = näst sista, '0' = första), ip_mode ('auto' | 'off'). Se docs/MATTE_OS_CUP_SUPABASE_PLAN.md.
+create table cup.settings (key text primary key, val text not null);
+alter table cup.settings enable row level security;
+insert into cup.settings(key, val) values ('ip_salt', replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')), ('xff_from_right', '1'), ('ip_mode', 'auto');
 alter table cup.rooms enable row level security;
 alter table cup.players enable row level security;
 alter table cup.rounds enable row level security;
@@ -94,15 +99,25 @@ begin raise exception '%: %', code, msg using errcode = 'P0001'; end $$;
 -- Klientnyckel för begränsning: hash av IP (aldrig rå IP lagrad). Supabase/PostgREST lägger begäranshuvuden i GUC request.headers.
 -- cf-connecting-ip sätts av Supabases edge; annars används SISTA x-forwarded-for-värdet (det närmaste proxy la till).
 -- Saknas båda (direkt SQL/test) returneras null och per-klient-gränser hoppas över; globala gränser gäller alltid.
+create function cup.setting(k text) returns text language sql stable as $$ select val from cup.settings where key = k $$;
+
 create function cup.client_key() returns text language plpgsql stable as $$
-declare h jsonb; ip text;
+declare h jsonb; ip text; parts text[]; n int; k int;
 begin
+  if cup.setting('ip_mode') = 'off' then return null; end if;
   begin h := nullif(current_setting('request.headers', true), '')::jsonb; exception when others then h := null; end;
   if h is null then return null; end if;
+  -- 1) cf-connecting-ip: sätts av Cloudflare framför Supabase och skrivs över om klienten skickar det.
   ip := nullif(trim(coalesce(h->>'cf-connecting-ip', '')), '');
-  if ip is null then ip := nullif(trim(regexp_replace(coalesce(h->>'x-forwarded-for', ''), '^.*,', '')), ''); end if;
+  -- 2) annars x-forwarded-for räknat från HÖGER (xff_from_right). En klient kan skicka eget x-forwarded-for; proxyn lägger sin
+  --    observation sist, så första värdet är förfalskningsbart. Vänster värde (0) finns bara som medvetet val.
+  if ip is null then
+    parts := regexp_split_to_array(coalesce(h->>'x-forwarded-for', ''), '\s*,\s*'); n := coalesce(array_length(parts, 1), 0);
+    k := coalesce(nullif(cup.setting('xff_from_right'), '')::int, 1);
+    if n > 0 then ip := nullif(trim(case when k = 0 then parts[1] else parts[greatest(1, n - k + 1)] end), ''); end if;
+  end if;
   if ip is null then return null; end if;
-  return substr(encode(sha256(convert_to(ip, 'utf8')), 'hex'), 1, 16);
+  return substr(encode(sha256(convert_to(cup.setting('ip_salt') || ip, 'utf8')), 'hex'), 1, 16);
 end $$;
 
 create function cup.throttle(p_action text, p_key text, p_max int, p_secs int) returns void language plpgsql as $$
@@ -211,8 +226,8 @@ begin
 end $$;
 
 -- ---------- publika RPC ----------
-create function public.cup_create(p_tables int[] default null, p_qual_q int default 10, p_sec_per_q int default 20)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_create(p_tables int[] default null, p_qual_q int default 10, p_sec_per_q int default 20)
+returns jsonb language plpgsql set search_path = '' as $$
 declare alpha text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; c text; tries int := 0; secret text; tabs int[];
 begin
   delete from cup.rooms where expires_at < now();
@@ -240,8 +255,8 @@ begin
   return jsonb_build_object('code', c, 'host_secret', secret);
 end $$;
 
-create function public.cup_join(p_code text, p_nick text, p_device text)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_join(p_code text, p_nick text, p_device text)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms; v_nick text; base text; n int := 1; secret text := cup.newtoken(); p cup.players; cnt int; k text := cup.client_key();
 begin
   -- Begränsa först (före alla fel), så att försök med fel kod också räknas. Okänd kod returneras som {error} i stället för
@@ -275,8 +290,8 @@ begin
   return jsonb_build_object('player_id', p.id, 'secret', secret, 'nick', p.nick, 'rejoined', false);
 end $$;
 
-create function public.cup_ready(p_code text, p_player uuid, p_secret text, p_ready boolean)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_ready(p_code text, p_player uuid, p_secret text, p_ready boolean)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms; p cup.players;
 begin
   r := cup.get_room(p_code); p := cup.auth_player(r, p_player, p_secret);
@@ -284,8 +299,8 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
-create function public.cup_leave(p_code text, p_player uuid, p_secret text)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_leave(p_code text, p_player uuid, p_secret text)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms; p cup.players;
 begin
   r := cup.get_room(p_code); p := cup.auth_player(r, p_player, p_secret);
@@ -293,8 +308,8 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
-create function public.cup_kick(p_code text, p_host_secret text, p_player uuid)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_kick(p_code text, p_host_secret text, p_player uuid)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms;
 begin
   r := cup.get_room(p_code, true); perform cup.auth_host(r, p_host_secret);
@@ -307,8 +322,8 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
-create function public.cup_cancel(p_code text, p_host_secret text)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_cancel(p_code text, p_host_secret text)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms;
 begin
   r := cup.get_room(p_code, true); perform cup.auth_host(r, p_host_secret);
@@ -316,8 +331,8 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
-create function public.cup_start(p_code text, p_host_secret text)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_start(p_code text, p_host_secret text)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms; ids uuid[]; grps int[];
 begin
   r := cup.get_room(p_code, true); perform cup.auth_host(r, p_host_secret);
@@ -328,8 +343,8 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
-create function public.cup_end_round(p_code text, p_host_secret text)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_end_round(p_code text, p_host_secret text)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms;
 begin
   r := cup.get_room(p_code, true); perform cup.auth_host(r, p_host_secret);
@@ -340,8 +355,8 @@ begin
   return jsonb_build_object('ok', true);
 end $$;
 
-create function public.cup_answer(p_code text, p_player uuid, p_secret text, p_round uuid, p_idx int, p_val int)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_answer(p_code text, p_player uuid, p_secret text, p_round uuid, p_idx int, p_val int)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms; p cup.players; rd cup.rounds; q cup.questions; have int; prev cup.answers; ok boolean;
 begin
   r := cup.get_room(p_code); p := cup.auth_player(r, p_player, p_secret);
@@ -352,7 +367,7 @@ begin
     perform cup.err('NOT_IN_ROUND', 'Du deltar inte i den här rundan.'); end if;
   -- idempotent: redan besvarad fråga ger samma svar tillbaka (dubbelklick, omsändning)
   select * into prev from cup.answers where round_id = rd.id and player_id = p.id and idx = p_idx;
-  if found then return jsonb_build_object('ok', true, 'duplicate', true, 'correct', prev.correct); end if;
+  if found then return jsonb_build_object('ok', true, 'duplicate', true); end if;
   if rd.status <> 'active' or now() > rd.deadline then perform cup.err('LATE', 'Tiden är slut för den här rundan.'); end if;
   if now() < rd.starts_at then perform cup.err('EARLY', 'Rundan har inte börjat än.'); end if;
   if p_val is null or p_val < 0 or p_val > 10000 then perform cup.err('BAD_VALUE', 'Skriv ett tal.'); end if;
@@ -364,7 +379,9 @@ begin
   insert into cup.answers(round_id, player_id, idx, val, correct) values (rd.id, p.id, p_idx, p_val, ok)
     on conflict do nothing;
   perform cup.tick(r.id);
-  return jsonb_build_object('ok', true, 'duplicate', false, 'correct', ok, 'answer', q.ans);
+  -- Tävlingsintegritet: ingen korrekthet och inget facit före rundans slut (samma frågor delas av alla).
+  -- Genomgång med rätt/fel och facit levereras av cup_state först när rundan är avslutad.
+  return jsonb_build_object('ok', true, 'duplicate', false, 'answered', have + 1);
 end $$;
 
 -- ---------- turneringslogik ----------
@@ -405,8 +422,8 @@ begin
   end if;
 end $$;
 
-create function public.cup_next(p_code text, p_host_secret text)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_next(p_code text, p_host_secret text)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms; lr cup.rounds; m jsonb; tiers jsonb; cut int; i int; pos int := 0; len int; tied_idx int := -1;
         sub jsonb; ids uuid[]; grps int[]; flat uuid[]; sc record; tb int; hi uuid; lo uuid; pending jsonb; semi jsonb; g int;
         res jsonb; newtiers jsonb; j int; ta uuid; tb_ uuid; ca int; cb int; winners uuid[]; losers uuid[];
@@ -579,8 +596,8 @@ create function cup.standings(p_round uuid) returns jsonb language sql stable as
   ) x
 $$;
 
-create function public.cup_state(p_code text, p_player uuid default null, p_secret text default null, p_host_secret text default null)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+create function cup.impl_state(p_code text, p_player uuid default null, p_secret text default null, p_host_secret text default null)
+returns jsonb language plpgsql set search_path = '' as $$
 declare r cup.rooms; p cup.players; is_host boolean := false; rd cup.rounds; lr cup.rounds; out jsonb; have int; q cup.questions;
         players_j jsonb; round_j jsonb := null; res_j jsonb := null; m jsonb; parts int; fin int; names jsonb; review jsonb; me_in boolean := false;
 begin
@@ -639,12 +656,159 @@ begin
   return out;
 end $$;
 
+
+-- ---------- skyddslager: räknare som överlever fel ----------
+-- Postgres rullar tillbaka allt när en funktion kastar fel, även räknare. Därför kastar de publika RPC-funktionerna aldrig:
+-- felet fångas i ett undertransaktionsblock och returneras som {"error": "KOD: text"}; räknare utanför blocket sparas.
+create function cup.guard() returns void language plpgsql as $$
+declare k text := cup.client_key(); f int;
+begin
+  if random() < 0.02 then  -- gallring: utgångna räknare (IP-hashar) och rum (smeknamn, enhets-id) raderas även om ingen skapar rum
+    delete from cup.rate where until_at < now();
+    delete from cup.rooms where expires_at < now();
+  end if;
+  if k is not null then
+    select n into f from cup.rate where bucket = 'fail:' || k and win = floor(extract(epoch from now()) / 60);
+    if coalesce(f, 0) >= 120 then perform cup.err('RATE', 'För många felaktiga förfrågningar. Vänta en minut.'); end if;
+    perform cup.throttle('rpc', k, 3000, 60);
+  end if;
+end $$;
+
+create function cup.note_fail() returns void language plpgsql as $$
+declare k text := cup.client_key();
+begin
+  if k is not null then begin perform cup.throttle('fail', k, 1000000, 60); exception when others then null; end; end if;
+end $$;
+
+-- ---------- publika RPC (tunna skal runt cup.impl_*) ----------
+create function public.cup_create(p_tables int[] default null, p_qual_q int default 10, p_sec_per_q int default 20)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_create(p_tables, p_qual_q, p_sec_per_q);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_join(p_code text, p_nick text, p_device text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_join(p_code, p_nick, p_device);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_ready(p_code text, p_player uuid, p_secret text, p_ready boolean)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_ready(p_code, p_player, p_secret, p_ready);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_leave(p_code text, p_player uuid, p_secret text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_leave(p_code, p_player, p_secret);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_kick(p_code text, p_host_secret text, p_player uuid)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_kick(p_code, p_host_secret, p_player);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_cancel(p_code text, p_host_secret text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_cancel(p_code, p_host_secret);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_start(p_code text, p_host_secret text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_start(p_code, p_host_secret);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_end_round(p_code text, p_host_secret text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_end_round(p_code, p_host_secret);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_answer(p_code text, p_player uuid, p_secret text, p_round uuid, p_idx int, p_val int)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_answer(p_code, p_player, p_secret, p_round, p_idx, p_val);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_next(p_code text, p_host_secret text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_next(p_code, p_host_secret);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+create function public.cup_state(p_code text, p_player uuid default null, p_secret text default null, p_host_secret text default null)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+begin
+  begin perform cup.guard(); exception when sqlstate 'P0001' then return jsonb_build_object('error', sqlerrm); end;
+  begin
+    return cup.impl_state(p_code, p_player, p_secret, p_host_secret);
+  exception when sqlstate 'P0001' then
+    perform cup.note_fail();
+    return jsonb_build_object('error', sqlerrm);
+  end;
+end $$;
+
 -- ---------- rättigheter ----------
 -- Endast Cups egna objekt. Ingen global REVOKE i schema public (skulle ändra andra appars funktioner).
 -- Klienten får köra exakt de publika cup_*-funktionerna; allt i schema cup (tabeller, hjälpfunktioner) är stängt.
 do $$ declare f record; begin
   for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-           where n.nspname = 'public' and p.proname like 'cup\_%' loop
+           where n.nspname = 'public' and p.proname in ('cup_create','cup_join','cup_ready','cup_leave','cup_kick','cup_cancel','cup_start','cup_end_round','cup_answer','cup_next','cup_state') loop
     execute format('revoke all on function %s from public, anon, authenticated', f.sig);
     execute format('grant execute on function %s to anon, authenticated', f.sig);
   end loop;

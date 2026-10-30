@@ -7,7 +7,7 @@ const { Pool } = require('pg');
 const pool = new Pool({ host: process.env.PGHOST || '/tmp/pgdata', port: +(process.env.PGPORT || 5544), user: 'postgres', database: process.env.PGDATABASE || 'cuptest', max: 6 });
 let pass = 0, fail = 0; const bad = []; const ok = (c, m) => { if (c) pass++; else { fail++; if (bad.length < 25) bad.push('✗ ' + m); } };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-async function rpc(fn, args) { const k = Object.keys(args); const c = await pool.connect(); try { await c.query('begin'); await c.query('set local role anon'); const r = await c.query(`select public.${fn}(${k.map((x, i) => `${x} => $${i + 1}`).join(',')}) r`, k.map(x => args[x])); await c.query('commit'); return r.rows[0].r; } catch (e) { await c.query('rollback').catch(() => {}); throw e; } finally { c.release(); } }
+async function rpc(fn, args) { const k = Object.keys(args); const c = await pool.connect(); try { await c.query('begin'); await c.query('set local role anon'); const r = await c.query(`select public.${fn}(${k.map((x, i) => `${x} => $${i + 1}`).join(',')}) r`, k.map(x => args[x])); await c.query('commit'); return (() => { const v = r.rows[0].r; if (v && typeof v.error === 'string') throw new Error(v.error); return v; })(); } catch (e) { await c.query('rollback').catch(() => {}); throw e; } finally { c.release(); } }
 function prng(seed) { let s = seed >>> 0 || 1; return () => { s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }; }
 
 // ---------- oberoende referensmodell (index = anslutningsordning 0..N-1) ----------

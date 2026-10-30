@@ -20,6 +20,6 @@ Polling 1 anrop/s/spelare. 10 spelare ≈ 36 000 anrop/timme; vid ~2 KB/svar ≈
 3. Rättigheter: fråga `pg_proc`/`has_function_privilege` som i `tests/cup-hardening.js` mot det riktiga projektet; exakt 11 `cup_*` körbara för anon.
 4. `get_advisors(security)` och `get_advisors(performance)`. Förväntat: varningar om anon-körbara SECURITY DEFINER-funktioner (avsiktliga, dokumenteras). Allt annat åtgärdas.
 5. Hämta publishable key (`get_publishable_keys`), lägg `url` + nyckel i `js/cup-config.js` (aldrig `service_role`).
-6. Verkliga API-anrop med curl/`cup-api.js`: skapa, gå med, svar, state; kontrollera att `sb_publishable_`-nyckel fungerar utan Authorization-huvud, att RATE slår till (7:e skapandet), och att `x-forwarded-for`/`cf-connecting-ip` når `request.headers`.
+6. Verkliga API-anrop och header-probe enligt `docs/MATTE_OS_CUP_STAGING.md` §B (publishable key utan Authorization, RATE efter 6 skapanden, vilken IP-header som faktiskt kommer fram, justera `cup.settings`).
 7. Fullt spel från **tio separata mobiler** (värd + 10 deltagare) via GitHub Pages-staging, med skärmdumpar/logg. Först då ändras beslutet till GO.
-8. Rollback: tom `url` i `js/cup-config.js`; `drop schema cup cascade; drop function public.cup_*;`.
+8. Rollback: tom `url` i `js/cup-config.js`; kör `cup/supabase/rollback_0001.sql` (testat, tar bara Cups egna objekt).

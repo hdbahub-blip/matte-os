@@ -11,7 +11,7 @@ async function asAnon(sql, vals, headers) {
   try { await c.query('begin'); await c.query('set local role anon'); if (headers) await c.query(`select set_config('request.headers', $1, true)`, [JSON.stringify(headers)]); const r = await c.query(sql, vals); await c.query('commit'); return { rows: r.rows }; }
   catch (e) { await c.query('rollback').catch(() => {}); return { err: e }; } finally { c.release(); }
 }
-const rpc = async (fn, args, headers) => { const k = Object.keys(args); const r = await asAnon(`select public.${fn}(${k.map((x, i) => `${x} => $${i + 1}`).join(',')}) r`, k.map(x => Array.isArray(args[x]) ? '{' + args[x].join(',') + '}' : args[x]), headers); if (r.err) throw r.err; return r.rows[0].r; };
+const rpc = async (fn, args, headers) => { const k = Object.keys(args); const r = await asAnon(`select public.${fn}(${k.map((x, i) => `${x} => $${i + 1}`).join(',')}) r`, k.map(x => Array.isArray(args[x]) ? '{' + args[x].join(',') + '}' : args[x]), headers); if (r.err) throw r.err; const v = r.rows[0].r; if (v && typeof v.error === 'string') throw new Error(v.error); return v; };
 const fails = async (p, re, m) => { try { const v = await p; ok(false, m + ' (inget fel: ' + JSON.stringify(v).slice(0, 80) + ')'); } catch (e) { ok(re.test(e.message), m + ' → ' + e.message); } };
 const reset = () => pool.query('delete from cup.rooms; delete from cup.rate');
 const IP = ip => ({ 'cf-connecting-ip': ip });
@@ -23,23 +23,24 @@ const IP = ip => ({ 'cf-connecting-ip': ip });
   const sp = new Pool({ ...cfg, database: 'cuptest_scope', max: 2 });
   await sp.query(`do $$ begin create role anon nologin; exception when duplicate_object then null; end $$; do $$ begin create role authenticated nologin; exception when duplicate_object then null; end $$;`);
   await sp.query(`create function public.other_app_open() returns int language sql as 'select 1';
+                  create function public.cup_lookalike_other_app() returns int language sql as 'select 3';
                   create function public.other_app_closed() returns int language sql as 'select 2';
                   revoke all on function public.other_app_closed() from public; grant execute on function public.other_app_closed() to authenticated;
                   create table public.other_app_tbl(id int); grant select on public.other_app_tbl to anon;`);
-  const snap = async () => (await sp.query(`select p.proname, coalesce(p.proacl::text,'NULL') acl from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'other\\_app%' order by 1`)).rows;
+  const snap = async () => (await sp.query(`select p.proname, coalesce(p.proacl::text,'NULL') acl from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and (p.proname like 'other\\_app%' or p.proname = 'cup_lookalike_other_app') order by 1`)).rows;
   const tbl = async () => (await sp.query(`select coalesce(relacl::text,'NULL') acl from pg_class where relname='other_app_tbl'`)).rows;
   const before = JSON.stringify(await snap()) + JSON.stringify(await tbl());
   execFileSync('psql', ['-q', '-v', 'ON_ERROR_STOP=1', '-h', cfg.host, '-p', String(cfg.port), '-U', cfg.user, '-d', 'cuptest_scope', '-f', path.join(__dirname, '../cup/supabase/0001_matte_os_cup.sql')]);
   const after = JSON.stringify(await snap()) + JSON.stringify(await tbl());
   ok(before === after, 'migrationen ändrar inte ACL på andra appars funktioner/tabeller i public');
   const exec = (await sp.query(`select p.proname from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and has_function_privilege('anon', p.oid, 'execute') order by 1`)).rows.map(r => r.proname);
-  const want = ['cup_answer', 'cup_cancel', 'cup_create', 'cup_end_round', 'cup_join', 'cup_kick', 'cup_leave', 'cup_next', 'cup_ready', 'cup_start', 'cup_state', 'other_app_open'].sort();
+  const want = ['cup_answer', 'cup_cancel', 'cup_create', 'cup_end_round', 'cup_join', 'cup_kick', 'cup_leave', 'cup_next', 'cup_ready', 'cup_start', 'cup_state', 'cup_lookalike_other_app', 'other_app_open'].sort();
   ok(JSON.stringify(exec) === JSON.stringify(want), 'anon kan köra exakt de 11 cup_*-RPC (+ andra appens egna): ' + exec.join(','));
   const cupFn = (await sp.query(`select count(*)::int n from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='cup' and (has_function_privilege('anon', p.oid,'execute') or has_function_privilege('authenticated', p.oid,'execute') or has_function_privilege('public', p.oid,'execute'))`)).rows[0].n;
   ok(cupFn === 0, 'ingen intern cup.*-funktion är körbar för anon/authenticated/public');
   const tabPriv = (await sp.query(`select count(*)::int n from information_schema.role_table_grants where table_schema='cup' and grantee in ('anon','authenticated','PUBLIC')`)).rows[0].n;
   ok(tabPriv === 0, 'inga tabellrättigheter i schema cup för anon/authenticated/public');
-  const sd = (await sp.query(`select proname, prosecdef, proconfig, pg_get_userbyid(proowner) own from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and proname like 'cup\\_%'`)).rows;
+  const sd = (await sp.query(`select proname, prosecdef, proconfig, pg_get_userbyid(proowner) own from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and proname like 'cup\\_%' and proname <> 'cup_lookalike_other_app'`)).rows;
   ok(sd.length === 11 && sd.every(f => f.prosecdef && (f.proconfig || []).includes('search_path=""')), 'alla 11 publika RPC: SECURITY DEFINER + search_path tomt (' + sd.length + ')');
   ok(sd.every(f => f.own === 'postgres'), 'RPC ägs av postgres (RLS kringgås avsiktligt endast inuti validerade funktioner)');
   await sp.end();
@@ -79,7 +80,7 @@ const IP = ip => ({ 'cf-connecting-ip': ip });
   // C3: join per klient 80/min, räknar även felaktiga koder (annars gratis koduppräkning)
   await reset(); const r2 = await rpc('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 });
   const J = IP('192.0.2.50'); let jn = 0, jl = null;
-  for (let i = 0; i < 90; i++) { try { const o = await rpc('cup_join', { p_code: 'ZZZZ' + (i % 9 + 2), p_nick: 'x', p_device: 'dev-enum-' + String(i).padStart(4, '0') }, J); if (!o.error) throw new Error('oväntat ok'); jn++; } catch (e) { jl = e.message; break; } }
+  for (let i = 0; i < 90; i++) { try { await rpc('cup_join', { p_code: 'ZZZZ' + (i % 9 + 2), p_nick: 'x', p_device: 'dev-enum-' + String(i).padStart(4, '0') }, J); throw new Error('oväntat ok'); } catch (e) { if (/NO_ROOM/.test(e.message)) { jn++; continue; } jl = e.message; break; } }
   ok(jn === 80 && /RATE/.test(jl || ''), `koduppräkning stoppas efter 80 försök/min (${jn}; ${jl})`);
   await fails(rpc('cup_join', { p_code: r2.code, p_nick: 'Riktig', p_device: 'dev-real-00001' }, J), /RATE/, 'samma klient spärrad även för riktig kod under fönstret');
   const okJoin = await rpc('cup_join', { p_code: r2.code, p_nick: 'Annan', p_device: 'dev-real-00002' }, IP('192.0.2.51')); ok(!!okJoin.player_id, 'annan klient kan gå med');

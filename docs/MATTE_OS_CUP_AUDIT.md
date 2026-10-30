@@ -50,18 +50,20 @@ Hot som provats (se §6): direkt tabellåtkomst, falska poäng, byte av spelar-I
 | `tests/cup-backend.js` (riktig Postgres 16, 10 spelare + värd, utslagsrundor, semitie, final 3 spel) | **53 PASS, 0 FAIL** |
 | `tests/cup-security.js` | **59 PASS, 0 FAIL** |
 | `tests/cup-hardening.js` (scoped grants, platsövertagande, rate limits, sekretess) | **33 PASS, 0 FAIL** |
-| `tests/cup-seeding.js 400` (400 slumpade turneringar mot oberoende JS-modell + frånkopplade/låsta/kickade/forcerade fall) | **8100 PASS, 0 FAIL** |
+| `tests/cup-integrity-abuse.js` (facit/korrekthet via `cup_answer` och `cup_state`, ogiltiga indata, felaktiga uppgifter, samtidighet, IP-hantering, gallring) | **39 PASS, 0 FAIL** |
+| `tests/cup-rollback.js` (rollback-skript, främmande objekt oförändrade, rundtur) | **8 PASS, 0 FAIL** |
+| `tests/cup-seeding.js 400` (400 slumpade turneringar mot oberoende JS-modell + frånkopplade/låsta/kickade/forcerade fall) | **8100 PASS, 0 FAIL** (CI kör 300) |
 | `tests/cup-api-headers.js` (publishable key vs JWT, gateway-emulator) | **7 PASS** |
 | `tests/cup-qr.js` (jsQR avkodar egen QR) | **7 PASS** |
-| `tests/cup-e2e.js` (värd + 10 spelare, 11 Chromium-contexts; omladdning av spelare och värd, nätbortfall) | **61 PASS, 0 FAIL**, ~104 s; även 60/0 med slumpad svarsfördröjning 0–1,8 s (207 s) |
-| Befintliga sviter (qa, figure 603, tabell 52, book-first 57, posters 396, paper-lessons 335 + 441/100) | alla PASS |
+| `tests/cup-e2e.js` (värd + 10 spelare, 11 Chromium-contexts; omladdning av spelare och värd, nätbortfall, ingen skärm visar rätt/fel under rundan) | **62 PASS, 0 FAIL**, 89 s |
+| Befintliga sviter (qa, figur 603, tabell 52, book-first 57, affischer 396, lektioner 335 + 441/100) | alla PASS |
 **Begränsning:** allt ovan är emulerade webbläsare på en dator mot **lokal Postgres**, inte fysiska telefoner och inte Supabase. Gratisnivåns Realtime/gränser och latens över internet är **inte** testade.
 
 ## 7. Blockerare och hur den löses
 Ett dedikerat Supabase-projekt med Cup-schemat måste finnas. Inget skapades; inget befintligt projekt rördes (läsning av projektlistan undantagen). Plan och beslutsalternativ: `docs/MATTE_OS_CUP_SUPABASE_PLAN.md`.
 
 ## 8. Rollback
-Main är orörd. Ta bort/avstå PR:en. Efter aktivering: sätt `url` tom i `js/cup-config.js` → Cup-knapparna stängs av, resten av appen oförändrad. Databas: `drop schema cup cascade; drop function public.cup_*;`.
+Main är orörd. Ta bort/avstå PR:en. Efter aktivering: sätt `url` tom i `js/cup-config.js` → Cup-knapparna stängs av, resten av appen oförändrad. Databas: `cup/supabase/rollback_0001.sql` (testat; ett jokertecken som `drop function public.cup_*` skulle kunna träffa andra funktioner och används inte).
 
 ## 9. Åtgärder efter extern granskning (GPT-6: HOLD) – samma PR och gren
 
@@ -84,3 +86,17 @@ Main är orörd. Ta bort/avstå PR:en. Efter aktivering: sätt `url` tom i `js/c
 **P2-9 · Bevarande.** Inga ändringar i `prov/` eller `tabell/` (git diff mot main visar bara `sw.js`-versionen); `matteos.v5` ändras inte av studieläge/minitest (E2E-kontroll); alla äldre sviter gröna (tabell ovan); årskurstemana Åk 8 navy+burgundy och Åk 9 burgundy kontrolleras av posters- och book-first-sviterna. Versionen är 5.5.0 (var 5.4.8 på main).
 
 **Release-beslut: HOLD** (se `docs/MATTE_OS_CUP_SUPABASE_PLAN.md`): kod och lokala bevis är på plats, men inget har körts mot riktig Supabase och inget spel har spelats på tio fysiska telefoner.
+
+## 10. Tredje omgången: tävlingsintegritet, missbruk, release
+
+**1 · Facit under pågående runda.** `cup_answer` returnerade `correct` och `answer` direkt; eftersom alla har samma frågor kunde en spelare sprida facit. Nu returneras bara `{ok, duplicate, answered}`, identiskt för rätt och fel svar (även vid omsändning). Klienten visar neutralt "Svar skickat ✓". Rätt/fel och facit levereras av `cup_state` först när rundan är avslutad (`results.review`). Test (`cup-integrity-abuse.js`): rätt och fel svar ger byte-identiskt svar; `cup_state` för en spelare som svarade rätt resp. fel är identisk; inga `correct`/`review`/`results`/`ans` för spelare, klar spelare eller värd under aktiv runda; felmeddelanden innehåller inget facit; efter rundan finns genomgången. E2E: ingen av 10 skärmar visar rätt/fel under rundan. Mutationskontroll: återinförs `correct`/`answer` i svaret fallerar 3 kontroller. **Kvarstående (inte åtgärdbart i koden):** en spelare kan fortfarande tala om för andra sina *egna* svar muntligt; skyddet gäller att klienten/servern inte läcker facit.
+
+**2 · Missbruksskydd.**
+- *Rollback av räknare (rotorsak hittad):* i Postgres rullas allt tillbaka när en funktion kastar fel, inklusive räknare. Fel indata (t.ex. ogiltigt smeknamn) och fel hemlighet var därför aldrig räknade. De 11 publika funktionerna är nu tunna skal (`public.cup_*` → `cup.impl_*`) som fångar fel i ett delblock och returnerar `{"error":"KOD: text"}`; räknare utanför blocket sparas. Klienten mappar `error` till samma felkoder som förut. Per klient: 3000 anrop/min totalt och 120 fel/min, därefter RATE. Test: 140 ogiltiga smeknamn → exakt 120 fel, sedan RATE, felräknaren ligger kvar i databasen; 140 anrop med fel spelarhemlighet och 130 med fel värdhemlighet stoppas likadant; annan klient opåverkad.
+- *Samtidighet:* 40 samtidiga `cup_create` från en klient → exakt 6 lyckas; 60 samtidiga `cup_join` (med dubblettnamn) → exakt 24 platser, unika namn; 25 samtidiga svar på samma fråga → en rad; 12 samtidiga `cup_next` → en ny runda.
+- *Klient-IP, motivering:* Supabase-dokumentationen ("Securing your API") läser *första* värdet i `x-forwarded-for`. Det går att förfalska: en offentlig diskussion (supabase/discussions #34647, obesvarad) visar att klientens egna värde hamnar först och att proxyn lägger den verkliga IP:n sist. Därför: (1) `cf-connecting-ip` har företräde, (2) annars värdet räknat från *höger* (`cup.settings.xff_from_right`, standard 1 = sista), (3) första-värdet är ett medvetet val (0) och testet visar att det är förfalskningsbart, (4) `ip_mode='off'` är nödbroms om headers inte går att lita på (globala tak gäller ändå). **[FA]** att Supabases kantnät faktiskt ger just det här mönstret: kan bara avgöras mot riktigt projekt, med header-proben i `MATTE_OS_CUP_STAGING.md` §B. Risk om proben visar extra interna hopp efter klient-IP och inställningen inte justeras: alla delar en räknare och en klass kan spärras (fail-säkert men störande).
+- *Integritet och gallring:* räknarnyckeln är `sha256(slumpat_salt || IP)` avkortad till 16 hex; saltet ligger i `cup.settings` (RLS, ingen åtkomst för anon). Rå IP lagras aldrig. Hashen är ändå personuppgift (pseudonymiserad) och behandlas så: livstid ≤ 2× fönstret (längst 20 min), rader raderas av varje 50:e anrop i snitt (2 % slumpad gallring, även om ingen skapar rum), tillsammans med rum äldre än 6 h (smeknamn, enhets-id, svar). Inga loggar sparas av Cup. Test: ingen rå IP i `cup.rate`, hashen matchar inte osaltad sha256, utgångna rader och rum är borta efter 500 vanliga anrop. Supabase/Cloudflare har egna åtkomstloggar utanför vår kontroll.
+
+**3 · Releaseberedskap.** Rollback: `cup/supabase/rollback_0001.sql` (namngivna 11 funktioner + `drop schema cup cascade`, idempotent) och `tests/cup-rollback.js`: främmande funktioner (även `cup_lookalike_other_app`), tabeller, data, scheman och ACL är bit-för-bit oförändrade efter migration + rollback, och migrationen kan köras igen. **Fel hittat av detta test:** migrationens grant-loop använde mönstret `cup\_%` och ändrade därför rättigheter på *andra* funktioner som råkar heta `cup_…`; nu begränsad till de 11 namnen. Staging-checklista med riktiga API-anrop, Security Advisors, header-probe, tio mobiler, återanslutning och finalflöde: `docs/MATTE_OS_CUP_STAGING.md`.
+
+**Release-beslut: HOLD.** Kvarstår: riktig Supabase (header-beteende, Advisors, publishable key), tio fysiska telefoner, beslut om dedikerad hosting.

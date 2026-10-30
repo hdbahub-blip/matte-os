@@ -19,4 +19,4 @@
 6. Spelet raderas automatiskt efter 6 timmar.
 
 ## Teknik i korthet
-Statisk PWA + Supabase RPC. Ingen Realtime/Auth. Hemligheter hashas i databasen. Missbruksskydd och rättigheter: audit §9. Se auditdokumentet för hotmodell.
+Statisk PWA + Supabase RPC. Ingen Realtime/Auth. Hemligheter hashas i databasen. Missbruksskydd och rättigheter: audit §9. Se auditdokumentet för hotmodell och `docs/MATTE_OS_CUP_STAGING.md` för release/rollback.
