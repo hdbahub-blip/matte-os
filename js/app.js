@@ -245,7 +245,7 @@ function boostCard() {
         <input type="file" id="importfile" accept=".json,application/json" hidden></div>
       <div class="card"><h3>Börja om</h3><p class="mut small">Raderar svar och framsteg för ${esc(P().label)} på den här enheten.</p>
         <button class="btn ${UI.confirmReset ? '' : 'ghost'}" data-a="reset">${UI.confirmReset ? 'Tryck igen för att radera' : 'Nollställ framsteg'}</button></div>
-      <p class="mut small center">Matte OS ${CORE.version} · byggd ${CORE.build} · matteframsteg sparas på enheten. Cup använder spelserver för tillfälliga smeknamn, sessioner och poäng.</p>`, 'home');
+      <details class="fold"><summary>Integritet och Cup</summary><div class="in"><p class="mut small">Dina matteframsteg sparas på den här enheten. I Cup lagrar spelservern tillfälligt smeknamn, tekniskt enhets-ID och spelpoäng. En saltad hash av nätverksadressen används för att hindra spam. Spelrum och utgångna tekniska uppgifter gallras automatiskt.</p></div></details><p class="mut small center">Matte OS ${CORE.version} · byggd ${CORE.build} · matteframsteg sparas på enheten. Cup använder en separat spelserver.</p>`, 'home');
   }
 
   /* ================= FÖRSTA START ================= */
