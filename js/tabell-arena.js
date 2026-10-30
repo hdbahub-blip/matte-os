@@ -82,6 +82,7 @@ function answer(v){
  else{round.i++;draw();scrollTo(0,0)}
 }
 function next(){
+ if(nextTimer){clearTimeout(nextTimer);nextTimer=null;}
  if(!round||!round.feedback)return;
  round.i++;round.feedback=null;
  if(round.i===round.qs.length)finish();else{draw();scrollTo(0,0)}
@@ -183,6 +184,12 @@ window.addEventListener('keydown',e=>{
  if(!duel||route()!=='duel/play'||duel.phase!=='buzz'||e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;
  if(['INPUT','TEXTAREA','SELECT'].includes(shadow?.activeElement?.tagName))return;
  const k=e.key.toLowerCase();if(k==='a'||k==='l'){e.preventDefault();buzz(k==='a'?0:1)}
+});
+window.addEventListener('hashchange',()=>{
+  if(!/^#\/tabell(?:\/|$)/.test(location.hash) && nextTimer){
+    clearTimeout(nextTimer);
+    nextTimer=null;
+  }
 });
 root.MOTabellArena={mount,qa:{info,mixedQs,tableQs,stables}};
 })(typeof window!=='undefined'?window:globalThis);
