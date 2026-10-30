@@ -353,7 +353,7 @@ function boostCard() {
   }
 
   /* ================= LEKTION (fokusläge) ================= */
-  const STEP_NAMES = ['Fatta', 'Se exempel', 'Prova med stöd', 'Gör själv', 'Klart'];
+  const STEP_NAMES = ['Förstå', 'Extra exempel', 'Prova med stöd', 'Gör själv', 'Klart'];
   function lessonFor(sid, step) {
     if (!UI.lesson || UI.lesson.sid !== sid) UI.lesson = { sid, reveal: 0, given: false, find: false, rule: null, ruleOk: false, soloIdx: 0, solo: E.soloSet(E.SKILLS[sid]), soloRes: [] };
     const L = UI.lesson; L.step = step; return L;
@@ -363,29 +363,29 @@ function boostCard() {
     step = Math.max(0, Math.min(4, +step || 0));
     const L = lessonFor(sid, step);
     if (step < 4) E.setLesson(pid(), sid, { step, done: E.lessonState(pid(), sid).done });
-    const head = { title: s.title, sub: `${chName(s.ch)} · ${STEP_NAMES[step]}`, steps: 4, cur: step, exit: '#/', formula: sid };
+    const head = { title: s.title, sub: `${chName(s.ch)} · ${STEP_NAMES[step]}`, steps: 4, cur: step, exit: UI.lessonFrom || '#/', formula: sid };
     let c = '';
     if (step === 0) {
       const d = SIMPLE && SIMPLE.DATA[s.id];
-      c = '<p class="eyebrow">Del 1 av 4 · Förstå</p><h1>'+esc(s.title)+'</h1>'
-        + (d ? '<p class="paper-lead">'+esc(d[0])+'</p>'+paperSteps(s,{intro:true})
+      c = '<p class="eyebrow">Förstå · ett exempel i taget</p><h1>'+esc(s.title)+'</h1>'
+        + (d ? '<p class="paper-lead">'+esc(d[0])+'</p>'+paperSteps(s)
           : '<p class="paper-lead">'+R(s.idea)+'</p><div class="box">'+R(s.anchor)+'</div>')
-        + '<details class="paper-more"><summary>Visa fler bilder och förklaringar</summary><div class="paper-more-in">'
+        + '<details class="paper-more"><summary>Förklara mer eller visa formeln</summary><div class="paper-more-in">'
           + visHTML(s.cvis)
           + '<div class="box neutral"><div class="k">Mer att veta</div>'+R(s.idea)+'</div>'
-          + '<ul class="clean">'+s.cue.map(q=>'<li>'+R(q)+'</li>').join('')+'</ul></div></details>'
-        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/1">Visa resten av uträkningen</button></div>';
+          + '<ul class="clean">'+s.cue.map(q=>'<li>'+R(q)+'</li>').join('')+'</ul>'
+          + '<div class="k">Formeln (valfri)</div><div class="big-f">'+TX(s.f.main)+'</div></div></details>'
+        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/2">Prova med stöd</button>'
+          + '<button class="btn ghost block" data-a="nav" data-h="#/l/'+sid+'/1">Se ett exempel till (valfritt)</button></div>';
     } else if (step === 1) {
       const e = s.ex;
       const lines = e.steps.map(([ask,res],i)=>'<div class="paper-step"><span class="paper-num">'+(i+1)+'</span><div><p>'+R(ask)+'</p><strong>'+R(res)+'</strong></div></div>').join('');
-      c = '<p class="eyebrow">Del 2 av 4 · Så här räknar du</p><h1 class="paper-question-title">'+esc(s.title)+'</h1>'
-        + paperSteps(s)
-        + '<details class="paper-more"><summary>Visa ett svårare exempel och formel (valfritt)</summary><div class="paper-more-in">'
-          + '<h2>'+R(e.q)+'</h2>'+visHTML(e.vis)
-          + '<div class="paper-flow">'+lines+'<div class="paper-answer"><span>SVAR</span><strong>'+R(e.ans)+'</strong></div></div>'
-          + '<div class="gsr"><div><span class="k">Vi vet</span><span>'+e.given.map(esc).join(' · ')+'</span></div><div><span class="k">Vi söker</span><span>'+esc(e.find)+'</span></div>'
-          + '<div><span class="k">Formeln</span><span>'+TX(e.rule)+'</span></div></div></div></details>'
-        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/2">Nu provar jag</button></div>';
+      c = '<p class="eyebrow">Extra exempel · valfritt</p><h1>'+esc(s.title)+'</h1>'
+        + visHTML(e.vis)
+        + '<div class="paper-question"><span class="paper-label">EXEMPEL</span><p>'+R(e.q)+'</p></div>'
+        + '<div class="paper-flow">'+lines+'<div class="paper-answer"><span>SVAR</span><strong>'+R(e.ans)+'</strong></div></div>'
+        + '<details class="paper-more"><summary>Visa formeln (valfritt)</summary><div class="paper-more-in"><div class="big-f">'+TX(e.rule)+'</div></div></details>'
+        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/2">Prova med stöd</button></div>';
     } else if (step === 2) {
       const g = s.g;
       if (!UI.ex || UI.ex.sid !== sid || UI.ex.key !== 'g') UI.ex = newEx(sid, 'g', 'guided');
@@ -426,6 +426,7 @@ function boostCard() {
   /* ================= TRÄNING / PROV (fokusläge) ================= */
   function startRun(kind, opts) {
     const p = pid();
+    if (!/^#\/(run|prov)(\/|$)/.test(location.hash)) UI.runFrom = location.hash || '#/trana';
     let items, title;
     if (kind === 'test') { items = E.testSet(p, opts.chapter); title = 'Provläge · ' + chName(opts.chapter); }
     else if (opts.skill) { items = E.trainingSet(p, { skill: opts.skill, n: 5 }); title = 'Träna · ' + E.SKILLS[opts.skill].title; }
@@ -446,7 +447,7 @@ function boostCard() {
     let c = exerciseHTML(ex, { label });
     if (!test && ex.done) c += `<div class="actions"><button class="btn block" data-a="runnext">${run.idx + 1 < n ? 'Nästa fråga' : 'Se resultat'}</button></div>`;
     if (!test && !ex.done && (ex.wrong >= 1 || ex.hints > 0)) c += `<div class="actions"><button class="btn text" data-a="skip">Hoppa över</button></div>`;
-    return focusShell(c, { title: run.title, sub: test ? 'Inga ledtrådar' : 'Träning', steps: n, cur: run.idx, exit: test ? '#/trana' : '#/trana' });
+    return focusShell(c, { title: run.title, sub: test ? 'Inga ledtrådar' : 'Träning', steps: n, cur: run.idx, exit: UI.runFrom || '#/trana' });
   }
   function viewRunDone() {
     const run = UI.run, test = run.kind === 'test';
@@ -472,8 +473,8 @@ function boostCard() {
   }
 
   /* ================= ARK (sök, formel, profil) ================= */
-  function openSheet(s) { UI.sheet = s; renderSheet(); }
-  function closeSheet() { UI.sheet = null; renderSheet(); }
+  function openSheet(s) { UI.previousFocus = document.activeElement; UI.sheet = s; renderSheet(); }
+  function closeSheet() { UI.sheet = null; renderSheet(); if (UI.previousFocus?.isConnected) UI.previousFocus.focus({preventScroll:true}); UI.previousFocus = null; }
   function renderSheet() {
     const s = UI.sheet;
     if (!s) { sheetRoot.innerHTML = ''; document.body.style.overflow = ''; return; }
@@ -487,19 +488,19 @@ function boostCard() {
     } else if (s.type === 'formula') {
       const sk = E.SKILLS[s.sid];
       inner = `<div class="sheet-head"><div><p class="eyebrow">Formelkort</p><h2 style="margin:0">${esc(sk.f.name)}</h2></div><button class="icon-btn" data-a="closesheet" aria-label="Stäng">${I.close}</button></div>
-        <div class="big-f">${TX(sk.f.main)}</div>${formulaBody(sk, { noLink: !!s.inLesson })}`;
+        ${formulaBody(sk, { noLink: !!s.inLesson })}`;
     } else if (s.type === 'profile') {
       inner = `<div class="sheet-head"><h2 style="margin:0">Vem pluggar?</h2><button class="icon-btn" data-a="closesheet" aria-label="Stäng">${I.close}</button></div>
         ${Object.values(CORE.profiles).map(p => `<button class="tap" data-a="pickprofile" data-p="${p.id}" ${p.id === pid() ? 'aria-current="true" style="border-color:var(--acc)"' : ''}><span class="chip-btn" style="border:0;padding:0;height:auto"><span class="av" style="background:${p.theme === 'navy' ? '#1d3557' : '#7a1f35'}">${p.short}</span></span><div><div class="t">${esc(displayName(p.id))}</div><div class="s">${p.label} · ${p.chapters.map(c => c.name).join(', ')}</div></div>${p.id === pid() ? `<span class="chev" style="color:var(--acc)">${I.check.replace('<svg', '<svg width="20" height="20"')}</span>` : ''}</button>`).join('')}
         <button class="tap" data-a="nav" data-h="#/installningar">${I.gear.replace('<svg', '<svg width="20" height="20"')}<div><div class="t">Inställningar och säkerhetskopia</div><div class="s">Namn, restprovsdatum, spara/återställ</div></div><span class="chev">${I.chev}</span></button>`;
     }
     sheetRoot.innerHTML = `<div class="scrim" data-a="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${inner}</div></div>`;
-    const f = sheetRoot.querySelector('#sq'); if (f) { f.focus(); const v = f.value; f.value = ''; f.value = v; }
+    const f = sheetRoot.querySelector('#sq') || sheetRoot.querySelector('.sheet [data-a=closesheet]'); if (f) { f.focus(); if(f.id==='sq'){ const v = f.value; f.value = ''; f.value = v; } }
   }
   function searchResults(res, q) {
     if (!q) return `<p class="mut small">Du behöver inte kunna det rätta ordet. Prova: <i>triangel sida</i>, <i>x båda sidor</i>, <i>diameter</i>, <i>rabatt</i>.</p>`;
     if (!res.length) return `<p class="mut">Hittade inget för "${esc(q)}". Prova ett annat ord.</p>`;
-    return res.map(s => `<button class="tap" data-a="formula" data-sid="${s.id}"><div style="min-width:0"><div class="t">${esc(s.title)}</div><div class="s" style="overflow-x:auto">${TX(s.f.main)}</div></div><span class="chev">${I.chev}</span></button>`).join('');
+    return res.map(s => `<button class="tap" data-a="formula" data-sid="${s.id}"><div style="min-width:0"><div class="t">${esc(s.title)}</div><div class="s">${esc(SIMPLE && SIMPLE.DATA[s.id] ? SIMPLE.DATA[s.id][0] : s.anchor)}</div></div><span class="chev">${I.chev}</span></button>`).join('');
   }
 
   /* ================= ROUTER ================= */
@@ -508,6 +509,7 @@ function boostCard() {
     applyTheme();
     if (!pid()) { app.innerHTML = viewOnboarding(); return; }
     const h = location.hash.replace(/^#\/?/, '');
+    if (/^l\//.test(h) && lastRoute && !/^l\//.test(lastRoute)) UI.lessonFrom = '#/' + lastRoute;
     const parts = h.split('/').filter(Boolean);
     let html = '';
     try {
@@ -551,7 +553,7 @@ function boostCard() {
       }
     }
     markReveals(h !== lastRoute);
-    if (h !== lastRoute) { window.scrollTo(0, 0); lastRoute = h; const m = document.getElementById('main'); if (m && !document.activeElement.closest('#app')) { /* behåll fokus */ } }
+    if (h !== lastRoute) { window.scrollTo(0, 0); lastRoute = h; if (!['cup','tabell','run','prov'].includes(parts[0])) { const hd = app.querySelector('#main h1'); if (hd) { hd.tabIndex = -1; hd.focus({ preventScroll: true }); } } }
   }
   function markReveals(newRoute) {
     if (newRoute || !UI.seen) UI.seen = new Set();
