@@ -339,6 +339,7 @@
     stopPoll();
     shadow = host.attachShadow ? host.attachShadow({ mode: 'open' }) : host;
     shadow.addEventListener('click', onClick); shadow.addEventListener('submit', onSubmit);
+    shadow.addEventListener('keydown', e => { const b=e.target.closest('[data-act="reveal"]'); if(b && (e.key==='Enter'||e.key===' ')){e.preventDefault();b.click();} });
     const saved = store.get().session;
     if (saved && saved.code) { S.sess = saved; S.view = 'game'; draw(); startPoll(); return; }
     if (opts && opts.join) { S.joinCode = String(opts.join).toUpperCase().slice(0, 5); S.view = 'join'; }
