@@ -47,3 +47,14 @@ li.me{border-color:var(--accent);background:var(--soft)}.pn{flex:1;font-weight:6
 .review{margin:14px 0}.review summary{min-height:44px;display:flex;align-items:center;font-weight:700;color:var(--accent);cursor:pointer}.rv{display:flex;justify-content:space-between;padding:7px 2px;border-bottom:1px solid var(--line)}.rv .ok{color:var(--green);font-weight:700}.rv .no{color:var(--red);font-weight:700}
 @media(max-width:380px){h1{font-size:1.7rem}.eq{font-size:2.5rem}.bigcode{font-size:2.8rem}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+
+/* 5.5.1 — one obvious action, optional deeper configuration. */
+.cup-customize{background:var(--paper);border:1px solid var(--line);border-radius:14px;margin-top:15px;overflow:hidden}
+.cup-customize summary{padding:15px 17px;font-weight:700;font-size:1rem;min-height:48px;cursor:pointer}
+.cup-customize[open] summary{border-bottom:1px solid var(--line)}
+.cup-customize .customize-in{padding:14px}
+.cup-customize .h2{font-size:1.05rem;margin-top:16px}
+.cup-customize .chips{margin-bottom:8px}
+.cup .btn{min-height:44px}
+.cup .link-box:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
