@@ -15,6 +15,8 @@ async function call(fn, args, headers) {
 const rpc = async (fn, args, h) => { const v = await call(fn, args, h); if (v && typeof v.error === 'string') throw new Error(v.error); return v; };
 const settle = ps => Promise.all(ps.map(p => p.then(v => ({ v }), e => ({ e: e.message }))));
 const fails = async (p, re, m) => { try { await p; ok(false, m + ' (inget fel)'); } catch (e) { ok(re.test(e.message), m + ' → ' + e.message); } };
+// Räknarfönstren är fasta klockfönster. Vänta så att ett test aldrig korsar en fönstergräns halvvägs (annars flaky).
+async function align(secs, need = 5) { const r = (await pool.query(`select (floor(extract(epoch from now()) / $1) * $1 + $1 - extract(epoch from now()))::float8 rem`, [secs])).rows[0].rem; if (r < need) await sleep(Math.ceil((r + 0.3) * 1000)); }
 const reset = () => pool.query('delete from cup.rooms; delete from cup.rate');
 const IP = ip => ({ 'cf-connecting-ip': ip });
 const mkRoom = async (n, tag, h) => { const room = await rpc('cup_create', { p_tables: [7], p_qual_q: 10, p_sec_per_q: 20 }, h); const ps = []; for (let i = 0; i < n; i++) ps.push(await rpc('cup_join', { p_code: room.code, p_nick: 'P' + i, p_device: `dev-${tag}-${String(i).padStart(4, '0')}` }, h && { 'cf-connecting-ip': '172.16.' + tag.length + '.' + i })); return { room, ps }; };
@@ -63,7 +65,7 @@ const mkRoom = async (n, tag, h) => { const room = await rpc('cup_create', { p_t
   // ===================== 2. MISSBRUK =====================
   // 2a ogiltiga indata räknas trots fel (räknare rullas inte tillbaka)
   await reset(); const r1 = await rpc('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 }, IP('198.51.100.1'));
-  const A = IP('203.0.113.10'); let bn = 0, rl = null;
+  await align(60, 15); const A = IP('203.0.113.10'); let bn = 0, rl = null;
   for (let i = 0; i < 140; i++) { try { await rpc('cup_join', { p_code: r1.code, p_nick: '<bad>', p_device: 'dev-badnick-' + i }, A); } catch (e) { if (/BAD_NICK/.test(e.message)) bn++; else { rl = e.message; break; } } }
   ok(bn === 120 && /RATE/.test(rl || ''), `ogiltiga smeknamn: 120 fel räknas, sedan RATE (${bn}; ${rl})`);
   const rowFail = (await pool.query(`select n from cup.rate where bucket like 'fail:%' order by n desc limit 1`)).rows[0];
@@ -72,14 +74,14 @@ const mkRoom = async (n, tag, h) => { const room = await rpc('cup_create', { p_t
   const okOther = await rpc('cup_join', { p_code: r1.code, p_nick: 'Giltig', p_device: 'dev-valid-0002' }, IP('203.0.113.11')); ok(!!okOther.player_id, 'annan klient opåverkad');
   // 2b felaktiga uppgifter (state med fel hemlighet, fel värdhemlighet)
   await reset(); const r2 = await rpc('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 }, IP('198.51.100.2')); const pj = await rpc('cup_join', { p_code: r2.code, p_nick: 'Riktig', p_device: 'dev-cred-00001' }, IP('198.51.100.3'));
-  const B = IP('203.0.113.20'); let bp = 0, bl = null;
+  await align(60, 15); const B = IP('203.0.113.20'); let bp = 0, bl = null;
   for (let i = 0; i < 140; i++) { try { await rpc('cup_state', { p_code: r2.code, p_player: pj.player_id, p_secret: 'fel' + i }, B); } catch (e) { if (/BAD_PLAYER/.test(e.message)) bp++; else { bl = e.message; break; } } }
   ok(bp === 120 && /RATE/.test(bl || ''), `fel hemlighet: 120 försök räknas, sedan RATE (${bp}; ${bl})`);
   let hb = 0; const C = IP('203.0.113.21'); for (let i = 0; i < 130; i++) { try { await rpc('cup_next', { p_code: r2.code, p_host_secret: 'x' + i }, C); } catch (e) { if (/NOT_HOST/.test(e.message)) hb++; } }
   ok(hb === 120, 'fel värdhemlighet: stoppas efter 120 försök (' + hb + ')');
   await sleep(130); const good = await rpc('cup_state', { p_code: r2.code, p_player: pj.player_id, p_secret: pj.secret }, IP('203.0.113.22')); ok(good.me === pj.player_id, 'riktig spelare (annan IP) opåverkad av angriparens spärr');
   // 2c samtidiga anrop
-  await reset();
+  await reset(); await align(600);
   const cc = await settle(Array.from({ length: 40 }, () => call('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 }, IP('203.0.113.30'))));
   const created = cc.filter(x => x.v && x.v.code).length; ok(created === 6, `40 samtidiga skapa-anrop från en klient: exakt 6 lyckas (${created})`);
   ok((await pool.query(`select count(*)::int n from cup.rooms`)).rows[0].n === 6, 'exakt 6 rum finns i databasen');

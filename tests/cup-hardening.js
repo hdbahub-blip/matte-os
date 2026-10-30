@@ -13,6 +13,8 @@ async function asAnon(sql, vals, headers) {
 }
 const rpc = async (fn, args, headers) => { const k = Object.keys(args); const r = await asAnon(`select public.${fn}(${k.map((x, i) => `${x} => $${i + 1}`).join(',')}) r`, k.map(x => Array.isArray(args[x]) ? '{' + args[x].join(',') + '}' : args[x]), headers); if (r.err) throw r.err; const v = r.rows[0].r; if (v && typeof v.error === 'string') throw new Error(v.error); return v; };
 const fails = async (p, re, m) => { try { const v = await p; ok(false, m + ' (inget fel: ' + JSON.stringify(v).slice(0, 80) + ')'); } catch (e) { ok(re.test(e.message), m + ' → ' + e.message); } };
+// Räknarfönstren är fasta klockfönster. Vänta så att ett test aldrig korsar en fönstergräns halvvägs (annars flaky).
+async function align(secs, need = 5) { const r = (await pool.query(`select (floor(extract(epoch from now()) / $1) * $1 + $1 - extract(epoch from now()))::float8 rem`, [secs])).rows[0].rem; if (r < need) await sleep(Math.ceil((r + 0.3) * 1000)); }
 const reset = () => pool.query('delete from cup.rooms; delete from cup.rate');
 const IP = ip => ({ 'cf-connecting-ip': ip });
 
@@ -67,7 +69,7 @@ const IP = ip => ({ 'cf-connecting-ip': ip });
   // ===== C. rate limiting =====
   await reset();
   // C1: skapa rum per klient: 6 per 10 min, andra klienter opåverkade
-  const A = IP('203.0.113.7'); let okc = 0, lim = null;
+  await align(600); const A = IP('203.0.113.7'); let okc = 0, lim = null;
   for (let i = 0; i < 8; i++) { try { await rpc('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 }, A); okc++; } catch (e) { lim = e.message; break; } }
   ok(okc === 6 && /RATE/.test(lim || ''), `skapa rum: 6 tillåtna, sedan RATE (${okc} ok; ${lim})`);
   const other = await rpc('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 }, IP('203.0.113.8')); ok(!!other.code, 'annan klient-IP opåverkad av spärren');
@@ -79,13 +81,13 @@ const IP = ip => ({ 'cf-connecting-ip': ip });
   ok(g === 30 && /BUSY/.test(gl || ''), `globalt tak: 30 rum/min (${g} ok; ${gl})`);
   // C3: join per klient 80/min, räknar även felaktiga koder (annars gratis koduppräkning)
   await reset(); const r2 = await rpc('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 });
-  const J = IP('192.0.2.50'); let jn = 0, jl = null;
+  await align(60, 15); const J = IP('192.0.2.50'); let jn = 0, jl = null;
   for (let i = 0; i < 90; i++) { try { await rpc('cup_join', { p_code: 'ZZZZ' + (i % 9 + 2), p_nick: 'x', p_device: 'dev-enum-' + String(i).padStart(4, '0') }, J); throw new Error('oväntat ok'); } catch (e) { if (/NO_ROOM/.test(e.message)) { jn++; continue; } jl = e.message; break; } }
   ok(jn === 80 && /RATE/.test(jl || ''), `koduppräkning stoppas efter 80 försök/min (${jn}; ${jl})`);
   await fails(rpc('cup_join', { p_code: r2.code, p_nick: 'Riktig', p_device: 'dev-real-00001' }, J), /RATE/, 'samma klient spärrad även för riktig kod under fönstret');
   const okJoin = await rpc('cup_join', { p_code: r2.code, p_nick: 'Annan', p_device: 'dev-real-00002' }, IP('192.0.2.51')); ok(!!okJoin.player_id, 'annan klient kan gå med');
   // C4: klassrum bakom EN gemensam IP: 24 spelare ryms (gräns 80/min per IP)
-  await reset(); const r3 = await rpc('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 }, IP('192.0.2.60')); let cls = 0;
+  await reset(); await align(60, 15); const r3 = await rpc('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 }, IP('192.0.2.60')); let cls = 0;
   for (let i = 0; i < 24; i++) { await rpc('cup_join', { p_code: r3.code, p_nick: 'E' + i, p_device: 'dev-class-' + String(i).padStart(3, '0') }, IP('192.0.2.61')); cls++; }
   ok(cls === 24, 'ett klassrum på samma NAT-IP kan ansluta 24 spelare utan att spärras');
   // C5: per-rum-tak 150 joins/min (från många IP)
@@ -99,7 +101,7 @@ const IP = ip => ({ 'cf-connecting-ip': ip });
   await fails(rpc('cup_state', { p_code: r5.code, p_player: pl.player_id, p_secret: pl.secret }), /RATE/, 'två state-anrop inom 100 ms: det andra stoppas');
   await sleep(130); const s2 = await rpc('cup_state', { p_code: r5.code, p_player: pl.player_id, p_secret: pl.secret }); ok(!!s2.code, 'efter 130 ms fungerar det igen');
   // värd-polling: 100 per 10 s och rum
-  let hp = 0, hl = null; for (let i = 0; i < 120; i++) { try { await rpc('cup_state', { p_code: r5.code, p_host_secret: r5.host_secret }); hp++; } catch (e) { hl = e.message; break; } }
+  await align(10, 6); let hp = 0, hl = null; for (let i = 0; i < 120; i++) { try { await rpc('cup_state', { p_code: r5.code, p_host_secret: r5.host_secret }); hp++; } catch (e) { hl = e.message; break; } }
   ok(hp === 100 && /RATE/.test(hl || ''), `värd-state: 100 per 10 s sedan RATE (${hp}; ${hl})`);
   // C7: räknartabellen rensas och växer inte obegränsat
   await pool.query(`update cup.rate set until_at = now() - interval '1 second'`); await rpc('cup_create', { p_tables: [2], p_qual_q: 10, p_sec_per_q: 20 });
