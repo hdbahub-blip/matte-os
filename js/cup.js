@@ -128,7 +128,7 @@
       <button class="tile" data-act="go" data-v="host" ${on ? '' : 'disabled'}><b>2 · Skapa spel</b><span>Du är värd och får en kod att dela.</span></button>
       <button class="tile" data-act="go" data-v="join" ${on ? '' : 'disabled'}><b>3 · Gå med i spel</b><span>Skriv koden från värden och välj ett smeknamn.</span></button>
       ${on ? '' : '<p class="note" id="offnote">Onlinespelet är inte påslaget ännu. Studieläget fungerar utan nät. Be värden slå på spelservern.</p>'}
-      <p class="small">Inga konton och inga riktiga namn. Använd ett smeknamn. Spelservern sparar tillfälliga smeknamn, sessioner och poäng. Utgångna spelrum rensas automatiskt.</p><details class="cup-customize"><summary>Hur fungerar integriteten?</summary><div class="customize-in"><p class="small">För att förhindra missbruk används även en kortlivad, saltad hash av nätverksadressen. Den tas bort genom automatisk gallring. Använd ett smeknamn i spelet.</p></div></details><p hidden></p>`);
+      <p class="small">Inga konton och inga riktiga namn. Använd ett smeknamn. Spelservern sparar tillfälliga smeknamn, sessioner och poäng. Utgångna spelrum rensas automatiskt.</p><details class="cup-customize"><summary>Hur fungerar integriteten?</summary><div class="customize-in"><p class="small">För att förhindra missbruk används även en kortlivad, saltad hash av nätverksadressen. Den tas bort genom automatisk gallring. Använd ett smeknamn i spelet.</p></div></details>`);
   }
 
   // --- studieläge ---
