@@ -285,7 +285,7 @@ function boostCard() {
     let fb = '';
     if (!test && ex.status) {
       if (ex.status === 'correct') fb = `<div class="box good reveal"><div class="k">Rätt</div>${ex.hints || ex.wrong ? 'Bra jobbat – du tog dig dit.' : 'Snyggt – helt själv.'}${ex.note ? '<br>' + R(ex.note) : ''}</div>`;
-      else if (ex.status === 'wrong') fb = `<div class="box bad reveal"><div class="k">Prova ett steg till</div><p>Vad är första lilla steget?</p>${ex.wrong >= 2 && ex.msg ? `<details class="paper-more"><summary>Visa en mer detaljerad ledtråd</summary>${R(ex.msg)}</details>` : ''}</div>`;
+      else if (ex.status === 'wrong') fb = `<div class="box bad reveal"><div class="k">Prova ett steg till</div><p>${esc(gentleHint(ex.sid))}</p>${ex.wrong >= 2 && ex.msg ? `<details class="paper-more"><summary>Visa en mer detaljerad ledtråd</summary>${R(ex.msg)}</details>` : ''}</div>`;
       else if (ex.status === 'invalid' || ex.status === 'empty') fb = `<div class="box warn reveal"><div class="k">Obs</div>${R(ex.msg)}</div>`;
       else if (ex.status === 'shown') fb = `<div class="box neutral reveal"><div class="k">Lösning visad</div>Läs igenom stegen. Du får en liknande uppgift senare.</div>`;
     }
@@ -293,7 +293,7 @@ function boostCard() {
     const hintBlocks = [];
     if (!test) {
       if (ex.hints >= 1) hintBlocks.push(`<div class="hint reveal"><div class="k">1 · Sortera</div><b>Vad vet du?</b> ${x.given ? x.given.map(g => esc(g)).join(' · ') : 'Läs frågan och alternativen.'}<br><b>Vad söker du?</b> ${x.find ? esc(x.find) : 'rätt alternativ'}</div>`);
-      if (ex.hints >= 2) hintBlocks.push(`<div class="hint reveal"><div class="k">2 · Börja lugnt</div><p>${esc(SIMPLE && SIMPLE.DATA[s.id] ? SIMPLE.DATA[s.id][0] : 'Ta en sak i taget.')}</p><details class="paper-more"><summary>Visa formeln också</summary><div class="big-f">${TX(s.f.main)}</div></details></div>`);
+      if (ex.hints >= 2) hintBlocks.push(`<div class="hint reveal"><div class="k">2 · Börja lugnt</div><p>${esc(gentleHint(s.id))}</p><details class="paper-more"><summary>Visa formeln också</summary><div class="big-f">${TX(s.f.main)}</div></details></div>`);
       if (ex.hints >= 3 && x.start) hintBlocks.push(`<div class="hint reveal"><div class="k">3 · Starta så här</div>${R(x.start)}</div>`);
       if (ex.sol) hintBlocks.push(`<div class="hint reveal"><div class="k">Lösning</div><div class="solution">${x.sol.map((l, i) => `<div class="sline"><span class="n">${i + 1}</span><div class="res wrapm">${R(l)}</div></div>`).join('')}</div><div style="margin-top:6px"><b>Svar:</b> ${R(answerText(x))}</div></div>`);
     }
@@ -353,6 +353,18 @@ function boostCard() {
   }
 
   /* ================= LEKTION (fokusläge) ================= */
+  /* Task-aware first step, never the answer or an extra assessment rule. */
+  function gentleHint(sid) {
+    if (/perimeter|circ|arc/.test(sid)) return 'Följ kanten hela vägen runt. Vilka sidor eller delar behöver du lägga ihop?';
+    if (/area|surface/.test(sid)) return 'Titta på ytan inuti figuren. Hur många rutor eller delar finns det?';
+    if (/power|scientific|sci-calc|prefix/.test(sid)) return 'Skriv talet som en vanlig multiplikation först. Räkna sedan nollor eller decimalplatser.';
+    if (/fraction/.test(sid)) return 'Har bråken lika stora delar? Börja annars med att skriva om dem.';
+    if (/percent|change-factor/.test(sid)) return 'Vilket tal är hela mängden? Hur mycket är en tiondel av det?';
+    if (/equation|expression|factor|parenthes|quadratic/.test(sid)) return 'Ta en del i taget. Om det finns ett likhetstecken ska båda sidor vara lika.';
+    if (/pyth|length-scale|similar|symmetry|angles/.test(sid)) return 'Rita en liten figur och markera vad du redan vet.';
+    if (/volum|cylinder|pyramid|cone|sphere|space-diagonal/.test(sid)) return 'Tänk på hur mycket som får plats inuti. Vilka mått har du?';
+    return 'Skriv ner det du vet. Vilket enda steg kan du göra nu?';
+  }
   const STEP_NAMES = ['Förstå', 'Extra exempel', 'Prova med stöd', 'Gör själv', 'Klart'];
   function lessonFor(sid, step) {
     if (!UI.lesson || UI.lesson.sid !== sid) UI.lesson = { sid, reveal: 0, given: false, find: false, rule: null, ruleOk: false, soloIdx: 0, solo: E.soloSet(E.SKILLS[sid]), soloRes: [] };
@@ -363,7 +375,7 @@ function boostCard() {
     step = Math.max(0, Math.min(4, +step || 0));
     const L = lessonFor(sid, step);
     if (step < 4) E.setLesson(pid(), sid, { step, done: E.lessonState(pid(), sid).done });
-    const head = { title: s.title, sub: `${chName(s.ch)} · ${STEP_NAMES[step]}`, steps: 4, cur: step, exit: UI.lessonFrom || '#/', formula: sid };
+    const head = { title: s.title, sub: `${chName(s.ch)} · ${STEP_NAMES[step]}`, steps: 3, cur: step === 0 || step === 1 ? 0 : step === 2 ? 1 : step === 3 ? 2 : 3, exit: UI.lessonFrom || '#/', formula: sid };
     let c = '';
     if (step === 0) {
       const d = SIMPLE && SIMPLE.DATA[s.id];
@@ -400,7 +412,7 @@ function boostCard() {
         ${L.rule != null ? (L.ruleOk ? `<div class="box good reveal" style="margin-top:10px"><div class="k">Precis</div>${R(g.why)}</div>` : `<div class="box bad reveal" style="margin-top:10px"><div class="k">Inte den</div>Titta igen på vad du söker: <b>${esc(g.find)}</b>. Vilken uträkning ger just det? Prova ett annat alternativ.</div>`) : ''}</div></details>`;
       }
       const showCalc = ready; // Metodval är stöd, aldrig en spärr för att få räkna.
-      c = `<p class="eyebrow">Del 3 av 4 · Prova med stöd</p><p class="q">${R(g.q)}</p>${visHTML(g.vis)}${stage}
+      c = `<p class="eyebrow">Steg 2 av 3 · Prova med stöd</p><p class="q">${R(g.q)}</p>${visHTML(g.vis)}${stage}
         ${showCalc ? `<div class="card reveal" style="margin-top:12px"><h3>Din tur. Räkna ett steg i taget.</h3>${exerciseHTML(UI.ex, { hideQ: true, hideVis: true })}</div>` : ''}
         ${UI.ex.done ? `<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/${sid}/3">Gör själv</button></div>` : ''}`;
     } else if (step === 3) {
@@ -408,7 +420,7 @@ function boostCard() {
       if (!UI.ex || UI.ex.sid !== sid || UI.ex.key !== x.key || UI.ex.mode !== 'solo') UI.ex = newEx(sid, x.key, 'solo');
       const dots = `<div class="dots" aria-label="Uppgift ${i + 1} av ${L.solo.length}">${L.solo.map((_, j) => `<i class="${j < i ? 'on' : j === i ? 'cur' : ''}"></i>`).join('')}</div>`;
       const next = UI.ex.done ? `<div class="actions"><button class="btn block" data-a="solonext">${i + 1 < L.solo.length ? 'Nästa uppgift' : 'Klar'}</button></div>` : '';
-      c = `<p class="eyebrow">Del 4 av 4 · Gör själv · ${i + 1} av ${L.solo.length}</p>${dots}${exerciseHTML(UI.ex)}${next}`;
+      c = `<p class="eyebrow">Steg 3 av 3 · Gör själv · ${i + 1} av ${L.solo.length}</p>${dots}${exerciseHTML(UI.ex)}${next}`;
     } else {
       const res = L.soloRes, firstOk = res.filter(r => r.first && !r.h).length;
       E.setLesson(pid(), sid, { step: 0, done: true });
@@ -416,7 +428,7 @@ function boostCard() {
       const nextBtn = rec.kind !== 'mixed' && rec.skill.id !== sid ? `<button class="btn block" data-a="nav" data-h="#/l/${rec.skill.id}/0">Nästa: ${esc(rec.skill.title)}</button>` : `<button class="btn block" data-a="startTrain" data-ch="${s.ch}">Blandträna ${esc(chName(s.ch).toLowerCase())}</button>`;
       c = `<div class="center"><div class="done-mark">${I.check}</div><p class="eyebrow">Moment klart</p><h1>${esc(s.title)}</h1>
         <p class="mut">${res.length ? `${firstOk} av ${res.length} rätt helt själv.` : ''} Nivå nu: <b>${E.levelInfo(k).label}</b></p></div>
-        <div class="card"><h3>Ta med dig</h3><p style="margin:0">${R(s.anchor)}</p><div class="big-f">${TX(s.f.main)}</div></div>
+        <div class="card"><h3>Ta med dig</h3><p style="margin:0">${R(s.anchor)}</p><details class="paper-more"><summary>Visa formeln (valfritt)</summary><div class="paper-more-in"><div class="big-f">${TX(s.f.main)}</div></div></details></div>
         <div class="actions">${nextBtn}<button class="btn ghost block" data-a="startTrain" data-sid="${sid}">Träna 5 till på detta</button><button class="btn text block" data-a="nav" data-h="#/">Till start</button></div>`;
       head.cur = 4;
     }
