@@ -370,7 +370,8 @@ function boostCard() {
     's9-space-diagonal': 'Tänk en linje genom lådan mellan två motsatta hörn. Vilka mått behöver du?',
     's9-scientific': 'Skriv talet som ett tal mellan 1 och 10 multiplicerat med en tiopotens.'
   };
-  function gentleHint(sid) {\n    if (HINT_BY_SID[sid]) return HINT_BY_SID[sid];
+  function gentleHint(sid) {
+    if (HINT_BY_SID[sid]) return HINT_BY_SID[sid];
     if (/perimeter|circ|arc/.test(sid)) return 'Följ kanten hela vägen runt. Vilka sidor eller delar behöver du lägga ihop?';
     if (/area|surface/.test(sid)) return 'Titta på ytan inuti figuren. Hur många rutor eller delar finns det?';
     if (/power|scientific|sci-calc|prefix/.test(sid)) return 'Skriv talet som en vanlig multiplikation först. Räkna sedan nollor eller decimalplatser.';
