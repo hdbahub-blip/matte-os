@@ -21,8 +21,8 @@ assert(!chapter.includes('bookGuide'), 'Book guide leaked into generic chapter r
 assert(rest.includes('${bookGuide}<details'), 'Book guide not rendered on rest page');
 assert(rest.includes("join('')}</div></details>"), 'Missing closing tags in rest page');
 assert(app.includes('const restFocus ='), 'No upcoming restprov priority');
-assert(app.includes('Andra sätt att öva'), 'Secondary home features are not collapsed');
-assert(app.includes('Alla moment i kapitlet'), 'Hidden advanced topic list missing');
+assert(app.includes('Alla områden, prov och planering'), 'Secondary areas should stay collapsed');
+assert(app.includes('Välj ett moment att lära eller träna'), 'Rest chapter lessons not discoverable');
 assert(app.includes('const showCalc = ready;'), 'Guided calculation is blocked by extra controls');
 assert(app.includes('const ready = true;'), 'Given/find requires avoidable clicks');
 assert(!content.includes(String.raw`main: 'x^2 = a \\Rightarrow x = \\sqrt{a}'`), 'Principal-root error returned');
