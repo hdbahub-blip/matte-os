@@ -20,7 +20,13 @@ const rest = app.slice(app.indexOf('function viewRest('), app.indexOf('/* ======
 assert(!chapter.includes('bookGuide'), 'Book guide leaked into generic chapter route');
 assert(rest.includes('${bookGuide}<details'), 'Book guide not rendered on rest page');
 assert(rest.includes("join('')}</div></details>"), 'Missing closing tags in rest page');
-assert(app.includes('const restFocus ='), 'No upcoming restprov priority');
+// 5.5.1 (C02): restprov no longer takes over the home hero, but every restprov must stay reachable from home.
+const home = app.slice(app.indexOf('function viewHome('), app.indexOf('function boostCard('));
+assert(home.includes('const restCards = rests.map(') && home.includes('data-h="#/rest/${r.id}"'), 'Restprov not reachable from home');
+assert(/Alla områden, prov och planering<\/summary><div class="in">\$\{progress\}\$\{restCards\}/.test(home), 'Restprov links missing from home areas');
+assert(!/restFocus/.test(home), 'Restprov takeover logic returned to home');
+// The lesson shows three steps (Förstå/extra exempel = 1, guided = 2, solo = 3); home must use the same count.
+assert(!/av 4/.test(home) && home.includes('steg ${Math.max(1, Math.min(ls.step, 3))} av 3'), 'Home continue label disagrees with the three lesson steps');
 assert(app.includes('Alla områden, prov och planering'), 'Secondary areas should stay collapsed');
 assert(app.includes('Välj ett moment att lära eller träna'), 'Rest chapter lessons not discoverable');
 assert(app.includes('const showCalc = ready;'), 'Guided calculation is blocked by extra controls');

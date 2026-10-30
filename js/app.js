@@ -67,10 +67,6 @@
     const plan = pr.plan.find(x => x.w === sw.week);
     const exam = E.upcomingExam(p);
     const rests = E.restInfo(p);
-    // Tidsnära restprov först. Aldrig elevnamn eller privat datum i publik kod.
-    const restFocus = rests.find(r => r.date && r.days >= 0 && r.days <= 14)
-      || (p === 'grade9' && E.now().getFullYear() === 2026 && sw.week >= 43 && sw.week <= 45
-        ? rests.find(r => r.chapter === 's9-tal' && !r.date) : null);
     let ctx = sw.phase === 'term' ? `<span>Vecka ${sw.week}${plan ? ' · ' + esc(plan.a) : ''}</span>` : `<span>Vecka ${sw.week} · repetition</span>`;
     if (exam) ctx += `<span class="pill">${I.flag.replace('<svg', '<svg width="14" height="14"')} Prov ${esc(exam.ch.name)} v. ${exam.week}${exam.inWeeks === 0 ? ' · denna vecka' : exam.inWeeks === 1 ? ' · nästa vecka' : ` · om ${exam.inWeeks} veckor`}</span>`;
 
@@ -83,7 +79,7 @@
     } else {
       const s = rec.skill, ls = E.lessonState(p, s.id), k = E.level(p, s.id);
       const cont = rec.kind === 'continue';
-      const label = cont ? `Fortsätt · del ${Math.min(ls.step + 1, 4)} av 4` : k > 0 ? 'Fortsätt öva' : 'Börja';
+      const label = cont ? `Fortsätt · steg ${Math.max(1, Math.min(ls.step, 3))} av 3` : k > 0 ? 'Fortsätt öva' : 'Börja';
       hero = `<div class="card hero">
         <div class="hero-vis">${V.render(s.cvis)}</div>
         <div class="hero-body">
