@@ -78,7 +78,7 @@ async function drive(p, nick, state) {
   ok((await hp.evaluate(() => localStorage.getItem('matteos.v5'))) === ls0, 'studie/minitest ändrar inte matteos.v5');
   await hp.click('#cup >> css=[data-act=go][data-v=study]'); await hp.click('#cup >> css=[data-act=go][data-v=menu]');
   // skapa spel
-  await hp.click('#cup >> css=[data-v=host]'); await hp.click('#cup >> css=[data-act=cs][data-v="15"]'); await shot(hp, 'host-03-setup'); await overflow(hp, 'värd setup');
+  await hp.click('#cup >> css=[data-v=host]'); await hp.click('#cup >> css=.cup-customize summary'); await hp.click('#cup >> css=[data-act=cs][data-v="15"]'); await shot(hp, 'host-03-setup'); await overflow(hp, 'värd setup');
   await hp.click('#cup >> css=[data-act=create]'); await hp.waitForSelector('#cup >> css=.bigcode');
   const code = (await hp.locator('#cup >> css=.bigcode').innerText()).trim(); ok(/^[A-HJ-NP-Z2-9]{5}$/.test(code), 'värd ser spelkod ' + code);
   ok(await has(hp, '#cup >> css=#qr svg'), 'QR-kod visas för värden'); ok((await hp.locator('#cup >> css=#jl').innerText()).includes('#/cup/join/' + code), 'länk innehåller koden');
