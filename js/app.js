@@ -542,6 +542,7 @@ function boostCard() {
             : shell(inside,'trana');
           break;
         }
+        case 'cup': html = focusShell('<div id="cup" aria-label="Matte OS Cup"></div>', { title: 'Matte OS Cup', sub: 'Spela tillsammans', exit: '#/tabell/home' }); break;
         case 'k': html = viewChapter(parts[1]); break;
         case 'l': html = viewLesson(parts[1], parts[2]); break;
         case 'run': case 'prov': html = viewRun(); break;
@@ -554,6 +555,11 @@ function boostCard() {
       html = shell(`<div class="card"><h2>Något gick fel</h2><p class="mut">Sidan kunde inte visas. Dina framsteg är sparade.</p><button class="btn" data-a="nav" data-h="#/">Till start</button></div>`, 'home');
     }
     if (html) app.innerHTML = html;
+    if (parts[0] !== 'cup' && window.MOCup) window.MOCup.unmount();
+    if (parts[0] === 'cup') {
+      try { window.MOCup.mount({ join: parts[1] === 'join' ? parts[2] : null }); }
+      catch (error) { console.error('Matte OS Cup could not mount', error); app.innerHTML = shell('<div class="card"><h2>Matte OS Cup kunde inte öppnas</h2><p class="mut">Ladda om sidan.</p><a class="btn" href="#/tabell/home">Till Tabellarenan</a></div>', 'trana'); }
+    }
     if(parts[0]==='tabell'){
       try{
         if(!window.MOTabellArena)throw new Error('Tabellarenan module not loaded');
@@ -580,7 +586,7 @@ function boostCard() {
     profile: () => openSheet({ type: 'profile' }),
     closesheet: () => closeSheet(),
     scrim: (b, e) => { if (e.target === b) closeSheet(); },
-    pickprofile: b => { E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go('#/'); render(); },
+    pickprofile: b => { E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go(/^#\/cup(\/|$)/.test(location.hash) ? location.hash : '#/'); render(); },
     formula: b => openSheet({ type: 'formula', sid: b.dataset.sid, inLesson: /^#\/(l|run|prov)\//.test(location.hash + '/') }),
     ftoggle: b => { const id = b.dataset.sid; UI.fopen.has(id) ? UI.fopen.delete(id) : UI.fopen.add(id); rerenderKeepScroll(); },
     fch: b => { UI.fch = b.dataset.ch; UI.fopen.clear(); render(); },
@@ -667,11 +673,11 @@ function boostCard() {
     let reloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (reloaded) return;
-      const busy = /^#\/(l|run|prov)(\/|$)/.test(location.hash + '/') || /^#\/tabell\/(practice|mixed|duel\/play)(\/|$)/.test(location.hash + '/');
+      const busy = /^#\/(l|run|prov)(\/|$)/.test(location.hash + '/') || /^#\/tabell\/(practice|mixed|duel\/play)(\/|$)/.test(location.hash + '/') || /^#\/cup(\/|$)/.test(location.hash + '/');
       if (busy) { window.__moPendingReload = true; return; }
       reloaded = true; location.reload();
     });
-    window.addEventListener('hashchange', () => { if (window.__moPendingReload && !(/^#\/(l|run|prov)(\/|$)/.test(location.hash + '/') || /^#\/tabell\/run(\/|$)/.test(location.hash + '/'))) { window.__moPendingReload = false; location.reload(); } });
+    window.addEventListener('hashchange', () => { if (window.__moPendingReload && !(/^#\/(l|run|prov)(\/|$)/.test(location.hash + '/') || /^#\/tabell\/run(\/|$)/.test(location.hash + '/') || /^#\/cup(\/|$)/.test(location.hash + '/'))) { window.__moPendingReload = false; location.reload(); } });
   }
   window.__MO_UI = UI; // för automatiska tester
 })();
