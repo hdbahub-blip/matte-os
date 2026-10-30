@@ -127,3 +127,31 @@ jobs:
           name: matte-os-cup-screenshots
           path: test-screenshots/
           if-no-files-found: ignore
+
+  cup-supabase-staging:
+    # Only one real staging run per code update, against the dedicated NEW hdbahub project.
+    # Creates disposable rooms with synthetic nicknames; never reads any old account.
+    if: github.event_name == 'pull_request' && github.head_ref == 'feature/matte-os-cup-20261030'
+    needs: [cup-backend, unit-and-content]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium test dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Simulate 10 separate mobiles against REAL Supabase REST (staging only)
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-live-server.log 2>&1 &
+          sleep 2
+          node tests/cup-e2e.js http://127.0.0.1:8765/ https://bjyahpcpthumpbktrxnc.supabase.co staging-screenshots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cup-supabase-staging-screenshots
+          path: staging-screenshots/
+          if-no-files-found: ignore
