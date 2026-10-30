@@ -97,7 +97,7 @@
     const progress = `<button class="tap" data-a="nav" data-h="#/k/${chId}">
       <div style="flex:1;min-width:0"><div class="row between" style="margin-bottom:8px"><span class="t">${esc(chName(chId))}</span><span class="s">${st.solo} av ${st.total} klarar du själv</span></div>${segBar(st.levels)}</div>
       <span class="chev">${I.chev}</span></button>`;
-    const restCards = rests.filter(r => !restFocus || r.id !== restFocus.id).map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}">
+    const restCards = rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}">
       <div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? (r.days < 0 ? 'datum passerat' : r.days === 0 ? 'idag' : `om ${r.days} dagar`) : 'Lägg till provdatum (valfritt)'}</div></div>
       <span class="chev">${I.chev}</span></button>`).join('');
     const lookup = `<button class="tap" data-a="search"><span style="color:var(--muted)">${I.search.replace('<svg', '<svg width="20" height="20"')}</span><div><div class="t">Slå upp en formel</div><div class="s">t.ex. "cirkel area" eller "triangel sida"</div></div></button>`;
