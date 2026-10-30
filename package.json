@@ -1,0 +1,6 @@
+{
+  "name": "matte-os",
+  "private": true,
+  "description": "Matte OS – statisk PWA. Beroenden gäller endast testerna (Matte OS Cup), inte den publicerade appen.",
+  "devDependencies": { "jsqr": "1.4.0", "pg": "8.13.1", "playwright": "1.49.1" }
+}

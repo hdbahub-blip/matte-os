@@ -2,11 +2,11 @@
    - Allt appinnehåll förcachas vid installation → fungerar offline.
    - Nätverk först för allt (färsk version när nätet finns), cache som reserv.
    - Ny version: CACHE-namnet byts → gamla cachar raderas vid aktivering. */
-const VERSION = '5.4.8-20261028';
+const VERSION = '5.5.0-20261030';
 const CACHE = 'matte-os-' + VERSION;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-512.png',
-  './css/app.css?v=5.4.8', './js/math.js?v=5.4.8', './js/visuals.js?v=5.4.8', './js/core.js?v=5.4.8',
-  './js/content9.js?v=5.4.8', './js/content8.js?v=5.4.8', './js/engine.js?v=5.4.8', './js/tables.js?v=5.4.8', './js/tabell-arena.js?v=5.4.8', './css/tabell-arena.css?v=5.4.8', './js/teach-simple.js?v=5.4.8', './js/app.js?v=5.4.8',
+  './css/app.css?v=5.5.0', './js/math.js?v=5.5.0', './js/visuals.js?v=5.5.0', './js/core.js?v=5.5.0',
+  './js/content9.js?v=5.5.0', './js/content8.js?v=5.5.0', './js/engine.js?v=5.5.0', './js/tables.js?v=5.5.0', './js/tabell-arena.js?v=5.5.0', './css/tabell-arena.css?v=5.5.0', './js/teach-simple.js?v=5.5.0', './js/qr.js?v=5.5.0', './js/cup-config.js?v=5.5.0', './js/cup-api.js?v=5.5.0', './js/cup.js?v=5.5.0', './css/cup.css?v=5.5.0', './js/app.js?v=5.5.0',
   './affischer/', './affischer/index.html', './affischer/posters.css?v=1.1.0', './affischer/posters.js?v=1.1.0'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));

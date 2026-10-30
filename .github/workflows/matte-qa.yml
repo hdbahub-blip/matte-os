@@ -8,6 +8,7 @@ on:
       - feature/burgundy-posters-20261028
       - feature/grade8-navy-burgundy-posters-20261028
       - feature/plain-paper-math-lessons-audit-20261029
+      - feature/matte-os-cup-20261030
 
 jobs:
   unit-and-content:
@@ -28,6 +29,10 @@ jobs:
           node --check js/engine.js
           node --check sw.js
           node --check prov/sw.js
+          node --check js/cup.js
+          node --check js/cup-api.js
+          node --check js/qr.js
+          node --check cup/dev/rest-shim.js
       - name: Poster syntax and content checks
         run: |
           node --check affischer/posters.js
@@ -65,5 +70,55 @@ jobs:
         if: always()
         with:
           name: matte-os-mobile-screenshots
+          path: test-screenshots/
+          if-no-files-found: ignore
+
+  cup-backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: cuptest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Load Cup schema into throwaway Postgres (Supabase roles emulated)
+        run: |
+          psql -d postgres -c "create database cuptest"
+          psql -d cuptest -c "create role anon nologin; create role authenticated nologin;"
+          psql -d cuptest -v ON_ERROR_STOP=1 -f cup/supabase/0001_matte_os_cup.sql
+      - name: QR decode, game flow with 10 players, security
+        run: |
+          node tests/cup-qr.js
+          PORT=8787 node cup/dev/rest-shim.js &
+          sleep 2
+          node tests/cup-backend.js http://127.0.0.1:8787
+          node tests/cup-security.js
+      - name: Browser E2E with 1 host + 10 players
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-server.log 2>&1 &
+          sleep 2
+          node tests/cup-e2e.js http://127.0.0.1:8765/ http://127.0.0.1:8787 test-screenshots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: matte-os-cup-screenshots
           path: test-screenshots/
           if-no-files-found: ignore
