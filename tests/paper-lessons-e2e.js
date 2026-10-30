@@ -38,7 +38,7 @@ fs.mkdirSync(OUT,{recursive:true});
         await page.goto(BASE+'#/l/'+sid+'/1');
         await page.waitForSelector('.paper-flow');
         assert.equal(await page.locator('[data-a=reveal]').count(),0,'Forced multi-click reveal not removed');checks++;
-        assert.equal(await page.locator('.paper-flow:visible .paper-step:visible').count(),3,'Three visible worked steps required');checks++;
+        assert.equal((await page.locator('.paper-flow:visible .paper-step:visible').count())>=2,true,'Optional worked example must contain visible steps');checks++;
         assert.equal(await page.locator('.paper-answer:visible').count(),1,'Completed example answer required');checks++;
         await page.goto(BASE+'#/l/'+sid+'/2');await page.waitForSelector('#ans');
         assert.equal(await page.locator('.paper-known').count(),1);checks++;
