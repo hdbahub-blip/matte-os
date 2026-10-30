@@ -5,7 +5,7 @@
   const esc = M.esc, R = M.rich, TX = M.texBlock, SIMPLE = window.MOSimple;
   const app = document.getElementById('app');
   const sheetRoot = document.getElementById('sheet');
-  const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, sheet: null, confirmReset: false };
+  const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, sheet: null, confirmReset: false, lessonFrom: '#/', runFrom: '#/trana', previousFocus: null };
 
   /* ---------- ikoner ---------- */
   const svgI = (d, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
@@ -48,7 +48,7 @@
     <main id="main">${content}</main>
     <nav class="nav" aria-label="Huvudmeny"><div class="nav-in">
       <button data-a="nav" data-h="#/" ${tab === 'home' ? 'aria-current="page"' : ''}>${I.home}<span>Hem</span></button>
-      <button data-a="nav" data-h="#/formler" ${tab === 'formler' ? 'aria-current="page"' : ''}>${I.book}<span>Formler</span></button>
+      <button data-a="nav" data-h="#/formler" ${tab === 'formler' ? 'aria-current="page"' : ''}>${I.book}<span>Förstå</span></button>
       <button data-a="nav" data-h="#/trana" ${tab === 'trana' ? 'aria-current="page"' : ''}>${I.pen}<span>Träna</span></button>
     </div></nav>`;
   }
@@ -93,27 +93,21 @@
           <button class="btn block" data-a="nav" data-h="#/l/${s.id}/${cont ? ls.step : 0}">${label}</button>
         </div></div>`;
     }
-    if (restFocus) hero = `<div class="card hero"><div class="hero-body">
-      <p class="eyebrow">Det viktigaste just nu</p>
-      <h2>Förbered ${esc(chName(restFocus.chapter))} inför restprovet</h2>
-      <p class="mut">Börja med det som står i matteboken. Träna i lugn takt, ett område i taget.</p>
-      <button class="btn block" data-a="nav" data-h="#/rest/${restFocus.id}">Börja här</button>
-    </div></div>`;
     const chId = rec.chapter, st = E.chapterStats(p, chId);
     const progress = `<button class="tap" data-a="nav" data-h="#/k/${chId}">
       <div style="flex:1;min-width:0"><div class="row between" style="margin-bottom:8px"><span class="t">${esc(chName(chId))}</span><span class="s">${st.solo} av ${st.total} klarar du själv</span></div>${segBar(st.levels)}</div>
       <span class="chev">${I.chev}</span></button>`;
     const restCards = rests.filter(r => !restFocus || r.id !== restFocus.id).map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}">
-      <div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? (r.days < 0 ? 'datum passerat' : r.days === 0 ? 'idag' : `om ${r.days} dagar`) : 'datum saknas'} · beredskap ${r.readiness} %</div></div>
+      <div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? (r.days < 0 ? 'datum passerat' : r.days === 0 ? 'idag' : `om ${r.days} dagar`) : 'Lägg till provdatum (valfritt)'}</div></div>
       <span class="chev">${I.chev}</span></button>`).join('');
     const lookup = `<button class="tap" data-a="search"><span style="color:var(--muted)">${I.search.replace('<svg', '<svg width="20" height="20"')}</span><div><div class="t">Slå upp en formel</div><div class="s">t.ex. "cirkel area" eller "triangel sida"</div></div></button>`;
     const planHtml = `<details class="fold"><summary>${I.cal.replace('<svg', '<svg width="20" height="20"')} Veckoplanen</summary><div class="in plan">${pr.plan.map(x => `<div class="${x.w === sw.week ? 'cur' : ''} ${x.exam ? 'exam' : ''}"><span class="w">v.${x.w}</span><span><span class="a">${esc(x.a)}</span><br><span class="d">${esc(x.d)}</span></span></div>`).join('')}</div></details>`;
     const hi = (() => { const h = E.now().getHours(); return h < 10 ? 'God morgon' : h < 17 ? 'Hej' : 'God kväll'; })();
     const nm = E.prof(p).name;
     return shell(`<div class="ctx">${ctx}</div>
-      <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'En sak i taget.')}</h1>
-      <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Här är det viktigaste att göra nu.</p>
-      ${hero}<details class="fold"><summary>Andra sätt att öva</summary><div class="in">${progress}${restCards}${lookup}${boostCard()}${planHtml}</div></details>`, 'home');
+      <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'Vad vill du göra idag?')}</h1>
+      <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Välj det som passar dig. Du kan alltid komma tillbaka.</p>
+      ${hero}<div class="calm-choices" aria-label="Välj vad du vill göra"><a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Enkla exempel och förklaringar</span></a><a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>Läs en tabell och prova själv</span></a><a class="calm-choice" href="#/cup"><strong>Spela tillsammans</strong><span>Skapa spel eller gå med via kod</span></a></div><details class="fold"><summary>Alla områden, prov och planering</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
   }
 
 function boostCard() {
@@ -183,16 +177,10 @@ function boostCard() {
     const chOrder = [pr.chapters.find(c => c.id === rec.chapter), ...pr.chapters.filter(c => c.id !== rec.chapter)];
     const q = UI.fq.trim();
     const list = q ? E.search(p, q) : E.chapterSkills(p, UI.fch);
-    return shell(`<p class="eyebrow">Formelsamling · ${esc(pr.label)}</p><h1>Matte förklarat enkelt</h1>
-      <div class="card" style="border:1px solid #eac3cb;background:linear-gradient(115deg,#fff7f3,#f5dee6);padding:16px;margin-bottom:14px">
-        <p class="eyebrow" style="color:#7a1f35;margin:0 0 6px">NYTT · VISUELL AFFISCH</p>
-        <h2 style="font-family:Georgia,serif;font-size:23px;margin:0 0 6px;color:#67142e">En lugn översikt i bilder</h2>
-        <p class="mut small" style="margin:0 0 12px">Affischen är för repetition. Här nedanför börjar varje moment med en enkel förklaring och ett exempel. Formlerna finns kvar om du vill se dem.</p>
-        <a class="btn block" href="affischer/?visa=formler&ak=${pid() === 'grade8' ? '8' : '9'}">Öppna översiktsaffischen</a>
-      </div>
-      <div class="searchbox">${I.search}<input id="fq" type="search" placeholder="Sök: cirkel, procent, x båda sidor…" value="${esc(UI.fq)}" aria-label="Sök i formelsamlingen" autocomplete="off"></div>
+    return shell(`<p class="eyebrow">Förstå · ${esc(pr.label)}</p><h1>Förstå matte</h1>
+      <div class="searchbox">${I.search}<input id="fq" type="search" placeholder="Sök: cirkel, procent, x båda sidor…" value="${esc(UI.fq)}" aria-label="Sök en förklaring" autocomplete="off"></div>
       ${q ? `<p class="mut small">${list.length} träffar</p>` : `<div class="seg-ctl" role="group" aria-label="Kapitel">${chOrder.map(c => `<button data-a="fch" data-ch="${c.id}" aria-pressed="${c.id === UI.fch}">${esc(c.name)}${c.id === rec.chapter ? ' ·&nbsp;nu' : ''}</button>`).join('')}</div>`}
-      <div id="flist">${list.map(formulaCard).join('') || '<p class="mut">Inga träffar. Prova ett annat ord.</p>'}</div>`, 'formler');
+      <div id="flist">${list.map(formulaCard).join('') || '<p class="mut">Inga träffar. Prova ett annat ord.</p>'}</div><details class="fold"><summary>Utskrivbar formelaffisch (valfritt)</summary><div class="in"><p class="mut small">Affischen passar bäst för repetition.</p><a class="btn ghost block" href="affischer/?visa=formler&ak=${pid() === 'grade8' ? '8' : '9'}">Visa affischen</a></div></details>`, 'formler');
   }
 
   /* ================= TRÄNA ================= */
@@ -210,16 +198,9 @@ function boostCard() {
         <div style="height:14px"></div>
         <button class="btn block" data-a="startTrain" data-ch="${rec.chapter}">Starta</button>
       </div></div>
-      <a class="tap" href="affischer/?visa=tabeller&ak=${pid() === 'grade8' ? '8' : '9'}" style="text-decoration:none;color:inherit">
-        <div><div class="t">Se multiplikationstabellerna som affisch</div><div class="s">Alla 1:an till 10:an på en vacker, tydlig översikt.</div></div>
-        <span class="chev">${I.chev}</span>
-      </a>
-      <a class="tap" href="#/tabell/home" style="text-decoration:none;color:inherit">
-        <div><div class="t">Multiplikationstabellen 1–10</div><div class="s">Läs hela tabellen, träna en i taget, testa blandat eller spela duell.</div></div>
-        <span class="chev">${I.chev}</span>
-      </a>
-      <button class="tap" data-a="startTest" data-ch="${rec.chapter}"><div><div class="t">Öppna Matte Prov · ${esc(chName(rec.chapter))}</div><div class="s">Inga ledtrådar, ingen metod angiven. Analys efteråt.</div></div><span class="chev">${I.chev}</span></button>
-      ${rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}"><div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? 'datum ' + esc(r.date) : 'datum saknas'} · beredskap ${r.readiness} %</div></div><span class="chev">${I.chev}</span></button>`).join('')}
+      <section class="calm-multiply"><h2>Multiplikation</h2><p class="mut small">Börja med en tabell. Spela när du känner dig redo.</p><a class="btn block" href="#/tabell/home">Studera och öva tabeller</a><a class="btn ghost block" href="#/cup">Spela tillsammans på egna mobiler</a><details class="fold"><summary>Hela tabellaffischen (valfritt)</summary><div class="in"><a class="btn ghost block" href="affischer/?visa=tabeller&ak=${pid() === 'grade8' ? '8' : '9'}">Visa eller skriv ut alla tabeller</a></div></details></section>
+       <button class="tap" data-a="startTest" data-ch="${rec.chapter}"><div><div class="t">Öppna Matte Prov · ${esc(chName(rec.chapter))}</div><div class="s">Inga ledtrådar, ingen metod angiven. Analys efteråt.</div></div><span class="chev">${I.chev}</span></button>
+      ${rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}"><div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? 'datum ' + esc(r.date) : 'Lägg till provdatum (valfritt)'}</div></div><span class="chev">${I.chev}</span></button>`).join('')}
       <details class="fold"><summary>Välj ett annat område</summary><div class="in">
         ${pr.chapters.map(c => `<p class="eyebrow mut" style="margin-top:10px">${esc(c.name)}</p>${E.chapterSkills(p, c.id).map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}
           <div class="actions" style="margin-top:6px"><button class="btn sm ghost" data-a="startTrain" data-ch="${c.id}">Blanda ${esc(c.name.toLowerCase())}</button><button class="btn sm ghost" data-a="startTest" data-ch="${c.id}">Till provsidan</button></div>`).join('')}
@@ -244,10 +225,10 @@ function boostCard() {
       </div>` : '';
     return shell(`<button class="btn text" data-a="nav" data-h="#/">${I.back.replace('<svg', '<svg width="18" height="18"')} Hem</button>
       <p class="eyebrow">Restprov</p><h1>${esc(r.title)}</h1>
-      <p class="mut">Fokusera på ett område i taget. Lägg in ditt provdatum nedan så visar appen rätt prioritet.</p>
+      <p class="mut">Börja med ett moment i taget. Provdatum är frivilligt och kan fyllas i senare.</p>
       <div class="card"><div class="field"><label for="restdate">Datum för restprovet</label><input id="restdate" type="date" value="${esc(info.date || '')}" data-a="restdate" data-id="${id}"></div>
         <div class="row between small"><span>Beredskap</span><b>${info.readiness} %</b></div>${segBar(E.chapterStats(p, r.chapter).levels)}</div>
-      ${bookGuide}<details class="fold"><summary>Alla moment i kapitlet</summary><div class="in">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div></details>
+      ${bookGuide}<details class="fold" open><summary>Välj ett moment att lära eller träna</summary><div class="in">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div></details>
       <div class="actions"><button class="btn" data-a="startTrain" data-ch="${r.chapter}">Öva 5 blandade frågor</button><button class="btn ghost" data-a="startTest" data-ch="${r.chapter}">Öppna provsidan</button></div>
       <div class="actions"><button class="btn text" data-a="restdone" data-id="${id}">Restprovet är gjort – dölj det</button></div>`, 'home');
   }
@@ -264,7 +245,7 @@ function boostCard() {
         <input type="file" id="importfile" accept=".json,application/json" hidden></div>
       <div class="card"><h3>Börja om</h3><p class="mut small">Raderar svar och framsteg för ${esc(P().label)} på den här enheten.</p>
         <button class="btn ${UI.confirmReset ? '' : 'ghost'}" data-a="reset">${UI.confirmReset ? 'Tryck igen för att radera' : 'Nollställ framsteg'}</button></div>
-      <p class="mut small center">Matte OS ${CORE.version} · byggd ${CORE.build} · fungerar offline · ingen data lämnar enheten</p>`, 'home');
+      <p class="mut small center">Matte OS ${CORE.version} · byggd ${CORE.build} · matteframsteg sparas på enheten. Cup använder spelserver för tillfälliga smeknamn, sessioner och poäng.</p>`, 'home');
   }
 
   /* ================= FÖRSTA START ================= */
@@ -273,7 +254,7 @@ function boostCard() {
       <h1>Matte OS</h1><p class="mut">Din matte – en sak i taget. Välj årskurs.</p></div>
       <div style="height:16px"></div>
       ${Object.values(CORE.profiles).map(p => `<button class="tap" data-a="pickprofile" data-p="${p.id}" style="min-height:76px"><span class="chip-btn" style="border:0;padding:0;height:auto" data-theme="${p.theme}"><span class="av" style="width:44px;height:44px;font-size:16px;border-radius:12px;background:${p.theme === 'navy' ? '#1d3557' : '#7a1f35'}">${p.short}</span></span><div><div class="t">${p.label}</div><div class="s">${p.chapters.map(c => c.name).join(' · ')}</div></div><span class="chev">${I.chev}</span></button>`).join('')}
-      <p class="mut small center" style="margin-top:18px">Allt sparas bara på den här enheten.</p></main>`;
+      <p class="mut small center" style="margin-top:18px">Matteframsteg sparas på enheten. Cup skickar tillfälliga speluppgifter till spelservern.</p></main>`;
   }
 
   /* ================= UPPGIFTSKOMPONENT ================= */
