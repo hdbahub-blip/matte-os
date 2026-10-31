@@ -5,7 +5,7 @@
   const esc = M.esc, R = M.rich, TX = M.texBlock, SIMPLE = window.MOSimple;
   const app = document.getElementById('app');
   const sheetRoot = document.getElementById('sheet');
-  const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, sheet: null, confirmReset: false };
+  const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, sheet: null, confirmReset: false, lessonFrom: '#/', runFrom: '#/trana', previousFocus: null };
 
   /* ---------- ikoner ---------- */
   const svgI = (d, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
@@ -48,7 +48,7 @@
     <main id="main">${content}</main>
     <nav class="nav" aria-label="Huvudmeny"><div class="nav-in">
       <button data-a="nav" data-h="#/" ${tab === 'home' ? 'aria-current="page"' : ''}>${I.home}<span>Hem</span></button>
-      <button data-a="nav" data-h="#/formler" ${tab === 'formler' ? 'aria-current="page"' : ''}>${I.book}<span>Formler</span></button>
+      <button data-a="nav" data-h="#/formler" ${tab === 'formler' ? 'aria-current="page"' : ''}>${I.book}<span>Förstå</span></button>
       <button data-a="nav" data-h="#/trana" ${tab === 'trana' ? 'aria-current="page"' : ''}>${I.pen}<span>Träna</span></button>
     </div></nav>`;
   }
@@ -67,10 +67,6 @@
     const plan = pr.plan.find(x => x.w === sw.week);
     const exam = E.upcomingExam(p);
     const rests = E.restInfo(p);
-    // Tidsnära restprov först. Aldrig elevnamn eller privat datum i publik kod.
-    const restFocus = rests.find(r => r.date && r.days >= 0 && r.days <= 14)
-      || (p === 'grade9' && E.now().getFullYear() === 2026 && sw.week >= 43 && sw.week <= 45
-        ? rests.find(r => r.chapter === 's9-tal' && !r.date) : null);
     let ctx = sw.phase === 'term' ? `<span>Vecka ${sw.week}${plan ? ' · ' + esc(plan.a) : ''}</span>` : `<span>Vecka ${sw.week} · repetition</span>`;
     if (exam) ctx += `<span class="pill">${I.flag.replace('<svg', '<svg width="14" height="14"')} Prov ${esc(exam.ch.name)} v. ${exam.week}${exam.inWeeks === 0 ? ' · denna vecka' : exam.inWeeks === 1 ? ' · nästa vecka' : ` · om ${exam.inWeeks} veckor`}</span>`;
 
@@ -83,7 +79,7 @@
     } else {
       const s = rec.skill, ls = E.lessonState(p, s.id), k = E.level(p, s.id);
       const cont = rec.kind === 'continue';
-      const label = cont ? `Fortsätt · del ${Math.min(ls.step + 1, 4)} av 4` : k > 0 ? 'Fortsätt öva' : 'Börja';
+      const label = cont ? `Fortsätt · steg ${Math.max(1, Math.min(ls.step, 3))} av 3` : k > 0 ? 'Fortsätt öva' : 'Börja';
       hero = `<div class="card hero">
         <div class="hero-vis">${V.render(s.cvis)}</div>
         <div class="hero-body">
@@ -93,27 +89,21 @@
           <button class="btn block" data-a="nav" data-h="#/l/${s.id}/${cont ? ls.step : 0}">${label}</button>
         </div></div>`;
     }
-    if (restFocus) hero = `<div class="card hero"><div class="hero-body">
-      <p class="eyebrow">Det viktigaste just nu</p>
-      <h2>Förbered ${esc(chName(restFocus.chapter))} inför restprovet</h2>
-      <p class="mut">Börja med det som står i matteboken. Träna i lugn takt, ett område i taget.</p>
-      <button class="btn block" data-a="nav" data-h="#/rest/${restFocus.id}">Börja här</button>
-    </div></div>`;
     const chId = rec.chapter, st = E.chapterStats(p, chId);
     const progress = `<button class="tap" data-a="nav" data-h="#/k/${chId}">
       <div style="flex:1;min-width:0"><div class="row between" style="margin-bottom:8px"><span class="t">${esc(chName(chId))}</span><span class="s">${st.solo} av ${st.total} klarar du själv</span></div>${segBar(st.levels)}</div>
       <span class="chev">${I.chev}</span></button>`;
-    const restCards = rests.filter(r => !restFocus || r.id !== restFocus.id).map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}">
-      <div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? (r.days < 0 ? 'datum passerat' : r.days === 0 ? 'idag' : `om ${r.days} dagar`) : 'datum saknas'} · beredskap ${r.readiness} %</div></div>
+    const restCards = rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}">
+      <div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? (r.days < 0 ? 'datum passerat' : r.days === 0 ? 'idag' : `om ${r.days} dagar`) : 'Lägg till provdatum (valfritt)'}</div></div>
       <span class="chev">${I.chev}</span></button>`).join('');
     const lookup = `<button class="tap" data-a="search"><span style="color:var(--muted)">${I.search.replace('<svg', '<svg width="20" height="20"')}</span><div><div class="t">Slå upp en formel</div><div class="s">t.ex. "cirkel area" eller "triangel sida"</div></div></button>`;
     const planHtml = `<details class="fold"><summary>${I.cal.replace('<svg', '<svg width="20" height="20"')} Veckoplanen</summary><div class="in plan">${pr.plan.map(x => `<div class="${x.w === sw.week ? 'cur' : ''} ${x.exam ? 'exam' : ''}"><span class="w">v.${x.w}</span><span><span class="a">${esc(x.a)}</span><br><span class="d">${esc(x.d)}</span></span></div>`).join('')}</div></details>`;
     const hi = (() => { const h = E.now().getHours(); return h < 10 ? 'God morgon' : h < 17 ? 'Hej' : 'God kväll'; })();
     const nm = E.prof(p).name;
     return shell(`<div class="ctx">${ctx}</div>
-      <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'En sak i taget.')}</h1>
-      <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Här är det viktigaste att göra nu.</p>
-      ${hero}<details class="fold"><summary>Andra sätt att öva</summary><div class="in">${progress}${restCards}${lookup}${boostCard()}${planHtml}</div></details>`, 'home');
+      <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'Vad vill du göra idag?')}</h1>
+      <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Välj det som passar dig. Du kan alltid komma tillbaka.</p>
+      ${hero}<div class="calm-choices" aria-label="Välj vad du vill göra"><a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Enkla exempel och förklaringar</span></a><a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>Läs en tabell och prova själv</span></a><a class="calm-choice" href="#/cup"><strong>Spela tillsammans</strong><span>Skapa spel eller gå med via kod</span></a></div><details class="fold"><summary>Alla områden, prov och planering</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
   }
 
 function boostCard() {
@@ -183,16 +173,10 @@ function boostCard() {
     const chOrder = [pr.chapters.find(c => c.id === rec.chapter), ...pr.chapters.filter(c => c.id !== rec.chapter)];
     const q = UI.fq.trim();
     const list = q ? E.search(p, q) : E.chapterSkills(p, UI.fch);
-    return shell(`<p class="eyebrow">Formelsamling · ${esc(pr.label)}</p><h1>Matte förklarat enkelt</h1>
-      <div class="card" style="border:1px solid #eac3cb;background:linear-gradient(115deg,#fff7f3,#f5dee6);padding:16px;margin-bottom:14px">
-        <p class="eyebrow" style="color:#7a1f35;margin:0 0 6px">NYTT · VISUELL AFFISCH</p>
-        <h2 style="font-family:Georgia,serif;font-size:23px;margin:0 0 6px;color:#67142e">En lugn översikt i bilder</h2>
-        <p class="mut small" style="margin:0 0 12px">Affischen är för repetition. Här nedanför börjar varje moment med en enkel förklaring och ett exempel. Formlerna finns kvar om du vill se dem.</p>
-        <a class="btn block" href="affischer/?visa=formler&ak=${pid() === 'grade8' ? '8' : '9'}">Öppna översiktsaffischen</a>
-      </div>
-      <div class="searchbox">${I.search}<input id="fq" type="search" placeholder="Sök: cirkel, procent, x båda sidor…" value="${esc(UI.fq)}" aria-label="Sök i formelsamlingen" autocomplete="off"></div>
+    return shell(`<p class="eyebrow">Förstå · ${esc(pr.label)}</p><h1>Förstå matte</h1>
+      <div class="searchbox">${I.search}<input id="fq" type="search" placeholder="Sök: cirkel, procent, x båda sidor…" value="${esc(UI.fq)}" aria-label="Sök en förklaring" autocomplete="off"></div>
       ${q ? `<p class="mut small">${list.length} träffar</p>` : `<div class="seg-ctl" role="group" aria-label="Kapitel">${chOrder.map(c => `<button data-a="fch" data-ch="${c.id}" aria-pressed="${c.id === UI.fch}">${esc(c.name)}${c.id === rec.chapter ? ' ·&nbsp;nu' : ''}</button>`).join('')}</div>`}
-      <div id="flist">${list.map(formulaCard).join('') || '<p class="mut">Inga träffar. Prova ett annat ord.</p>'}</div>`, 'formler');
+      <div id="flist">${list.map(formulaCard).join('') || '<p class="mut">Inga träffar. Prova ett annat ord.</p>'}</div><details class="fold"><summary>Utskrivbar formelaffisch (valfritt)</summary><div class="in"><p class="mut small">Affischen passar bäst för repetition.</p><a class="btn ghost block" href="affischer/?visa=formler&ak=${pid() === 'grade8' ? '8' : '9'}">Visa affischen</a></div></details>`, 'formler');
   }
 
   /* ================= TRÄNA ================= */
@@ -210,16 +194,9 @@ function boostCard() {
         <div style="height:14px"></div>
         <button class="btn block" data-a="startTrain" data-ch="${rec.chapter}">Starta</button>
       </div></div>
-      <a class="tap" href="affischer/?visa=tabeller&ak=${pid() === 'grade8' ? '8' : '9'}" style="text-decoration:none;color:inherit">
-        <div><div class="t">Se multiplikationstabellerna som affisch</div><div class="s">Alla 1:an till 10:an på en vacker, tydlig översikt.</div></div>
-        <span class="chev">${I.chev}</span>
-      </a>
-      <a class="tap" href="#/tabell/home" style="text-decoration:none;color:inherit">
-        <div><div class="t">Multiplikationstabellen 1–10</div><div class="s">Läs hela tabellen, träna en i taget, testa blandat eller spela duell.</div></div>
-        <span class="chev">${I.chev}</span>
-      </a>
-      <button class="tap" data-a="startTest" data-ch="${rec.chapter}"><div><div class="t">Öppna Matte Prov · ${esc(chName(rec.chapter))}</div><div class="s">Inga ledtrådar, ingen metod angiven. Analys efteråt.</div></div><span class="chev">${I.chev}</span></button>
-      ${rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}"><div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? 'datum ' + esc(r.date) : 'datum saknas'} · beredskap ${r.readiness} %</div></div><span class="chev">${I.chev}</span></button>`).join('')}
+      <section class="calm-multiply"><h2>Multiplikation</h2><p class="mut small">Börja med en tabell. Spela när du känner dig redo.</p><a class="btn block" href="#/tabell/home">Studera och öva tabeller</a><a class="btn ghost block" href="#/cup">Spela tillsammans på egna mobiler</a><details class="fold"><summary>Hela tabellaffischen (valfritt)</summary><div class="in"><a class="btn ghost block" href="affischer/?visa=tabeller&ak=${pid() === 'grade8' ? '8' : '9'}">Visa eller skriv ut alla tabeller</a></div></details></section>
+       <button class="tap" data-a="startTest" data-ch="${rec.chapter}"><div><div class="t">Öppna Matte Prov · ${esc(chName(rec.chapter))}</div><div class="s">Inga ledtrådar, ingen metod angiven. Analys efteråt.</div></div><span class="chev">${I.chev}</span></button>
+      ${rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}"><div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? 'datum ' + esc(r.date) : 'Lägg till provdatum (valfritt)'}</div></div><span class="chev">${I.chev}</span></button>`).join('')}
       <details class="fold"><summary>Välj ett annat område</summary><div class="in">
         ${pr.chapters.map(c => `<p class="eyebrow mut" style="margin-top:10px">${esc(c.name)}</p>${E.chapterSkills(p, c.id).map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}
           <div class="actions" style="margin-top:6px"><button class="btn sm ghost" data-a="startTrain" data-ch="${c.id}">Blanda ${esc(c.name.toLowerCase())}</button><button class="btn sm ghost" data-a="startTest" data-ch="${c.id}">Till provsidan</button></div>`).join('')}
@@ -244,10 +221,10 @@ function boostCard() {
       </div>` : '';
     return shell(`<button class="btn text" data-a="nav" data-h="#/">${I.back.replace('<svg', '<svg width="18" height="18"')} Hem</button>
       <p class="eyebrow">Restprov</p><h1>${esc(r.title)}</h1>
-      <p class="mut">Fokusera på ett område i taget. Lägg in ditt provdatum nedan så visar appen rätt prioritet.</p>
+      <p class="mut">Börja med ett moment i taget. Provdatum är frivilligt och kan fyllas i senare.</p>
       <div class="card"><div class="field"><label for="restdate">Datum för restprovet</label><input id="restdate" type="date" value="${esc(info.date || '')}" data-a="restdate" data-id="${id}"></div>
         <div class="row between small"><span>Beredskap</span><b>${info.readiness} %</b></div>${segBar(E.chapterStats(p, r.chapter).levels)}</div>
-      ${bookGuide}<details class="fold"><summary>Alla moment i kapitlet</summary><div class="in">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div></details>
+      ${bookGuide}<details class="fold" open><summary>Välj ett moment att lära eller träna</summary><div class="in">${sk.map(s => `<div class="skrow"><div class="tt"><b>${esc(s.title)}</b><small>${lvl(s.id)}</small></div><button class="btn sm soft" data-a="startTrain" data-sid="${s.id}">Träna</button></div>`).join('')}</div></details>
       <div class="actions"><button class="btn" data-a="startTrain" data-ch="${r.chapter}">Öva 5 blandade frågor</button><button class="btn ghost" data-a="startTest" data-ch="${r.chapter}">Öppna provsidan</button></div>
       <div class="actions"><button class="btn text" data-a="restdone" data-id="${id}">Restprovet är gjort – dölj det</button></div>`, 'home');
   }
@@ -264,7 +241,7 @@ function boostCard() {
         <input type="file" id="importfile" accept=".json,application/json" hidden></div>
       <div class="card"><h3>Börja om</h3><p class="mut small">Raderar svar och framsteg för ${esc(P().label)} på den här enheten.</p>
         <button class="btn ${UI.confirmReset ? '' : 'ghost'}" data-a="reset">${UI.confirmReset ? 'Tryck igen för att radera' : 'Nollställ framsteg'}</button></div>
-      <p class="mut small center">Matte OS ${CORE.version} · byggd ${CORE.build} · fungerar offline · ingen data lämnar enheten</p>`, 'home');
+      <details class="fold"><summary>Integritet och Cup</summary><div class="in"><p class="mut small">Dina matteframsteg sparas på den här enheten. I Cup lagrar spelservern tillfälligt smeknamn, tekniskt enhets-ID och spelpoäng. En saltad hash av nätverksadressen används för att hindra spam. Spelrum och utgångna tekniska uppgifter gallras automatiskt.</p></div></details><p class="mut small center">Matte OS ${CORE.version} · byggd ${CORE.build} · matteframsteg sparas på enheten. Cup använder en separat spelserver.</p>`, 'home');
   }
 
   /* ================= FÖRSTA START ================= */
@@ -273,7 +250,7 @@ function boostCard() {
       <h1>Matte OS</h1><p class="mut">Din matte – en sak i taget. Välj årskurs.</p></div>
       <div style="height:16px"></div>
       ${Object.values(CORE.profiles).map(p => `<button class="tap" data-a="pickprofile" data-p="${p.id}" style="min-height:76px"><span class="chip-btn" style="border:0;padding:0;height:auto" data-theme="${p.theme}"><span class="av" style="width:44px;height:44px;font-size:16px;border-radius:12px;background:${p.theme === 'navy' ? '#1d3557' : '#7a1f35'}">${p.short}</span></span><div><div class="t">${p.label}</div><div class="s">${p.chapters.map(c => c.name).join(' · ')}</div></div><span class="chev">${I.chev}</span></button>`).join('')}
-      <p class="mut small center" style="margin-top:18px">Allt sparas bara på den här enheten.</p></main>`;
+      <p class="mut small center" style="margin-top:18px">Matteframsteg sparas på enheten. Cup skickar tillfälliga speluppgifter till spelservern.</p></main>`;
   }
 
   /* ================= UPPGIFTSKOMPONENT ================= */
@@ -304,7 +281,7 @@ function boostCard() {
     let fb = '';
     if (!test && ex.status) {
       if (ex.status === 'correct') fb = `<div class="box good reveal"><div class="k">Rätt</div>${ex.hints || ex.wrong ? 'Bra jobbat – du tog dig dit.' : 'Snyggt – helt själv.'}${ex.note ? '<br>' + R(ex.note) : ''}</div>`;
-      else if (ex.status === 'wrong') fb = `<div class="box bad reveal"><div class="k">Prova ett steg till</div><p>Vad är första lilla steget?</p>${ex.wrong >= 2 && ex.msg ? `<details class="paper-more"><summary>Visa en mer detaljerad ledtråd</summary>${R(ex.msg)}</details>` : ''}</div>`;
+      else if (ex.status === 'wrong') fb = `<div class="box bad reveal"><div class="k">Prova ett steg till</div><p>${esc(gentleHint(ex.sid))}</p>${ex.wrong >= 2 && ex.msg ? `<details class="paper-more"><summary>Visa en mer detaljerad ledtråd</summary>${R(ex.msg)}</details>` : ''}</div>`;
       else if (ex.status === 'invalid' || ex.status === 'empty') fb = `<div class="box warn reveal"><div class="k">Obs</div>${R(ex.msg)}</div>`;
       else if (ex.status === 'shown') fb = `<div class="box neutral reveal"><div class="k">Lösning visad</div>Läs igenom stegen. Du får en liknande uppgift senare.</div>`;
     }
@@ -312,7 +289,7 @@ function boostCard() {
     const hintBlocks = [];
     if (!test) {
       if (ex.hints >= 1) hintBlocks.push(`<div class="hint reveal"><div class="k">1 · Sortera</div><b>Vad vet du?</b> ${x.given ? x.given.map(g => esc(g)).join(' · ') : 'Läs frågan och alternativen.'}<br><b>Vad söker du?</b> ${x.find ? esc(x.find) : 'rätt alternativ'}</div>`);
-      if (ex.hints >= 2) hintBlocks.push(`<div class="hint reveal"><div class="k">2 · Börja lugnt</div><p>${esc(SIMPLE && SIMPLE.DATA[s.id] ? SIMPLE.DATA[s.id][0] : 'Ta en sak i taget.')}</p><details class="paper-more"><summary>Visa formeln också</summary><div class="big-f">${TX(s.f.main)}</div></details></div>`);
+      if (ex.hints >= 2) hintBlocks.push(`<div class="hint reveal"><div class="k">2 · Börja lugnt</div><p>${esc(gentleHint(s.id))}</p><details class="paper-more"><summary>Visa formeln också</summary><div class="big-f">${TX(s.f.main)}</div></details></div>`);
       if (ex.hints >= 3 && x.start) hintBlocks.push(`<div class="hint reveal"><div class="k">3 · Starta så här</div>${R(x.start)}</div>`);
       if (ex.sol) hintBlocks.push(`<div class="hint reveal"><div class="k">Lösning</div><div class="solution">${x.sol.map((l, i) => `<div class="sline"><span class="n">${i + 1}</span><div class="res wrapm">${R(l)}</div></div>`).join('')}</div><div style="margin-top:6px"><b>Svar:</b> ${R(answerText(x))}</div></div>`);
     }
@@ -372,7 +349,59 @@ function boostCard() {
   }
 
   /* ================= LEKTION (fokusläge) ================= */
-  const STEP_NAMES = ['Fatta', 'Se exempel', 'Prova med stöd', 'Gör själv', 'Klart'];
+  /* Task-aware first step, never the answer or an extra assessment rule. */
+  // Per-moment exceptions: never route geometry, powers or scale problems by ambiguous id substrings.
+  const HINT_BY_SID = {
+    'f8-circle-area': 'Area är ytan inuti cirkeln. Har du radien eller diametern? Börja med radien.',
+    'f8-sector': 'En sektor är en del av en cirkel. Hur stor del av hela varvet är vinkeln?',
+    's9-powers': 'Skriv ut potensen som en multiplikation. Hur många gånger används bastalet?',
+    'f8-powers': 'En potens är upprepad multiplikation. Vilket tal ska du multiplicera med sig självt?',
+    'f8-powers-ten': 'Tänk först på vad en tiopotens betyder som multiplikation, även när exponenten är negativ.',
+    's9-area-scale': 'Både längden och bredden ändras. Rita en liten rektangel och jämför båda måtten.',
+    's9-volume-scale': 'Längd, bredd och höjd påverkas. Hur blir det när alla tre måtten ändras?',
+    'f8-surface-area': 'Räkna arean av varje utsida för sig och lägg sedan ihop alla sidor.',
+    's9-percent-share': 'Vad är delen och vad är hela mängden? Skriv delen delat med hela.',
+    's9-change-factor': 'Är det en ökning eller minskning? Jämför med det ursprungliga värdet.',
+    's9-percentage-points': 'Jämför de två procenttalen. Hur stor skillnad är det mellan dem i procentenheter?',
+    's9-space-diagonal': 'Tänk en linje genom lådan mellan två motsatta hörn. Vilka mått behöver du?',
+    's9-scientific': 'Skriv talet som ett tal mellan 1 och 10 multiplicerat med en tiopotens.',
+    's9-prefix': 'Vilket tal står prefixet för? Kilo betyder tusen och milli betyder en tusendel. Byt ut prefixet mot det talet.',
+    's9-sci-calc': 'Räkna talen framför tiopotenserna för sig. Vid gånger adderas exponenterna, vid delat subtraheras de.',
+    'f8-fractions-multiply': 'Vid multiplikation behöver nämnarna inte vara lika. Vad blir täljare gånger täljare och nämnare gånger nämnare?',
+    'f8-fractions-divide': 'Hur många gånger får det andra bråket plats i det första? Du kan också multiplicera med det omvända bråket.',
+    'f8-simplify-fraction': 'Vilket tal går att dela både täljaren och nämnaren med? Dela båda med samma tal.',
+    's9-percent-part': 'Vilket tal är det hela? Räkna ut hur mycket 1 % av det är, eller skriv procenten som decimaltal.',
+    's9-percent-whole': 'Det hela är okänt. Delen du vet motsvarar några procent. Hur mycket blir då 1 %, och sedan 100 %?',
+    's9-percent-problem': 'Vad är det hela, vad är delen och vad är procenten? Bestäm först vilken av de tre du söker.',
+    'f8-decimals': 'Uppskatta först svaret med hela tal. Räkna sedan och kontrollera att svaret är rimligt.',
+    'f8-negative': 'Rita en tallinje för plus och minus. Vid gånger och delat: är tecknen lika eller olika?',
+    'f8-units': 'Byter du till en större eller mindre enhet? Hur många av den mindre enheten ryms i en av den större?',
+    'f8-density': 'Täthet betyder hur många som bor på varje kvadratkilometer. Dela antalet invånare med arean i km².',
+    'f8-x-both-sides': 'Samla alla x på ena sidan. Gör samma sak på båda sidor, till exempel ta bort lika många x från båda.',
+    'f8-conjugate': 'Är det samma två termer, en gång med plus och en gång med minus? Då blir det första i kvadrat minus andra i kvadrat.',
+    'f8-primes': 'Dela talet med minsta primtal som går jämnt upp, till exempel 2 eller 3. Fortsätt tills bara primtal är kvar.',
+    'f8-order': 'Leta först efter parenteser, sedan potenser, sedan gånger och delat. Plus och minus räknas sist.',
+    'f8-formulas': 'Skriv formeln och sätt in de värden du vet. Vilken bokstav är kvar att räkna ut?',
+    's9-sqrt': 'Kvadratroten frågar: vilket tal gånger sig självt ger talet under rottecknet?',
+    's9-number-sets': 'Kan talet skrivas som ett bråk? Är det ett heltal? Är det positivt? Svaren avgör vilka talmängder det tillhör.',
+    's9-repeated-change': 'Vilken förändringsfaktor gäller för en gång? Använd samma faktor lika många gånger som förändringen sker.',
+    's9-names': 'Hur många tusen ryms i namnet? En miljon är tusen tusen och en miljard är tusen miljoner.',
+    's9-sqrt-more': 'Går någon kvadrat, som 4, 9 eller 16, jämnt upp i talet under roten? Dra ut den först. Bara lika rötter kan läggas ihop.',
+    's9-sqrt-div': 'Du kan dela talen under rötterna först och sedan ta roten av kvoten. Blir kvoten en jämn kvadrat?'
+  };
+  function gentleHint(sid) {
+    if (HINT_BY_SID[sid]) return HINT_BY_SID[sid];
+    if (/perimeter|circ|arc/.test(sid)) return 'Följ kanten hela vägen runt. Vilka sidor eller delar behöver du lägga ihop?';
+    if (/area|surface/.test(sid)) return 'Titta på ytan inuti figuren. Hur många rutor eller delar finns det?';
+    if (/power|scientific|sci-calc|prefix/.test(sid)) return 'Skriv talet som en vanlig multiplikation först. Vad betyder varje del?';
+    if (/fraction/.test(sid)) return 'Har bråken lika stora delar? Börja annars med att skriva om dem.';
+    if (/percent|change-factor/.test(sid)) return 'Vad är det hela och vad är delen? Hur mycket är 1 % av det hela?';
+    if (/equation|expression|factor|parenthes|quadratic/.test(sid)) return 'Ta en del i taget. Om det finns ett likhetstecken ska båda sidor vara lika.';
+    if (/pyth|length-scale|similar|symmetry|angles/.test(sid)) return 'Rita en liten figur och markera vad du redan vet.';
+    if (/volum|cylinder|pyramid|cone|sphere|space-diagonal/.test(sid)) return 'Tänk på hur mycket som får plats inuti. Vilka mått har du?';
+    return 'Skriv ner det du vet. Vilket enda steg kan du göra nu?';
+  }
+  const STEP_NAMES = ['Förstå', 'Extra exempel', 'Prova med stöd', 'Gör själv', 'Klart'];
   function lessonFor(sid, step) {
     if (!UI.lesson || UI.lesson.sid !== sid) UI.lesson = { sid, reveal: 0, given: false, find: false, rule: null, ruleOk: false, soloIdx: 0, solo: E.soloSet(E.SKILLS[sid]), soloRes: [] };
     const L = UI.lesson; L.step = step; return L;
@@ -382,29 +411,29 @@ function boostCard() {
     step = Math.max(0, Math.min(4, +step || 0));
     const L = lessonFor(sid, step);
     if (step < 4) E.setLesson(pid(), sid, { step, done: E.lessonState(pid(), sid).done });
-    const head = { title: s.title, sub: `${chName(s.ch)} · ${STEP_NAMES[step]}`, steps: 4, cur: step, exit: '#/', formula: sid };
+    const head = { title: s.title, sub: `${chName(s.ch)} · ${STEP_NAMES[step]}`, steps: 3, cur: step === 0 || step === 1 ? 0 : step === 2 ? 1 : step === 3 ? 2 : 3, exit: UI.lessonFrom || '#/', formula: sid };
     let c = '';
     if (step === 0) {
       const d = SIMPLE && SIMPLE.DATA[s.id];
-      c = '<p class="eyebrow">Del 1 av 4 · Förstå</p><h1>'+esc(s.title)+'</h1>'
-        + (d ? '<p class="paper-lead">'+esc(d[0])+'</p>'+paperSteps(s,{intro:true})
+      c = '<p class="eyebrow">Förstå · ett exempel i taget</p><h1>'+esc(s.title)+'</h1>'
+        + (d ? '<p class="paper-lead">'+esc(d[0])+'</p>'+paperSteps(s)
           : '<p class="paper-lead">'+R(s.idea)+'</p><div class="box">'+R(s.anchor)+'</div>')
-        + '<details class="paper-more"><summary>Visa fler bilder och förklaringar</summary><div class="paper-more-in">'
+        + '<details class="paper-more"><summary>Förklara mer eller visa formeln</summary><div class="paper-more-in">'
           + visHTML(s.cvis)
           + '<div class="box neutral"><div class="k">Mer att veta</div>'+R(s.idea)+'</div>'
-          + '<ul class="clean">'+s.cue.map(q=>'<li>'+R(q)+'</li>').join('')+'</ul></div></details>'
-        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/1">Visa resten av uträkningen</button></div>';
+          + '<ul class="clean">'+s.cue.map(q=>'<li>'+R(q)+'</li>').join('')+'</ul>'
+          + '<div class="k">Formeln (valfri)</div><div class="big-f">'+TX(s.f.main)+'</div></div></details>'
+        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/2">Prova med stöd</button>'
+          + '<button class="btn ghost block" data-a="nav" data-h="#/l/'+sid+'/1">Se ett exempel till (valfritt)</button></div>';
     } else if (step === 1) {
       const e = s.ex;
       const lines = e.steps.map(([ask,res],i)=>'<div class="paper-step"><span class="paper-num">'+(i+1)+'</span><div><p>'+R(ask)+'</p><strong>'+R(res)+'</strong></div></div>').join('');
-      c = '<p class="eyebrow">Del 2 av 4 · Så här räknar du</p><h1 class="paper-question-title">'+esc(s.title)+'</h1>'
-        + paperSteps(s)
-        + '<details class="paper-more"><summary>Visa ett svårare exempel och formel (valfritt)</summary><div class="paper-more-in">'
-          + '<h2>'+R(e.q)+'</h2>'+visHTML(e.vis)
-          + '<div class="paper-flow">'+lines+'<div class="paper-answer"><span>SVAR</span><strong>'+R(e.ans)+'</strong></div></div>'
-          + '<div class="gsr"><div><span class="k">Vi vet</span><span>'+e.given.map(esc).join(' · ')+'</span></div><div><span class="k">Vi söker</span><span>'+esc(e.find)+'</span></div>'
-          + '<div><span class="k">Formeln</span><span>'+TX(e.rule)+'</span></div></div></div></details>'
-        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/2">Nu provar jag</button></div>';
+      c = '<p class="eyebrow">Extra exempel · valfritt</p><h1>'+esc(s.title)+'</h1>'
+        + visHTML(e.vis)
+        + '<div class="paper-question"><span class="paper-label">EXEMPEL</span><p>'+R(e.q)+'</p></div>'
+        + '<div class="paper-flow">'+lines+'<div class="paper-answer"><span>SVAR</span><strong>'+R(e.ans)+'</strong></div></div>'
+        + '<details class="paper-more"><summary>Visa formeln (valfritt)</summary><div class="paper-more-in"><div class="big-f">'+TX(e.rule)+'</div></div></details>'
+        + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/2">Prova med stöd</button></div>';
     } else if (step === 2) {
       const g = s.g;
       if (!UI.ex || UI.ex.sid !== sid || UI.ex.key !== 'g') UI.ex = newEx(sid, 'g', 'guided');
@@ -419,7 +448,7 @@ function boostCard() {
         ${L.rule != null ? (L.ruleOk ? `<div class="box good reveal" style="margin-top:10px"><div class="k">Precis</div>${R(g.why)}</div>` : `<div class="box bad reveal" style="margin-top:10px"><div class="k">Inte den</div>Titta igen på vad du söker: <b>${esc(g.find)}</b>. Vilken uträkning ger just det? Prova ett annat alternativ.</div>`) : ''}</div></details>`;
       }
       const showCalc = ready; // Metodval är stöd, aldrig en spärr för att få räkna.
-      c = `<p class="eyebrow">Del 3 av 4 · Prova med stöd</p><p class="q">${R(g.q)}</p>${visHTML(g.vis)}${stage}
+      c = `<p class="eyebrow">Steg 2 av 3 · Prova med stöd</p><p class="q">${R(g.q)}</p>${visHTML(g.vis)}${stage}
         ${showCalc ? `<div class="card reveal" style="margin-top:12px"><h3>Din tur. Räkna ett steg i taget.</h3>${exerciseHTML(UI.ex, { hideQ: true, hideVis: true })}</div>` : ''}
         ${UI.ex.done ? `<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/${sid}/3">Gör själv</button></div>` : ''}`;
     } else if (step === 3) {
@@ -427,7 +456,7 @@ function boostCard() {
       if (!UI.ex || UI.ex.sid !== sid || UI.ex.key !== x.key || UI.ex.mode !== 'solo') UI.ex = newEx(sid, x.key, 'solo');
       const dots = `<div class="dots" aria-label="Uppgift ${i + 1} av ${L.solo.length}">${L.solo.map((_, j) => `<i class="${j < i ? 'on' : j === i ? 'cur' : ''}"></i>`).join('')}</div>`;
       const next = UI.ex.done ? `<div class="actions"><button class="btn block" data-a="solonext">${i + 1 < L.solo.length ? 'Nästa uppgift' : 'Klar'}</button></div>` : '';
-      c = `<p class="eyebrow">Del 4 av 4 · Gör själv · ${i + 1} av ${L.solo.length}</p>${dots}${exerciseHTML(UI.ex)}${next}`;
+      c = `<p class="eyebrow">Steg 3 av 3 · Gör själv · ${i + 1} av ${L.solo.length}</p>${dots}${exerciseHTML(UI.ex)}${next}`;
     } else {
       const res = L.soloRes, firstOk = res.filter(r => r.first && !r.h).length;
       E.setLesson(pid(), sid, { step: 0, done: true });
@@ -435,7 +464,7 @@ function boostCard() {
       const nextBtn = rec.kind !== 'mixed' && rec.skill.id !== sid ? `<button class="btn block" data-a="nav" data-h="#/l/${rec.skill.id}/0">Nästa: ${esc(rec.skill.title)}</button>` : `<button class="btn block" data-a="startTrain" data-ch="${s.ch}">Blandträna ${esc(chName(s.ch).toLowerCase())}</button>`;
       c = `<div class="center"><div class="done-mark">${I.check}</div><p class="eyebrow">Moment klart</p><h1>${esc(s.title)}</h1>
         <p class="mut">${res.length ? `${firstOk} av ${res.length} rätt helt själv.` : ''} Nivå nu: <b>${E.levelInfo(k).label}</b></p></div>
-        <div class="card"><h3>Ta med dig</h3><p style="margin:0">${R(s.anchor)}</p><div class="big-f">${TX(s.f.main)}</div></div>
+        <div class="card"><h3>Ta med dig</h3><p style="margin:0">${R(s.anchor)}</p><details class="paper-more"><summary>Visa formeln (valfritt)</summary><div class="paper-more-in"><div class="big-f">${TX(s.f.main)}</div></div></details></div>
         <div class="actions">${nextBtn}<button class="btn ghost block" data-a="startTrain" data-sid="${sid}">Träna 5 till på detta</button><button class="btn text block" data-a="nav" data-h="#/">Till start</button></div>`;
       head.cur = 4;
     }
@@ -445,6 +474,7 @@ function boostCard() {
   /* ================= TRÄNING / PROV (fokusläge) ================= */
   function startRun(kind, opts) {
     const p = pid();
+    if (!/^#\/(run|prov)(\/|$)/.test(location.hash)) UI.runFrom = location.hash || '#/trana';
     let items, title;
     if (kind === 'test') { items = E.testSet(p, opts.chapter); title = 'Provläge · ' + chName(opts.chapter); }
     else if (opts.skill) { items = E.trainingSet(p, { skill: opts.skill, n: 5 }); title = 'Träna · ' + E.SKILLS[opts.skill].title; }
@@ -465,7 +495,7 @@ function boostCard() {
     let c = exerciseHTML(ex, { label });
     if (!test && ex.done) c += `<div class="actions"><button class="btn block" data-a="runnext">${run.idx + 1 < n ? 'Nästa fråga' : 'Se resultat'}</button></div>`;
     if (!test && !ex.done && (ex.wrong >= 1 || ex.hints > 0)) c += `<div class="actions"><button class="btn text" data-a="skip">Hoppa över</button></div>`;
-    return focusShell(c, { title: run.title, sub: test ? 'Inga ledtrådar' : 'Träning', steps: n, cur: run.idx, exit: test ? '#/trana' : '#/trana' });
+    return focusShell(c, { title: run.title, sub: test ? 'Inga ledtrådar' : 'Träning', steps: n, cur: run.idx, exit: UI.runFrom || '#/trana' });
   }
   function viewRunDone() {
     const run = UI.run, test = run.kind === 'test';
@@ -491,8 +521,8 @@ function boostCard() {
   }
 
   /* ================= ARK (sök, formel, profil) ================= */
-  function openSheet(s) { UI.sheet = s; renderSheet(); }
-  function closeSheet() { UI.sheet = null; renderSheet(); }
+  function openSheet(s) { UI.previousFocus = document.activeElement; UI.sheet = s; renderSheet(); }
+  function closeSheet() { UI.sheet = null; renderSheet(); if (UI.previousFocus?.isConnected) UI.previousFocus.focus({preventScroll:true}); UI.previousFocus = null; }
   function renderSheet() {
     const s = UI.sheet;
     if (!s) { sheetRoot.innerHTML = ''; document.body.style.overflow = ''; return; }
@@ -506,19 +536,19 @@ function boostCard() {
     } else if (s.type === 'formula') {
       const sk = E.SKILLS[s.sid];
       inner = `<div class="sheet-head"><div><p class="eyebrow">Formelkort</p><h2 style="margin:0">${esc(sk.f.name)}</h2></div><button class="icon-btn" data-a="closesheet" aria-label="Stäng">${I.close}</button></div>
-        <div class="big-f">${TX(sk.f.main)}</div>${formulaBody(sk, { noLink: !!s.inLesson })}`;
+        ${formulaBody(sk, { noLink: !!s.inLesson })}`;
     } else if (s.type === 'profile') {
       inner = `<div class="sheet-head"><h2 style="margin:0">Vem pluggar?</h2><button class="icon-btn" data-a="closesheet" aria-label="Stäng">${I.close}</button></div>
         ${Object.values(CORE.profiles).map(p => `<button class="tap" data-a="pickprofile" data-p="${p.id}" ${p.id === pid() ? 'aria-current="true" style="border-color:var(--acc)"' : ''}><span class="chip-btn" style="border:0;padding:0;height:auto"><span class="av" style="background:${p.theme === 'navy' ? '#1d3557' : '#7a1f35'}">${p.short}</span></span><div><div class="t">${esc(displayName(p.id))}</div><div class="s">${p.label} · ${p.chapters.map(c => c.name).join(', ')}</div></div>${p.id === pid() ? `<span class="chev" style="color:var(--acc)">${I.check.replace('<svg', '<svg width="20" height="20"')}</span>` : ''}</button>`).join('')}
         <button class="tap" data-a="nav" data-h="#/installningar">${I.gear.replace('<svg', '<svg width="20" height="20"')}<div><div class="t">Inställningar och säkerhetskopia</div><div class="s">Namn, restprovsdatum, spara/återställ</div></div><span class="chev">${I.chev}</span></button>`;
     }
     sheetRoot.innerHTML = `<div class="scrim" data-a="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${inner}</div></div>`;
-    const f = sheetRoot.querySelector('#sq'); if (f) { f.focus(); const v = f.value; f.value = ''; f.value = v; }
+    const f = sheetRoot.querySelector('#sq') || sheetRoot.querySelector('.sheet [data-a=closesheet]'); if (f) { f.focus(); if(f.id==='sq'){ const v = f.value; f.value = ''; f.value = v; } }
   }
   function searchResults(res, q) {
     if (!q) return `<p class="mut small">Du behöver inte kunna det rätta ordet. Prova: <i>triangel sida</i>, <i>x båda sidor</i>, <i>diameter</i>, <i>rabatt</i>.</p>`;
     if (!res.length) return `<p class="mut">Hittade inget för "${esc(q)}". Prova ett annat ord.</p>`;
-    return res.map(s => `<button class="tap" data-a="formula" data-sid="${s.id}"><div style="min-width:0"><div class="t">${esc(s.title)}</div><div class="s" style="overflow-x:auto">${TX(s.f.main)}</div></div><span class="chev">${I.chev}</span></button>`).join('');
+    return res.map(s => `<button class="tap" data-a="formula" data-sid="${s.id}"><div style="min-width:0"><div class="t">${esc(s.title)}</div><div class="s">${esc(SIMPLE && SIMPLE.DATA[s.id] ? SIMPLE.DATA[s.id][0] : s.anchor)}</div></div><span class="chev">${I.chev}</span></button>`).join('');
   }
 
   /* ================= ROUTER ================= */
@@ -527,6 +557,7 @@ function boostCard() {
     applyTheme();
     if (!pid()) { app.innerHTML = viewOnboarding(); return; }
     const h = location.hash.replace(/^#\/?/, '');
+    if (/^l\//.test(h) && lastRoute && !/^l\//.test(lastRoute)) UI.lessonFrom = '#/' + lastRoute;
     const parts = h.split('/').filter(Boolean);
     let html = '';
     try {
@@ -570,7 +601,7 @@ function boostCard() {
       }
     }
     markReveals(h !== lastRoute);
-    if (h !== lastRoute) { window.scrollTo(0, 0); lastRoute = h; const m = document.getElementById('main'); if (m && !document.activeElement.closest('#app')) { /* behåll fokus */ } }
+    if (h !== lastRoute) { window.scrollTo(0, 0); lastRoute = h; if (!['cup','tabell','run','prov'].includes(parts[0])) { const hd = app.querySelector('#main h1'); if (hd) { hd.tabIndex = -1; hd.focus({ preventScroll: true }); } } }
   }
   function markReveals(newRoute) {
     if (newRoute || !UI.seen) UI.seen = new Set();

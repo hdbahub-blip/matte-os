@@ -378,3 +378,21 @@ details.fold > .in { padding: 0 16px 14px; }
 .focus .paper-lead{margin-top:12px}
 @media (max-width:400px){.paper-step{padding:14px 13px;gap:10px}.paper-question{padding:15px}.paper-answer{padding:17px 15px}.paper-powers{gap:5px;padding:9px 7px}.paper-powers>div>span:first-child{font-size:19px}.paper-powers strong{font-size:21px}.paper-powers>div>b{font-size:14px}.paper-action{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.paper-more *,.paper-flow *{animation:none!important;transition:none!important}}
+
+
+/* 5.5.1 — calm discoverability and readable controls. */
+.calm-choices{display:grid;gap:10px;margin:14px 0 18px}
+.calm-choice{display:flex;flex-direction:column;gap:4px;border:1px solid var(--line);border-radius:16px;background:var(--paper);padding:16px 18px;min-height:80px;text-decoration:none;color:var(--ink)}
+.calm-choice strong{font-size:18px;line-height:1.4;font-weight:750}
+.calm-choice span{font-size:14px;color:var(--muted);line-height:1.45}
+.calm-choice:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.calm-multiply{border:1px solid var(--line);border-radius:18px;background:var(--paper);padding:18px;margin:12px 0;display:grid;gap:10px}
+.calm-multiply h2{margin:0;font-size:20px}
+.calm-multiply p{margin:0}
+.calm-multiply .fold{margin:4px 0 0}
+.btn.sm,.seg-ctl button,.keys button{min-height:44px}
+.brand{min-height:44px;min-width:44px}
+.searchbox input{min-height:44px}
+#main h1:focus{outline:none}
+#main h1:focus-visible{outline:3px solid var(--acc);outline-offset:4px}
+@media(min-width:640px){.calm-choices{grid-template-columns:repeat(3,minmax(0,1fr))}.calm-choice{min-height:116px}}

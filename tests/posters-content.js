@@ -24,6 +24,6 @@ assert(css.includes('body[data-grade="8"] .masthead')&&css.includes('#0f4e83'),'
 assert(app.includes("pid() === 'grade8' ? '8' : '9'"),'Poster links must use pupil grade');
 assert(app.includes('affischer/?visa=formler')&&app.includes('affischer/?visa=tabeller'),'Main app needs both poster entries');
 assert(sw.includes('./affischer/index.html')&&sw.includes("const offlineKey = posterNav"),'Posters must have separate offline navigation cache');
-assert(root.includes('5.5.0')&&sw.includes('5.5.0')&&core.includes("version: '5.5.0'"),'Core PWA cache bump');
+assert(root.includes('5.5.1')&&sw.includes('5.5.1')&&core.includes("version: '5.5.1'"),'Core PWA cache bump');
 assert(prov.includes('1.2.4')&&provSW.includes('1.2.4'),'Unchanged independent prov');
 console.log('Year 8 navy/burgundy and Year 9 burgundy posters, exact arithmetic, navigation, offline and versions: PASS');

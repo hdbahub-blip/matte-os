@@ -6,6 +6,8 @@ const esc=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const shuffle=x=>{let a=x.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const key=(a,b)=>Math.min(a,b)+'x'+Math.max(a,b);
 let round=null,duel=null,finished=null,n=7,duelPrefs={names:['Spelare 1','Spelare 2'],table:'mixed'};
+let autoNext=false, nextTimer=null;
+const reducedMotion=()=>!!(root.matchMedia&&root.matchMedia('(prefers-reduced-motion: reduce)').matches);
 const pid=()=>E.state().active;
 const data=()=>{const p=E.prof(pid());if(!p.tables)p.tables={v:1,facts:{},sessions:[]};return p.tables};
 const log=()=>data().sessions||[];
@@ -30,9 +32,9 @@ const weekDays=()=>{
 };
 function shell(content){
  if(!shadow)return;
- shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.5.0"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
+ shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.5.1"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
 }
-function go(v){const h='#/tabell/'+v;if(location.hash===h)draw();else location.hash=h;window.scrollTo(0,0)}
+function go(v){if(nextTimer){clearTimeout(nextTimer);nextTimer=null;}const h='#/tabell/'+v;if(location.hash===h)draw();else location.hash=h;window.scrollTo(0,0)}
 const route=()=>location.hash.replace(/^#\/tabell\/?/,'')||'home';
 function chooseProfile(){shell(`<section class="centered"><span class="eyebrow">En del av Matte OS</span><h1>Välkommen till Tabellarenan.</h1><p class="lead">Välj årskurs för att hålla er träning och era resultat separata.</p><div class="extras"><button class="tabtile" data-act="grade" data-value="grade9"><span class="tabtile-num">Åk 9</span><span class="tabtile-bottom">Välj profil →</span></button><button class="tabtile" data-act="grade" data-value="grade8"><span class="tabtile-num">Åk 8</span><span class="tabtile-bottom">Välj profil →</span></button></div></section>`)}
 function home(){
@@ -46,7 +48,7 @@ function table(v){
  n=Number(v);if(!(n>=1&&n<=10)){go('home');return}
  const s=info(n);
  const rows=Array.from({length:10},(_,i)=>i+1).map(k=>`<div class="eqrow"><span class="math"><b>${n}</b> × ${k}</span><span class="answer">= ${n*k}</span></div>`).join('');
- shell(`<button class="linkback" data-to="home">← Alla tabeller</button><section class="tableintro"><div><span class="eyebrow">LÄS · FÖRSTÅ · TRÄNA</span><h1 class="title">${n}:ans tabell</h1><p>Alla multiplikationer från ${n} × 1 till ${n} × 10.</p></div><div class="table-score"><strong>${s.best}/10</strong><small>Bästa runda</small></div></section><section class="card"><div class="refhead"><h2>Hela ${n}:an</h2><span class="mut">Alla svar synliga</span></div><div class="reference">${rows}</div><div class="study-tip"><b>Så kan du öva:</b> Läs en rad. Dölj svaret med handen. Försök säga det innan du tittar igen.</div><div class="under-reference"><a class="btn" href="#/tabell/practice/${n}">Träna ${n}:an · 10 frågor</a><button class="btn ghost" data-to="home">Välj en annan tabell</button></div></section><p class="subtle">${s.stable?'Sitter stabilt: minst 9/10 på två olika dagar.':s.tries?'Du har gjort '+s.tries+' rundor. För stabil markering krävs 9/10 på två olika dagar.':'Börja med att läsa tabellen och testa sedan dig själv.'}</p>`);
+ shell(`<button class="linkback" data-to="home">← Alla tabeller</button><section class="tableintro"><div><span class="eyebrow">LÄS · FÖRSTÅ · TRÄNA</span><h1 class="title">${n}:ans tabell</h1><p>Alla multiplikationer från ${n} × 1 till ${n} × 10.</p></div><div class="table-score"><strong>${s.best}/10</strong><small>Bästa runda</small></div></section><section class="card"><div class="refhead"><h2>Hela ${n}:an</h2><span class="mut">Alla svar synliga</span></div><div class="reference">${rows}</div><div class="study-tip"><b>Så kan du öva:</b> Läs en rad. Dölj svaret med handen. Försök säga det innan du tittar igen.</div><div class="under-reference"><a class="btn" href="#/tabell/practice/${n}">Träna ${n}:an · 10 frågor</a>${reducedMotion() ? '' : `<button class="btn ghost" data-act="autonext" aria-pressed="${autoNext}">${autoNext ? 'Automatiskt nästa efter rätt svar: på' : 'Färre tryck: automatiskt nästa efter rätt svar (valfritt)'}</button>`}<button class="btn ghost" data-to="home">Välj en annan tabell</button></div></section><p class="subtle">${s.stable?'Sitter stabilt: minst 9/10 på två olika dagar.':s.tries?'Du har gjort '+s.tries+' rundor. För stabil markering krävs 9/10 på två olika dagar.':'Börja med att läsa tabellen och testa sedan dig själv.'}</p>`);
 }
 function tableQs(t){return shuffle(Array.from({length:10},(_,i)=>({a:t,b:i+1})))}
 function mixedQs(){
@@ -64,7 +66,7 @@ function task(){
  if(!round){go('home');return}
  const q=round.qs[round.i];if(!q){finish();return}
  const test=round.type==='mixed',count=round.qs.length,done=round.i+(round.feedback?1:0);
- shell(`<div class="centered"><button class="linkback" data-to="${test?'home':'table/'+n}">← ${test?'Alla tabeller':n+':ans tabell'}</button><section class="question-card"><div class="question-head"><span>${test?'BLANDPROV · UTAN HJÄLP':n+':ANS TABELL · TRÄNING'}</span><span>${round.i+1} / ${count}</span></div><div class="progressline"><i style="width:${100*done/count}%"></i></div><div class="equation">${q.a} <span>×</span> ${q.b} <span>= ?</span></div>${round.feedback?`<div class="feedback ${round.feedback.ok?'ok':'no'}"><div><b>${round.feedback.ok?'Rätt!':'Bra att du försökte.'}</b><span>${q.a} × ${q.b} = ${q.a*q.b}</span></div><button class="btn" data-act="next">${round.i+1===count?'Visa resultat':'Nästa →'}</button></div>`:`<form id="answerform" class="answerform" novalidate><input id="answer" class="answerfield" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Ditt svar" aria-label="Svar på ${q.a} gånger ${q.b}"><button type="submit" class="btn">${test?(round.i+1===count?'Lämna in':'Nästa →'):'Svara'}</button></form>`}</section><p class="round-note">${test?'Rättning kommer när alla 20 frågor är klara.':'Försök utan tidspress. Ett fel hjälper oss hitta vad du kan öva på.'}</p></div>`);
+ shell(`<div class="centered"><button class="linkback" data-to="${test?'home':'table/'+n}">← ${test?'Alla tabeller':n+':ans tabell'}</button><section class="question-card"><div class="question-head"><span>${test?'BLANDPROV · UTAN HJÄLP':n+':ANS TABELL · TRÄNING'}</span><span>${round.i+1} / ${count}</span></div><div class="progressline"><i style="width:${100*done/count}%"></i></div><div class="equation">${q.a} <span>×</span> ${q.b} <span>= ?</span></div>${round.feedback?`<div class="feedback ${round.feedback.ok?'ok':'no'}" role="status" aria-live="polite"><div><b>${round.feedback.ok?'Rätt!':'Bra att du försökte.'}</b><span>${q.a} × ${q.b} = ${q.a*q.b}</span></div><button class="btn" data-act="next">${round.i+1===count?'Visa resultat':'Nästa →'}</button></div>`:`<form id="answerform" class="answerform" novalidate><input id="answer" class="answerfield" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Ditt svar" aria-label="Svar på ${q.a} gånger ${q.b}"><button type="submit" class="btn">${test?(round.i+1===count?'Lämna in':'Nästa →'):'Svara'}</button></form>`}</section><p class="round-note">${test?'Rättning kommer när alla 20 frågor är klara.':'Försök utan tidspress. Ett fel hjälper oss hitta vad du kan öva på.'}</p></div>`);
 }
 function factScore(q,ok){
  const s=T.factState(pid(),key(q.a,q.b));s.attempts++;s.last=Date.now();
@@ -76,11 +78,13 @@ function answer(v){
  if(!round||round.feedback||round.results.length!==round.i||!/^\d{1,4}$/.test(v.trim()))return;
  const q=round.qs[round.i],num=Number(v.trim()),ok=num===q.a*q.b;
  round.results.push({...q,answer:num,ok});factScore(q,ok);
- if(round.type==='table'){round.feedback={ok};draw()}
+ if(round.type==='table'){round.feedback={ok};draw();// Auto-advance only after a correct answer; a wrong answer keeps the correction visible until the learner taps Next.
+ if(autoNext && ok && !reducedMotion()){nextTimer=setTimeout(()=>{nextTimer=null;if(round && round.type==='table' && round.feedback)next()},1800)}}
  else if(round.i+1===round.qs.length)finish();
  else{round.i++;draw();scrollTo(0,0)}
 }
 function next(){
+ if(nextTimer){clearTimeout(nextTimer);nextTimer=null;}
  if(!round||!round.feedback)return;
  round.i++;round.feedback=null;
  if(round.i===round.qs.length)finish();else{draw();scrollTo(0,0)}
@@ -159,6 +163,7 @@ function mount(){
  case 'table':go('table/'+b.dataset.value);break;
  case 'practice':begin('table',b.dataset.value);break;
  case 'mixed':begin('mixed');break;
+  case 'autonext':autoNext=!autoNext;draw();break;
  case 'next':next();break;
  case 'buzz':buzz(Number(b.dataset.value));break;
  case 'judge':judge(b.dataset.value==='1');break;
@@ -181,6 +186,12 @@ window.addEventListener('keydown',e=>{
  if(!duel||route()!=='duel/play'||duel.phase!=='buzz'||e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;
  if(['INPUT','TEXTAREA','SELECT'].includes(shadow?.activeElement?.tagName))return;
  const k=e.key.toLowerCase();if(k==='a'||k==='l'){e.preventDefault();buzz(k==='a'?0:1)}
+});
+window.addEventListener('hashchange',()=>{
+  if(!/^#\/tabell(?:\/|$)/.test(location.hash) && nextTimer){
+    clearTimeout(nextTimer);
+    nextTimer=null;
+  }
 });
 root.MOTabellArena={mount,qa:{info,mixedQs,tableQs,stables}};
 })(typeof window!=='undefined'?window:globalThis);

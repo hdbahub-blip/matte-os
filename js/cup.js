@@ -26,7 +26,7 @@
 
   function fresh() {
     return { view: 'menu', api: null, sess: null, st: null, recvAt: 0, banner: '', err: '', busy: false, local: null, pollT: null, tickT: null,
-      study: { tables: [7], cover: false, test: null }, setup: { tables: [1,2,3,4,5,6,7,8,9,10], qual: 10, sec: 20 }, joinCode: '', nick: '', lastSig: '' };
+      study: { tables: [7], cover: false, test: null }, setup: { tables: [1,2,3,4,5,6,7,8,9,10], qual: 10, sec: 30, expanded: false }, joinCode: '', nick: '', lastSig: '' };
   }
   const page = () => (root.MOEngine && root.MOEngine.state && root.MOEngine.state().active) || 'grade9';
 
@@ -113,7 +113,7 @@
 
   // ---------- rendering ----------
   function shell(inner) {
-    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.5.0"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
+    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.5.1"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
   }
   const chips = (sel, act) => Array.from({ length: 10 }, (_, i) => i + 1).map(t => '<button type="button" class="chip' + (sel.includes(t) ? ' on' : '') + '" data-act="' + act + '" data-v="' + t + '" aria-pressed="' + sel.includes(t) + '">' + t + '</button>').join('');
   const errBox = () => S.err ? '<p class="err" role="alert">' + esc(S.err) + '</p>' : '';
@@ -128,7 +128,7 @@
       <button class="tile" data-act="go" data-v="host" ${on ? '' : 'disabled'}><b>2 · Skapa spel</b><span>Du är värd och får en kod att dela.</span></button>
       <button class="tile" data-act="go" data-v="join" ${on ? '' : 'disabled'}><b>3 · Gå med i spel</b><span>Skriv koden från värden och välj ett smeknamn.</span></button>
       ${on ? '' : '<p class="note" id="offnote">Onlinespelet är inte påslaget ännu. Studieläget fungerar utan nät. Be värden slå på spelservern.</p>'}
-      <p class="small">Inga konton och inga riktiga namn. Använd ett smeknamn. Spelet raderas automatiskt efter några timmar.</p>`);
+      <p class="small">Inga konton och inga riktiga namn. Använd ett smeknamn. Spelservern sparar tillfälliga smeknamn, sessioner och poäng. Utgångna spelrum rensas automatiskt.</p><details class="cup-customize"><summary>Hur fungerar integriteten?</summary><div class="customize-in"><p class="small">För att förhindra missbruk används även en kortlivad, saltad hash av nätverksadressen. Den tas bort genom automatisk gallring. Använd ett smeknamn i spelet.</p></div></details>`);
   }
 
   // --- studieläge ---
@@ -160,12 +160,16 @@
 
   // --- värd/gå med ---
   function hostSetup() {
-    shell(`${back('menu', 'Matte OS Cup')}<span class="eyebrow">Du är värd</span><h1>Skapa spel</h1>${errBox()}
-      <h2 class="h2">Vilka tabeller ska ingå?</h2><div class="chips" role="group" aria-label="Tabeller i tävlingen">${chips(S.setup.tables, 'ctab')}</div>
-      <div class="actions small"><button class="btn ghost sm" data-act="ctall">Alla 1–10</button><button class="btn ghost sm" data-act="ct69">6–9</button><button class="btn ghost sm" data-act="ct25">2, 5, 10</button></div>
-      <h2 class="h2">Frågor i kvalet</h2><div class="chips">${[10, 15, 20].map(n => `<button class="chip wide${S.setup.qual === n ? ' on' : ''}" data-act="cq" data-v="${n}">${n}</button>`).join('')}</div>
-      <h2 class="h2">Tid per fråga</h2><div class="chips">${[[15, '15 s'], [20, '20 s'], [30, '30 s (lugnt)']].map(([n, l]) => `<button class="chip wide${S.setup.sec === n ? ' on' : ''}" data-act="cs" data-v="${n}">${l}</button>`).join('')}</div>
-      <button class="btn block" data-act="create" ${S.busy || !S.setup.tables.length ? 'disabled' : ''}>${S.busy ? 'Skapar…' : 'Skapa spel'}</button>`);
+    shell(`${back('menu', 'Till spela tillsammans')}<span class="eyebrow">Du är värd</span><h1>Skapa spel</h1>${errBox()}
+      <p class="lead">Alla spelar på sin egen mobil. En spelkod kommer upp när du skapar spelet.</p>
+      <div class="card"><h2>Snabbt spel</h2><p>${S.setup.tables.length===10 ? 'Tabellerna 1–10' : 'Tabellerna ' + S.setup.tables.join(', ')} · ${S.setup.qual} frågor · ${S.setup.sec} sekunder per fråga.</p>
+      <button class="btn block" data-act="create" ${S.busy || !S.setup.tables.length ? 'disabled' : ''}>${S.busy ? 'Skapar…' : 'Skapa spel och visa koden'}</button></div>
+      <details class="cup-customize" ${S.setup.expanded ? 'open' : ''}><summary>Anpassa spelet (valfritt)</summary><div class="customize-in">
+        <h2 class="h2">Vilka tabeller ska ingå?</h2><div class="chips" role="group" aria-label="Tabeller i tävlingen">${chips(S.setup.tables, 'ctab')}</div>
+        <div class="actions small"><button class="btn ghost sm" data-act="ctall">Alla 1–10</button><button class="btn ghost sm" data-act="ct69">6–9</button><button class="btn ghost sm" data-act="ct25">2, 5, 10</button></div>
+        <h2 class="h2">Frågor i kvalet</h2><div class="chips">${[10, 15, 20].map(n => `<button class="chip wide${S.setup.qual === n ? ' on' : ''}" data-act="cq" data-v="${n}">${n}</button>`).join('')}</div>
+        <h2 class="h2">Tid per fråga</h2><div class="chips">${[[15, '15 s'], [20, '20 s'], [30, '30 s (lugn takt)']].map(([n, l]) => `<button class="chip wide${S.setup.sec === n ? ' on' : ''}" data-act="cs" data-v="${n}">${l}</button>`).join('')}</div>
+        <p class="small">När du ändrar något används det i spelet du skapar ovan.</p></div></details>`);
   }
   function joinForm() {
     shell(`${back('menu', 'Matte OS Cup')}<span class="eyebrow">Gå med</span><h1>Skriv koden</h1>${errBox()}
@@ -192,7 +196,7 @@
     const mine = st.players.find(p => p.me);
     const hostNeedsNick = isHost && !me;
     shell(`<span class="eyebrow">${isHost ? 'Värd' : 'Lobby'}</span><h1>${isHost ? 'Spelkod' : 'Väntar på start'}</h1>
-      ${isHost ? `<div class="bigcode" aria-label="Spelkod ${esc(st.code)}">${esc(st.code)}</div><p class="small">Gå till <b>${esc(location.host)}${esc(location.pathname)}</b> → Tabellarenan → Matte OS Cup → Gå med. Eller öppna länken:</p><p class="link-box" id="jl">${esc(joinLink())}</p><div id="qr" class="qr" aria-label="QR-kod till spelet"></div>` : `<p class="lead">Kod <b>${esc(st.code)}</b>. Värden startar när alla är redo.</p>`}
+      ${isHost ? `<div class="bigcode" aria-label="Spelkod ${esc(st.code)}">${esc(st.code)}</div><p class="small">Låt spelarna skanna QR-koden med sin mobilkamera. De kan också öppna länken eller skriva koden ovan.</p><p class="link-box" id="jl" tabindex="-1">${esc(joinLink())}</p><button class="btn ghost block" data-act="copyjoin">Kopiera inbjudningslänken</button><div id="qr" class="qr" aria-label="QR-kod till spelet"></div>` : `<p class="lead">Kod <b>${esc(st.code)}</b>. Värden startar när alla är redo.</p>`}
       ${errBox()}
       <h2 class="h2">${st.players.length} ${st.players.length === 1 ? 'spelare' : 'spelare'} i lobbyn</h2><ul class="plist">${list || '<li>Ingen än</li>'}</ul>
       ${mine ? `<button class="btn block ${mine.ready ? 'ghost' : ''}" data-act="ready" data-v="${mine.ready ? '0' : '1'}">${mine.ready ? 'Ångra – jag är inte redo' : 'Jag är redo'}</button>` : ''}
@@ -282,14 +286,20 @@
       case 'stab': { const t = +v, a = S.study.tables; const i = a.indexOf(t); if (i >= 0) { if (a.length > 1) a.splice(i, 1); } else a.push(t); a.sort((x, y) => x - y); draw(); break; }
       case 'cover': S.study.cover = !S.study.cover; draw(); break;
       case 'reveal': { b.classList.remove('covered'); const i = b.querySelector('i'); if (i) i.remove(); break; }
+      case 'copyjoin': {
+          const link=joinLink();
+          if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link).then(()=>{S.err=''; const el=shadow.querySelector('[data-act=copyjoin]'); if(el)el.textContent='Länk kopierad';}).catch(()=>{const el=shadow.getElementById('jl');if(el)el.focus();});
+          else { const el=shadow.getElementById('jl'); if(el) el.focus(); }
+          break;
+        }
       case 'minitest': if (v === 'again') S.study.test = null; S.view = 'minitest'; draw(); break;
       case 'mtnext': S.study.test.i++; S.study.test.fb = null; draw(); break;
-      case 'ctab': { const t = +v, a = S.setup.tables, i = a.indexOf(t); if (i >= 0) a.splice(i, 1); else a.push(t); a.sort((x, y) => x - y); draw(); break; }
-      case 'ctall': S.setup.tables = [1,2,3,4,5,6,7,8,9,10]; draw(); break;
-      case 'ct69': S.setup.tables = [6, 7, 8, 9]; draw(); break;
-      case 'ct25': S.setup.tables = [2, 5, 10]; draw(); break;
-      case 'cq': S.setup.qual = +v; draw(); break;
-      case 'cs': S.setup.sec = +v; draw(); break;
+      case 'ctab': S.setup.expanded = true; { const t = +v, a = S.setup.tables, i = a.indexOf(t); if (i >= 0) a.splice(i, 1); else a.push(t); a.sort((x, y) => x - y); draw(); break; }
+      case 'ctall': S.setup.expanded = true; S.setup.tables = [1,2,3,4,5,6,7,8,9,10]; draw(); break;
+      case 'ct69': S.setup.expanded = true; S.setup.tables = [6, 7, 8, 9]; draw(); break;
+      case 'ct25': S.setup.expanded = true; S.setup.tables = [2, 5, 10]; draw(); break;
+      case 'cq': S.setup.expanded = true; S.setup.qual = +v; draw(); break;
+      case 'cs': S.setup.expanded = true; S.setup.sec = +v; draw(); break;
       case 'create': create(); break;
       case 'ready': act((a, s) => a.ready(s.code, s.playerId, s.secret, v === '1')); break;
       case 'kick': act((a, s) => a.kick(s.code, s.hostSecret, v)); break;
@@ -329,6 +339,7 @@
     stopPoll();
     shadow = host.attachShadow ? host.attachShadow({ mode: 'open' }) : host;
     shadow.addEventListener('click', onClick); shadow.addEventListener('submit', onSubmit);
+    shadow.addEventListener('keydown', e => { const b=e.target.closest('[data-act="reveal"]'); if(b && (e.key==='Enter'||e.key===' ')){e.preventDefault();b.click();} });
     const saved = store.get().session;
     if (saved && saved.code) { S.sess = saved; S.view = 'game'; draw(); startPoll(); return; }
     if (opts && opts.join) { S.joinCode = String(opts.join).toUpperCase().slice(0, 5); S.view = 'join'; }

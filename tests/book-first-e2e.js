@@ -21,14 +21,14 @@ fs.mkdirSync(OUT,{recursive:true});
       await page.goto(BASE,{waitUntil:'networkidle'});
       await page.click('[data-p="grade9"]');
       await page.waitForSelector('.hero h2');
-      assert.match(await page.locator('.hero h2').innerText(),/Förbered Tal inför restprovet/);
+      assert.equal(await page.locator('.calm-choice[href="#/cup"]').count(),1,'Cup must be directly visible from Home');
       assert.equal(await page.locator('.hero .btn').count(),1);
       assert.equal(await page.locator('.fold').count()>=1,true);
       const width=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);
       assert(width[0]<=width[1]+2,'Home horizontal overflow: '+width);
       cases+=4;
       await page.screenshot({path:OUT+'/'+name+'-home.png',fullPage:true});
-      await page.click('.hero [data-h="#/rest/rest-s9-tal"]');
+      await page.goto(BASE+'#/rest/rest-s9-tal');
       await page.waitForSelector('text=Matte Direkt 9');
       for(const id of ['s9-scientific','s9-sci-calc','s9-prefix','s9-sqrt','s9-number-sets']){
         assert.equal(await page.locator('a[href="#/l/'+id+'/0"]').count(),1,'Missing book link '+id);

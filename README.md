@@ -2,7 +2,7 @@
 
 Matte för åk 8 och åk 9 – en sak i taget. Statisk, offline-först PWA utan externa beroenden.
 
-Live: https://mohamed321966-wq.github.io/matte-os/
+Live: https://hdbahub-blip.github.io/matte-os/
 
 ## Struktur
 | Fil | Innehåll |

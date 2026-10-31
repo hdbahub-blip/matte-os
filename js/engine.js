@@ -1,5 +1,5 @@
 /* Matte OS v5 — lokal lagring, progressionsmodell, rekommendationsmotor och sök.
-   All elevdata stannar på enheten (localStorage). Inget skickas någonstans. */
+   Elevens matteframsteg stannar på enheten (localStorage). Cup-läget använder separat spelserver för kortlivade speluppgifter. */
 (function (root) {
   'use strict';
   const CORE = root.MO_CORE || (typeof require !== 'undefined' ? require('./core.js') : null);
