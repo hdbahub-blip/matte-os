@@ -60,35 +60,42 @@ const configs = [
           assert(widths[0] <= widths[1] + 2, name + ' horizontal overflow: ' + widths); n++;
           assert.deepEqual(errors, [], name + ' ' + grade + ' uncaught errors'); n++;
 
-          // Shared-screen spoken duel, independent of the server Cup.
+          // Timed same-device duel: each player has an oral window and facit reveals automatically.
           await page.goto(BASE + '#/tabell/duel/setup', { waitUntil: 'domcontentloaded' });
           await page.locator('#arena #duelform').waitFor();
+          await page.locator('#arena [data-act="duelSubset"]').click();
+          await page.locator('#arena [data-act="duelTable"][data-value="6"]').click();
+          await page.locator('#arena [data-act="duelTable"][data-value="9"]').click();
+          assert.equal(await page.locator('#arena [data-act="duelTable"][aria-pressed=true]').count(), 2, name + ' multiple table selection'); n++;
           await page.locator('#arena #player1').fill('Alex');
           await page.locator('#arena #player2').fill('Sam');
-          await page.locator('#arena #dueltable').selectOption('7');
           await page.locator('#arena #duelform button[type=submit]').click();
           await page.locator('#arena [data-act="buzz"][data-value="1"]').click();
-          assert.equal(await page.locator('#arena [data-act="awardDuel"]').count(), 0, name + ' point award available before revealing facit'); n++;
-          assert.equal(await page.locator('#arena [data-act="revealDuel"]').count(), 1, name + ' missing show-answer action'); n++;
-          await page.locator('#arena [data-act="revealDuel"]').click();
+          assert.equal(await page.locator('#arena [data-act="awardDuel"]').count(), 0, name + ' premature scoring'); n++;
+          assert.equal(await page.locator('#arena [data-act="revealDuel"]').count(), 0, name + ' manual reveal should not be required'); n++;
+          await page.locator('#arena .judge h2').filter({hasText:'Sam svarar först!'}).waitFor();
+          assert.equal(await page.locator('#arena #duel-clock').count(), 1, name + ' first visible countdown'); n++;
+          await page.locator('#arena .judge h2').filter({hasText:'Alex får svara nu!'}).waitFor({timeout:12000});
+          assert.equal(await page.locator('#arena #duel-clock').count(), 1, name + ' second visible countdown'); n++;
+          await page.locator('#arena .judge h2').filter({hasText:'Facit ·'}).waitFor({timeout:10000});
           const problem = await page.locator('#arena .duel-question').innerText();
           const numsDuel = problem.match(/\d+/g).map(Number);
-          assert((await page.locator('#arena .judge h2').innerText()).includes('= ' + numsDuel[0] * numsDuel[1]), name + ' incorrect duel facit'); n++;
-          // Sam buzzed first, but Alex gets the point if Alex said the correct spoken answer.
+          assert([7,8].includes(numsDuel[0]),name + ' selected multiplication tables'); n++;
+          assert((await page.locator('#arena .judge h2').innerText()).includes('= ' + numsDuel[0] * numsDuel[1]),name + ' mathematically correct auto-revealed answer'); n++;
           await page.locator('#arena [data-act="awardDuel"][data-value="0"]').click();
-          assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(), '1', name + ' award to non-buzzer failed'); n++;
+          assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(),'1',name + ' award to non-buzzer'); n++;
           await page.locator('#arena [data-act="undoDuel"]').click();
-          assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(), '0', name + ' undo point failed'); n++;
+          assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(),'0',name + ' undo point'); n++;
           await page.locator('#arena [data-act="awardDuel"][data-value="1"]').click();
-          assert.equal(await page.locator('#arena .playerbox .playerscore').last().innerText(), '1', name + ' award to buzzer failed'); n++;
-          await page.locator('#arena [data-act="duelNext"]').click();
-          assert.match(await page.locator('#arena .duel-topline').innerText(), /Fråga 2 av 10/, name + ' no next question'); n++;
+          await page.locator('#arena [data-act="buzz"]').first().waitFor({timeout:7000});
+          assert.match(await page.locator('#arena .duel-topline').innerText(),/Fråga 2 av 10/,name + ' automatic next question'); n++;
+          assert.equal(await page.locator('#arena .playerbox .playerscore').last().innerText(),'1',name + ' awarded to buzzer'); n++;
           await page.locator('#arena [data-act="buzz"][data-value="0"]').click();
-          await page.locator('#arena [data-act="revealDuel"]').click();
+          await page.locator('#arena .judge h2').filter({hasText:'Facit ·'}).waitFor({timeout:15000});
           await page.locator('#arena [data-act="awardDuel"][data-value="none"]').click();
-          await page.locator('#arena [data-act="buzz"]').first().waitFor({ timeout: 5500 });
-          assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(), '0', name + ' no-point changed Alex score'); n++;
-          assert.equal(await page.locator('#arena .playerbox .playerscore').last().innerText(), '1', name + ' no-point changed Sam score'); n++;
+          await page.locator('#arena [data-act="buzz"]').first().waitFor({timeout:7000});
+          assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(),'0',name + ' no-point altered score'); n++;
+          assert.equal(await page.locator('#arena .playerbox .playerscore').last().innerText(),'1',name + ' no-point altered other score'); n++;
 
           // Separate exam engine: verify no early solutions, then complete an empty synthetic diagnosis.
           const progressBeforeExam = await page.evaluate(() => localStorage.getItem('matteos.v5'));
