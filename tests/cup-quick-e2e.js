@@ -42,6 +42,8 @@ const url=(hash='')=>APP+'?cupserver='+encodeURIComponent(API)+'#/cup'+hash;
       const r=document.querySelector('#cup')?.shadowRoot;
       return !!r?.querySelector('#ai') && !!r?.querySelector('.eyebrow')?.textContent.includes('fråga '+(idx+1)+' av');
     },i,{timeout:45000});
+    const remaining=await p.locator('#cup >> css=.cup-countdown strong').innerText();
+    assert(Number(remaining)>0,'visible numeric Cup round countdown');
     const eq=await p.locator('#cup >> css=.eq').innerText();
     const m=/(\d+)\s*×\s*(\d+)/.exec(eq);assert(m,'equation rendered');
     assert([7,8].includes(+m[1])||[7,8].includes(+m[2]),'selected tables only');
