@@ -6,7 +6,7 @@ const esc=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const shuffle=x=>{let a=x.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const key=(a,b)=>Math.min(a,b)+'x'+Math.max(a,b);
 let round=null,duel=null,finished=null,n=7,duelPrefs={names:['Spelare 1','Spelare 2'],table:'mixed'};
-let autoNext=false, nextTimer=null;
+let autoNext=false, nextTimer=null, duelTimer=null;
 const reducedMotion=()=>!!(root.matchMedia&&root.matchMedia('(prefers-reduced-motion: reduce)').matches);
 const pid=()=>E.state().active;
 const data=()=>{const p=E.prof(pid());if(!p.tables)p.tables={v:1,facts:{},sessions:[]};return p.tables};
@@ -32,7 +32,7 @@ const weekDays=()=>{
 };
 function shell(content){
  if(!shadow)return;
- shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.5.1"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
+ shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.5.2"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
 }
 function go(v){if(nextTimer){clearTimeout(nextTimer);nextTimer=null;}const h='#/tabell/'+v;if(location.hash===h)draw();else location.hash=h;window.scrollTo(0,0)}
 const route=()=>location.hash.replace(/^#\/tabell\/?/,'')||'home';
@@ -102,40 +102,62 @@ function result(){
  shell(`<div class="centered"><button class="linkback" data-to="home">← Alla tabeller</button><section class="card results"><div class="eyebrow">${a.mode==='mixed'?'BLANDPROV KLART':a.table+':ANS TABELL · KLAR'}</div><div class="stat">${a.correctFirst}/${a.total}</div><h1>${good?'Snyggt jobbat.':'Nästa gång kan det sitta bättre.'}</h1><p>${a.mode==='table'?'Träna gärna igen en annan dag. Två rundor med minst 9/10 på olika dagar ger stabil markering.':'Så här gick ditt blandprov. Alla rätt och fel visas nedan.'}</p><div class="resultsteps">${rows}</div><div class="actionrow">${a.mode==='table'?`<a class="btn" href="#/tabell/practice/${a.table}">Träna ${a.table}:an igen</a><button class="btn ghost" data-to="table/${a.table}">Se tabellen</button>`:`<button class="btn" data-act="mixed">Gör nytt blandprov</button>`}<button class="btn ghost" data-to="home">Till översikten</button></div></section></div>`);
 }
 function setup(){
- shell(`<section class="duelsetup"><button class="linkback" data-to="home">← Alla tabeller</button><div class="eyebrow">2 SPELARE · EN ENHET</div><h1>Snabbast vinner.</h1><p class="lead">Båda ser samma fråga. Den som vet svaret trycker först och säger det högt. En tredje person, eller ni själva, markerar rätt eller fel.</p><form class="card" id="duelform"><div class="duel-fields"><div><label for="player1" class="field">Spelare 1</label><input id="player1" maxlength="18" class="text-input" value="${esc(duelPrefs.names[0])}"></div><div><label for="player2" class="field">Spelare 2</label><input id="player2" maxlength="18" class="text-input" value="${esc(duelPrefs.names[1])}"></div></div><div style="margin-top:14px"><label for="dueltable" class="field">Tävla på</label><select id="dueltable" class="selector"><option value="mixed">Blandat 1–10</option>${Array.from({length:10},(_,i)=>i+1).map(t=>`<option value="${t}">${t}:ans tabell</option>`).join('')}</select></div><div class="duel-descr">Mobil: varsin stor knapp. Dator: tryck <b>A</b> för spelare 1 och <b>L</b> för spelare 2. Först att trycka får svara. Vid fel får den andra chansen. Inga minuspoäng.</div><button class="btn full" type="submit">Starta duellen · 10 rundor</button></form><p class="subtle">Röstbedömningen görs av er, inte av appen. Tävlingspoäng räknas inte som individuell behärskning.</p></section>`);
+ shell(`<section class="duelsetup"><button class="linkback" data-to="home">← Alla tabeller</button><div class="eyebrow">2 SPELARE · EN ENHET</div><h1>Snabbast vinner.</h1><p class="lead">Båda ser samma fråga. Den som vet svaret trycker först och säger det högt. Tryck först och säg svaret högt. Visa sedan facit och välj vem som får poängen – utan att skriva svar.</p><form class="card" id="duelform"><div class="duel-fields"><div><label for="player1" class="field">Spelare 1</label><input id="player1" maxlength="18" class="text-input" value="${esc(duelPrefs.names[0])}"></div><div><label for="player2" class="field">Spelare 2</label><input id="player2" maxlength="18" class="text-input" value="${esc(duelPrefs.names[1])}"></div></div><div style="margin-top:14px"><label for="dueltable" class="field">Tävla på</label><select id="dueltable" class="selector"><option value="mixed">Blandat 1–10</option>${Array.from({length:10},(_,i)=>i+1).map(t=>`<option value="${t}">${t}:ans tabell</option>`).join('')}</select></div><div class="duel-descr">Mobil: varsin stor knapp. Dator: tryck <b>A</b> för spelare 1 och <b>L</b> för spelare 2. Först att trycka säger sitt svar. Den andra får säga sitt förslag. Visa facit och välj poäng till rätt spelare, eller ingen. Appen räknar poängen och går vidare automatiskt.</div><button class="btn full" type="submit">Starta duellen · 10 rundor</button></form><p class="subtle">Appen visar facit och räknar poängen. Ni väljer vem som sa rätt svar – appen lyssnar inte på rösten. Tävlingspoäng räknas inte som individuell behärskning.</p></section>`);
  shadow.getElementById('dueltable').value=duelPrefs.table;
 }
+function stopDuelTimer(){if(duelTimer){clearTimeout(duelTimer);duelTimer=null}}
 function beginDuel(){
+ stopDuelTimer();
  const t=duelPrefs.table,qs=t==='mixed'?mixedQs().slice(0,10):tableQs(Number(t));
- duel={qs,i:0,score:[0,0],names:duelPrefs.names,phase:'buzz',who:null};
+ duel={qs,i:0,score:[0,0],names:duelPrefs.names,phase:'buzz',who:null,awardedTo:null};
  go('duel/play');
 }
-function buzz(w){if(!duel||duel.phase!=='buzz')return;duel.who=w;duel.phase='judge';draw()}
-function judge(ok){
- if(!duel||!['judge','steal'].includes(duel.phase))return;
- if(ok){duel.score[duel.who]++;duel.phase='reveal'}
- else if(duel.phase==='judge'){duel.who=1-duel.who;duel.phase='steal'}
- else duel.phase='reveal';
- draw();
+function buzz(w){
+ if(!duel||duel.phase!=='buzz'||(w!==0&&w!==1))return;
+ duel.who=w;duel.phase='claim';draw();
+}
+function revealDuel(){
+ if(!duel||duel.phase!=='claim')return;
+ duel.phase='reveal';draw();
+}
+function awardDuel(w){
+ if(!duel||duel.phase!=='reveal'||(w!==null&&w!==0&&w!==1))return;
+ const d=duel;
+ if(w!==null)d.score[w]++;
+ d.awardedTo=w;d.phase='awarded';draw();
+ stopDuelTimer();
+ duelTimer=setTimeout(()=>{
+   duelTimer=null;
+   if(duel===d&&d.phase==='awarded'&&route()==='duel/play')duelNext();
+ },1800);
+}
+function undoDuelAward(){
+ if(!duel||duel.phase!=='awarded')return;
+ stopDuelTimer();
+ if(duel.awardedTo!==null)duel.score[duel.awardedTo]--;
+ duel.awardedTo=null;duel.phase='reveal';draw();
 }
 function duelNext(){
- if(!duel||duel.phase!=='reveal')return;
- duel.i++;duel.phase='buzz';duel.who=null;
- if(duel.i>=10)go('duel/result');else draw();
+ if(!duel||duel.phase!=='awarded')return;
+ stopDuelTimer();
+ duel.i++;duel.phase='buzz';duel.who=null;duel.awardedTo=null;
+ if(duel.i>=duel.qs.length)go('duel/result');else draw();
 }
 function duelPlay(){
  if(!duel){go('duel/setup');return}
  const d=duel,q=d.qs[d.i];if(!q){go('duel/result');return}
  let controls;
- if(d.phase==='buzz')controls=`<div class="buzzers"><button class="buzzer" data-act="buzz" data-value="0">${esc(d.names[0])}<small>Jag kan! · tangent A</small></button><button class="buzzer right" data-act="buzz" data-value="1">${esc(d.names[1])}<small>Jag kan! · tangent L</small></button></div><p class="round-note">Vem vet svaret? Tryck först för att svara.</p>`;
- else if(d.phase==='judge'||d.phase==='steal')controls=`<div class="judge"><h2>${esc(d.names[d.who])} ${d.phase==='steal'?'får chansen att ta över!':'tryckte först!'}</h2><p>Spelaren säger svaret högt. Markera vad som stämmer.</p><div class="judge-actions"><button class="btn good" data-act="judge" data-value="1">Rätt · +1</button><button class="btn no" data-act="judge" data-value="0">Fel</button></div></div>`;
- else controls=`<div class="duel-solution">${q.a} × ${q.b} = ${q.a*q.b}</div><button class="btn full" data-act="duelNext">${d.i===9?'Visa resultat':'Nästa runda →'}</button>`;
- shell(`<section class="duel-screen"><button class="linkback" data-act="duelExit">← Avsluta duellen</button><div class="duel-topline"><span>SNABBHETSDUELL</span><span>Runda ${d.i+1} av 10</span></div><div class="scoreboard"><div class="playerbox"><span class="playername">${esc(d.names[0])}</span><span class="playerscore">${d.score[0]}</span></div><div class="playerbox right"><span class="playername">${esc(d.names[1])}</span><span class="playerscore">${d.score[1]}</span></div></div><div class="card"><div class="duel-question">${q.a} <span>×</span> ${q.b} <span>= ?</span></div>${controls}</div></section>`);
+ if(d.phase==='buzz')controls='<div class="buzzers"><button class="buzzer" data-act="buzz" data-value="0">'+esc(d.names[0])+'<small>Jag kan! · tangent A</small></button><button class="buzzer right" data-act="buzz" data-value="1">'+esc(d.names[1])+'<small>Jag kan! · tangent L</small></button></div><p class="round-note">Tryck först och säg svaret högt.</p>';
+ else if(d.phase==='claim')controls='<div class="judge"><h2>'+esc(d.names[d.who])+' tryckte först!</h2><p>Säg ditt svar högt. Den andra spelaren får säga sitt förslag innan ni visar facit.</p><button class="btn full" data-act="revealDuel">Visa facit</button></div>';
+ else if(d.phase==='reveal')controls='<div class="judge"><h2>Facit · '+q.a+' × '+q.b+' = '+q.a*q.b+'</h2><p>'+esc(d.names[d.who])+' tryckte först. Vem sa rätt svar? Ni väljer själva, appen räknar poängen.</p><div class="judge-actions duel-awards"><button class="btn good" data-act="awardDuel" data-value="0">+1 '+esc(d.names[0])+'</button><button class="btn good" data-act="awardDuel" data-value="1">+1 '+esc(d.names[1])+'</button><button class="btn no no-point" data-act="awardDuel" data-value="none">Ingen poäng</button></div></div>';
+ else controls='<div class="judge" role="status" aria-live="polite"><h2>'+(d.awardedTo===null?'Ingen poäng':'+1 poäng till '+esc(d.names[d.awardedTo]))+'</h2><p>Går automatiskt vidare till nästa fråga.</p><div class="judge-actions"><button class="btn no" data-act="undoDuel">Ångra poäng</button><button class="btn" data-act="duelNext">'+(d.i===d.qs.length-1?'Visa resultat nu':'Nästa fråga nu')+'</button></div></div>';
+
+ shell(`<section class="duel-screen"><button class="linkback" data-act="duelExit">← Avsluta duellen</button><div class="duel-topline"><span>SNABBHETSDUELL</span><span>Fråga ${d.i+1} av ${d.qs.length}</span></div><div class="scoreboard"><div class="playerbox"><span class="playername">${esc(d.names[0])}</span><span class="playerscore">${d.score[0]}</span></div><div class="playerbox right"><span class="playername">${esc(d.names[1])}</span><span class="playerscore">${d.score[1]}</span></div></div><div class="card"><div class="duel-question">${q.a} <span>×</span> ${q.b} <span>= ?</span></div>${controls}</div></section>`);
 }
 function duelResult(){
  if(!duel){go('home');return}
  const d=duel,who=d.score[0]===d.score[1]?'Oavgjort!':esc(d.names[d.score[0]>d.score[1]?0:1])+' vinner!';
- shell(`<section class="centered"><div class="card results"><div class="eyebrow">DUELL KLAR · 10 RUNDOR</div><h1>${who}</h1><p>Inga minuspoäng. Vill ni spela igen?</p><div class="scoreboard"><div class="playerbox"><span class="playername">${esc(d.names[0])}</span><span class="playerscore">${d.score[0]}</span></div><div class="playerbox right"><span class="playername">${esc(d.names[1])}</span><span class="playerscore">${d.score[1]}</span></div></div><div class="actionrow"><button class="btn" data-act="again">Spela igen</button><button class="btn ghost" data-to="home">Alla tabeller</button></div></div></section>`);
+ shell(`<section class="centered"><div class="card results"><div class="eyebrow">DUELL KLAR · 10 FRÅGOR</div><h1>${who}</h1><p>Inga minuspoäng. Vill ni spela igen?</p><div class="scoreboard"><div class="playerbox"><span class="playername">${esc(d.names[0])}</span><span class="playerscore">${d.score[0]}</span></div><div class="playerbox right"><span class="playername">${esc(d.names[1])}</span><span class="playerscore">${d.score[1]}</span></div></div><div class="actionrow"><button class="btn" data-act="again">Spela igen</button><button class="btn ghost" data-to="home">Alla tabeller</button></div></div></section>`);
 }
 function draw(){
  if(!pid()){chooseProfile();return}
@@ -166,9 +188,11 @@ function mount(){
   case 'autonext':autoNext=!autoNext;draw();break;
  case 'next':next();break;
  case 'buzz':buzz(Number(b.dataset.value));break;
- case 'judge':judge(b.dataset.value==='1');break;
+ case 'revealDuel':revealDuel();break;
+ case 'awardDuel':awardDuel(b.dataset.value==='none'?null:Number(b.dataset.value));break;
+ case 'undoDuel':undoDuelAward();break;
  case 'duelNext':duelNext();break;
- case 'duelExit':duel=null;go('home');break;
+ case 'duelExit':stopDuelTimer();duel=null;go('home');break;
  case 'again':beginDuel();break;
  }
 });

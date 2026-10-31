@@ -26,7 +26,7 @@
 
   function fresh() {
     return { view: 'menu', api: null, sess: null, st: null, recvAt: 0, banner: '', err: '', busy: false, local: null, pollT: null, tickT: null,
-      study: { tables: [7], cover: false, test: null }, setup: { tables: [1,2,3,4,5,6,7,8,9,10], qual: 10, sec: 30, expanded: false }, joinCode: '', nick: '', lastSig: '' };
+      study: { tables: [7], cover: false, test: null }, setup: { mode: 'quick', tables: [1,2,3,4,5,6,7,8,9,10], qual: 10, rounds: 1, sec: 30, expanded: true }, joinCode: '', nick: '', lastSig: '' };
   }
   const page = () => (root.MOEngine && root.MOEngine.state && root.MOEngine.state().active) || 'grade9';
 
@@ -39,7 +39,9 @@
   async function create() {
     const a = api(); if (!a) return; S.busy = true; S.err = ''; draw();
     try {
-      const r = await a.create(S.setup.tables, S.setup.qual, S.setup.sec);
+      const r = S.setup.mode === 'quick'
+        ? await a.createQuick(S.setup.tables, S.setup.qual, S.setup.rounds, S.setup.sec)
+        : await a.create(S.setup.tables, S.setup.qual, S.setup.sec);
       S.sess = { code: r.code, hostSecret: r.host_secret, role: 'host' }; saveSess(); S.view = 'game'; startPoll();
     } catch (e) { S.err = errText(e); }
     S.busy = false; draw();
@@ -113,7 +115,7 @@
 
   // ---------- rendering ----------
   function shell(inner) {
-    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.5.1"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
+    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.5.2"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
   }
   const chips = (sel, act) => Array.from({ length: 10 }, (_, i) => i + 1).map(t => '<button type="button" class="chip' + (sel.includes(t) ? ' on' : '') + '" data-act="' + act + '" data-v="' + t + '" aria-pressed="' + sel.includes(t) + '">' + t + '</button>').join('');
   const errBox = () => S.err ? '<p class="err" role="alert">' + esc(S.err) + '</p>' : '';
@@ -160,16 +162,31 @@
 
   // --- värd/gå med ---
   function hostSetup() {
+    const x = S.setup, quick = x.mode === 'quick';
+    const tLabel = x.tables.length === 10 ? 'Alla tabeller 1–10 (blandat)' : 'Tabeller: ' + x.tables.join(', ');
     shell(`${back('menu', 'Till spela tillsammans')}<span class="eyebrow">Du är värd</span><h1>Skapa spel</h1>${errBox()}
-      <p class="lead">Alla spelar på sin egen mobil. En spelkod kommer upp när du skapar spelet.</p>
-      <div class="card"><h2>Snabbt spel</h2><p>${S.setup.tables.length===10 ? 'Tabellerna 1–10' : 'Tabellerna ' + S.setup.tables.join(', ')} · ${S.setup.qual} frågor · ${S.setup.sec} sekunder per fråga.</p>
-      <button class="btn block" data-act="create" ${S.busy || !S.setup.tables.length ? 'disabled' : ''}>${S.busy ? 'Skapar…' : 'Skapa spel och visa koden'}</button></div>
-      <details class="cup-customize" ${S.setup.expanded ? 'open' : ''}><summary>Anpassa spelet (valfritt)</summary><div class="customize-in">
-        <h2 class="h2">Vilka tabeller ska ingå?</h2><div class="chips" role="group" aria-label="Tabeller i tävlingen">${chips(S.setup.tables, 'ctab')}</div>
-        <div class="actions small"><button class="btn ghost sm" data-act="ctall">Alla 1–10</button><button class="btn ghost sm" data-act="ct69">6–9</button><button class="btn ghost sm" data-act="ct25">2, 5, 10</button></div>
-        <h2 class="h2">Frågor i kvalet</h2><div class="chips">${[10, 15, 20].map(n => `<button class="chip wide${S.setup.qual === n ? ' on' : ''}" data-act="cq" data-v="${n}">${n}</button>`).join('')}</div>
-        <h2 class="h2">Tid per fråga</h2><div class="chips">${[[15, '15 s'], [20, '20 s'], [30, '30 s (lugn takt)']].map(([n, l]) => `<button class="chip wide${S.setup.sec === n ? ' on' : ''}" data-act="cs" data-v="${n}">${l}</button>`).join('')}</div>
-        <p class="small">När du ändrar något används det i spelet du skapar ovan.</p></div></details>`);
+      <p class="lead">Spela tillsammans på varsin mobil. Välj hur ni vill tävla, skapa en spelkod och bjud in.</p>
+      <div class="card"><h2>Hur vill ni spela?</h2>
+        <div class="chips" role="group" aria-label="Välj spelläge">
+          <button type="button" class="chip wide${quick?' on':''}" data-act="cmode" data-v="quick" aria-pressed="${quick}">Snabbmatch</button>
+          <button type="button" class="chip wide${!quick?' on':''}" data-act="cmode" data-v="cup" aria-pressed="${!quick}">Cupturnering</button>
+        </div>
+        <p class="small">${quick?'En kort match med 1, 3 eller 5 omgångar. Alla spelar lika länge och högst totalpoäng vinner.':'Klassisk turnering med kval, semifinal (vid minst 4 spelare) och final bäst av tre.'}</p>
+      </div>
+      <details class="cup-customize" ${x.expanded ? 'open' : ''}><summary>Välj tabeller, frågor och tid</summary><div class="customize-in">
+        <h2 class="h2">Vilka tabeller ska ingå?</h2><p class="small">Välj en, flera eller alla. De valda tabellerna blandas i spelet.</p>
+        <div class="chips" role="group" aria-label="Tabeller i spelet">${chips(x.tables, 'ctab')}</div>
+        <div class="actions small"><button type="button" class="btn ghost sm" data-act="ctall">Alla / Blandat 1–10</button><button type="button" class="btn ghost sm" data-act="ct69">6–9</button><button type="button" class="btn ghost sm" data-act="ct25">2, 5, 10</button></div>
+        <h2 class="h2">${quick?'Frågor per omgång':'Frågor i kvalet'}</h2>
+        <div class="chips" role="group" aria-label="Antal frågor">${(quick?[5,10,20]:[10,15,20]).map(n=>`<button type="button" class="chip wide${x.qual===n?' on':''}" data-act="cq" data-v="${n}" aria-pressed="${x.qual===n}">${n}</button>`).join('')}</div>
+        ${quick?`<h2 class="h2">Antal omgångar</h2><div class="chips" role="group" aria-label="Antal omgångar">${[1,3,5].map(n=>`<button type="button" class="chip wide${x.rounds===n?' on':''}" data-act="crounds" data-v="${n}" aria-pressed="${x.rounds===n}">${n}</button>`).join('')}</div>`:''}
+        <h2 class="h2">Tidsbudget</h2><p class="small">Varje omgång får en gemensam tidsbudget: antal frågor gånger valda sekunder. Det är inte en separat klocka per fråga.</p>
+        <div class="chips" role="group" aria-label="Tidsbudget per fråga">${[[15,'15 s'],[20,'20 s'],[30,'30 s (lugn takt)']].map(([n,l])=>`<button type="button" class="chip wide${x.sec===n?' on':''}" data-act="cs" data-v="${n}" aria-pressed="${x.sec===n}">${l}</button>`).join('')}</div>
+      </div></details>
+      <div class="card"><h2>${quick?'Din snabbmatch':'Din Cupturnering'}</h2>
+        <p>${esc(tLabel)} · ${x.qual} frågor ${quick?'× '+x.rounds+' omgångar':'i kvalet'} · ${x.sec} s/fråga i gemensam tidsbudget.</p>
+        <button class="btn block" data-act="create" ${S.busy||!x.tables.length?'disabled':''}>${S.busy?'Skapar…':'Skapa spel och visa koden'}</button>
+      </div>`);
   }
   function joinForm() {
     shell(`${back('menu', 'Matte OS Cup')}<span class="eyebrow">Gå med</span><h1>Skriv koden</h1>${errBox()}
@@ -201,10 +218,10 @@
       <h2 class="h2">${st.players.length} ${st.players.length === 1 ? 'spelare' : 'spelare'} i lobbyn</h2><ul class="plist">${list || '<li>Ingen än</li>'}</ul>
       ${mine ? `<button class="btn block ${mine.ready ? 'ghost' : ''}" data-act="ready" data-v="${mine.ready ? '0' : '1'}">${mine.ready ? 'Ångra – jag är inte redo' : 'Jag är redo'}</button>` : ''}
       ${hostNeedsNick ? `<form data-form="hostjoin"><label for="hn">Vill du spela själv? Välj smeknamn</label><input id="hn" class="text" maxlength="16" autocomplete="off"><button class="btn block ghost" type="submit">Spela själv</button></form>` : ''}
-      ${isHost ? `<button class="btn block" data-act="start" ${st.players.length < 2 ? 'disabled' : ''}>Starta kvalet</button><p class="small">Kval: ${st.qual_q} frågor, ${st.sec_per_q} s per fråga. Tabeller: ${st.tables.join(', ')}. De fyra bästa går vidare till semifinal (1 mot 4, 2 mot 3), därefter final bäst av tre.</p><button class="link danger" data-act="cancel">Avsluta spelet</button>` : `<button class="link" data-act="leave">Lämna spelet</button>`}`);
+      ${isHost ? `<button class="btn block" data-act="start" ${st.players.length < 2 ? 'disabled' : ''}>Starta ${st.mode === 'quick' ? 'snabbmatchen' : 'kvalet'}</button><p class="small">${st.mode === 'quick' ? 'Snabbmatch: '+st.quick_rounds+' omgångar × '+st.quick_q+' frågor. Alla deltagare spelar varje omgång, högst totalpoäng vinner.' : 'Cup: '+st.qual_q+' frågor i kvalet. '+(st.players.length>=4?'De fyra bästa går till semifinal, därefter final bäst av tre.':'Med två eller tre spelare går de två bästa till final bäst av tre.')} Tabeller: ${st.tables.join(', ')}.</p><button class="link danger" data-act="cancel">Avsluta spelet</button>` : `<button class="link" data-act="leave">Lämna spelet</button>`}`);
     if (isHost) drawQr();
   }
-  function stageName(r) { return r.kind === 'tb' ? 'Utslagsrunda' : ({ qual: 'Kval', semi: 'Semifinal', final: 'Final – spel ' + r.game + ' av 3' })[r.stage] || ''; }
+  function stageName(r) { if (S.st && S.st.mode === 'quick') return 'Omgång ' + r.no + ' av ' + S.st.quick_rounds; return r.kind === 'tb' ? 'Utslagsrunda' : ({ qual: 'Kval', semi: 'Semifinal', final: 'Final – spel ' + r.game + ' av 3' })[r.stage] || ''; }
   function playing() {
     const st = S.st, r = st.round;
     if (r.starts_in_ms > 0 && !r.question) {
@@ -239,18 +256,30 @@
   function scored() {
     const st = S.st, r = st.round, res = st.results || { round: [] }, b = st.bracket || {};
     let extra = '';
-    if (r.stage === 'qual' && r.kind === 'main' && b.standings) extra = '<p class="note">De fyra bästa går vidare till semifinal. Vid lika poäng på gränsen avgör en kort utslagsrunda.</p>';
-    if (r.stage === 'semi' && b.semi) extra = '<h2 class="h2">Semifinaler</h2>' + b.semi.map(m => `<p class="match">${nameOf(m.a)} mot ${nameOf(m.b)}${m.w ? ' → <b>' + nameOf(m.w) + '</b> vidare' : ''}</p>`).join('');
-    if (r.stage === 'final' && b.finalists) { const w = b.wins || {}; extra = `<h2 class="h2">Final – bäst av tre</h2><p class="match">${nameOf(b.finalists[0])} <b>${w[b.finalists[0]] || 0}</b> – <b>${w[b.finalists[1]] || 0}</b> ${nameOf(b.finalists[1])}</p>`; }
-    if (b.forced) extra += '<p class="small">Lika efter flera utslagsrundor: placeringen avgjordes på anslutningsordning.</p>';
+    if (st.mode === 'quick') extra = '<p class="note">Omgång ' + r.no + ' av ' + st.quick_rounds + ' klar. ' + (r.no === st.quick_rounds ? 'Visa slutresultatet när värden går vidare.' : 'Nästa omgång börjar när värden fortsätter.') + '</p>';
+    if (st.mode !== 'quick' && r.stage === 'qual' && r.kind === 'main' && b.standings) extra = '<p class="note">De fyra bästa går vidare till semifinal. Vid lika poäng på gränsen avgör en kort utslagsrunda.</p>';
+    if (st.mode !== 'quick' && r.stage === 'semi' && b.semi) extra = '<h2 class="h2">Semifinaler</h2>' + b.semi.map(m => `<p class="match">${nameOf(m.a)} mot ${nameOf(m.b)}${m.w ? ' → <b>' + nameOf(m.w) + '</b> vidare' : ''}</p>`).join('');
+    if (st.mode !== 'quick' && r.stage === 'final' && b.finalists) { const w = b.wins || {}; extra = `<h2 class="h2">Final – bäst av tre</h2><p class="match">${nameOf(b.finalists[0])} <b>${w[b.finalists[0]] || 0}</b> – <b>${w[b.finalists[1]] || 0}</b> ${nameOf(b.finalists[1])}</p>`; }
+    if (st.mode !== 'quick' && b.forced) extra += '<p class="small">Lika efter flera utslagsrundor: placeringen avgjordes på anslutningsordning.</p>';
     const review = res.review ? `<details class="review"><summary>Dina svar</summary>${res.review.map(x => `<div class="rv"><span>${x.a} × ${x.b} = ${x.ans}</span><span class="${x.ok ? 'ok' : 'no'}">${x.val == null ? 'inget svar' : x.ok ? 'Rätt' : 'Du svarade ' + x.val}</span></div>`).join('')}</details>` : '';
     const mineRow = (res.round || []).find(x => x.id === st.me);
     shell(`<span class="eyebrow">${stageName(r)} klar</span><h1>${mineRow ? mineRow.correct + ' av ' + r.n_q + ' rätt' : 'Resultat'}</h1>${errBox()}
       ${rankList(res.round || [], r.n_q)}${extra}${review}
-      ${st.is_host ? `<button class="btn block" data-act="next" ${S.busy ? 'disabled' : ''}>Nästa steg →</button>` : '<p class="note" aria-live="polite">Väntar på att värden går vidare…</p>'}`);
+      ${st.is_host ? `<button class="btn block" data-act="next" ${S.busy ? 'disabled' : ''}>${st.mode === 'quick' ? (r.no === st.quick_rounds ? 'Visa slutresultat →' : 'Nästa omgång →') : 'Nästa steg →'}</button>` : '<p class="note" aria-live="polite">Väntar på att värden går vidare…</p>'}`);
   }
   function podium() {
-    const st = S.st, b = st.bracket, p = b.podium || [];
+    const st = S.st, b = st.bracket || {};
+    if (st.mode === 'quick') {
+      const scores = b.quick_scores || [], tie = !!b.quick_draw;
+      const top = scores[0];
+      shell(`<span class="eyebrow">Snabbmatch klar</span><h1>${top ? (tie ? 'Oavgjort!' : esc(top.nick) + ' vinner!') : 'Spelet är slut'}</h1>
+        <p class="lead">${st.quick_rounds} omgångar med ${st.quick_q} frågor vardera.</p>
+        <h2 class="h2">Totalpoäng</h2>${rankList(scores, st.quick_q * st.quick_rounds)}
+        <p class="lead">Bra spelat! Ni kan skapa en ny match med andra tabeller eller frågor.</p>
+        <button class="btn block" data-act="done">Klar</button>`);
+      return;
+    }
+    const p = b.podium || [];
     shell(`<span class="eyebrow">Matte OS Cup</span><h1>${p[0] ? nameOf(p[0]) + ' vinner!' : 'Spelet är slut'}</h1>
       <ol class="podium"><li><b>1:a</b> ${nameOf(p[0])}</li><li><b>2:a</b> ${nameOf(p[1])}</li>${p.slice(2).length ? '<li><b>Delad 3:e</b> ' + p.slice(2).map(nameOf).join(' och ') + '</li>' : ''}</ol>
       <p class="lead">Alla har gjort sitt bästa. Bra spelat!</p>
@@ -294,6 +323,8 @@
         }
       case 'minitest': if (v === 'again') S.study.test = null; S.view = 'minitest'; draw(); break;
       case 'mtnext': S.study.test.i++; S.study.test.fb = null; draw(); break;
+      case 'cmode': S.setup.mode = v === 'cup' ? 'cup' : 'quick'; S.setup.expanded = true; if (S.setup.mode === 'quick' && ![5,10,20].includes(S.setup.qual)) S.setup.qual = 10; if (S.setup.mode === 'cup' && ![10,15,20].includes(S.setup.qual)) S.setup.qual = 10; draw(); break;
+      case 'crounds': S.setup.expanded = true; if ([1,3,5].includes(+v)) S.setup.rounds = +v; draw(); break;
       case 'ctab': S.setup.expanded = true; { const t = +v, a = S.setup.tables, i = a.indexOf(t); if (i >= 0) a.splice(i, 1); else a.push(t); a.sort((x, y) => x - y); draw(); break; }
       case 'ctall': S.setup.expanded = true; S.setup.tables = [1,2,3,4,5,6,7,8,9,10]; draw(); break;
       case 'ct69': S.setup.expanded = true; S.setup.tables = [6, 7, 8, 9]; draw(); break;

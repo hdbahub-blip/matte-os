@@ -60,6 +60,36 @@ const configs = [
           assert(widths[0] <= widths[1] + 2, name + ' horizontal overflow: ' + widths); n++;
           assert.deepEqual(errors, [], name + ' ' + grade + ' uncaught errors'); n++;
 
+          // Shared-screen spoken duel, independent of the server Cup.
+          await page.goto(BASE + '#/tabell/duel/setup', { waitUntil: 'domcontentloaded' });
+          await page.locator('#arena #duelform').waitFor();
+          await page.locator('#arena #player1').fill('Alex');
+          await page.locator('#arena #player2').fill('Sam');
+          await page.locator('#arena #dueltable').selectOption('7');
+          await page.locator('#arena #duelform button[type=submit]').click();
+          await page.locator('#arena [data-act="buzz"][data-value="1"]').click();
+          assert.equal(await page.locator('#arena [data-act="awardDuel"]').count(), 0, name + ' point award available before revealing facit'); n++;
+          assert.equal(await page.locator('#arena [data-act="revealDuel"]').count(), 1, name + ' missing show-answer action'); n++;
+          await page.locator('#arena [data-act="revealDuel"]').click();
+          const problem = await page.locator('#arena .duel-question').innerText();
+          const numsDuel = problem.match(/\d+/g).map(Number);
+          assert((await page.locator('#arena .judge h2').innerText()).includes('= ' + numsDuel[0] * numsDuel[1]), name + ' incorrect duel facit'); n++;
+          // Sam buzzed first, but Alex gets the point if Alex said the correct spoken answer.
+          await page.locator('#arena [data-act="awardDuel"][data-value="0"]').click();
+          assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(), '1', name + ' award to non-buzzer failed'); n++;
+          await page.locator('#arena [data-act="undoDuel"]').click();
+          assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(), '0', name + ' undo point failed'); n++;
+          await page.locator('#arena [data-act="awardDuel"][data-value="1"]').click();
+          assert.equal(await page.locator('#arena .playerbox .playerscore').last().innerText(), '1', name + ' award to buzzer failed'); n++;
+          await page.locator('#arena [data-act="duelNext"]').click();
+          assert.match(await page.locator('#arena .duel-topline').innerText(), /Fråga 2 av 10/, name + ' no next question'); n++;
+          await page.locator('#arena [data-act="buzz"][data-value="0"]').click();
+          await page.locator('#arena [data-act="revealDuel"]').click();
+          await page.locator('#arena [data-act="awardDuel"][data-value="none"]').click();
+          await page.locator('#arena [data-act="buzz"]').first().waitFor({ timeout: 5500 });
+          assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(), '0', name + ' no-point changed Alex score'); n++;
+          assert.equal(await page.locator('#arena .playerbox .playerscore').last().innerText(), '1', name + ' no-point changed Sam score'); n++;
+
           // Separate exam engine: verify no early solutions, then complete an empty synthetic diagnosis.
           const progressBeforeExam = await page.evaluate(() => localStorage.getItem('matteos.v5'));
           await page.goto(BASE + 'prov/?g=' + grade, { waitUntil: 'domcontentloaded' });

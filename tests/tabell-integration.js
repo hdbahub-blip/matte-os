@@ -55,12 +55,19 @@ for(let i=0;i<20;i++){
 }
 ok(shadow.innerHTML.includes('20/20'),'mixed scoring');
 goto('duel/setup');ok(shadow.innerHTML.includes('duelform'),'duel setup');
-submit('duelform');ok(shadow.innerHTML.includes('Runda 1 av 10'),'duel starts');
-click('buzz','0');ok(shadow.innerHTML.includes('tryckte först'),'buzz');
-click('judge','0');ok(shadow.innerHTML.includes('får chansen'),'steal opportunity');
-click('judge','1');ok(shadow.innerHTML.includes('duel-solution'),'steal scored');
+submit('duelform');ok(shadow.innerHTML.includes('Fråga 1 av 10'),'duel starts with question label');
+click('buzz','0');ok(shadow.innerHTML.includes('tryckte först'),'buzzer locks');
+ok(!shadow.innerHTML.includes('Facit ·'),'answer hidden until reveal');
+click('revealDuel');ok(shadow.innerHTML.includes('Facit ·'),'facit revealed only after buzzer');
+const duelEq=shadow.innerHTML.match(/<div class="duel-question">(\d+) <span>×<\/span> (\d+)/);
+ok(!!duelEq && shadow.innerHTML.includes('= '+(Number(duelEq[1])*Number(duelEq[2]))),'mathematically correct facit');
+click('awardDuel','1');ok(shadow.innerHTML.includes('+1 poäng till B'),'point awarded to non-buzzer');
+click('undoDuel');ok(shadow.innerHTML.includes('Facit ·'),'undo reopens facit and scoring');
+click('awardDuel','1');ok(shadow.innerHTML.includes('+1 poäng till B'),'awarded after undo');
+click('duelNext');ok(shadow.innerHTML.includes('Fråga 2 av 10'),'next question');
+click('buzz','0');click('revealDuel');click('awardDuel','none');ok(shadow.innerHTML.includes('Ingen poäng'),'no point');
 click('duelNext');
-for(let i=1;i<10;i++){click('buzz',String(i%2));click('judge','1');click('duelNext')}
+for(let i=2;i<10;i++){click('buzz',String(i%2));click('revealDuel');click('awardDuel',String(i%2));click('duelNext')}
 ok(shadow.innerHTML.includes('DUELL KLAR'),'duel result');
 ok(win.MOEngine.prof('grade9').tables.sessions.length===2,'duel does not contaminate pupil mastery');
 ok(!!JSON.parse(win.MOEngine.exportData()).state.profiles.grade9.tables,'backup includes table state');
