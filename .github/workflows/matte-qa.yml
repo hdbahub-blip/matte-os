@@ -82,6 +82,24 @@ jobs:
           path: test-screenshots/
           if-no-files-found: ignore
 
+  cross-engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install WebKit and Firefox browser engines
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps webkit firefox
+      - name: Cross-engine student-flow regression (simulated devices, synthetic data)
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-cross-engine.log 2>&1 &
+          sleep 2
+          node tests/cross-engine-e2e.js http://127.0.0.1:8765/
+
   cup-backend:
     runs-on: ubuntu-latest
     timeout-minutes: 15
