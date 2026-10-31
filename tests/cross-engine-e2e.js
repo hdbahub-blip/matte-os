@@ -53,7 +53,8 @@ const configs = [
           assert.equal(await page.locator('#arena .answer').filter({hasText:'= 49'}).count(), 1, name + ' reveal 7×7'); n++;
           await page.locator('#arena [data-act="toggleStudyRow"][data-value="7"]').click();
           assert.equal(await page.locator('#arena .answer-placeholder').count(), 10, name + ' individual re-hide'); n++;
-          await page.goto(BASE + '#/tabell/table/8', {waitUntil:'domcontentloaded'});
+          await page.locator('#arena [data-to="home"]').first().click();
+          await page.locator('#arena .tabtile[href="#/tabell/table/8"]').click();
           await page.locator('#arena .reference').waitFor();
           assert.equal(await page.locator('#arena .answer-placeholder').count(), 10, name + ' hide mode retained across tables'); n++;
           await page.locator('#arena [data-act="toggleStudyAnswers"]').click();
