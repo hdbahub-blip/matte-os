@@ -109,7 +109,9 @@ async function drive(p, nick, state) {
   await P[0].p.waitForSelector('#cup >> css=#cd'); ok(true, 'nedräkning visas'); await shot(P[0].p, 'player-03-nedrakning');
   const drivers = P.map((x, i) => drive(x.p, x.nick, states[i]));
   // midrunda: ladda om spelare 5, och offline för spelare 6
-  await P[5].p.waitForSelector('#cup >> css=#ai', { timeout: 15000 }); await shot(P[5].p, 'player-04-fraga'); await overflow(P[5].p, 'fråga SE/13');
+  // The drivers answer as soon as #ai appears, so the field is only visible at the start of each 15 s question.
+  // If player 5 already answered question 1, the next window opens ~15 s later; wait past two question periods.
+  await P[5].p.waitForSelector('#cup >> css=#ai', { timeout: 40000 }); await shot(P[5].p, 'player-04-fraga'); await overflow(P[5].p, 'fråga SE/13');
   ok(!(await sh(P[5].p)).includes('Lina'), 'under pågående runda syns inga andra spelare/poäng');
   await P[6].c.setOffline(true); await sleep(2500); ok((await P[6].p.locator('#cup >> css=#banner').innerText()).includes('Ingen kontakt'), 'nätbortfall visar tydlig banner'); await P[6].c.setOffline(false);
   // värd väntar på resultat
