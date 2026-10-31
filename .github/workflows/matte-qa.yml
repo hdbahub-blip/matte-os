@@ -131,6 +131,7 @@ jobs:
           psql -d postgres -c "create database cuptest"
           psql -d cuptest -c "create role anon nologin; create role authenticated nologin;"
           psql -d cuptest -v ON_ERROR_STOP=1 -f cup/supabase/0001_matte_os_cup.sql
+          psql -d cuptest -v ON_ERROR_STOP=1 -f cup/supabase/0004_cup_quickmatch.sql
       - name: QR decode, game flow with 10 players, security
         run: |
           node tests/cup-qr.js
@@ -143,6 +144,8 @@ jobs:
           node tests/cup-api-headers.js
           node tests/cup-integrity-abuse.js
           node tests/cup-rollback.js
+      - name: Quickmatch server regressions (2 players, custom tables and 3 rounds)
+        run: node tests/cup-quick-backend.js http://127.0.0.1:8787
       - name: Browser E2E with 1 host + 10 players
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-server.log 2>&1 &
