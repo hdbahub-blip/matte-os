@@ -14,3 +14,16 @@
 
 /* 5.5.1 — 44px touch target for the back link. */
 .arena-app .linkback{min-height:44px;display:inline-flex;align-items:center}
+
+
+/* 5.5.3 duel controls: reuse existing card and accent language. */
+.duel-group{margin-top:18px}.duel-table-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.duel-table-chip{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;color:var(--ink);font-weight:850;min-height:49px;padding:8px 5px;white-space:nowrap}
+.duel-table-chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.duel-table-chip:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.duel-timing{display:flex;gap:7px;flex-wrap:wrap}.duel-timing .duel-table-chip{flex:1;min-width:65px;padding:8px}
+.duel-presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.duel-presets .btn{min-height:44px;font-size:.83rem;padding:9px 12px}
+.duel-clockbox{margin:12px auto;display:flex;align-items:center;justify-content:center;gap:10px;flex-direction:column;background:var(--soft);color:var(--accent);border-radius:16px;padding:14px;max-width:255px}
+.duel-clockbox span{font-size:.8rem;font-weight:800}.duel-clockbox strong{font-size:clamp(3rem,11vw,4.1rem);font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
+.duel-clockbox strong[data-low="true"]{color:var(--red)}.duel-clockbox small{font-size:.75rem;font-weight:750}
+@media(max-width:620px){.duel-table-grid{gap:6px}.duel-table-chip{min-height:46px;padding:6px 3px}.duel-clockbox{padding:11px}}

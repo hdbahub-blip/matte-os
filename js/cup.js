@@ -104,7 +104,7 @@
       if (r.status === 'active') {
         const startsIn = Math.max(0, r.starts_in_ms - el), left = Math.max(0, r.ms_left - el);
         if (cd) cd.textContent = Math.ceil(startsIn / 1000);
-        if (txt) txt.textContent = Math.ceil(left / 1000) + ' s kvar i rundan';
+        if (txt) { const seconds = Math.ceil(left / 1000); const num = txt.querySelector('strong'); if (num) num.textContent = String(seconds); txt.setAttribute('data-low', seconds <= 10 ? 'true' : 'false'); }
         if (bar) bar.style.width = Math.max(0, Math.min(100, 100 * left / Math.max(1, r.ms_left + r.starts_in_ms))) + '%';
         if (startsIn === 0 && r.starts_in_ms > 0 && !S._kicked) { S._kicked = true; pollOnce(); }
         if (startsIn > 0) S._kicked = false;
@@ -115,7 +115,7 @@
 
   // ---------- rendering ----------
   function shell(inner) {
-    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.5.2"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
+    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.5.3"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
   }
   const chips = (sel, act) => Array.from({ length: 10 }, (_, i) => i + 1).map(t => '<button type="button" class="chip' + (sel.includes(t) ? ' on' : '') + '" data-act="' + act + '" data-v="' + t + '" aria-pressed="' + sel.includes(t) + '">' + t + '</button>').join('');
   const errBox = () => S.err ? '<p class="err" role="alert">' + esc(S.err) + '</p>' : '';
@@ -222,6 +222,7 @@
     if (isHost) drawQr();
   }
   function stageName(r) { if (S.st && S.st.mode === 'quick') return 'Omgång ' + r.no + ' av ' + S.st.quick_rounds; return r.kind === 'tb' ? 'Utslagsrunda' : ({ qual: 'Kval', semi: 'Semifinal', final: 'Final – spel ' + r.game + ' av 3' })[r.stage] || ''; }
+  function cupTime(r) { return '<div class="cup-countdown" id="tleft" role="timer" aria-label="Tid kvar av omgången"><span>Omgångstid kvar</span><strong>'+Math.max(0,Math.ceil(r.ms_left/1000))+'</strong><small>sekunder</small></div>'; }
   function playing() {
     const st = S.st, r = st.round;
     if (r.starts_in_ms > 0 && !r.question) {
@@ -230,12 +231,12 @@
     }
     if (S.local) { return feedback(); }
     if (!r.question) {
-      shell(`<span class="eyebrow">${stageName(r)}</span><h1>Klart!</h1><p class="lead">Du har svarat på alla frågor. Väntar på de andra: <b>${r.finished}</b> av <b>${r.participants}</b> klara.</p><div class="bar"><i id="tbar"></i></div><p class="small" id="tleft"></p>${hostBar()}`);
+      shell(`<span class="eyebrow">${stageName(r)}</span><h1>Klart!</h1><p class="lead">Du har svarat på alla frågor. Väntar på de andra: <b>${r.finished}</b> av <b>${r.participants}</b> klara.</p><div class="bar"><i id="tbar"></i></div>${cupTime(r)}${hostBar()}`);
       return;
     }
     const q = r.question;
     const keep = shadow.querySelector('form[data-form=ans]'); const keepVal = keep && keep.dataset.r === String(r.id) && keep.dataset.i === String(q.idx) ? (shadow.getElementById('ai') || {}).value || '' : '';
-    shell(`<span class="eyebrow">${stageName(r)} · fråga ${q.idx + 1} av ${r.n_q}</span><div class="bar"><i id="tbar"></i></div><p class="small right" id="tleft"></p>
+    shell(`<span class="eyebrow">${stageName(r)} · fråga ${q.idx + 1} av ${r.n_q}</span><div class="bar"><i id="tbar"></i></div>${cupTime(r)}
       <div class="qcard"><div class="eq" aria-live="polite">${q.a} × ${q.b} = ?</div>
       <form data-form="ans" data-r="${r.id}" data-i="${q.idx}"><input id="ai" class="num" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="3" aria-label="Svar på ${q.a} gånger ${q.b}"><button class="btn block" type="submit" id="ab" ${S.busy ? 'disabled' : ''}>Svara</button></form></div>
       <p class="small">Du ser inte hur de andra ligger till förrän rundan är slut.</p>${hostBar()}`);
@@ -244,11 +245,11 @@
   function hostBar() { return S.st.is_host ? '<button class="link" data-act="endround">Avsluta rundan nu (värd)</button>' : ''; }
   function feedback() {
     const l = S.local; const q = l.q;
-    shell(`<span class="eyebrow">${stageName(S.st.round)}</span><div class="qcard"><div class="eq">${q.a} × ${q.b}</div><p class="fb ok" role="status">Svar skickat ✓</p><p class="small">Facit och vad som var rätt visas när hela rundan är slut, så att ingen kan skicka svar vidare.</p></div>`);
+    shell(`<span class="eyebrow">${stageName(S.st.round)}</span><div class="qcard"><div class="eq">${q.a} × ${q.b}</div><p class="fb ok" role="status">Svar skickat ✓</p>${cupTime(S.st.round)}<p class="small">Facit och vad som var rätt visas när hela rundan är slut, så att ingen kan skicka svar vidare.</p></div>`);
   }
   function watching() {
     const st = S.st, r = st.round;
-    shell(`<span class="eyebrow">${stageName(r)}</span><h1>${st.is_host && !st.me ? 'Spelet pågår' : 'Du tittar på'}</h1><p class="lead">${r.finished} av ${r.participants} spelare är klara.</p><div class="bar"><i id="tbar"></i></div><p class="small" id="tleft"></p>${hostBar()}`);
+    shell(`<span class="eyebrow">${stageName(r)}</span><h1>${st.is_host && !st.me ? 'Spelet pågår' : 'Du tittar på'}</h1><p class="lead">${r.finished} av ${r.participants} spelare är klara.</p><div class="bar"><i id="tbar"></i></div>${cupTime(r)}${hostBar()}`);
   }
   function rankList(rows, withMax) {
     return '<ol class="rank">' + rows.map(x => `<li class="${S.st.me && x.id === S.st.me ? 'me' : ''}"><span class="rk">${x.rank}</span><span class="pn">${esc(x.nick)}${S.st.me && x.id === S.st.me ? ' (du)' : ''}</span><span class="sc">${x.correct}${withMax ? ' / ' + withMax : ''}</span></li>`).join('') + '</ol>';
