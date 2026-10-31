@@ -60,8 +60,20 @@ const configs = [
           assert(widths[0] <= widths[1] + 2, name + ' horizontal overflow: ' + widths); n++;
           assert.deepEqual(errors, [], name + ' ' + grade + ' uncaught errors'); n++;
 
+          // Separate exam engine: verify no early solutions, then complete an empty synthetic diagnosis.
+          const progressBeforeExam = await page.evaluate(() => localStorage.getItem('matteos.v5'));
           await page.goto(BASE + 'prov/?g=' + grade, { waitUntil: 'domcontentloaded' });
           assert.match(await page.title(), /Matte Prov/); n++;
+          await page.locator('[data-start="diagnos"]').first().click();
+          await page.locator('.question-sheet').waitFor();
+          assert.equal(await page.locator('.question-sheet .solution, .question-sheet .result-detail, .result-head').count(), 0, name + ' exam leaks a solution before submission'); n++;
+          const total = Number((await page.locator('.qcount').innerText()).split('/')[1]);
+          assert(total > 0 && total < 50, name + ' invalid diagnosis length'); n++;
+          for (let i = 0; i < total; i++) await page.locator('[data-next]').click();
+          await page.locator('[data-submit]').click();
+          await page.locator('.result-head').waitFor();
+          assert.equal(await page.locator('.review-list').count(), 1, name + ' no post-submit review'); n++;
+          assert.equal(await page.evaluate(() => localStorage.getItem('matteos.v5')), progressBeforeExam, name + ' exam modified learning progress'); n++;
         } finally {
           await context.close();
         }
