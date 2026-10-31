@@ -58,3 +58,8 @@ li.me{border-color:var(--accent);background:var(--soft)}.pn{flex:1;font-weight:6
 .cup-customize .chips{margin-bottom:8px}
 .cup .btn{min-height:44px}
 .cup .link-box:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+
+/* Explicit numeric timer for Cup rounds; existing round-wide deadline unchanged. */
+.cup-countdown{margin:12px 0;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--accent);display:flex;justify-content:center;align-items:center;gap:9px;padding:8px 12px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.cup-countdown span{font-size:.79rem;font-weight:750}.cup-countdown strong{font-size:2.1rem;line-height:1;font-weight:900}.cup-countdown small{font-size:.79rem;font-weight:700}.cup-countdown[data-low="true"] strong{color:var(--red)}
