@@ -3,7 +3,7 @@
 (function (root) {
   'use strict';
   const CORE = {
-    version: '5.5.3',
+    version: '5.5.4',
     build: '2026-10-31',
     year: 2026,
     profiles: {

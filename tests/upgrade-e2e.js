@@ -1,5 +1,5 @@
 'use strict';
-/* Same-origin upgrade acceptance: 5.5.0 -> 5.5.3 with SYNTHETIC progress created in a fresh browser profile.
+/* Same-origin upgrade acceptance: 5.5.0 -> 5.5.4 with SYNTHETIC progress created in a fresh browser profile.
    One origin serves the baseline build, then the candidate build is swapped in behind the same URL,
    exactly like a GitHub Pages deploy. Verifies persistence, service-worker cache switch, backup
    export/reset/import and offline recovery. Never touches real student data.
@@ -50,10 +50,10 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     ok(JSON.stringify(B5.profiles.grade9.lessons || {}).includes(sid), 'Synthetic lesson progress not stored by 5.5.0');
     ok(Object.keys((B5.profiles.grade9.tables || {}).facts || {}).length >= 1, 'Synthetic table progress not stored by 5.5.0');
 
-    // 2. Deploy 5.5.3 behind the same origin and reload as a returning student would.
+    // 2. Deploy 5.5.4 behind the same origin and reload as a returning student would.
     root = CANDIDATE;
     await page.goto(B, { waitUntil: 'networkidle' }); await page.reload({ waitUntil: 'networkidle' });
-    ok(await page.evaluate(() => MO_CORE.version) === '5.5.3', 'Candidate 5.5.3 not served after deploy');
+    ok(await page.evaluate(() => MO_CORE.version) === '5.5.4', 'Candidate 5.5.4 not served after deploy');
     const after = await page.evaluate(() => ({ v5: localStorage.getItem('matteos.v5'), cup: localStorage.getItem('matteos.cup.v1'), prov: localStorage.getItem('matte-prov-v1') }));
     const A5 = JSON.parse(after.v5);
     ok(A5.active === B5.active, 'Active profile lost');
@@ -62,8 +62,8 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     ok(after.cup === before.cup && after.prov === before.prov, 'Cup or Prov storage changed by upgrade');
     ok(/Fortsätt · steg 2 av 3/.test(await page.locator('.hero .btn').innerText()), 'Home does not resume the saved lesson step');
     let keys = [];
-    for (let i = 0; i < 30; i++) { keys = await page.evaluate(() => caches.keys()); if (keys.some(k => k.includes('5.5.3')) && !keys.some(k => k.includes('5.5.0'))) break; await page.waitForTimeout(500); }
-    ok(keys.some(k => k.includes('5.5.3')) && !keys.some(k => k.includes('5.5.0')), 'Service-worker cache not switched to 5.5.3: ' + keys);
+    for (let i = 0; i < 30; i++) { keys = await page.evaluate(() => caches.keys()); if (keys.some(k => k.includes('5.5.4')) && !keys.some(k => k.includes('5.5.0'))) break; await page.waitForTimeout(500); }
+    ok(keys.some(k => k.includes('5.5.4')) && !keys.some(k => k.includes('5.5.0')), 'Service-worker cache not switched to 5.5.4: ' + keys);
     await page.reload({ waitUntil: 'networkidle' });
     ok(await page.evaluate(() => localStorage.getItem('matteos.v5')) === after.v5, 'Progress changed by a second reload');
 
@@ -83,7 +83,7 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     ok(JSON.stringify(R5.profiles.grade9.tables) === JSON.stringify(A5.profiles.grade9.tables), 'Import did not restore table progress');
     fs.unlinkSync(backup);
 
-    // 4. Offline recovery from the 5.5.3 cache.
+    // 4. Offline recovery from the 5.5.4 cache.
     await context.setOffline(true);
     for (const route of ['#/', '#/formler', '#/trana', '#/installningar', '#/l/' + sid + '/0']) {
       await page.goto(B + route); await page.waitForTimeout(300);
@@ -95,6 +95,6 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     await context.setOffline(false);
     ok(errors.length === 0, 'Page errors: ' + errors.join(' | '));
     await context.close();
-    console.log('UPGRADE 5.5.0 -> 5.5.3 same-origin acceptance ' + n + '/' + n + ' PASS');
+    console.log('UPGRADE 5.5.0 -> 5.5.4 same-origin acceptance ' + n + '/' + n + ' PASS');
   } finally { await browser.close(); server.close(); }
 })().catch(e => { console.error(e); process.exitCode = 1; server.close(); });

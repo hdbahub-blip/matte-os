@@ -25,7 +25,7 @@ function mount(){
   for(let k=0;k<4;k++){
     const prev=hash;
     host={attachShadow(){
-      shadow={innerHTML:'',events:{},addEventListener(e,fn){this.events[e]=fn},getElementById:id=>fields[id],activeElement:null};
+      shadow={innerHTML:'',events:{},addEventListener(e,fn){this.events[e]=fn},getElementById:id=>fields[id],querySelector:()=>null,activeElement:null};
       return shadow;
     }};
     win.MOTabellArena.mount();
@@ -42,6 +42,21 @@ for(let n=1;n<=10;n++){
   goto('table/'+n);
   ok(Array.from({length:10},(_,i)=>i+1).every(k=>shadow.innerHTML.includes('<b>'+n+'</b> × '+k)&&shadow.innerHTML.includes('= '+(n*k))),'all reference equations '+n);
 }
+goto('table/7');ok(shadow.innerHTML.includes('Göm alla svar'),'study default shows all');
+click('toggleStudyAnswers');
+ok(shadow.innerHTML.includes('Visa alla svar')&&shadow.innerHTML.includes('Svaren är dolda'),'study answers hidden');
+ok((shadow.innerHTML.match(/class="answer answer-placeholder"/g)||[]).length===10,'all 10 reference answers concealed');
+ok(!shadow.innerHTML.includes('<span class="answer">= 49</span>'),'no numeric answer rendered when hidden');
+click('toggleStudyRow','7');
+ok(shadow.innerHTML.includes('<span class="answer">= 49</span>'),'reveal one answer');
+ok((shadow.innerHTML.match(/class="answer answer-placeholder"/g)||[]).length===9,'other nine answers still hidden');
+click('toggleStudyRow','7');
+ok((shadow.innerHTML.match(/class="answer answer-placeholder"/g)||[]).length===10,'hide individual answer again');
+click('toggleStudyRow','6');
+goto('table/8');
+ok((shadow.innerHTML.match(/class="answer answer-placeholder"/g)||[]).length===10,'switching table clears individual reveals but retains hide mode');
+click('toggleStudyAnswers');
+ok(shadow.innerHTML.includes('Göm alla svar')&&shadow.innerHTML.includes('<span class="answer">= 56</span>'),'show all again');
 goto('practice/7');ok(shadow.innerHTML.includes('1 / 10'),'deep-linked table practice');
 for(let i=0;i<10;i++){
   const m=shadow.innerHTML.match(/<div class="equation">(\d+) <span>×<\/span> (\d+)/);
