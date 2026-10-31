@@ -69,6 +69,12 @@ jobs:
           node tests/posters-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/paper-lessons-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/calm-ux-e2e.js http://127.0.0.1:8765/
+      - name: Same-origin upgrade from production 5.5.0 with synthetic progress
+        run: |
+          git fetch --depth 1 origin 7f87feeac11fc4800b05cbee0cfded415b1052ff
+          mkdir -p /tmp/matte-baseline-550
+          git archive FETCH_HEAD | tar -x -C /tmp/matte-baseline-550
+          node tests/upgrade-e2e.js /tmp/matte-baseline-550 .
       - uses: actions/upload-artifact@v4
         if: always()
         with:
