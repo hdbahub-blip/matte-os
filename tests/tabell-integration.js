@@ -59,7 +59,7 @@ submit('duelform');ok(shadow.innerHTML.includes('Fråga 1 av 10'),'duel starts w
 click('buzz','0');ok(shadow.innerHTML.includes('tryckte först'),'buzzer locks');
 ok(!shadow.innerHTML.includes('Facit ·'),'answer hidden until reveal');
 click('revealDuel');ok(shadow.innerHTML.includes('Facit ·'),'facit revealed only after buzzer');
-const duelEq=shadow.innerHTML.match(/<div class="duel-question">(\\d+) <span>×<\\/span> (\\d+)/);
+const duelEq=shadow.innerHTML.match(/<div class="duel-question">(\d+) <span>×<\/span> (\d+)/);
 ok(!!duelEq && shadow.innerHTML.includes('= '+(Number(duelEq[1])*Number(duelEq[2]))),'mathematically correct facit');
 click('awardDuel','1');ok(shadow.innerHTML.includes('+1 poäng till B'),'point awarded to non-buzzer');
 click('undoDuel');ok(shadow.innerHTML.includes('Facit ·'),'undo reopens facit and scoring');
