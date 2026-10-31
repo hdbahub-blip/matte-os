@@ -18,7 +18,7 @@ Elevernas dokumenterade feedback: matematik var ibland för abstrakt och överst
 | C09,C10 | Minst 44px minsta knapphöjd på huvudsakliga små knappar, fokus på huvudrubrik efter navigation och återställd fokus efter dialog. | Desktop+mobil och tangentbordsgranskning; fysisk VoiceOver återstår. |
 | C12 | Restprovsspråk förenklat och obekräftat provdatum kan fyllas i frivilligt. | Kontroll av text och originalrestprov. |
 | U01,U02 | Cup har direkt "Skapa spel och visa koden"; avancerade tabell- och tidsval fällbara, förvalt 30s (lugnare takt). QR och kopiera inbjudningslänk prioriteras. | Cup E2E öppnar avancerat val innan testets 15s-kval. Verklig test med tio mobiler separat. |
-| U03 | Kort första ledtråd beroende på matematiskt område, inte generisk fråga eller facit. | Manuella exempel område för område; äldre facit och svarskontroll orörda. |
+| U03 | Kort första ledtråd beroende på matematiskt område, inte generisk fråga eller facit. Alla 63 moment har en ämnesspecifik ledtråd (bråk, procent, prefix, rötter m.fl. korrigerade 2026-10-31). | `hint-mapping` (370 kontroller): alla 63 moment, inget generiskt fall, inget facit, ingen noll-/decimalgenväg, bråk kräver inte lika nämnare vid gånger/delat. |
 | U04 | Tabellarenan erbjuder opt-in automatisk fortsättning 1,8 s efter **rätt** svar. Efter fel svar står rättningen kvar tills eleven trycker Nästa. Vid reduced-motion visas inget val (manuell nästa-knapp). | `calm-ux-e2e`: rätt svar går vidare, fel svar stannar, reduced-motion döljer valet. Skärmläsare återstår. |
 | C15 | Versionsmarkörer synkade till 5.5.1 och README uppdaterad till ny GitHub-adress. | PWA/offline/test-QA. |
 
@@ -32,13 +32,31 @@ Elevernas dokumenterade feedback: matematik var ibland för abstrakt och överst
 2. 9 410+ tidigare matematik-/innehållskontroller, figur, tabell, prov/regression och poster/offline.
 3. Playwright: iPhone SE, iPhone 13, desktop, åk 8 och åk 9, orientering, 3 synliga förklaringssteg och svar på första skärmen, valfri formel, Cup-snabbstart.
 4. Cup: 10 spelare + värd i lokala isolerade Postgres-/webbläsartester. Ingen ny Supabase-privilegiering.
+5. `upgrade-e2e`: samma origin, 5.5.0 (`7f87fee`) med **syntetiska** framsteg → 5.5.1. Bevarade `matteos.v5`/`matteos.cup.v1`/`matte-prov-v1`, återupptagen lektion, cachebyte, säkerhetskopia export→nollställ→import, offline.
+6. `calm-ux-e2e`: alla synliga kontroller ≥ 44 px på nio elevvyer (inkl. shadow DOM); Tabellarenans auto-nästa.
+
+## Verifieringsstatus (2026-10-31)
+| Område | Status | Bevis |
+|---|---|---|
+| Kod- och diffgranskning av hela PR:n | ✅ Verifierat | Ingen ändring av lagringsnycklar, `cup/`, `cup-api.js`, `cup-config.js`, `prov/`, `content8/9.js`, `math.js` |
+| Automatiska tester (GitHub CI, samtliga jobb) | ✅ Verifierat på PR-head | Länkar i PR-kommentar |
+| Emulerad mobil (Chromium iPhone SE/13, Pixel 5, desktop) | ✅ Verifierat | `browser-mobile`, `cup-e2e` |
+| Uppgradering 5.5.0 → 5.5.1 på samma origin, syntetiska data | ✅ Verifierat | `upgrade-e2e` i CI |
+| Matte Prov: ingen ledtråd/lösning/rätt-fel före inlämning | ✅ Verifierat lokalt (webbläsare, åk 8 + 9) | Engångsskript; `prov/` orörd |
+| Tangentbord: synlig fokus på Hem, Enter/mellanslag visar dolda Cup-svar | ✅ Verifierat lokalt (Chromium) | Engångsskript |
+| Migration 0003 på 0001 | ✅ Lokal Postgres 16 | 0002 kräver `pg_cron`, ej verifierbar lokalt; båda oförändrade |
+| Cup mot riktig Supabase | ❌ Ej utfört | Staging = samma projekt som produktions-Cup; kräver ägarbeslut |
+| Fysisk iPhone/Safari, Android/Chrome, VoiceOver/TalkBack | ❌ Ej utfört | `docs/ACCEPTANCE_5_5_1_MANUAL.md` A, C, E |
+| Tio fysiska Cup-mobiler | ❌ Ej utfört | Manualprotokoll D |
+| Elevförståelse | ❌ Ej utfört | Manualprotokoll B |
 
 ## Återstående acceptans
-- [ ] Full GitHub CI på senaste PR-head (run-länkar ska läggas till i PR när grönt)
+- [x] Full GitHub CI på senaste PR-head (run-länkar i PR-kommentar)
+- [x] Lokala elevdata kvar efter versionsbyte och omladdning (automatiskt, syntetiska data, Chromium)
 - [ ] Fysisk iPhone/Safari, Android/Chrome och tangentbords-/skärmläsartest
 - [ ] Eleverna kan med egna ord förklara area som 4×3 rutor = 12 cm², och 10² vs (0,1)² utan att memorera en regel
 - [ ] En fysisk värd + tio deltagare kan genomföra hela Cup, inklusive tillfälligt nätbortfall
-- [ ] Även efter omstart finns lokala elevdata och proven kvar
+- [ ] Uppgradering med riktiga elevdata i Safari (manualprotokoll A)
 
 **Risk:** UX-ändring kan påverka navigation under ett pågående övningspass eller formelförklaring. Publicera inte förrän alla automatiska tester är gröna; efter publicering krävs ett avgränsat elevtest. **Rollback:** revert PR #11; bevara `matteos.v5` och Cup-databasen. Ingen databasrollback behövs för denna ändring.
 
