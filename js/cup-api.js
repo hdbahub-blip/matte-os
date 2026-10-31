@@ -46,6 +46,7 @@
     }
     return {
       create: (tables, qualQ, secPerQ) => rpc('cup_create', { p_tables: tables, p_qual_q: qualQ, p_sec_per_q: secPerQ }),
+      createQuick: (tables, questions, rounds, secPerQ) => rpc('cup_create_quick', { p_tables: tables, p_questions: questions, p_rounds: rounds, p_sec_per_q: secPerQ }),
       join: (code, nick, device) => rpc('cup_join', { p_code: code, p_nick: nick, p_device: device }),
       ready: (code, pid, secret, ready) => rpc('cup_ready', { p_code: code, p_player: pid, p_secret: secret, p_ready: ready }),
       leave: (code, pid, secret) => rpc('cup_leave', { p_code: code, p_player: pid, p_secret: secret }),
