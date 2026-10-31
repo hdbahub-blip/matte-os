@@ -35,7 +35,7 @@ assert(!content.includes(String.raw`main: 'x^2 = a \\Rightarrow x = \\sqrt{a}'`)
 assert(content.includes('det icke-negativa tal'), 'Principal square root must allow zero');
 assert(content.includes(String.raw`x = \\sqrt{a} \\text{ eller } x = -\\sqrt{a}`), 'Quadratic solutions are incomplete');
 for (const [path, src] of [['index',index],['root-worker',sw],['core',core]]) {
-  assert(src.includes('5.5.3'), path + ': stale core version');
+  assert(src.includes('5.5.4'), path + ': stale core version');
 }
 for (const [path, src] of [['prov',provIndex],['prov-worker',provSw]]) {
   assert(src.includes('5.4.5'), path + ': unexpectedly changed independent prov shared asset version');
