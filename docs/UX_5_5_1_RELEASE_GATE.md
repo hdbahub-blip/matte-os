@@ -53,10 +53,10 @@ Elevernas dokumenterade feedback: matematik var ibland för abstrakt och överst
 ## Återstående acceptans
 - [x] Full GitHub CI på senaste PR-head (run-länkar i PR-kommentar)
 - [x] Lokala elevdata kvar efter versionsbyte och omladdning (automatiskt, syntetiska data, Chromium)
-- [ ] Fysisk iPhone/Safari, Android/Chrome och tangentbords-/skärmläsartest
+- [ ] Fysisk iPhone/Safari, Android/Chrome och tangentbords-/skärmläsartest. Tillgänglighetsfel som hindrar en elev från kärnfunktionerna är **releaseblockerande** (manualprotokoll, Beslut).
 - [ ] Eleverna kan med egna ord förklara area som 4×3 rutor = 12 cm², och 10² vs (0,1)² utan att memorera en regel
 - [ ] En fysisk värd + tio deltagare kan genomföra hela Cup, inklusive tillfälligt nätbortfall
-- [ ] Uppgradering med riktiga elevdata i Safari (manualprotokoll A)
+- [ ] Uppgradering 5.5.0 → 5.5.1 på riktig iPhone/Safari och Android/Chrome: **samma adress (origin)**, separat test-origin skild från `hdbahub-blip.github.io`, endast syntetiska testdata (manualprotokoll A). En förhandsvisning på annan domän räknas inte.
 
 **Risk:** UX-ändring kan påverka navigation under ett pågående övningspass eller formelförklaring. Publicera inte förrän alla automatiska tester är gröna; efter publicering krävs ett avgränsat elevtest. **Rollback:** revert PR #11; bevara `matteos.v5` och Cup-databasen. Ingen databasrollback behövs för denna ändring.
 

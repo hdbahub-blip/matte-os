@@ -1,16 +1,28 @@
 # Matte OS 5.5.1 – manuellt acceptansprotokoll (riktiga enheter och elever)
 
-Automatiska tester (CI, Chromium-emulering av iPhone/Pixel) bevisar **inte** Safari/WebKit, riktiga pekskärmar, skärmläsare, nätverksbyten eller att elever förstår. Det här protokollet täcker det. Kör det på en förhandsvisning av PR #11, inte i produktion. Inga riktiga namn i Cup.
+Automatiska tester (CI, Chromium-emulering av iPhone/Pixel) bevisar **inte** Safari/WebKit, riktiga pekskärmar, skärmläsare, nätverksbyten eller att elever förstår. Det här protokollet täcker det. Del B–E kan köras på en förhandsvisning av PR #11. Del A har egna krav (se nedan). Aldrig i produktion, aldrig med riktiga elevdata i testmiljön. Inga riktiga namn i Cup.
 
-**Underlag:** 1 iPhone (Safari), 1 Android (Chrome), helst en enhet som redan har 5.5.0 med elevframsteg. För Cup: 1 värd + så många mobiler som möjligt (mål 10), blandat Wi-Fi/4G. Fyll i *Resultat* med ✅/❌ och en kort notering.
+**Underlag:** 1 iPhone (Safari), 1 Android (Chrome). För Cup: 1 värd + så många mobiler som möjligt (mål 10), blandat Wi-Fi/4G. Fyll i *Resultat* med ✅/❌ och en kort notering.
 
-## A. Uppgradering och elevdata (kritiskt – stoppa vid ❌)
+## A. Uppgradering 5.5.0 → 5.5.1 på riktig enhet (kritiskt – stoppa vid ❌)
+
+**Varför samma adress krävs:** elevframsteg (`matteos.v5`) och service worker är knutna till webbläsarens *origin* (protokoll + värd + port). En förhandsvisning på en annan domän börjar med tom lagring och testar därför **inte** uppgradering – den visar bara en ny installation. Uppgraderingen är bara bevisad om 5.5.0 och 5.5.1 öppnas på **exakt samma webbadress**, efter varandra.
+
+**Separat testmiljö – krav:**
+- En egen test-origin som **inte** är `https://hdbahub-blip.github.io` (produktionen ligger på `https://hdbahub-blip.github.io/matte-os/`). Alla GitHub Pages-projekt under samma konto delar den origin och därmed lagringen, så en testsajt på `hdbahub-blip.github.io/<annat>/` kan läsa och skriva riktiga elevers data på samma enhet. Använd i stället t.ex. ett separat testkonto/testorganisation på GitHub Pages eller en lokal server i samma Wi-Fi (`http://<datorns-ip>:8080/`).
+- Testenheter eller en separat webbläsarprofil **utan** riktiga elevdata. Endast **syntetiska** testdata (påhittat namn, framsteg du själv skapar).
+- 5.5.0 = commit `7f87feeac11fc4800b05cbee0cfded415b1052ff`. 5.5.1 = slutlig PR-head. Byt innehåll på **samma** adress mellan stegen; ändra inte URL:en.
+
 | # | Gör | Förväntat | Resultat |
 |---|---|---|---|
-| A1 | På enhet med 5.5.0: notera nivå/framsteg på ett moment. Öppna förhandsvisningen två gånger. | Inställningar visar `Matte OS 5.5.1`. | |
-| A2 | Jämför samma moment. | Samma nivå/framsteg som före. Inget nollställt. | |
-| A3 | Flygplansläge, stäng och öppna appen. Gå till Hem, Förstå, ett moment, Tabellarenan. | Allt öppnas och visar innehåll offline. | |
-| A4 | Inställningar → *Spara säkerhetskopia*, sedan *Återställ från fil* med samma fil. | Fil sparas; återställningen ger samma framsteg. | |
+| A1 | Lägg ut **5.5.0** på testadressen. Öppna den på enheten, välj årskurs, skriv ett påhittat namn i Inställningar, öppna ett moment till *Prova med stöd* och svara på en fråga i 7:ans tabell. Notera adressen exakt. | Inställningar visar `Matte OS 5.5.0`. | |
+| A2 | Skriv ner synliga framsteg: namn, momentets nivå, Tabellarenans resultat för 7:an. Spara även en säkerhetskopia (*Spara säkerhetskopia*). | Fil sparas. | |
+| A3 | Ersätt innehållet på **samma adress** med **5.5.1**. Öppna appen på enheten två gånger (stäng helt emellan) med **samma** URL som i A1. | Inställningar visar `Matte OS 5.5.1`. URL:en är identisk med A1. | |
+| A4 | Jämför med A2. | Samma namn, nivå och tabellresultat. Hem visar *Fortsätt · steg 2 av 3* för momentet. Inget nollställt. | |
+| A5 | Flygplansläge, stäng och öppna appen. Gå till Hem, Förstå, momentet, Tabellarenan. | Allt öppnas offline och visar 5.5.1. | |
+| A6 | Inställningar → *Nollställ framsteg* (två tryck), sedan *Återställ från fil* med filen från A2. | Framstegen från A2 kommer tillbaka. | |
+
+En förhandsvisning av PR #11 på en annan domän räknas **inte** som godkänd A-del, hur väl den än fungerar.
 
 ## B. Elevflöde (2–3 elever, helst en som tycker matte är svårt)
 Säg bara: *"Du ska lära dig något om area/potenser. Börja här."* Hjälp inte. Mät tid och var de tvekar.
@@ -49,6 +61,7 @@ Säg bara: *"Du ska lära dig något om area/potenser. Börja här."* Hjälp int
 | E2 | Tangentbord (dator): Tab genom Hem, Formler-blad, Cup-studieläge med dolda svar. | Synlig fokusram; Enter/mellanslag visar dolt svar; fokus återvänder efter stängt blad. | |
 
 ## Beslut
-- **GO för bred publicering** endast om alla A-rader och B2–B4, B7, C2, D1–D5 är ✅.
-- Enstaka ❌ i E eller kosmetiska avvikelser → notera, publicera kontrollerat, åtgärda i 5.5.2.
+- **GO för bred publicering** endast om alla A-rader, B2–B4, B7, C2, D1–D5 och E1–E2 saknar releaseblockerande fel.
 - ❌ i A eller D7 (elevdata) → **STOPP**, rapportera i PR #11 med skärmdump.
+- **Tillgänglighet som hindrar användning är releaseblockerande, inte kosmetisk.** STOPP om en elev med skärmläsare, tangentbord eller förstorad text **inte kan** göra något av följande: välja årskurs, öppna och läsa en förklaring, svara på en uppgift och få återkoppling, öppna och lämna in Matte Prov, öppna Tabellarenan, gå med i Cup. Exempel på blockerande fel: knapp utan uppläst namn, fokus som fastnar eller försvinner, svarsfält som inte går att nå, återkoppling som aldrig läses upp, innehåll som täcks eller klipps vid förstorad text.
+- Endast avvikelser som **inte** hindrar någon från kärnfunktionerna (t.ex. ojämn fokusring, otydlig men begriplig uppläsning, kosmetisk layout) → notera, publicera kontrollerat, åtgärda i 5.5.2.
