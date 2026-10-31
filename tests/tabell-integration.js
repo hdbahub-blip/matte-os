@@ -61,7 +61,7 @@ for(let i=0;i<20;i++){
 ok(shadow.innerHTML.includes('20/20'),'mixed scoring');
 goto('duel/setup');ok(shadow.innerHTML.includes('duelform'),'duel setup');
 click('duelSubset');click('duelTable','6');click('duelTable','9');
-ok(shadow.innerHTML.includes('data-value="7" aria-pressed="true"') && shadow.innerHTML.includes('data-value="8" aria-pressed="true"'),'selected two tables');
+ok(shadow.innerHTML.includes('aria-pressed="true" data-act="duelTable" data-value="7"') && shadow.innerHTML.includes('aria-pressed="true" data-act="duelTable" data-value="8"'),'selected two tables');
 click('duelFirstSec','8');click('duelSecondSec','5');
 ok(shadow.innerHTML.includes('data-act="duelFirstSec" data-value="8"'),'config first timer');
 ok(shadow.innerHTML.includes('data-act="duelSecondSec" data-value="5"'),'config second timer');
