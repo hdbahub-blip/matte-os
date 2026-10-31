@@ -25,9 +25,9 @@ assert(diagram('f8-perimeter').includes('<svg')&&diagram('f8-area').includes('<s
 assert(diagram('f8-powers-ten').includes('0,01'),'Two-power comparisons diagram');
 assert(app.includes('function paperSteps')&&app.includes('paper-lead'),'Lessons use paper-first rendering');
 assert(app.includes('<details class="paper-more">'),'Advanced symbol sections must be optional');
-assert(index.includes('js/teach-simple.js?v=5.5.1'),'Presentational layer loaded');
-assert(worker.includes('./js/teach-simple.js?v=5.5.1'),'Simple layer available offline');
-assert(core.includes("version: '5.5.1'"),'Coordinated build');
+assert(index.includes('js/teach-simple.js?v=5.5.2'),'Presentational layer loaded');
+assert(worker.includes('./js/teach-simple.js?v=5.5.2'),'Simple layer available offline');
+assert(core.includes("version: '5.5.2'"),'Coordinated build');
 assert(read('prov/index.html').includes('1.2.4'),'Separate exam must remain unchanged');
 for(let a=1;a<=10;a++)for(let b=1;b<=10;b++)assert.equal(a*b,b*a);
 console.log('Paper-first 63/63 curriculum lessons: '+checks+' checks PASS. 100 multiplication facts PASS. Offline/core compatibility PASS.');
