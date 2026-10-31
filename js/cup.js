@@ -115,7 +115,7 @@
 
   // ---------- rendering ----------
   function shell(inner) {
-    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.5.1"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
+    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.5.2"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
   }
   const chips = (sel, act) => Array.from({ length: 10 }, (_, i) => i + 1).map(t => '<button type="button" class="chip' + (sel.includes(t) ? ' on' : '') + '" data-act="' + act + '" data-v="' + t + '" aria-pressed="' + sel.includes(t) + '">' + t + '</button>').join('');
   const errBox = () => S.err ? '<p class="err" role="alert">' + esc(S.err) + '</p>' : '';
