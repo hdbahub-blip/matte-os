@@ -42,6 +42,23 @@ const configs = [
           await page.goto(BASE + '#/tabell/table/7', { waitUntil: 'domcontentloaded' });
           await page.locator('#arena .reference').waitFor();
           assert.equal(await page.locator('#arena .eqrow').count(), 10, name + ' 7 times table'); n++;
+
+          // Reference-table self-testing: hide every answer, reveal a single product,
+          // rehide it, switch tables, and restore all without affecting exercise progress.
+          await page.locator('#arena [data-act="toggleStudyAnswers"]').click();
+          assert.equal(await page.locator('#arena .answer-placeholder').count(), 10, name + ' hidden answers in 7 times table'); n++;
+          assert.equal(await page.locator('#arena .answer').filter({hasText:'= 49'}).count(), 0, name + ' leaked hidden 7×7'); n++;
+          await page.locator('#arena [data-act="toggleStudyRow"][data-value="7"]').click();
+          assert.equal(await page.locator('#arena .answer-placeholder').count(), 9, name + ' individual reveal concealed others'); n++;
+          assert.equal(await page.locator('#arena .answer').filter({hasText:'= 49'}).count(), 1, name + ' reveal 7×7'); n++;
+          await page.locator('#arena [data-act="toggleStudyRow"][data-value="7"]').click();
+          assert.equal(await page.locator('#arena .answer-placeholder').count(), 10, name + ' individual re-hide'); n++;
+          await page.goto(BASE + '#/tabell/table/8', {waitUntil:'domcontentloaded'});
+          await page.locator('#arena .reference').waitFor();
+          assert.equal(await page.locator('#arena .answer-placeholder').count(), 10, name + ' hide mode retained across tables'); n++;
+          await page.locator('#arena [data-act="toggleStudyAnswers"]').click();
+          assert.equal(await page.locator('#arena .answer-placeholder').count(), 0, name + ' show all products'); n++;
+
           await page.goto(BASE + '#/tabell/practice/7', { waitUntil: 'domcontentloaded' });
           await page.locator('#arena .equation').waitFor();
           const eq = await page.locator('#arena .equation').innerText();
