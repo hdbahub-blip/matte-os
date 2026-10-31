@@ -35,4 +35,7 @@ for (const sid of ['f8-fractions-multiply','f8-fractions-divide'])
   assert(!/lika stora delar|gemensam nämnare|skriva om dem/.test(gentle(sid)),'Fraction '+sid+' hint wrongly requires equal denominators'),n++;
 assert(!/hela mängden\?/.test(gentle('s9-percent-whole'))&&/okänt/.test(gentle('s9-percent-whole')),'Percent whole hint treats the unknown whole as given');n++;
 assert(!/tiondel/.test(gentle('s9-percent-part')+gentle('s9-percent-problem')),'Percent hint only works for multiples of ten');n++;
+// Every curriculum moment gets a subject-specific first hint; the generic fallback is only for future skills.
+const generic=gentle('zz-unknown-skill');
+for (const sid of skills) assert.notEqual(gentle(sid),generic,'Curriculum moment falls back to the generic hint: '+sid),n++;
 console.log('HINT MAPPING '+n+'/'+n+' PASS');

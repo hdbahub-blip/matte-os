@@ -372,7 +372,22 @@ function boostCard() {
     'f8-simplify-fraction': 'Vilket tal går att dela både täljaren och nämnaren med? Dela båda med samma tal.',
     's9-percent-part': 'Vilket tal är det hela? Räkna ut hur mycket 1 % av det är, eller skriv procenten som decimaltal.',
     's9-percent-whole': 'Det hela är okänt. Delen du vet motsvarar några procent. Hur mycket blir då 1 %, och sedan 100 %?',
-    's9-percent-problem': 'Vad är det hela, vad är delen och vad är procenten? Bestäm först vilken av de tre du söker.'
+    's9-percent-problem': 'Vad är det hela, vad är delen och vad är procenten? Bestäm först vilken av de tre du söker.',
+    'f8-decimals': 'Uppskatta först svaret med hela tal. Räkna sedan och kontrollera att svaret är rimligt.',
+    'f8-negative': 'Rita en tallinje för plus och minus. Vid gånger och delat: är tecknen lika eller olika?',
+    'f8-units': 'Byter du till en större eller mindre enhet? Hur många av den mindre enheten ryms i en av den större?',
+    'f8-density': 'Täthet betyder hur många som bor på varje kvadratkilometer. Dela antalet invånare med arean i km².',
+    'f8-x-both-sides': 'Samla alla x på ena sidan. Gör samma sak på båda sidor, till exempel ta bort lika många x från båda.',
+    'f8-conjugate': 'Är det samma två termer, en gång med plus och en gång med minus? Då blir det första i kvadrat minus andra i kvadrat.',
+    'f8-primes': 'Dela talet med minsta primtal som går jämnt upp, till exempel 2 eller 3. Fortsätt tills bara primtal är kvar.',
+    'f8-order': 'Leta först efter parenteser, sedan potenser, sedan gånger och delat. Plus och minus räknas sist.',
+    'f8-formulas': 'Skriv formeln och sätt in de värden du vet. Vilken bokstav är kvar att räkna ut?',
+    's9-sqrt': 'Kvadratroten frågar: vilket tal gånger sig självt ger talet under rottecknet?',
+    's9-number-sets': 'Kan talet skrivas som ett bråk? Är det ett heltal? Är det positivt? Svaren avgör vilka talmängder det tillhör.',
+    's9-repeated-change': 'Vilken förändringsfaktor gäller för en gång? Använd samma faktor lika många gånger som förändringen sker.',
+    's9-names': 'Hur många tusen ryms i namnet? En miljon är tusen tusen och en miljard är tusen miljoner.',
+    's9-sqrt-more': 'Går någon kvadrat, som 4, 9 eller 16, jämnt upp i talet under roten? Dra ut den först. Bara lika rötter kan läggas ihop.',
+    's9-sqrt-div': 'Du kan dela talen under rötterna först och sedan ta roten av kvoten. Blir kvoten en jämn kvadrat?'
   };
   function gentleHint(sid) {
     if (HINT_BY_SID[sid]) return HINT_BY_SID[sid];
