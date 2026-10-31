@@ -390,7 +390,7 @@ details.fold > .in { padding: 0 16px 14px; }
 .calm-multiply h2{margin:0;font-size:20px}
 .calm-multiply p{margin:0}
 .calm-multiply .fold{margin:4px 0 0}
-.btn.sm,.seg-ctl button{min-height:44px}
+.btn.sm,.seg-ctl button,.keys button{min-height:44px}
 .brand{min-height:44px;min-width:44px}
 .searchbox input{min-height:44px}
 #main h1:focus{outline:none}

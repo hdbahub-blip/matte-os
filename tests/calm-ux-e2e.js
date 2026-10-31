@@ -79,6 +79,17 @@ const BASE=process.argv[2]||'http://127.0.0.1:8765/';
       assert.equal(await rp.locator('#arena [data-act="autonext"]').count(),0,'Auto-next offered although it is disabled under reduced motion');n++;
       await reduced.close();
     }
+    // C09: every visible control on the main student routes has a touch target of at least 44 px height.
+    {
+      const context=await browser.newContext({...devices['iPhone SE'],serviceWorkers:'block'}),page=await context.newPage();
+      await page.goto(BASE,{waitUntil:'networkidle'});await page.locator('[data-p="grade9"]').click();
+      for(const route of ['#/','#/formler','#/trana','#/l/s9-powers/0','#/l/s9-powers/2','#/installningar','#/cup','#/tabell/home','#/tabell/table/7']){
+        await page.goto(BASE+route);await page.waitForTimeout(400);
+        const small=await page.evaluate(()=>{const out=[];const walk=root=>{for(const e of root.querySelectorAll('a,button,input,summary,[role=button]')){const s=getComputedStyle(e);if(s.display==='none'||s.visibility==='hidden')continue;const r=e.getBoundingClientRect();if(r.width&&r.height&&r.height<43.5)out.push((e.innerText||e.getAttribute('aria-label')||e.tagName).trim().slice(0,24)+' '+Math.round(r.height)+'px');}for(const e of root.querySelectorAll('*'))if(e.shadowRoot)walk(e.shadowRoot)};walk(document);return out});
+        assert.deepEqual(small,[],'Touch targets under 44 px on '+route);n++;
+      }
+      await context.close();
+    }
     console.log('CALM UX browser acceptance '+n+'/'+n+' PASS');
   }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});

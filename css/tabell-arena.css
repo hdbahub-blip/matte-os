@@ -11,3 +11,6 @@
 :host{display:block;isolation:isolate}.arena-app{background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Arial,sans-serif;min-height:calc(100dvh - 135px)}.arena-app .container{padding-top:18px}.arena-app .shell{min-height:auto}.arena-app button,.arena-app input,.arena-app select{font:inherit}.arena-app .btn{font-weight:850}.arena-app *{box-sizing:border-box}
 
 .arena-app .tabtile{color:var(--ink);text-decoration:none}.arena-app .tabtile:visited{color:var(--ink)}.arena-app .tabtile:hover{text-decoration:none}
+
+/* 5.5.1 — 44px touch target for the back link. */
+.arena-app .linkback{min-height:44px;display:inline-flex;align-items:center}
