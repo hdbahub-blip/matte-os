@@ -19,7 +19,7 @@ Elevernas dokumenterade feedback: matematik var ibland för abstrakt och överst
 | C12 | Restprovsspråk förenklat och obekräftat provdatum kan fyllas i frivilligt. | Kontroll av text och originalrestprov. |
 | U01,U02 | Cup har direkt "Skapa spel och visa koden"; avancerade tabell- och tidsval fällbara, förvalt 30s (lugnare takt). QR och kopiera inbjudningslänk prioriteras. | Cup E2E öppnar avancerat val innan testets 15s-kval. Verklig test med tio mobiler separat. |
 | U03 | Kort första ledtråd beroende på matematiskt område, inte generisk fråga eller facit. | Manuella exempel område för område; äldre facit och svarskontroll orörda. |
-| U04 | Tabellarenan erbjuder opt-in automatisk fortsättning efter minst 1,8 s. Reduced-motion får fortsatt manuell nästa-knapp. | Undersök med skärmläsare; tidigare test default-läge oförändrat. |
+| U04 | Tabellarenan erbjuder opt-in automatisk fortsättning 1,8 s efter **rätt** svar. Efter fel svar står rättningen kvar tills eleven trycker Nästa. Vid reduced-motion visas inget val (manuell nästa-knapp). | `calm-ux-e2e`: rätt svar går vidare, fel svar stannar, reduced-motion döljer valet. Skärmläsare återstår. |
 | C15 | Versionsmarkörer synkade till 5.5.1 och README uppdaterad till ny GitHub-adress. | PWA/offline/test-QA. |
 
 ## Bevarade kontrakt

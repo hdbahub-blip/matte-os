@@ -7,7 +7,8 @@ const shuffle=x=>{let a=x.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor
 const key=(a,b)=>Math.min(a,b)+'x'+Math.max(a,b);
 let round=null,duel=null,finished=null,n=7,duelPrefs={names:['Spelare 1','Spelare 2'],table:'mixed'};
 let autoNext=false, nextTimer=null;
- const pid=()=>E.state().active;
+const reducedMotion=()=>!!(root.matchMedia&&root.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const pid=()=>E.state().active;
 const data=()=>{const p=E.prof(pid());if(!p.tables)p.tables={v:1,facts:{},sessions:[]};return p.tables};
 const log=()=>data().sessions||[];
 const info=t=>{
@@ -47,7 +48,7 @@ function table(v){
  n=Number(v);if(!(n>=1&&n<=10)){go('home');return}
  const s=info(n);
  const rows=Array.from({length:10},(_,i)=>i+1).map(k=>`<div class="eqrow"><span class="math"><b>${n}</b> × ${k}</span><span class="answer">= ${n*k}</span></div>`).join('');
- shell(`<button class="linkback" data-to="home">← Alla tabeller</button><section class="tableintro"><div><span class="eyebrow">LÄS · FÖRSTÅ · TRÄNA</span><h1 class="title">${n}:ans tabell</h1><p>Alla multiplikationer från ${n} × 1 till ${n} × 10.</p></div><div class="table-score"><strong>${s.best}/10</strong><small>Bästa runda</small></div></section><section class="card"><div class="refhead"><h2>Hela ${n}:an</h2><span class="mut">Alla svar synliga</span></div><div class="reference">${rows}</div><div class="study-tip"><b>Så kan du öva:</b> Läs en rad. Dölj svaret med handen. Försök säga det innan du tittar igen.</div><div class="under-reference"><a class="btn" href="#/tabell/practice/${n}">Träna ${n}:an · 10 frågor</a><button class="btn ghost" data-act="autonext" aria-pressed="${autoNext}">${autoNext ? 'Automatiskt nästa: på' : 'Färre tryck: automatiskt nästa (valfritt)'}</button><button class="btn ghost" data-to="home">Välj en annan tabell</button></div></section><p class="subtle">${s.stable?'Sitter stabilt: minst 9/10 på två olika dagar.':s.tries?'Du har gjort '+s.tries+' rundor. För stabil markering krävs 9/10 på två olika dagar.':'Börja med att läsa tabellen och testa sedan dig själv.'}</p>`);
+ shell(`<button class="linkback" data-to="home">← Alla tabeller</button><section class="tableintro"><div><span class="eyebrow">LÄS · FÖRSTÅ · TRÄNA</span><h1 class="title">${n}:ans tabell</h1><p>Alla multiplikationer från ${n} × 1 till ${n} × 10.</p></div><div class="table-score"><strong>${s.best}/10</strong><small>Bästa runda</small></div></section><section class="card"><div class="refhead"><h2>Hela ${n}:an</h2><span class="mut">Alla svar synliga</span></div><div class="reference">${rows}</div><div class="study-tip"><b>Så kan du öva:</b> Läs en rad. Dölj svaret med handen. Försök säga det innan du tittar igen.</div><div class="under-reference"><a class="btn" href="#/tabell/practice/${n}">Träna ${n}:an · 10 frågor</a>${reducedMotion() ? '' : `<button class="btn ghost" data-act="autonext" aria-pressed="${autoNext}">${autoNext ? 'Automatiskt nästa efter rätt svar: på' : 'Färre tryck: automatiskt nästa efter rätt svar (valfritt)'}</button>`}<button class="btn ghost" data-to="home">Välj en annan tabell</button></div></section><p class="subtle">${s.stable?'Sitter stabilt: minst 9/10 på två olika dagar.':s.tries?'Du har gjort '+s.tries+' rundor. För stabil markering krävs 9/10 på två olika dagar.':'Börja med att läsa tabellen och testa sedan dig själv.'}</p>`);
 }
 function tableQs(t){return shuffle(Array.from({length:10},(_,i)=>({a:t,b:i+1})))}
 function mixedQs(){
@@ -77,7 +78,8 @@ function answer(v){
  if(!round||round.feedback||round.results.length!==round.i||!/^\d{1,4}$/.test(v.trim()))return;
  const q=round.qs[round.i],num=Number(v.trim()),ok=num===q.a*q.b;
  round.results.push({...q,answer:num,ok});factScore(q,ok);
- if(round.type==='table'){round.feedback={ok};draw();if(autoNext && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){nextTimer=setTimeout(()=>{nextTimer=null;if(round && round.type==='table' && round.feedback)next()},1800)}}
+ if(round.type==='table'){round.feedback={ok};draw();// Auto-advance only after a correct answer; a wrong answer keeps the correction visible until the learner taps Next.
+ if(autoNext && ok && !reducedMotion()){nextTimer=setTimeout(()=>{nextTimer=null;if(round && round.type==='table' && round.feedback)next()},1800)}}
  else if(round.i+1===round.qs.length)finish();
  else{round.i++;draw();scrollTo(0,0)}
 }

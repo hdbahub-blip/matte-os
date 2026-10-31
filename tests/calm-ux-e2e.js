@@ -48,6 +48,37 @@ const BASE=process.argv[2]||'http://127.0.0.1:8765/';
         await context.close();
       }
     }
+    // Tabellarenan opt-in auto-next: advances only after a correct answer; a wrong answer keeps the correction visible.
+    {
+      const context=await browser.newContext({...devices['iPhone 13'],serviceWorkers:'block'}),page=await context.newPage();
+      page.setDefaultTimeout(12000);const errors=[];page.on('pageerror',e=>errors.push(e.message));
+      await page.goto(BASE,{waitUntil:'networkidle'});await page.locator('[data-p="grade9"]').click();
+      await page.goto(BASE+'#/tabell/table/7');
+      const toggle=page.locator('#arena [data-act="autonext"]');
+      await toggle.click();
+      assert.equal(await toggle.getAttribute('aria-pressed'),'true','Auto-next toggle not on');n++;
+      await page.locator('#arena a[href="#/tabell/practice/7"]').click();
+      const answerCurrent=async correct=>{
+        const eq=await page.locator('#arena .equation').innerText();const [a,b]=eq.match(/\d+/g).map(Number);
+        await page.locator('#arena #answer').fill(String(correct?a*b:a*b+1));await page.locator('#arena #answerform button').click();
+      };
+      const position=()=>page.locator('#arena .question-head span').nth(1).innerText();
+      assert.equal(await position(),'1 / 10');n++;
+      await answerCurrent(true);await page.waitForTimeout(2600);
+      assert.equal(await position(),'2 / 10','Correct answer did not auto-advance');n++;
+      await answerCurrent(false);await page.waitForTimeout(2600);
+      assert.equal(await position(),'2 / 10','Wrong answer auto-advanced past the correction');n++;
+      assert.match(await page.locator('#arena .feedback').innerText(),/Bra att du försökte[\s\S]*=/,'Correction not kept visible');n++;
+      await page.locator('#arena [data-act="next"]').click();
+      assert.equal(await position(),'3 / 10','Manual Next after a wrong answer failed');n++;
+      assert.deepEqual(errors,[],'auto-next errors');n++;
+      await context.close();
+      const reduced=await browser.newContext({...devices['iPhone 13'],serviceWorkers:'block',reducedMotion:'reduce'}),rp=await reduced.newPage();
+      await rp.goto(BASE,{waitUntil:'networkidle'});await rp.locator('[data-p="grade9"]').click();
+      await rp.goto(BASE+'#/tabell/table/7');await rp.locator('#arena a[href="#/tabell/practice/7"]').waitFor();
+      assert.equal(await rp.locator('#arena [data-act="autonext"]').count(),0,'Auto-next offered although it is disabled under reduced motion');n++;
+      await reduced.close();
+    }
     console.log('CALM UX browser acceptance '+n+'/'+n+' PASS');
   }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});
