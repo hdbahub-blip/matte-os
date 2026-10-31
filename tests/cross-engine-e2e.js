@@ -60,8 +60,7 @@ const configs = [
           assert(widths[0] <= widths[1] + 2, name + ' horizontal overflow: ' + widths); n++;
           assert.deepEqual(errors, [], name + ' ' + grade + ' uncaught errors'); n++;
 
-          // Shared-screen spoken duel: correct answer stays hidden until reveal,
-          // either player may receive the point, and the score updates without entering an answer.
+          // Shared-screen spoken duel, independent of the server Cup.
           await page.goto(BASE + '#/tabell/duel/setup', { waitUntil: 'domcontentloaded' });
           await page.locator('#arena #duelform').waitFor();
           await page.locator('#arena #player1').fill('Alex');
@@ -73,34 +72,9 @@ const configs = [
           assert.equal(await page.locator('#arena [data-act="revealDuel"]').count(), 1, name + ' missing show-answer action'); n++;
           await page.locator('#arena [data-act="revealDuel"]').click();
           const problem = await page.locator('#arena .duel-question').innerText();
-          const numsDuel = problem.match(/\\d+/g).map(Number);
-          assert.match(await page.locator('#arena .judge h2').innerText(), new RegExp('= ' + numsDuel[0] * numsDuel[1] + '
-          const progressBeforeExam = await page.evaluate(() => localStorage.getItem('matteos.v5'));
-          await page.goto(BASE + 'prov/?g=' + grade, { waitUntil: 'domcontentloaded' });
-          assert.match(await page.title(), /Matte Prov/); n++;
-          await page.locator('[data-start="diagnos"]').first().click();
-          await page.locator('.question-sheet').waitFor();
-          assert.equal(await page.locator('.question-sheet .solution, .question-sheet .result-detail, .result-head').count(), 0, name + ' exam leaks a solution before submission'); n++;
-          const total = Number((await page.locator('.qcount').innerText()).split('/')[1]);
-          assert(total > 0 && total < 50, name + ' invalid diagnosis length'); n++;
-          for (let i = 0; i < total; i++) await page.locator('[data-next]').click();
-          await page.locator('[data-submit]').click();
-          await page.locator('.result-head').waitFor();
-          assert.equal(await page.locator('.review-list').count(), 1, name + ' no post-submit review'); n++;
-          assert.equal(await page.evaluate(() => localStorage.getItem('matteos.v5')), progressBeforeExam, name + ' exam modified learning progress'); n++;
-        } finally {
-          await context.close();
-        }
-      }
-      console.log(name + ': cross-engine navigation, teaching, practice, Cup UI and Prov PASS');
-    } finally {
-      await browser.close();
-    }
-  }
-  console.log('CROSS-ENGINE ACCEPTANCE ' + n + '/' + n + ' PASS');
-})().catch(e => { console.error(e); process.exitCode = 1; });
-), name + ' incorrect duel facit'); n++;
-          // Sam buzzed, but Alex is awarded when Alex gave the right spoken answer.
+          const numsDuel = problem.match(/\d+/g).map(Number);
+          assert((await page.locator('#arena .judge h2').innerText()).includes('= ' + numsDuel[0] * numsDuel[1]), name + ' incorrect duel facit'); n++;
+          // Sam buzzed first, but Alex gets the point if Alex said the correct spoken answer.
           await page.locator('#arena [data-act="awardDuel"][data-value="0"]').click();
           assert.equal(await page.locator('#arena .playerbox .playerscore').first().innerText(), '1', name + ' award to non-buzzer failed'); n++;
           await page.locator('#arena [data-act="undoDuel"]').click();
