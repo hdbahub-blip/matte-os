@@ -13,7 +13,7 @@ on:
 
 jobs:
   unit-and-content:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -57,7 +57,7 @@ jobs:
           node tests/larande-qa.js
 
   browser-mobile:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -91,7 +91,7 @@ jobs:
           if-no-files-found: ignore
 
   cross-engine:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -109,7 +109,7 @@ jobs:
           node tests/cross-engine-e2e.js http://127.0.0.1:8765/
 
   cup-backend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     services:
       postgres:
@@ -172,7 +172,7 @@ jobs:
     # Creates disposable rooms with synthetic nicknames; never reads any old account.
     if: github.event_name == 'pull_request' && github.head_ref == 'feature/matte-os-cup-20261030'
     needs: [cup-backend, unit-and-content]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
