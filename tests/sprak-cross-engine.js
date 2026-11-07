@@ -7,7 +7,11 @@ const assert=require('node:assert/strict');
 const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/$/,'')+'/lara/';
 let n=0;const ok=(c,m)=>{n++;assert(c,m);};
 // Scroll the target to the middle first, as a learner would; the fixed bottom menu can cover the viewport edge.
-async function tap(page,selector){const l=page.locator(selector).first();await l.evaluate(e=>e.scrollIntoView({block:'center'}));await l.click();}
+async function diag(page,selector){return page.evaluate(sel=>{const el=document.querySelector(sel);const r=el?.getBoundingClientRect();const cw=document.documentElement.clientWidth;
+ const wide=[...document.querySelectorAll('body *')].filter(x=>{const b=x.getBoundingClientRect();return b.width&&b.right>cw+1;}).slice(0,5).map(x=>x.tagName+'.'+String(x.className).slice(0,30)+' right='+Math.round(x.getBoundingClientRect().right));
+ const d=window.MO_WORKSHOP?._debug?.().ui;return {sel,innerW:innerWidth,innerH:innerHeight,clientW:cw,scale:window.visualViewport?.scale,vvH:window.visualViewport?.height,scrollY,docH:document.documentElement.scrollHeight,rect:r&&[Math.round(r.top),Math.round(r.bottom)],task:d&&d.i,view:d&&d.view,wide};},selector);}
+async function tap(page,selector){const l=page.locator(selector).first();await l.evaluate(e=>e.scrollIntoView({block:'center'}));
+ try{await l.click({timeout:5000});}catch(err){console.error('TAP FAILED',JSON.stringify(await diag(page,selector)));throw err;}}
 async function run(name,engine,ctxOpts){
  const browser=await engine.launch();const errors=[];
  try{
@@ -23,7 +27,8 @@ async function run(name,engine,ctxOpts){
    orders.push((await page.locator('.wk-card .wk-option').allInnerTexts()).join('/'));
    if(info.type==='open'){await page.locator('#wk-open').fill('Ett svar');await tap(page,'[data-w=open-done]');await tap(page,'[data-w=open-next]');continue;}
    if(info.type==='cloze')await page.locator('#wk-type').fill(info.word);else await tap(page,`[data-w=pick][data-i="${info.i}"]`);
-   ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),name+': no horizontal overflow on '+info.type);
+   const vw=await page.evaluate(()=>({w:innerWidth,s:document.documentElement.scrollWidth,scale:window.visualViewport?.scale||1}));
+   ok(vw.s<=vw.w+1&&vw.w===(ctxOpts.viewport?.width||vw.w)&&Math.abs(vw.scale-1)<0.01,name+': no horizontal overflow or zoom-out on '+info.type+' '+JSON.stringify(vw));
    await tap(page,'[data-w=check]');ok(await page.locator('.wk-feedback.good').count()===1,name+': '+info.type+' accepted');await tap(page,'[data-w=next]');}
   await tap(page,'[data-w=finish]');await page.locator('.wk-result').waitFor();
   const st=await page.evaluate(()=>JSON.parse(localStorage.getItem('matteos.sprak.v3')));
