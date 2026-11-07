@@ -399,3 +399,49 @@ details.fold > .in { padding: 0 16px 14px; }
 
 /* Separate learning hub card; original 3 maths cards remain unchanged. */
 @media(min-width:640px){.calm-choices.learn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ===== Minnesknep (5.5.6): calm, text-first, no decoration ===== */
+.knep { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin: 0 0 14px; }
+.knep h2 { font-size: 19px; margin: 0 0 8px; }
+.knep-anchor { font-size: 17px; font-weight: 650; line-height: 1.45; margin: 0 0 10px; padding: 10px 12px; border-left: 4px solid var(--acc); background: var(--paper2); border-radius: 0 var(--radius-s) var(--radius-s) 0; }
+.knep-more { border-top: 1px solid var(--line); }
+.knep-more > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 650; color: var(--ink2); }
+.knep-more ol { margin: 0 0 10px; padding-left: 22px; } .knep-more li { margin: 0 0 4px; }
+.knep-more p { margin: 0 0 8px; }
+.knep-trap span { display: block; color: var(--ink2); }
+.knep-try { border-top: 1px solid var(--line); padding-top: 10px; }
+.knep-tryhead { font-size: 14px; color: var(--muted); margin: 0 0 8px; }
+.knep-task { margin: 0 0 12px; }
+.knep-task label { display: block; font-weight: 600; margin: 0 0 6px; }
+.knep-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.knep-row input { flex: 1 1 120px; min-width: 0; min-height: 48px; border: 1.5px solid var(--line2); border-radius: 12px; padding: 0 12px; font-size: 18px; font-weight: 600; background: var(--paper); color: var(--ink); }
+.knep-row input:focus { outline: none; border-color: var(--acc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 14%, transparent); }
+.knep-row input[readonly] { background: var(--paper2); }
+.knep-unit { color: var(--muted); font-weight: 600; }
+.knep .btn.sm, .knep-recall .btn.sm { min-height: 44px; }
+.knep-fb { margin: 8px 0 0; padding: 10px 12px; border-radius: var(--radius-s); line-height: 1.45; }
+.knep-fb.ok { background: var(--good-soft); } .knep-fb.ok b { color: var(--good); }
+.knep-fb.no { background: var(--warn-soft); } .knep-fb.no b { color: var(--warn); }
+.knep-link { display: inline-flex; align-items: center; min-height: 44px; font-weight: 650; color: var(--acc); }
+.knep-entry { display: block; background: var(--paper); border: 1px solid var(--line2); border-radius: var(--radius); padding: 14px 16px; margin: 14px 0 8px; color: var(--ink); text-decoration: none; }
+.knep-entry-t { display: block; font-weight: 750; font-size: 17px; margin-bottom: 2px; }
+.knep-poster-link a { color: var(--muted); display: inline-flex; min-height: 44px; align-items: center; }
+.knep-group { font-size: 15px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 18px 0 8px; }
+.knep-item { padding: 0 16px; }
+.knep-item > summary { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; list-style: none; }
+.knep-item > summary::-webkit-details-marker { display: none; }
+.knep-item[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+.knep-item[open] { padding-bottom: 6px; }
+.knep-title { font-weight: 700; }
+.knep-status { font-size: 13px; color: var(--muted); text-align: right; flex: none; max-width: 45%; }
+.knep-status.lvl2, .knep-status.lvl3 { color: var(--good); font-weight: 650; }
+.knep-due { border-color: var(--line2); }
+.knep-recall { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+.knep-recall h3 { font-size: 17px; margin: 0 0 4px; }
+.knep-opts { display: grid; gap: 8px; margin: 10px 0; }
+.knep-opt { min-height: 48px; text-align: left; padding: 10px 14px; border: 1.5px solid var(--line2); border-radius: 12px; background: var(--paper); color: var(--ink); font-size: 16px; }
+.knep-opt.on { border-color: var(--acc); background: var(--acc-soft); }
+.knep-opt.right { border-color: var(--good); background: var(--good-soft); }
+.knep-opt.wrong { border-color: var(--warn); }
+.knep-opt:disabled { opacity: 1; }
+.knep-home { text-decoration: none; color: var(--ink); }
