@@ -38,7 +38,7 @@ async function run(name,engine,ctxOpts){
    const info=await page.evaluate(()=>{const W=window.MO_WORKSHOP,X=W._test,d=W._debug().ui;const t=X.BANK.find(x=>x.lang==='sv'&&x.id==='somn');const k=X.tasksFor(t,d.mode)[d.i];if(!k)return null;
     if(k.type==='choice')return {type:k.type,i:X.displayOrder(t,k).indexOf(0)};if(k.type==='evidence')return {type:k.type,i:X.sentenceList(t).findIndex(s=>k.targets.some(x=>s.s.includes(x)))};if(k.type==='cloze')return {type:k.type,word:k.accept[0]};return {type:k.type};});
    if(!info)break;
-   orders.push((await page.locator('.wk-card .wk-option').allInnerTexts()).join('/'));
+   orders.push(await page.$$eval('.wk-card .wk-option',els=>els.map(e=>e.textContent.replace(/\s+/g,' ').trim()).join(' / ')));
    if(info.type==='open'){await page.locator('#wk-open').fill('Ett svar');await tap(page,'[data-w=open-done]');await tap(page,'[data-w=open-next]');continue;}
    const probeCloze=async label=>info.type==='cloze'&&clozeLog.push(label+':'+JSON.stringify(await page.evaluate(()=>({v:document.getElementById('wk-type')?.value,typed:window.MO_WORKSHOP._debug().ui.typed,dis:document.querySelector('[data-w=check]')?.disabled,active:document.activeElement?.id||document.activeElement?.tagName}))));
    const clozeLog=[];
@@ -59,6 +59,7 @@ async function run(name,engine,ctxOpts){
 (async()=>{
  const a=await run('WebKit iPhone',webkit,{...devices['iPhone 13'],viewport:{width:390,height:3200}});
  const b=await run('Firefox',firefox,{viewport:{width:1024,height:800}});
- ok(JSON.stringify(a)===JSON.stringify(b),'identical option order in WebKit and Firefox');
+ const firstDiff=a.findIndex((x,i)=>x!==b[i]);if(firstDiff>=0||a.length!==b.length)console.error('ORDER DIFF at task',firstDiff,'\nWebKit :',a[firstDiff],'\nFirefox:',b[firstDiff],'\nlengths',a.length,b.length);
+ ok(a.length===b.length&&firstDiff<0,'identical option order in WebKit and Firefox');
  console.log('Språkverkstad cross-engine PASS: '+n+' checks (WebKit with iPhone width/UA/touch, tall viewport + Firefox) · scroll methods used: '+([...scrollMethods].join(', ')||'none needed'));
 })().catch(e=>{console.error(e);process.exit(1);});
