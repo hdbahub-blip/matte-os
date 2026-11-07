@@ -46,3 +46,5 @@
 .wk-skilllist{list-style:none;padding:0;margin:0 0 10px;display:grid;gap:8px}.wk-skilllist li{display:grid;gap:2px;border:1px solid var(--border);border-left-width:5px;border-radius:10px;padding:9px 12px;background:var(--paper2)}.wk-skilllist li span{font-size:13px;color:var(--muted)}.wk-skilllist li.lvl3,.wk-skilllist li.lvl4{border-left-color:var(--green)}.wk-skilllist li.lvl2{border-left-color:#d6a35a}.wk-skilllist li.lvl1{border-left-color:#c9b8a8}
 .wk-result{text-align:left}
 .heroActions{display:flex;flex-wrap:wrap;gap:10px}
+/* Keep focused or scrolled-to controls clear of the sticky header and fixed bottom menu (WCAG 2.4.11). */
+html{scroll-padding-top:96px;scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}

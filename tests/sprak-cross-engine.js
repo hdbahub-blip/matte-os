@@ -6,27 +6,29 @@ const {webkit,firefox,devices}=require('playwright');
 const assert=require('node:assert/strict');
 const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/$/,'')+'/lara/';
 let n=0;const ok=(c,m)=>{n++;assert(c,m);};
+// Scroll the target to the middle first, as a learner would; the fixed bottom menu can cover the viewport edge.
+async function tap(page,selector){const l=page.locator(selector).first();await l.evaluate(e=>e.scrollIntoView({block:'center'}));await l.click();}
 async function run(name,engine,ctxOpts){
  const browser=await engine.launch();const errors=[];
  try{
   const ctx=await browser.newContext({...ctxOpts,serviceWorkers:'block'}),page=await ctx.newPage();page.setDefaultTimeout(15000);
   page.on('pageerror',e=>errors.push(String(e)));
   await page.goto(base+'#/verkstad/sv/somn',{waitUntil:'domcontentloaded'});await page.locator('[data-mode=solo]').waitFor();
-  await page.locator('[data-mode=solo]').click();await page.locator('[data-w=start-tasks]').click();
+  await tap(page,'[data-mode=solo]');await tap(page,'[data-w=start-tasks]');
   const orders=[];
   for(let g=0;g<12;g++){
    const info=await page.evaluate(()=>{const W=window.MO_WORKSHOP,X=W._test,d=W._debug().ui;const t=X.BANK.find(x=>x.lang==='sv'&&x.id==='somn');const k=X.tasksFor(t,d.mode)[d.i];if(!k)return null;
     if(k.type==='choice')return {type:k.type,i:X.displayOrder(t,k).indexOf(0)};if(k.type==='evidence')return {type:k.type,i:X.sentenceList(t).findIndex(s=>k.targets.some(x=>s.s.includes(x)))};if(k.type==='cloze')return {type:k.type,word:k.accept[0]};return {type:k.type};});
    if(!info)break;
    orders.push((await page.locator('.wk-card .wk-option').allInnerTexts()).join('/'));
-   if(info.type==='open'){await page.locator('#wk-open').fill('Ett svar');await page.locator('[data-w=open-done]').click();await page.locator('[data-w=open-next]').click();continue;}
-   if(info.type==='cloze')await page.locator('#wk-type').fill(info.word);else await page.locator(`[data-w=pick][data-i="${info.i}"]`).click();
-   await page.locator('[data-w=check]').click();ok(await page.locator('.wk-feedback.good').count()===1,name+': '+info.type+' accepted');await page.locator('[data-w=next]').click();}
-  await page.locator('[data-w=finish]').click();await page.locator('.wk-result').waitFor();
+   if(info.type==='open'){await page.locator('#wk-open').fill('Ett svar');await tap(page,'[data-w=open-done]');await tap(page,'[data-w=open-next]');continue;}
+   if(info.type==='cloze')await page.locator('#wk-type').fill(info.word);else await tap(page,`[data-w=pick][data-i="${info.i}"]`);
+   await tap(page,'[data-w=check]');ok(await page.locator('.wk-feedback.good').count()===1,name+': '+info.type+' accepted');await tap(page,'[data-w=next]');}
+  await tap(page,'[data-w=finish]');await page.locator('.wk-result').waitFor();
   const st=await page.evaluate(()=>JSON.parse(localStorage.getItem('matteos.sprak.v3')));
   ok(Object.keys(st.profiles.grade9.tasks).length===9,name+': progress stored');
-  await page.goto(base+'#/verkstad/en/hostel');await page.locator('[data-mode=pair]').click();await page.locator('[data-w=start-tasks]').click();
-  await page.locator('[data-w=pick]').first().click();await page.locator('[data-w=pair-lock]').click();
+  await page.goto(base+'#/verkstad/en/hostel');await tap(page,'[data-mode=pair]');await tap(page,'[data-w=start-tasks]');
+  await tap(page,'[data-w=pick]');await tap(page,'[data-w=pair-lock]');
   ok(await page.locator('.wk-pass').count()===1&&await page.locator('.wk-option').count()===0,name+': pair answer hidden during hand-over');
   ok(errors.length===0,name+': no JavaScript errors '+errors.join('|'));
   await ctx.close();return orders;
