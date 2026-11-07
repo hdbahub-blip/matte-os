@@ -23,6 +23,7 @@ async function run(name,engine,ctxOpts){
    orders.push((await page.locator('.wk-card .wk-option').allInnerTexts()).join('/'));
    if(info.type==='open'){await page.locator('#wk-open').fill('Ett svar');await tap(page,'[data-w=open-done]');await tap(page,'[data-w=open-next]');continue;}
    if(info.type==='cloze')await page.locator('#wk-type').fill(info.word);else await tap(page,`[data-w=pick][data-i="${info.i}"]`);
+   ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),name+': no horizontal overflow on '+info.type);
    await tap(page,'[data-w=check]');ok(await page.locator('.wk-feedback.good').count()===1,name+': '+info.type+' accepted');await tap(page,'[data-w=next]');}
   await tap(page,'[data-w=finish]');await page.locator('.wk-result').waitFor();
   const st=await page.evaluate(()=>JSON.parse(localStorage.getItem('matteos.sprak.v3')));
