@@ -203,7 +203,9 @@ function answerInput(t,k,disabled){
  if(k.type==='cloze'){return `<p class="wk-sentence">${e(k.sentence).replace('___','<span class="wk-blank">______</span>')}</p><label for="wk-type" class="wk-label">${tr(t,'Skriv ordet som saknas','Write the missing word')}</label><input id="wk-type" class="wk-input" type="text" value="${e(ui.typed)}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="40" ${disabled?'readonly':''}>${ui.help>=2&&!disabled?`<div class="wk-chips">${displayOrder(t,k).map(ai=>`<button type="button" data-w="fill" data-value="${e(k.options[ai])}">${e(k.options[ai])}</button>`).join('')}</div>`:''}`;}
  return '';}
 function ready(k){if(k.type==='choice'||k.type==='evidence')return ui.sel!==null;if(k.type==='order')return ui.picks.length===k.items.length;if(k.type==='cloze')return norm(ui.typed).length>0;return true;}
-function currentAnswer(k){if(k.type==='order')return ui.picks.slice();if(k.type==='cloze')return ui.typed;return ui.sel;}
+/* The input element is the source of truth for typed answers: iOS autocorrect/IME may not fire every input event. */
+function syncTyped(){const el=root.document?.getElementById?.('wk-type');if(el&&typeof el.value==='string')ui.typed=el.value;}
+function currentAnswer(k){if(k.type==='order')return ui.picks.slice();if(k.type==='cloze'){syncTyped();return ui.typed;}return ui.sel;}
 function describeAnswer(t,k,ans){if(ans===null||ans===undefined)return '–';if(k.type==='choice')return LETTERS[ans]+': '+k.options[displayOrder(t,k)[ans]];if(k.type==='evidence')return '”'+(sentenceList(t)[ans]?.s||'')+'”';if(k.type==='order'){const d=displayOrder(t,k);return ans.map(di=>k.items[d[di]]).join(' → ');}return String(ans);}
 function solution(t,k){if(k.type==='choice'){const d=displayOrder(t,k);const di=d.indexOf(0);return LETTERS[di]+': '+k.options[0];}if(k.type==='evidence')return '”'+(sentenceList(t).find(s=>k.targets.some(g=>s.s.includes(g)))?.s||k.targets[0])+'”';if(k.type==='order')return k.items.join(' → ');if(k.type==='cloze')return k.accept.join(' / ');return '';}
 function explain(t,k){const p=paragraphOf(t,k.type==='choice'?k.evidence:k.type==='evidence'?k.targets[0]:'');const quote=k.type==='choice'&&k.evidence?`<blockquote><small>${tr(t,'Textbevis','Evidence')}${p>=0?' · '+tr(t,'stycke','paragraph')+' '+(p+1):''}</small><p>”${e(k.evidence)}”</p></blockquote>`:'';return `<p>${e(k.why||'')}</p>${quote}`;}
@@ -265,12 +267,12 @@ function handle(action,el){const t=current();if(!t)return;const active=activePro
  case 'order':{const i=Number(el.dataset.i);if(!ui.picks.includes(i))ui.picks.push(i);break;}
  case 'order-undo':ui.picks.pop();break;
  case 'fill':ui.typed=el.dataset.value||'';break;
- case 'check':{if(!k||ui.checked||!ready(k))return;const res=evaluate(t,k,currentAnswer(k));ui.res=res;ui.checked=true;ui.focus='fb';ui.solo.auto++;if(res.ok&&!ui.help)ui.solo.indep++;else if(res.ok)ui.solo.helped++;recordTask(active,t,k,{ok:res.ok,help:ui.help>0,mode:ui.mode});break;}
+ case 'check':{if(k?.type==='cloze')syncTyped();if(!k||ui.checked||!ready(k))return;const res=evaluate(t,k,currentAnswer(k));ui.res=res;ui.checked=true;ui.focus='fb';ui.solo.auto++;if(res.ok&&!ui.help)ui.solo.indep++;else if(res.ok)ui.solo.helped++;recordTask(active,t,k,{ok:res.ok,help:ui.help>0,mode:ui.mode});break;}
  case 'next':ui.i++;resetTask();ui.showText=false;if(ui.i>=list.length)ui.view='talk';break;
  case 'open-done':ui.checked=true;ui.focus=false;break;
  case 'model':ui.modelShown=true;ui.focus=false;break;
  case 'open-next':recordTask(active,t,k,{self:ui.self.length,mode:ui.mode,help:false});ui.solo.open++;ui.i++;resetTask();ui.showText=false;if(ui.i>=list.length)ui.view='talk';break;
- case 'pair-lock':{if(!k||!ready(k))return;const n=playerNow();ui.pair.ans[n]=currentAnswer(k);ui.pair.help[n]=ui.help;ui.pair.res[n]=evaluate(t,k,ui.pair.ans[n]);ui.sel=null;ui.typed='';ui.picks=[];ui.help=0;ui.showText=false;
+ case 'pair-lock':{if(k?.type==='cloze')syncTyped();if(!k||!ready(k))return;const n=playerNow();ui.pair.ans[n]=currentAnswer(k);ui.pair.help[n]=ui.help;ui.pair.res[n]=evaluate(t,k,ui.pair.ans[n]);ui.sel=null;ui.typed='';ui.picks=[];ui.help=0;ui.showText=false;
   if(ui.pair.turn===0){ui.pair.turn=1;ui.pair.phase='pass';}else{ui.pair.phase='reveal';ui.focus='fb';for(const m of [0,1])ui.pair.score[m]+=ui.pair.res[m].ok?(ui.pair.help[m]?1:2):0;}break;}
  case 'pair-take':ui.pair.phase='answer';ui.focus=true;break;
  case 'pair-open-ready':ui.pair.phase='peer';ui.pair.peerTurn=first(ui.i);break;
