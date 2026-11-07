@@ -13,7 +13,7 @@ on:
 
 jobs:
   unit-and-content:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -48,9 +48,16 @@ jobs:
         run: node tests/tabell-integration.js
       - name: Book-first regression
         run: node tests/book-first-regression.js
+      - name: Learning hub unit and content verification
+        run: |
+          node --check lara/app.js
+          node --check lara/content.js
+          node --check lara/logic.js
+          node --check lara/sw.js
+          node tests/larande-qa.js
 
   browser-mobile:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +66,7 @@ jobs:
           node-version: '22'
       - name: Install Playwright for Chromium-based visual checks
         run: |
-          npm install --no-save playwright
+          npm install --no-audit --no-fund # pinned Playwright 1.49.1 from package.json, matches verified Cup job
           npx playwright install --with-deps chromium
       - name: Mobile emulation end-to-end
         run: |
@@ -69,6 +76,7 @@ jobs:
           node tests/posters-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/paper-lessons-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/calm-ux-e2e.js http://127.0.0.1:8765/
+          node tests/larande-live-e2e.js http://127.0.0.1:8765/
       - name: Same-origin upgrade from production 5.5.0 with synthetic progress
         run: |
           git fetch --depth 1 origin 7f87feeac11fc4800b05cbee0cfded415b1052ff
@@ -83,7 +91,7 @@ jobs:
           if-no-files-found: ignore
 
   cross-engine:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -101,7 +109,7 @@ jobs:
           node tests/cross-engine-e2e.js http://127.0.0.1:8765/
 
   cup-backend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     services:
       postgres:
@@ -164,7 +172,7 @@ jobs:
     # Creates disposable rooms with synthetic nicknames; never reads any old account.
     if: github.event_name == 'pull_request' && github.head_ref == 'feature/matte-os-cup-20261030'
     needs: [cup-backend, unit-and-content]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4

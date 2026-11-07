@@ -103,7 +103,7 @@
     return shell(`<div class="ctx">${ctx}</div>
       <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'Vad vill du göra idag?')}</h1>
       <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Välj det som passar dig. Du kan alltid komma tillbaka.</p>
-      ${hero}<div class="calm-choices" aria-label="Välj vad du vill göra"><a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Enkla exempel och förklaringar</span></a><a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>Läs en tabell och prova själv</span></a><a class="calm-choice" href="#/cup"><strong>Spela tillsammans</strong><span>Skapa spel eller gå med via kod</span></a></div><details class="fold"><summary>Alla områden, prov och planering</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
+      ${hero}<div class="calm-choices learn-grid" aria-label="Välj vad du vill göra"><a class="calm-choice learn-choice" href="lara/"><strong>Svenska, engelska &amp; studieteknik</strong><span>Förstå · Träna · Tillsammans</span></a><a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Enkla exempel och förklaringar</span></a><a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>Läs en tabell och prova själv</span></a><a class="calm-choice" href="#/cup"><strong>Spela tillsammans</strong><span>Skapa spel eller gå med via kod</span></a></div><details class="fold"><summary>Alla områden, prov och planering</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
   }
 
 function boostCard() {

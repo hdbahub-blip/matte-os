@@ -1,7 +1,7 @@
 {
   "name": "Matte OS",
   "short_name": "Matte OS",
-  "description": "Matte för åk 8 och åk 9 – en sak i taget. Fungerar offline.",
+  "description": "Matematik, svenska, engelska och studieteknik för åk 8 och 9 – en sak i taget. Fungerar offline.",
   "lang": "sv",
   "start_url": "./",
   "scope": "./",

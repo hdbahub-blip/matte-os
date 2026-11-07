@@ -24,7 +24,7 @@ const configs = [
           await page.goto(BASE, { waitUntil: 'domcontentloaded' });
           await page.locator('[data-p="' + grade + '"]').click();
           await page.locator('.calm-choices').waitFor();
-          assert.equal(await page.locator('.calm-choice').count(), 3, name + ' home choices'); n++;
+          assert.equal(await page.locator('.calm-choice').count(), 4, name + ' home choices'); n++;
 
           await page.locator('.calm-choice[href="#/formler"]').click();
           await page.locator('h1:has-text("Förstå matte")').waitFor();
