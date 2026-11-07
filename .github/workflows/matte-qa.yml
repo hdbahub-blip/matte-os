@@ -48,6 +48,13 @@ jobs:
         run: node tests/tabell-integration.js
       - name: Book-first regression
         run: node tests/book-first-regression.js
+      - name: Learning hub unit and content verification
+        run: |
+          node --check lara/app.js
+          node --check lara/content.js
+          node --check lara/logic.js
+          node --check lara/sw.js
+          node tests/larande-qa.js
 
   browser-mobile:
     runs-on: ubuntu-latest
@@ -69,6 +76,7 @@ jobs:
           node tests/posters-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/paper-lessons-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/calm-ux-e2e.js http://127.0.0.1:8765/
+          node tests/larande-live-e2e.js http://127.0.0.1:8765/
       - name: Same-origin upgrade from production 5.5.0 with synthetic progress
         run: |
           git fetch --depth 1 origin 7f87feeac11fc4800b05cbee0cfded415b1052ff

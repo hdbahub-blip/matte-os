@@ -396,3 +396,6 @@ details.fold > .in { padding: 0 16px 14px; }
 #main h1:focus{outline:none}
 #main h1:focus-visible{outline:3px solid var(--acc);outline-offset:4px}
 @media(min-width:640px){.calm-choices{grid-template-columns:repeat(3,minmax(0,1fr))}.calm-choice{min-height:116px}}
+
+/* Separate learning hub card; original 3 maths cards remain unchanged. */
+@media(min-width:640px){.calm-choices.learn-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

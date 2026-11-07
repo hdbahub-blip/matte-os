@@ -31,3 +31,11 @@ Höj `VERSION` i `sw.js` och `?v=` i `index.html`/`sw.js` så hämtar installera
 Ingen elevdata i koden. Framsteg, namn och restprovsdatum sparas bara i webbläsaren på enheten.
 
 Granskningsrapport: `docs/AUDIT_V5.md`.
+
+## Matte OS · Lärande (utbyggnad 5.5.5)
+
+Gemensam undervisning i svenska, engelska och studieteknik, med individuella elevframsteg och frivillig ordduell/samarbete. Starta via kortet på hemsidan eller [öppna lärandedelen](./lara/). Matematik, Tabellarenan, Cup och Matte Prov har egna befintliga flöden.
+
+Lärandedelen har 30 korta originallektioner, 24 duellkort och 8 frivilliga startkollsfrågor. Den är stödmaterial, inte ett komplett läromedel för hela årskurs 8–9 eller en officiell bedömning. Inga elevtexter eller ljudinspelningar sparas. Framsteg sparas per profil på enheten; använd säkerhetskopia vid enhetsbyte.
+
+Tester: `node tests/larande-qa.js` och `node tests/larande-live-e2e.js http://127.0.0.1:8765/`. Se även [drift och rollback](docs/LEARNING_HUB_V1_RELEASE.md).
