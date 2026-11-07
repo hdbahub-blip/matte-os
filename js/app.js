@@ -103,7 +103,7 @@
     return shell(`<div class="ctx">${ctx}</div>
       <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'Vad vill du göra idag?')}</h1>
       <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Välj det som passar dig. Du kan alltid komma tillbaka.</p>
-      ${hero}<div class="calm-choices learn-grid" aria-label="Välj vad du vill göra"><a class="calm-choice learn-choice" href="lara/"><strong>Svenska, engelska &amp; studieteknik</strong><span>Förstå · Träna · Tillsammans</span></a><a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Enkla exempel och förklaringar</span></a><a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>Läs en tabell och prova själv</span></a><a class="calm-choice" href="#/cup"><strong>Spela tillsammans</strong><span>Skapa spel eller gå med via kod</span></a></div><details class="fold"><summary>Alla områden, prov och planering</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
+      ${hero}${KNEP && KNEP.dueCount() ? `<a class="tap knep-home" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">Svara först, titta sedan. Tar en minut.</div></div><span class="chev">${I.chev}</span></a>` : ''}<div class="calm-choices learn-grid" aria-label="Välj vad du vill göra"><a class="calm-choice learn-choice" href="lara/"><strong>Svenska, engelska &amp; studieteknik</strong><span>Förstå · Träna · Tillsammans</span></a><a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Enkla exempel och förklaringar</span></a><a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>Läs en tabell och prova själv</span></a><a class="calm-choice" href="#/cup"><strong>Spela tillsammans</strong><span>Skapa spel eller gå med via kod</span></a></div><details class="fold"><summary>Alla områden, prov och planering</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
   }
 
 function boostCard() {
@@ -166,6 +166,15 @@ function boostCard() {
       + '<span class="fm paper-preview">'+esc(d ? d[0] : s.anchor)+'</span></button>'
       + (open ? '<div class="fbody">'+formulaBody(s)+'</div>':'')+'</div>';
   }
+  const KNEP = window.MOKnep;
+  function knepEntry() {
+    const ak = pid() === 'grade8' ? '8' : '9';
+    if (!KNEP) return `<details class="fold"><summary>Utskrivbar formelaffisch (valfritt)</summary><div class="in"><a class="btn ghost block" href="affischer/?visa=formler&ak=${ak}">Visa affischen</a></div></details>`;
+    const due = KNEP.dueCount();
+    return `<a class="knep-entry" href="#/knep"><span class="knep-entry-t">Minnesknep${due ? ` · ${due} att minnas` : ''}</span><span class="mut small">Korta knep för det som är lätt att blanda ihop – med varför och när de inte fungerar.</span></a>
+      <p class="mut small knep-poster-link"><a href="affischer/?visa=formler&ak=${ak}">Utskrivbar formelaffisch (valfritt)</a></p>`;
+  }
+  function viewKnep() { return shell(KNEP ? KNEP.page() : '<div class="card"><h2>Minnesknep kunde inte laddas</h2><p class="mut">Ladda om sidan.</p></div>', 'formler'); }
   function viewFormler() {
     const p = pid(), pr = P();
     const rec = E.recommend(p);
@@ -176,7 +185,7 @@ function boostCard() {
     return shell(`<p class="eyebrow">Förstå · ${esc(pr.label)}</p><h1>Förstå matte</h1>
       <div class="searchbox">${I.search}<input id="fq" type="search" placeholder="Sök: cirkel, procent, x båda sidor…" value="${esc(UI.fq)}" aria-label="Sök en förklaring" autocomplete="off"></div>
       ${q ? `<p class="mut small">${list.length} träffar</p>` : `<div class="seg-ctl" role="group" aria-label="Kapitel">${chOrder.map(c => `<button data-a="fch" data-ch="${c.id}" aria-pressed="${c.id === UI.fch}">${esc(c.name)}${c.id === rec.chapter ? ' ·&nbsp;nu' : ''}</button>`).join('')}</div>`}
-      <div id="flist">${list.map(formulaCard).join('') || '<p class="mut">Inga träffar. Prova ett annat ord.</p>'}</div><details class="fold"><summary>Utskrivbar formelaffisch (valfritt)</summary><div class="in"><p class="mut small">Affischen passar bäst för repetition.</p><a class="btn ghost block" href="affischer/?visa=formler&ak=${pid() === 'grade8' ? '8' : '9'}">Visa affischen</a></div></details>`, 'formler');
+      <div id="flist">${list.map(formulaCard).join('') || '<p class="mut">Inga träffar. Prova ett annat ord.</p>'}</div>${knepEntry()}`, 'formler');
   }
 
   /* ================= TRÄNA ================= */
@@ -423,6 +432,7 @@ function boostCard() {
           + '<div class="box neutral"><div class="k">Mer att veta</div>'+R(s.idea)+'</div>'
           + '<ul class="clean">'+s.cue.map(q=>'<li>'+R(q)+'</li>').join('')+'</ul>'
           + '<div class="k">Formeln (valfri)</div><div class="big-f">'+TX(s.f.main)+'</div></div></details>'
+        + (KNEP ? KNEP.card(s.id) : '')
         + '<div class="actions"><button class="btn block" data-a="nav" data-h="#/l/'+sid+'/2">Prova med stöd</button>'
           + '<button class="btn ghost block" data-a="nav" data-h="#/l/'+sid+'/1">Se ett exempel till (valfritt)</button></div>';
     } else if (step === 1) {
@@ -564,6 +574,7 @@ function boostCard() {
       switch (parts[0]) {
         case undefined: case '': html = viewHome(); break;
         case 'formler': html = viewFormler(); break;
+        case 'knep': html = viewKnep(); break;
         case 'trana': html = viewTrana(); break;
         case 'tabell': {
           const sub = parts.slice(1).join('/');
@@ -608,6 +619,7 @@ function boostCard() {
     app.querySelectorAll('.reveal').forEach(el => { const k = el.className + '|' + el.textContent.slice(0, 80); if (UI.seen.has(k)) el.classList.add('still'); else UI.seen.add(k); });
   }
   function rerenderKeepScroll() { const y = window.scrollY; render(); window.scrollTo(0, y); }
+  window.MO_RENDER = rerenderKeepScroll;
 
   /* ================= HÄNDELSER ================= */
   const actions = {

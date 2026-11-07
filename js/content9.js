@@ -9,7 +9,7 @@
   S.push({
     id: 's9-prefix', ch: 's9-tal', w: [34, 35], title: 'Prefix', sub: 'kilo, mega, milli, mikro …',
     idea: 'Ett prefix är en förkortning för en tiopotens. **k** (kilo) betyder tusen, **m** (milli) betyder en tusendel. Själva mängden ändras inte – bara hur du skriver den.',
-    anchor: 'Varje steg i prefixtrappan = 1000 gånger. Större enhet → mindre tal.',
+    anchor: 'Mellan milli, mikro och nano (och kilo, mega, giga) är steget 1000 gånger – men centi och deci är steg om 10. Större enhet → mindre tal.',
     cue: ['Du ser k, M, G, m, µ eller n framför en enhet.', 'Frågan ber dig skriva samma sak med ett annat prefix.'],
     cvis: { t: 'prefix', from: 'k', to: '', note: '4,2 km = 4,2 · 1000 m = 4 200 m' },
     f: {
@@ -67,7 +67,7 @@
     p: [
       { lv: 'A', q: 'Skriv 450 000 i grundpotensform.', vis: { t: 'sci', num: '450000', a: '4,5', n: 5 }, type: 'sci', a: [4.5, 5], given: ['450 000'], find: 'a · 10ⁿ', start: 'Kommat efter 4 → 4,5. Räkna stegen.', sol: ['$4{,}5$', '5 steg åt vänster → $4{,}5 \\cdot 10^5$'] },
       { lv: 'B', q: 'Avståndet till månen är ungefär 384 000 km. Skriv det i grundpotensform.', type: 'sci', a: [3.84, 5], given: ['384 000 km'], find: 'a · 10ⁿ', start: 'Kommat efter 3 → 3,84', sol: ['$3{,}84$', '5 steg → $3{,}84 \\cdot 10^5$ km'] },
-      { lv: 'C', q: 'Skriv 6,3 · 10³ som vanligt tal.', type: 'num', a: 6300, calc: '6.3*10**3', given: ['6,3 · 10³'], find: 'vanligt tal', start: 'Positiv exponent 3 → flytta kommat 3 steg åt höger.', sol: ['$6{,}3 \\to 63 \\to 630 \\to 6300$'], traps: [[0.0063, 'Positiv exponent betyder ett STORT tal – flytta kommat åt höger.']] },
+      { lv: 'C', q: 'Skriv 6,3 · 10³ som vanligt tal.', type: 'num', a: 6300, calc: '6.3*10**3', given: ['6,3 · 10³'], find: 'vanligt tal', start: '10³ = 10 · 10 · 10 = 1000, så räkna 6,3 · 1000.', sol: ['$6{,}3 \\to 63 \\to 630 \\to 6300$'], traps: [[0.0063, 'Positiv exponent betyder ett STORT tal – flytta kommat åt höger.']] },
       { lv: 'C', q: 'Skriv 5 · 10⁻³ som decimaltal.', type: 'num', a: 0.005, calc: '5*10**-3', given: ['5 · 10⁻³'], find: 'decimaltal', start: 'Negativ exponent → litet tal. Flytta kommat 3 steg åt vänster.', sol: ['$5 \\to 0{,}5 \\to 0{,}05 \\to 0{,}005$'], traps: [[5000, 'Negativ exponent ger ett tal mindre än 1.']] },
       { lv: 'F', q: 'Vilket tal är störst?', type: 'choice', opts: ['9,9 · 10⁴', '1,2 · 10⁵', '8 · 10⁻⁶', '99 000'], a: '1,2 · 10⁵', traps: [['9,9 · 10⁴', 'Jämför exponenten först: 10⁵ är tio gånger större än 10⁴.'], ['99 000', '99 000 = 9,9 · 10⁴, mindre än 120 000.']], sol: ['Jämför exponenten först', '$1{,}2 \\cdot 10^5 = 120\\,000$ är störst'] }
     ],
@@ -571,7 +571,7 @@
     f: {
       name: 'Namn på stora och små tal', main: '\\text{miljon}=10^6,\\ \\text{miljard}=10^9,\\ \\text{biljon}=10^{12}', when: 'När ett tal är skrivet med ord, eller ska skrivas med ord.',
       sym: [['tusen', '10³ = 1 000'], ['miljon', '10⁶ = 1 000 000'], ['miljard', '10⁹ (nio nollor)'], ['biljon', '10¹² (tolv nollor)'], ['tusendel', '10⁻³ = 0,001'], ['miljondel', '10⁻⁶ = 0,000001']],
-      forms: [['Namn → tiopotens', '\\text{miljard} \\to 10^9'], ['Tiopotens → namn', '10^{6} \\to \\text{miljon}'], ['Små tal', '10^{-n} = \\text{n decimaler}']],
+      forms: [['Namn → tiopotens', '\\text{miljard} \\to 10^9'], ['Tiopotens → namn', '10^{6} \\to \\text{miljon}'], ['Små tal', '10^{-2} = \\frac{1}{10 \\cdot 10} = 0{,}01']],
       ex: '$3$ miljarder $= 3 \\cdot 10^9 = 3\\,000\\,000\\,000$', trap: 'Svensk **biljon** är $10^{12}$ (tusen miljarder). Engelskans "billion" är $10^9$ = svensk miljard.'
     },
     h1: 'Det handlar om ett namn på en tiopotens. Hur många nollor har namnet?',

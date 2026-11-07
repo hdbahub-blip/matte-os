@@ -60,7 +60,7 @@ fs.mkdirSync(OUT,{recursive:true});
       await page.click('[data-p=grade9]');await page.waitForSelector('h1');
       await page.click('.nav [data-h="#/formler"]');await page.waitForSelector('h1:has-text("Förstå matte")');
       assert.equal(await page.locator('a[href="affischer/?visa=formler&ak=9"]').count(),1,'Formulas CTA missing');checks++;
-      await page.locator('summary').filter({hasText:'Utskrivbar formelaffisch'}).click();
+      // 5.5.6 (issue #21): poster is an optional link below Minnesknep, not a fold that must be opened.
        await page.click('a[href="affischer/?visa=formler&ak=9"]');
       await page.waitForSelector('.formula-card');
       assert.match(page.url(),/affischer\/\?visa=formler/);checks++;
@@ -70,7 +70,7 @@ fs.mkdirSync(OUT,{recursive:true});
       await page.evaluate(()=>{window.MOEngine.state().active='grade8';window.MOEngine.save()});
       await page.goto(BASE+'#/formler',{waitUntil:'networkidle'});
       assert.equal(await page.locator('a[href="affischer/?visa=formler&ak=8"]').count(),1,'Grade8 formula link not personalized');checks++;
-      await page.locator('summary').filter({hasText:'Utskrivbar formelaffisch'}).click();
+      // 5.5.6 (issue #21): poster is an optional link below Minnesknep, not a fold that must be opened.
        await page.click('a[href="affischer/?visa=formler&ak=8"]');
       await page.waitForSelector('#poster-formler8:not([hidden])');
       assert.equal(await page.locator('body').getAttribute('data-grade'),'8','Grade8 direct poster navigation');checks++;
