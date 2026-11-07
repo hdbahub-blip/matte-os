@@ -39,3 +39,11 @@ Gemensam undervisning i svenska, engelska och studieteknik, med individuella ele
 Lärandedelen har 30 korta originallektioner, 24 duellkort och 8 frivilliga startkollsfrågor. Den är stödmaterial, inte ett komplett läromedel för hela årskurs 8–9 eller en officiell bedömning. Inga elevtexter eller ljudinspelningar sparas. Framsteg sparas per profil på enheten; använd säkerhetskopia vid enhetsbyte.
 
 Tester: `node tests/larande-qa.js` och `node tests/larande-live-e2e.js http://127.0.0.1:8765/`. Se även [drift och rollback](docs/LEARNING_HUB_V1_RELEASE.md).
+
+## Språkverkstad v2.1.0
+
+Svenska och engelska har samma uppgifter för båda årskurserna. 13 textteman totalt (9 svenska, 4 engelska), tre nivåer per tema, med textbevis, ordförståelse, lucktext, återberättande och gemensam diskussion. De fem ursprungliga övningstexterna från användarens Google Docs finns med som fulltext på nivå 3 med totalt 38 originalfrågor och facit. Originalens enklare nivåer är nybearbetningar. Kortlektioner och studieteknik finns kvar.
+
+Ingen live-synkronisering mellan mobiler: samma text, nivå och dagliga utmaning ger samma frågor i samma ordning, men framsteg lagras lokalt och individuellt. Inga fritextsvar eller ljudinspelningar sparas. De separata Matte OS-matteframstegen påverkas inte.
+
+Kör `node tests/sprak-qa.js` samt `node tests/sprak-live-e2e.js http://127.0.0.1:8765/`. Se [auditen](docs/SPRAKVERKSTAD_V2_AUDIT.md).
