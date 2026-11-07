@@ -78,5 +78,12 @@ const baseline=[
 {id:'b-st-question',subject:'study',lesson:'st-fraga',q:C('När du ser ”jämför”, vad ska du göra?',['Visa likheter och skillnader','Bara skriva av','Svara ja eller nej'],0,'Jämförelser behöver både likheter och skillnader.','')},
 {id:'b-st-start',subject:'study',lesson:'st-start',q:C('Du vet inte hur en textuppgift ska lösas. Vad gör du först?',['Gissar direkt','Tar fram vad du vet och vad frågan söker','Läser hela boken från början'],1,'Identifiera frågan och det givna, ta sedan ett litet steg.','')}
 ];
-return Object.freeze({version:'1.0.0',subjects:{sv:'Svenska',en:'Engelska',study:'Lär dig lära'},lessons,duels,baseline});
+/* 3.0: the correct option was usually in the same position (29 of 37 in the middle), so guessing paid off.
+   Shuffle every choice item deterministically by its id: identical order on all devices and profiles. */
+function hashId(s){let h=2166136261>>>0;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)>>>0;}return h>>>0;}
+function shuffleItem(item,seed){if(!item||!Array.isArray(item.options)||!Number.isInteger(item.correct))return;let a=hashId(seed);const r=()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296;};
+ const idx=item.options.map((_,i)=>i);for(let i=idx.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}const opts=idx.map(i=>item.options[i]);item.correct=idx.indexOf(item.correct);item.options=opts;}
+for(const l of lessons)for(const k of Object.keys(l))shuffleItem(l[k],l.id+':'+k);
+for(const b of baseline)shuffleItem(b.q,b.id);
+return Object.freeze({version:'1.1.0',subjects:{sv:'Svenska',en:'Engelska',study:'Lär dig lära'},lessons,duels,baseline});
 });
