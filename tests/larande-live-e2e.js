@@ -32,7 +32,7 @@ const {chromium} = require('playwright');
   // The subject entry now opens the full reading workshop; legacy mini-lessons remain under Snabbövningar.
   await page.locator('a[href="#/sv"]').first().click();
   await page.locator('a[href="#/korta/sv"]').click();
-  await page.locator('a[href="#/lektion/sv-begrepp"]').click();
+  await page.locator('a.lessonItem[href="#/lektion/sv-begrepp"]').click();
   await page.locator('[data-a="go-guided"]').click();
   await page.locator('input[name="answer"][value="1"]').check();
   await page.locator('[data-a="submit-guided"]').click();
