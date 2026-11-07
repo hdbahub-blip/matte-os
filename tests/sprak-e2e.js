@@ -40,6 +40,7 @@ const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/$/,'')+'/lara/
   assert(await page.evaluate(()=>!!JSON.parse(localStorage.getItem('matteos.sprak.v2')).profiles.grade9.done['sv:skarmbild:2']));
   await click('[data-a="profile"]');await click('[data-a="choose-profile"][data-p="grade8"]');
   assert(await page.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem('matteos.sprak.v2')).profiles.grade8.done).length===0));
+  assert((await page.locator('main').innerText()).includes('Läs eller lyssna'),'profile switch resets workshop to reading step');
   await click('a[href="#/en"]');await page.locator('.wk-book').first().waitFor();
   assert.equal(await page.locator('.wk-book').count(),4);
   await click('a[href="#/verkstad/en/screenshot/3"]');await page.locator('.wk-reading').waitFor();

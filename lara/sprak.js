@@ -13,11 +13,11 @@ const idValid=x=>x==='grade8'||x==='grade9';
 function empty(){return {v:2,profiles:{grade8:{done:{}},grade9:{done:{}}}};}
 function load(){let raw;try{raw=JSON.parse(root.localStorage.getItem(STORE));}catch{}const out=empty();if(!raw||raw.v!==2)return out;for(const id of ['grade8','grade9']){const known=new Set(BOOKS.filter(b=>LANG[b.subject]).flatMap(b=>[1,2,3].map(n=>b.subject+':'+b.id+':'+n)));for(const [key,d] of Object.entries(raw.profiles?.[id]?.done||{})){if(known.has(key)&&d&&Number.isFinite(d.at)&&d.at>1600000000000){out.profiles[id].done[key]={at:Math.floor(d.at),correct:Math.max(0,Math.min(6,Number(d.correct)||0))};}}}return out;}
 let storage=load();
-let ui={key:'',stage:0,paragraph:0,all:false,chosen:'',revealed:false,q:0,word:0,blank:0,typed:'',hints:false,retold:false,feedback:'',correct:0,attempts:0,partnerA:'',partnerB:'',partnerReveal:false,partnerIndex:0,showText:true,voiceMsg:''};
+let ui={key:'',profile:'',stage:0,paragraph:0,all:false,chosen:'',revealed:false,q:0,word:0,blank:0,typed:'',hints:false,retold:false,feedback:'',correct:0,attempts:0,partnerA:'',partnerB:'',partnerReveal:false,partnerIndex:0,showText:true,voiceMsg:''};
 function save(){try{root.localStorage.setItem(STORE,JSON.stringify(storage));return true;}catch{return false;}}
 function getBook(s,id){return BOOKS.find(b=>b.subject===s&&b.id===id);}
 function identifier(b,n){return b.subject+':'+b.id+':'+n;}
-function reset(id){if(ui.key!==id){ui={key:id,stage:0,paragraph:0,all:false,chosen:'',revealed:false,q:0,word:0,blank:0,typed:'',hints:false,retold:false,feedback:'',correct:0,attempts:0,partnerA:'',partnerB:'',partnerReveal:false,partnerIndex:0,showText:true,voiceMsg:''};}}
+function reset(id,profile){if(ui.key!==id||ui.profile!==profile){ui={key:id,profile:profile,stage:0,paragraph:0,all:false,chosen:'',revealed:false,q:0,word:0,blank:0,typed:'',hints:false,retold:false,feedback:'',correct:0,attempts:0,partnerA:'',partnerB:'',partnerReveal:false,partnerIndex:0,showText:true,voiceMsg:''};}}
 function localDay(){try{return new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Stockholm',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}catch{return new Date().toISOString().slice(0,10);}}
 function featured(s){const pool=BOOKS.filter(b=>b.subject===s);const d=localDay();let hash=0;for(const char of d)hash=(hash*31+char.charCodeAt(0))>>>0;return pool[hash%pool.length];}
 function urlFor(b,n){return '#/verkstad/'+b.subject+'/'+b.id+'/'+n;}
