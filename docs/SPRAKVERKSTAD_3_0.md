@@ -145,10 +145,18 @@ Personer, orter och citat är påhittade och märkta så i texternas metadata.
 | `tests/sprak-qa.js` (1 100+ kontroller) | Genrebredd, två texter per nivå, ökande längd, minst fyra uppgiftstyper per text, rimliga förklaringar, textbevis exakt en gång, ingen gissningsgenväg (position ≤ 40 %, längsta alternativ ≤ 35 %, samma bokstav ≤ 40 %), deterministisk ordning, rättning, sanering, progressionslogik, inga nätverksanrop | `unit-and-content` |
 | `tests/sprak-e2e.js` (53 kontroller) | Hela soloflödet med riktiga svar, ledtråd = stöd, första försöket gäller, fritext sparas aldrig, profilseparation, identiska frågor på två "mobiler" med olika profil, parläge med låsta svar, lyssna-läge utan synlig text, säkerhetskopia → nollställ → import, offline, tryckytor ≥ 44 px | `browser-mobile` |
 | `tests/sprak-upgrade-e2e.js` | 2.0.1 → 3.0 på **samma origin** med syntetiska data: v2-, Lärande- och mattelagring bevarade byte för byte, cachebyte, gamla länkar förklaras, offline | `browser-mobile` |
-| `tests/sprak-cross-engine.js` | WebKit (Safari-motor, iPhone-emulering) och Firefox: alla uppgiftstyper, lagring, låst parläge, identisk ordning mellan motorer | `cross-engine` |
+| `tests/sprak-cross-engine.js` | WebKit (Safaris motor, med iPhone-bredd, användaragent och pek) och Firefox: alla uppgiftstyper, lagring, låst parläge, att inget täcker knapparna (`elementFromPoint`), ingen överbredd eller utzoomning, och identisk ordning mellan motorerna. *Kompromiss:* Playwrights mobila WebKit verkställer inte programmatisk rullning, så WebKit körs med en hög viewport (390 × 3200 px). Rullning och tryckytor på riktig mobilhöjd täcks av `sprak-e2e` i Chromium. | `cross-engine` |
 | Alla tidigare sviter | Matematik, affischer, Tabellarenan, Cup, Prov, uppgradering 5.5.0 | alla jobb |
 
 ---
+
+### 4.1 Fel som WebKit/Firefox-körningarna hittade och som rättades före release
+1. **Fokusstöld:** rubriken fick fokus en bildruta efter uppgiftsbytet (för skärmläsare). Om eleven redan hade gått in i skrivfältet flyttades fokus bort mitt i skrivandet, och texten försvann. Nu flyttas fokus aldrig från ett fält som redan är aktivt. Felet återskapades i Chromium före rättelsen och var borta efter.
+2. **Meningsknappar i WebKit:** beläggsmeningarna var `<button>`, som WebKit inte bryter som löptext. Nu är de `span role=button` med Enter och mellanslag.
+3. **Skrivna svar:** vid Kontrollera och Lås läses värdet direkt från fältet, eftersom autokorrigering och IME i iOS inte alltid skickar varje `input`-händelse.
+4. **Fast bottenmeny:** `scroll-padding` håller fokuserade kontroller fria från rubrik och meny (WCAG 2.4.11).
+
+Ett slumpmässigt fel i `cup-security` (2 % gallring av utgångna rum, `NO_ROOM` i stället för `GONE`) finns sedan 5.5.0. Det beror inte på den här releasen och är rapporterat i PR #20.
 
 ## 5. VERIFIERAT / EJ VERIFIERAT
 
