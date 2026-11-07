@@ -33,7 +33,9 @@ const BASE=process.argv[2]||'http://127.0.0.1:8765/';
         await page.goto(BASE+'#/formler');
         await page.waitForSelector('h1:has-text("Förstå matte")');
         assert.match(await page.locator('h1').first().innerText(),/Förstå matte/);n++;
-        assert.equal(await page.locator('.fold summary').filter({hasText:'Utskrivbar formelaffisch'}).count(),1);n++;
+        // 5.5.6 (issue #21): Minnesknep is the primary entry; the formula poster stays reachable as an optional link.
+        assert.equal(await page.locator('a.knep-entry[href="#/knep"]').count(),1);n++;
+        assert.equal(await page.locator('.knep-poster-link a').filter({hasText:'Utskrivbar formelaffisch'}).count(),1);n++;
         await page.goto(BASE+'#/trana');
         assert.equal(await page.locator('.calm-multiply a[href="#/tabell/home"]').count(),1);n++;
         assert.equal(await page.locator('.calm-multiply a[href="#/cup"]').count(),1);n++;

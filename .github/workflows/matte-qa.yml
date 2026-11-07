@@ -27,6 +27,8 @@ jobs:
           node --check js/core.js
           node --check js/teach-simple.js
           node tests/paper-lessons.js
+          node --check js/knep.js
+          node tests/knep-qa.js
           node --check js/engine.js
           node --check sw.js
           node --check prov/sw.js
@@ -82,6 +84,7 @@ jobs:
           node tests/calm-ux-e2e.js http://127.0.0.1:8765/
           node tests/larande-live-e2e.js http://127.0.0.1:8765/
           node tests/sprak-e2e.js http://127.0.0.1:8765/
+          node tests/knep-e2e.js http://127.0.0.1:8765/ test-screenshots
       - name: Same-origin upgrade from production 5.5.0 with synthetic progress
         run: |
           git fetch --depth 1 origin 7f87feeac11fc4800b05cbee0cfded415b1052ff
@@ -119,6 +122,7 @@ jobs:
           sleep 2
           node tests/cross-engine-e2e.js http://127.0.0.1:8765/
           node tests/sprak-cross-engine.js http://127.0.0.1:8765/
+          node tests/knep-cross-engine.js http://127.0.0.1:8765/
 
   cup-backend:
     runs-on: ubuntu-24.04
