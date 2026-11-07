@@ -56,7 +56,8 @@ jobs:
           node --check lara/sw.js
           node tests/larande-qa.js
           node --check lara/sprak.js
-          node --check lara/stories.js
+          node --check lara/texts-sv.js
+          node --check lara/texts-en.js
           node tests/sprak-qa.js
 
   browser-mobile:
@@ -87,6 +88,12 @@ jobs:
           mkdir -p /tmp/matte-baseline-550
           git archive FETCH_HEAD | tar -x -C /tmp/matte-baseline-550
           node tests/upgrade-e2e.js /tmp/matte-baseline-550 .
+      - name: Same-origin upgrade from Språkverkstad 2.0.1 with synthetic progress
+        run: |
+          git fetch --depth 1 origin 19f030407962370a36edaa4f81f378ea4cfb9e60
+          mkdir -p /tmp/matte-baseline-sprak201
+          git archive FETCH_HEAD | tar -x -C /tmp/matte-baseline-sprak201
+          node tests/sprak-upgrade-e2e.js /tmp/matte-baseline-sprak201 .
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -111,6 +118,7 @@ jobs:
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-cross-engine.log 2>&1 &
           sleep 2
           node tests/cross-engine-e2e.js http://127.0.0.1:8765/
+          node tests/sprak-cross-engine.js http://127.0.0.1:8765/
 
   cup-backend:
     runs-on: ubuntu-24.04
