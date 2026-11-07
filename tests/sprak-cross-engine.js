@@ -40,10 +40,12 @@ async function run(name,engine,ctxOpts){
    if(!info)break;
    orders.push((await page.locator('.wk-card .wk-option').allInnerTexts()).join('/'));
    if(info.type==='open'){await page.locator('#wk-open').fill('Ett svar');await tap(page,'[data-w=open-done]');await tap(page,'[data-w=open-next]');continue;}
-   if(info.type==='cloze')await page.locator('#wk-type').fill(info.word);else await tap(page,`[data-w=pick][data-i="${info.i}"]`);
+   const probeCloze=async label=>info.type==='cloze'&&clozeLog.push(label+':'+JSON.stringify(await page.evaluate(()=>({v:document.getElementById('wk-type')?.value,typed:window.MO_WORKSHOP._debug().ui.typed,dis:document.querySelector('[data-w=check]')?.disabled,active:document.activeElement?.id||document.activeElement?.tagName}))));
+   const clozeLog=[];
+   if(info.type==='cloze'){await page.locator('#wk-type').fill(info.word);await probeCloze('afterFill');}else await tap(page,`[data-w=pick][data-i="${info.i}"]`);
    const vw=await page.evaluate(()=>({w:innerWidth,s:document.documentElement.scrollWidth,scale:window.visualViewport?.scale||1}));
    ok(vw.s<=vw.w+1&&vw.w===(ctxOpts.viewport?.width||vw.w)&&Math.abs(vw.scale-1)<0.01,name+': no horizontal overflow or zoom-out on '+info.type+' '+JSON.stringify(vw));
-   await tap(page,'[data-w=check]');const good=await page.locator('.wk-feedback.good').count()===1;if(!good)console.error('NOT ACCEPTED',info.type,JSON.stringify({feedback:(await page.locator('.wk-feedback').allInnerTexts()).join(' | ').slice(0,300),input:await page.locator('#wk-type').inputValue().catch(()=>null),ui:await page.evaluate(()=>{const u=window.MO_WORKSHOP._debug().ui;return {typed:u.typed,res:u.res,i:u.i};})}));ok(good,name+': '+info.type+' accepted');await tap(page,'[data-w=next]');}
+   await probeCloze('beforeCheck');await tap(page,'[data-w=check]');await probeCloze('afterCheck');const good=await page.locator('.wk-feedback.good').count()===1;if(!good)console.error('NOT ACCEPTED',info.type,clozeLog.join(' || '),JSON.stringify({feedback:(await page.locator('.wk-feedback').allInnerTexts()).join(' | ').slice(0,300),input:await page.locator('#wk-type').inputValue().catch(()=>null),ui:await page.evaluate(()=>{const u=window.MO_WORKSHOP._debug().ui;return {typed:u.typed,res:u.res,i:u.i};})}));ok(good,name+': '+info.type+' accepted');await tap(page,'[data-w=next]');}
   await tap(page,'[data-w=finish]');await page.locator('.wk-result').waitFor();
   const st=await page.evaluate(()=>JSON.parse(localStorage.getItem('matteos.sprak.v3')));
   ok(Object.keys(st.profiles.grade9.tasks).length===9,name+': progress stored');
