@@ -29,7 +29,10 @@ const {chromium} = require('playwright');
   await page.getByRole('heading',{name:'Vad vill du förstå idag?'}).waitFor();
   assert.equal((await page.locator('a[href="#/sv"]').count())>0,true);
   const firstMath=await page.evaluate(()=>localStorage.getItem('matteos.v5'));
-  await page.locator('a[href="#/lektion/sv-begrepp"]').click();
+  // The subject entry now opens the full reading workshop; legacy mini-lessons remain under Snabbövningar.
+  await page.locator('a[href="#/sv"]').first().click();
+  await page.locator('a[href="#/korta/sv"]').click();
+  await page.locator('a.lessonItem[href="#/lektion/sv-begrepp"]').click();
   await page.locator('[data-a="go-guided"]').click();
   await page.locator('input[name="answer"][value="1"]').check();
   await page.locator('[data-a="submit-guided"]').click();
@@ -64,4 +67,4 @@ const {chromium} = require('playwright');
   await context.setOffline(false);
   await browser.close();
   console.log('LÄRANDE LIVE E2E PASS — HTTP root link, lessons, profiles, privacy, duel/undo, mobile, offline');
-})().catch(e=>{console.error(e);process.exitCode=1;});
+})().catch(e=>{console.error(e);process.exit(1);});
