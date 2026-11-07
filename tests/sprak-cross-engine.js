@@ -6,12 +6,16 @@ const {webkit,firefox,devices}=require('playwright');
 const assert=require('node:assert/strict');
 const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/$/,'')+'/lara/';
 let n=0;const ok=(c,m)=>{n++;assert(c,m);};
-// Scroll the target to the middle first, as a learner would; the fixed bottom menu can cover the viewport edge.
 async function diag(page,selector){return page.evaluate(sel=>{const el=document.querySelector(sel);const r=el?.getBoundingClientRect();const cw=document.documentElement.clientWidth;
  const wide=[...document.querySelectorAll('body *')].filter(x=>{const b=x.getBoundingClientRect();return b.width&&b.right>cw+1;}).slice(0,5).map(x=>x.tagName+'.'+String(x.className).slice(0,30)+' right='+Math.round(x.getBoundingClientRect().right));
  const d=window.MO_WORKSHOP?._debug?.().ui;return {sel,innerW:innerWidth,innerH:innerHeight,clientW:cw,scale:window.visualViewport?.scale,vvH:window.visualViewport?.height,scrollY,docH:document.documentElement.scrollHeight,rect:r&&[Math.round(r.top),Math.round(r.bottom)],task:d&&d.i,view:d&&d.view,wide};},selector);}
-async function tap(page,selector){const l=page.locator(selector).first();await l.evaluate(e=>e.scrollIntoView({block:'center'}));
- try{await l.click({timeout:5000});}catch(err){console.error('TAP FAILED',JSON.stringify(await diag(page,selector)));throw err;}}
+// Tap like a learner: scroll the control to the middle, prove it is the topmost element at its centre
+// (nothing such as the fixed bottom menu covers it), then press exactly there.
+async function tap(page,selector){const l=page.locator(selector).first();await l.waitFor();
+ const pt=await l.evaluate(e=>{e.scrollIntoView({block:'center'});const rs=[...e.getClientRects()];const r=rs.sort((a,b)=>b.width-a.width)[0]||e.getBoundingClientRect();const x=r.left+r.width/2,y=r.top+r.height/2;const hit=document.elementFromPoint(x,y);return {x,y,ok:!!hit&&(hit===e||e.contains(hit))};});
+ if(!pt.ok){console.error('TAP BLOCKED',JSON.stringify(await diag(page,selector)));}
+ ok(pt.ok,'control is visible and not covered: '+selector);
+ await page.mouse.click(pt.x,pt.y);}
 async function run(name,engine,ctxOpts){
  const browser=await engine.launch();const errors=[];
  try{
