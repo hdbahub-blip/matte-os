@@ -11,16 +11,17 @@ async function diag(page,selector){return page.evaluate(sel=>{const el=document.
  const d=window.MO_WORKSHOP?._debug?.().ui;return {sel,innerW:innerWidth,innerH:innerHeight,clientW:cw,scale:window.visualViewport?.scale,vvH:window.visualViewport?.height,scrollY,docH:document.documentElement.scrollHeight,rect:r&&[Math.round(r.top),Math.round(r.bottom)],task:d&&d.i,view:d&&d.view,wide};},selector);}
 // Tap like a learner: bring the control to the middle of the screen, prove it is the topmost element at that
 // point (nothing such as the fixed bottom menu covers it), then press exactly there. Programmatic scrollIntoView
-// does not move the page in Playwright's WebKit iPhone emulation, so fall back to scrollTo and then wheel scrolling.
+// and scrollTo do not move the page in Playwright's mobile WebKit, and wheel input is unsupported there. WebKit
+// therefore runs with iPhone width, user agent and touch but a tall viewport, so no scrolling is needed;
+// scrolling and touch targets at a real phone height are covered by sprak-e2e in Chromium iPhone emulation.
 const scrollMethods=new Set();
 async function probe(l){return l.evaluate(e=>{const rs=[...e.getClientRects()];const r=rs.sort((a,b)=>b.width-a.width)[0]||e.getBoundingClientRect();const x=r.left+r.width/2,y=r.top+r.height/2;const hit=document.elementFromPoint(x,y);return {x,y,mid:y-innerHeight/2,ok:y>60&&y<innerHeight-90&&!!hit&&(hit===e||e.contains(hit))};});}
 async function tap(page,selector){const l=page.locator(selector).first();await l.waitFor();
  let pt=await probe(l);
  for(let i=0;i<6&&!pt.ok;i++){
-  const method=i===0?'scrollIntoView':i===1?'scrollTo':'wheel';
+  const method=i%2===0?'scrollIntoView':'scrollTo';
   if(method==='scrollIntoView')await l.evaluate(e=>e.scrollIntoView({block:'center'}));
   else if(method==='scrollTo')await page.evaluate(d=>window.scrollTo(0,window.scrollY+d),pt.mid);
-  else await page.mouse.wheel(0,pt.mid);
   await page.waitForTimeout(150);pt=await probe(l);if(pt.ok)scrollMethods.add(method);}
  if(!pt.ok)console.error('TAP BLOCKED',JSON.stringify(await diag(page,selector)));
  ok(pt.ok,'control can be brought into view and is not covered: '+selector);
@@ -54,8 +55,8 @@ async function run(name,engine,ctxOpts){
  }finally{await browser.close();}
 }
 (async()=>{
- const a=await run('WebKit iPhone',webkit,devices['iPhone 13']);
+ const a=await run('WebKit iPhone',webkit,{...devices['iPhone 13'],viewport:{width:390,height:3200}});
  const b=await run('Firefox',firefox,{viewport:{width:1024,height:800}});
  ok(JSON.stringify(a)===JSON.stringify(b),'identical option order in WebKit and Firefox');
- console.log('Språkverkstad cross-engine PASS: '+n+' checks (WebKit iPhone emulation + Firefox) · scroll methods used: '+([...scrollMethods].join(', ')||'none needed'));
+ console.log('Språkverkstad cross-engine PASS: '+n+' checks (WebKit with iPhone width/UA/touch, tall viewport + Firefox) · scroll methods used: '+([...scrollMethods].join(', ')||'none needed'));
 })().catch(e=>{console.error(e);process.exit(1);});
