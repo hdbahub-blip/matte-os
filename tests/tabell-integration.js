@@ -105,6 +105,41 @@ ok(selectedSession.mode==='mixed'&&selectedSession.selectedTables.join(',')==='3
 ok(win.MOEngine.prof('grade8').tables.sessions.length===0,'other profile isolated');
 click('selectedAgain');
 ok(shadow.innerHTML.includes('SJÄLVTEST')&&shadow.innerHTML.includes('1 / 20'),'retry chosen tables');
+
+goto('selftest');
+click('selectedCount','all');
+ok(shadow.innerHTML.includes('Alla frågor · 30 st'),'full mode shows 30 for three tables');
+ok(shadow.innerHTML.includes('Starta självtest · 30 frågor'),'full mode launch shows 30');
+click('selectedStart');
+ok(shadow.innerHTML.includes('1 / 30'),'full selected round begins with 30');
+const fullByTable={3:new Set(),6:new Set(),9:new Set()},fullUnique=new Set();
+for(let i=0;i<30;i++){
+ const m=shadow.innerHTML.match(/<div class="equation">(\d+) <span>×<\/span> (\d+)/);
+ if(!m){ok(false,'full round question '+i);break}
+ const x=Number(m[1]),y=Number(m[2]);
+ ok([3,6,9].includes(x),'full round selected table only '+i);
+ fullByTable[x].add(y);fullUnique.add(x+'x'+y);
+ ok(!shadow.innerHTML.includes('class="feedback'),'full round no early feedback '+i);
+ submit('answerform',x*y);
+}
+ok(fullUnique.size===30,'30 distinct ordered equations');
+ok(Object.values(fullByTable).every(vals=>vals.size===10),'all ten factors in each selected table');
+ok(shadow.innerHTML.includes('30/30')&&shadow.innerHTML.includes('Resultat per tabell'),'full round result and breakdown');
+const fullSession=win.MOEngine.prof('grade9').tables.sessions.at(-1);
+ok(fullSession.total===30&&fullSession.selectionMode==='all'&&fullSession.selectedTables.join(',')==='3,6,9','full mode saved');
+click('selectedAgain');
+ok(shadow.innerHTML.includes('1 / 30'),'retry keeps all-questions choice');
+goto('selftest');
+click('selectedAll');
+ok(shadow.innerHTML.includes('Alla frågor · 100 st'),'ten selected tables allow all one hundred');
+const hundred=win.MOTabellArena.qa.selectedQs(Array.from({length:10},(_,i)=>i+1),'all');
+ok(hundred.length===100&&new Set(hundred.map(q=>q.a+'x'+q.b)).size===100,'100 unique ordered equations in all-tables mode');
+ok(Array.from({length:10},(_,i)=>i+1).every(t=>hundred.filter(q=>q.a===t).length===10),'all ten factors sampled for each of ten tables');
+click('selectedClear');
+click('selectedTable','7');
+click('selectedCount','all');
+ok(shadow.innerHTML.includes('Starta självtest · 10 frågor'),'one table full mode has ten');
+ok(win.MOTabellArena.qa.selectedQs([7],'all').length===10,'one table full sampling');
 goto('home');
 goto('duel/setup');ok(shadow.innerHTML.includes('duelform'),'duel setup');
 click('duelSubset');click('duelTable','6');click('duelTable','9');
@@ -128,7 +163,7 @@ click('buzz','0');tick();tick();click('awardDuel','none');ok(shadow.innerHTML.in
 for(let i=2;i<10;i++){click('buzz',String(i%2));tick();tick();click('awardDuel',String(i%2));tick();}
 ok(shadow.innerHTML.includes('DUELL KLAR'),'duel result');
 ok(activeTimers.size===0,'no dangling duel countdown');
-ok(win.MOEngine.prof('grade9').tables.sessions.length===3,'duel does not contaminate pupil mastery');
+ok(win.MOEngine.prof('grade9').tables.sessions.length===4,'duel does not contaminate pupil mastery');
 ok(!!JSON.parse(win.MOEngine.exportData()).state.profiles.grade9.tables,'backup includes table state');
 console.log('Tabellarenan integrated QA: '+(checks-failed.length)+'/'+checks+' PASS');
 if(failed.length){console.error(failed.join('\n'));process.exitCode=1}

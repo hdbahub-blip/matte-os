@@ -49,7 +49,35 @@ if(!['chromium','webkit','firefox'].includes(engine))throw Error('Unknown browse
   assert(overflow[0]<=overflow[1]+2,'Mobile overflow '+overflow);checks++;
   assert.deepEqual(errors,[],'Browser JS errors');checks++;
   await arena.locator('[data-to="selftest"]').click();
+
+  await arena.locator('[data-act="selectedCount"][data-value="all"]').click();
+  assert.match(await arena.locator('[data-act="selectedStart"]').innerText(),/30 frågor/);checks++;
+  await arena.locator('[data-act="selectedStart"]').click();
+  const seenFull=new Set(),perTable=new Map([[3,new Set()],[6,new Set()],[9,new Set()]]);
+  for(let i=0;i<30;i++){
+   const question=(await arena.locator('.equation').innerText()).replace(/\s+/g,' ').trim();
+   const m=question.match(/^(\d+)\s*×\s*(\d+)\s*=\s*\?$/);
+   assert(m,'Full-coverage question missing '+i+': '+question);checks++;
+   const a=Number(m[1]),b=Number(m[2]);
+   assert(perTable.has(a),'Unselected table '+a);checks++;
+   perTable.get(a).add(b);seenFull.add(a+'x'+b);
+   assert.equal(await arena.locator('.feedback').count(),0,'No early feedback in full mode');checks++;
+   await arena.locator('#answer').fill(String(a*b));
+   await arena.locator('#answerform button').click();
+  }
+  assert.equal(seenFull.size,30,'Unique questions for 3 selected tables');checks++;
+  assert([...perTable.values()].every(vals=>vals.size===10),'Exactly ten factors for each selected table');checks++;
+  assert.match(await arena.locator('.stat').innerText(),/30\/30/);checks++;
+  const fullSaved=await page.evaluate(()=>window.MOEngine.prof('grade8').tables.sessions.slice(-1)[0]);
+  assert.equal(fullSaved.selectionMode,'all');checks++;
+  assert.equal(fullSaved.total,30);checks++;
+  await arena.locator('[data-act="selectedAgain"]').click();
+  assert.match(await arena.locator('.question-head').innerText(),/1 \/ 30/);checks++;
+  await page.goto(base+'/#/tabell/selftest');
+  await arena.locator('[data-act="selectedAll"]').click();
+  assert.match(await arena.locator('[data-act="selectedStart"]').innerText(),/100 frågor/);checks++;
   await arena.locator('[data-act="selectedClear"]').click();
+
   assert.equal(await arena.locator('[data-act="selectedStart"]').isDisabled(),true);checks++;
   await arena.locator('[data-act="selectedTable"][data-value="7"]').click();
   assert.equal(await arena.locator('[data-act="selectedCount"][data-value="20"]').isDisabled(),true);checks++;
