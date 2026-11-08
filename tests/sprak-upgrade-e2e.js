@@ -9,6 +9,10 @@ const assert=require('node:assert/strict');
 const {chromium,devices}=require('playwright');
 const BASELINE=path.resolve(process.argv[2]||''),CANDIDATE=path.resolve(process.argv[3]||'.');
 assert(fs.existsSync(path.join(BASELINE,'lara','sw.js')),'Baseline build missing: '+BASELINE);
+const candidateWorker=fs.readFileSync(path.join(CANDIDATE,'lara','sw.js'),'utf8');
+const versionMatch=candidateWorker.match(/const VERSION\s*=\s*'([^']+)'/);
+assert(versionMatch,'Candidate Lärande service-worker version missing');
+const expectedCache=versionMatch[1];
 const TYPES={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png'};
 let root=BASELINE;
 const server=http.createServer((req,res)=>{let p=decodeURIComponent(new URL(req.url,'http://x').pathname);if(p.endsWith('/'))p+='index.html';const file=path.join(root,path.normalize(p));
@@ -33,8 +37,8 @@ let n=0;const ok=(c,m)=>{assert(c,m);n++;};
   ok(await page.evaluate(()=>window.MO_WORKSHOP&&window.MO_WORKSHOP.ENGINE==='3.0.0'),'Språkverkstad 3.0 served after deploy');
   const after=await page.evaluate(()=>({v2:localStorage.getItem('matteos.sprak.v2'),lar:localStorage.getItem('matteos.larande.v1'),v5:localStorage.getItem('matteos.v5')}));
   ok(after.v2===before.v2,'2.0 progress preserved byte for byte');ok(after.lar===before.lar,'short-lesson progress preserved');ok(after.v5===before.v5,'maths progress untouched');
-  let keys=[];for(let i=0;i<30;i++){keys=await page.evaluate(()=>caches.keys());if(keys.includes('matte-os-larande-3.0.0')&&!keys.some(k=>k.startsWith('matte-os-larande-2')))break;await page.waitForTimeout(500);}
-  ok(keys.includes('matte-os-larande-3.0.0')&&!keys.some(k=>k.startsWith('matte-os-larande-2')),'lära cache switched to 3.0.0: '+keys);
+  let keys=[];for(let i=0;i<30;i++){keys=await page.evaluate(()=>caches.keys());if(keys.includes(expectedCache)&&!keys.some(k=>k.startsWith('matte-os-larande-2')))break;await page.waitForTimeout(500);}
+  ok(keys.includes(expectedCache)&&!keys.some(k=>k.startsWith('matte-os-larande-2')),'lära cache switched to '+expectedCache+': '+keys);
   await page.goto(B+'#/sv');await page.locator('.wk-book').first().waitFor();
   ok((await page.locator('main').innerText()).includes('Språkverkstad 2.0 finns 1'),'library tells the learner that 2.0 progress is kept');
   await page.goto(B+'#/verkstad/sv/skarmbild/2');ok((await page.locator('main').innerText()).includes('ersatts'),'old 2.0 deep link explained');
