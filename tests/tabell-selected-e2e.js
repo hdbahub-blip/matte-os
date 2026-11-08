@@ -9,7 +9,9 @@ if(!['chromium','webkit','firefox'].includes(engine))throw Error('Unknown browse
  const browser=await ({chromium,webkit,firefox})[engine].launch({headless:true});
  let checks=0;
  try{
-  const context=await browser.newContext({...devices['iPhone 13'],serviceWorkers:'block'});
+  // Firefox Playwright does not support isMobile; test equal viewport width without it.
+  const device=engine==='firefox'?{viewport:{width:390,height:844},deviceScaleFactor:2}:devices['iPhone 13'];
+  const context=await browser.newContext({...device,serviceWorkers:'block'});
   const page=await context.newPage();page.setDefaultTimeout(15000);
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
   await page.goto(base+'/',{waitUntil:'domcontentloaded'});
