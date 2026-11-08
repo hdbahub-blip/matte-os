@@ -71,3 +71,11 @@
 .selected-front-actions{display:flex;flex-direction:column;gap:9px;min-width:210px}
 .selected-front-actions .btn{margin:0;font-size:.85rem}
 @media(max-width:620px){.home-hero{grid-template-columns:1fr}.home-hero .hero-graphic{display:none}.selected-front{display:block;padding:15px}.selected-front-actions{margin-top:15px;min-width:0}.selected-front-actions .btn{width:100%}.sectionheading{margin-top:18px}}
+
+.arena-app[data-mode="dark"]{--bg:#101820;--paper:#1b2733;--ink:#f3f5f7;--mut:#bfccd7;--line:#415363;--soft:#442b37;--accent:#f4bdd0;--accent2:#b7d6ff;--green:#a8e3c4;--greenbg:#1e4035;--red:#ffc0c6;--redbg:#4b2831;--shadow:0 12px 35px #0003;background:var(--bg);color:var(--ink);color-scheme:dark}
+.arena-app[data-mode="dark"][data-grade="grade8"]{--accent:#b7d6ff;--accent2:#f4bdd0;--soft:#293e5c}
+.arena-app[data-mode="dark"] .card,.arena-app[data-mode="dark"] .tabtile,.arena-app[data-mode="dark"] .selected-front,.arena-app[data-mode="dark"] .question-card,.arena-app[data-mode="dark"] .eqrow,.arena-app[data-mode="dark"] .resultsteps,.arena-app[data-mode="dark"] .judge{background:var(--paper);color:var(--ink);border-color:var(--line)}
+.arena-app[data-mode="dark"] .answerfield,.arena-app[data-mode="dark"] .text-input,.arena-app[data-mode="dark"] .selector{background:var(--paper2);color:var(--ink);border-color:var(--line)}
+.arena-app[data-mode="dark"] .btn{color:#152332}.arena-app[data-mode="dark"] .btn.ghost{background:var(--paper2);color:var(--ink)}
+.arena-app[data-mode="dark"] .playerbox{background:#293e5c;color:var(--ink)}.arena-app[data-mode="dark"] .playerbox.right{background:#442b37}
+.arena-app[data-mode="dark"] .duel-descr{background:var(--paper2)}.arena-app[data-mode="dark"] .extra.duel{background:#392d36;color:var(--ink);border-color:var(--line)}
