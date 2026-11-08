@@ -14,3 +14,15 @@ main{max-width:790px;padding:24px 18px calc(100px + var(--bottom));margin:auto;m
 /* Frivillig första kartläggning – visuell vikt lägre än dagens rekommenderade uppgift. */
 .baselineLink{display:flex;gap:4px;flex-direction:column;margin:9px 0 16px;border:1px dashed var(--border);border-radius:14px;background:var(--paper2);padding:12px 15px;text-decoration:none;color:var(--ink2)}
 .baselineLink .baselineTitle{font-size:15px;font-weight:750;color:var(--ink)}.baselineLink span:not(.baselineTitle){font-size:13px;color:var(--muted)}.baselineLink strong{font-size:13px;color:var(--accent);align-self:flex-end}
+
+/* Clear language destinations and persistent Maths return. */
+.bottom{grid-template-columns:repeat(5,minmax(0,1fr))}
+.bottom a{font-size:11px;min-width:0}
+.bottom a span{font-size:20px}
+.learning-extra{margin:16px 0;border:1px solid var(--border);border-radius:15px;background:var(--paper)}
+.learning-extra>summary{min-height:49px;padding:12px 15px;cursor:pointer;font-size:15px;font-weight:750}
+.learning-extra-in{padding:0 15px 14px}
+.learning-extra-in .baselineLink{margin:4px 0 12px}
+.learning-extra-in p{margin:4px 0}
+.homegrid{margin:12px 0}
+@media(max-width:360px){.bottom a{font-size:10px}.bottom a span{font-size:18px}}
