@@ -1,0 +1,52 @@
+'use strict';
+/* Night themes and vocabulary gameplay, fake profiles only, no production data. */
+const {chromium,webkit,firefox,devices}=require('playwright');
+const assert=require('node:assert/strict');
+const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/$/,'');
+const engine=process.argv[3]||'chromium';
+(async()=>{
+ const b=await ({chromium,webkit,firefox})[engine].launch({headless:true});let n=0;
+ try{
+  const d=engine==='firefox'?{viewport:{width:390,height:844},deviceScaleFactor:2}:devices['iPhone 13'];
+  const ctx=await b.newContext({...d,serviceWorkers:'block'}),p=await ctx.newPage();
+  p.setDefaultTimeout(15000);const errors=[];p.on('pageerror',err=>errors.push(String(err)));
+  await p.goto(base+'/',{waitUntil:'domcontentloaded'});await p.locator('[data-p="grade8"]').click();
+  await p.locator('[data-a="appearance"]').click();
+  assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;
+  assert.equal(await p.locator('html').getAttribute('data-theme'),'navy');n++;
+  const mathVars=await p.evaluate(()=>({bg:getComputedStyle(document.body).backgroundColor,text:getComputedStyle(document.body).color}));
+  assert.equal(mathVars.bg,'rgb(16, 24, 32)');n++;
+  await p.goto(base+'/lara/',{waitUntil:'domcontentloaded'});
+  await p.locator('.theme-toggle').waitFor();
+  assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;
+  assert.equal(await p.locator('html').getAttribute('data-profile'),'grade8');n++;
+  await p.goto(base+'/lara/#/ord/sv');
+  await p.locator('[data-ord=start][data-kind=meaning]').click();
+  await p.locator('[data-ord=check]').waitFor();
+  const task=await p.evaluate(()=>{const text=document.querySelector('.wk-card h1').textContent,word=text.match(/”(.+?)”/)[1],w=window.MO_ORDLEK._test.WORDS.find(x=>x.word===word&&x.lang==='sv'),opts=window.MO_ORDLEK._test.options(w,'meaning');return {word,wrong:[0,1,2].find(i=>i!==opts.correct),key:'sv:'+word+':meaning'}});
+  await p.locator('[data-ord=pick][data-i="'+task.wrong+'"]').click();
+  await p.locator('[data-ord=check]').click();
+  assert.equal(await p.locator('.wk-feedback.try').count(),1);n++;
+  await p.locator('[data-ord=end]').click();
+  assert.match(await p.locator('.ord-numbers').innerText(),/1/);n++;
+  const grades=await p.evaluate(()=>JSON.parse(localStorage.getItem('matteos.ordlek.v1')).profiles);
+  assert(grades.grade8.attempts[task.key]?.wrong===1);n++;
+  assert.equal(grades.grade9.attempts[task.key],undefined);n++;
+  await p.reload();await p.locator('.ord-numbers').waitFor();
+  assert.match(await p.locator('.ord-numbers').innerText(),/1/);n++;
+  assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;
+  await p.goto(base+'/lara/#/en');
+  await p.locator('.wk-toplinks a[href="#/ord/en"]').waitFor();n++;
+  await p.locator('[data-a=profile]').click();
+  await p.locator('[data-a=choose-profile][data-p=grade9]').click();
+  assert.equal(await p.locator('html').getAttribute('data-profile'),'grade9');n++;
+  assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;
+  await p.locator('.theme-toggle').click();
+  assert.equal(await p.locator('html').getAttribute('data-mode'),'light');n++;
+  await p.goto(base+'/');
+  await p.locator('.top').waitFor();
+  assert.equal(await p.locator('html').getAttribute('data-mode'),'light');n++;
+  assert.deepEqual(errors,[],'no Javascript errors');n++;
+  await ctx.close();console.log('Ordlek/night '+engine+': '+n+' PASS');
+ }finally{await b.close()}
+})().catch(e=>{console.error(e);process.exitCode=1});
