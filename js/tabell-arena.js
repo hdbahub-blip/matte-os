@@ -35,7 +35,7 @@ const weekDays=()=>{
 };
 function shell(content){
  if(!shadow)return;
- shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.5.6-selected1"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
+ shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.5.6-selected2"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
 }
 function go(v){if(nextTimer){clearTimeout(nextTimer);nextTimer=null;}if(v!=='duel/play')stopDuelTimer();const h='#/tabell/'+v;if(location.hash===h)draw();else location.hash=h;window.scrollTo(0,0)}
 const route=()=>location.hash.replace(/^#\/tabell\/?/,'')||'home';
@@ -72,7 +72,7 @@ function selectedQs(tables,count=10){
  if(!chosen.length)return [];
  // Balanced sampling across chosen tables without identical a × b repeats.
  const baskets=chosen.map(t=>({t,others:shuffle(Array.from({length:10},(_,i)=>i+1))}));
- const qs=[],limit=Math.min(count===20?20:10,chosen.length*10);
+ const qs=[],limit=Math.min(count==='all'?chosen.length*10:count===20?20:10,chosen.length*10);
  for(let pos=0;pos<10&&qs.length<limit;pos++){
   for(const entry of shuffle(baskets)){
    if(qs.length>=limit)break;
@@ -82,16 +82,16 @@ function selectedQs(tables,count=10){
  return shuffle(qs);
 }
 function selectedSetup(){
- const tables=selectedTest.tables.slice().sort((x,y)=>x-y),size=tables.length,count=size===1?10:selectedTest.count;
+ const tables=selectedTest.tables.slice().sort((x,y)=>x-y),size=tables.length,count=selectedTest.count,total=count==='all'?size*10:count;
  const buttons=Array.from({length:10},(_,i)=>i+1).map(t=>'<button type="button" class="duel-table-chip'+(tables.includes(t)?' on':'')+'" data-act="selectedTable" data-value="'+t+'" aria-pressed="'+tables.includes(t)+'" aria-label="'+t+':ans tabell'+(tables.includes(t)?', vald':'')+'">'+t+'</button>').join('');
- shell('<section class="selected-setup"><button class="linkback" data-to="home">← Alla tabeller</button><div class="eyebrow">SJÄLVTEST · INGA LEDTRÅDAR</div><h1>Vilka tabeller vill du testa?</h1><p class="lead">Välj en eller flera tabeller. Frågorna blandas, och du får facit när du är klar.</p><div class="card"><div class="field">Välj tabeller (1–10)</div><div class="duel-table-grid" role="group" aria-label="Tabeller att testa">'+buttons+'</div><div class="duel-presets"><button class="btn ghost" data-act="selectedRange">6–9</button><button class="btn ghost" data-act="selectedAll">Alla 1–10</button><button class="btn ghost" data-act="selectedClear">Rensa val</button></div><div class="selected-count"><div class="field">Hur många frågor?</div><div class="selected-count-buttons" role="group" aria-label="Antal frågor"><button class="duel-table-chip'+(count===10?' on':'')+'" data-act="selectedCount" data-value="10" aria-pressed="'+(count===10)+'">10 frågor</button><button class="duel-table-chip'+(count===20?' on':'')+'" data-act="selectedCount" data-value="20" aria-pressed="'+(count===20)+'"'+(size<2?' disabled title="Välj minst två tabeller för 20 frågor"':'')+'>20 frågor</button></div></div><p class="selected-summary" aria-live="polite">'+(size?'Valda tabeller: '+tables.map(t=>t+':an').join(', ')+'.':'Välj minst en tabell för att starta.')+(size===1?' En tabell har tio olika frågor.':'')+'</p><button class="btn full" data-act="selectedStart"'+(size?'':' disabled')+'>Starta självtest · '+count+' frågor</button></div><p class="subtle">Utan tidspress och ledtrådar. Resultatet visar hur många du klarade totalt och per tabell. Resultatet sparas bara på din elevprofil.</p></section>');
+ shell('<section class="selected-setup"><button class="linkback" data-to="home">← Alla tabeller</button><div class="eyebrow">SJÄLVTEST · INGA LEDTRÅDAR</div><h1>Vilka tabeller vill du testa?</h1><p class="lead">Välj en eller flera tabeller. Frågorna blandas, och du får facit när du är klar.</p><div class="card"><div class="field">Välj tabeller (1–10)</div><div class="duel-table-grid" role="group" aria-label="Tabeller att testa">'+buttons+'</div><div class="duel-presets"><button class="btn ghost" data-act="selectedRange">6–9</button><button class="btn ghost" data-act="selectedAll">Alla 1–10</button><button class="btn ghost" data-act="selectedClear">Rensa val</button></div><div class="selected-count"><div class="field">Hur många frågor?</div><div class="selected-count-buttons" role="group" aria-label="Antal frågor"><button class="duel-table-chip'+(count===10?' on':'')+'" data-act="selectedCount" data-value="10" aria-pressed="'+(count===10)+'">10 frågor</button><button class="duel-table-chip'+(count===20?' on':'')+'" data-act="selectedCount" data-value="20" aria-pressed="'+(count===20)+'"'+(size<2?' disabled title="Välj minst två tabeller för 20 frågor"':'')+'>20 frågor</button><button class="duel-table-chip'+(count==='all'?' on':'')+'" data-act="selectedCount" data-value="all" aria-pressed="'+(count==='all')+'"'+(size?'':' disabled')+'>Alla frågor · '+(size*10)+' st</button></div></div><p class="selected-summary" aria-live="polite">'+(size?'Valda tabeller: '+tables.map(t=>t+':an').join(', ')+'.':'Välj minst en tabell för att starta.')+(size===1?' En tabell har tio olika frågor.':'')+'</p><button class="btn full" data-act="selectedStart"'+(size?'':' disabled')+'>Starta självtest · '+total+' frågor</button></div><p class="subtle">Utan tidspress och ledtrådar. Resultatet visar hur många du klarade totalt och per tabell. Resultatet sparas bara på din elevprofil.</p></section>');
 }
 function begin(type,value){
  if(type==='table'){n=Number(value);round={type:'table',table:n,qs:tableQs(n),i:0,results:[],feedback:null,start:Date.now()}}
  else if(type==='selected'){
   const tables=selectedTest.tables.slice().sort((x,y)=>x-y),qs=selectedQs(tables,selectedTest.count);
   if(!qs.length){go('selftest');return}
-  round={type:'mixed',table:null,selectedTables:tables,qs,i:0,results:[],feedback:null,start:Date.now()};
+  round={type:'mixed',table:null,selectedTables:tables,selectionMode:selectedTest.count,qs,i:0,results:[],feedback:null,start:Date.now()};
  }
  else round={type:'mixed',table:null,qs:mixedQs(),i:0,results:[],feedback:null,start:Date.now()};
  go(type==='table'?'practice':'mixed');
@@ -126,7 +126,7 @@ function next(){
 }
 function finish(){
  if(!round)return;
- const a={mode:round.type,table:round.table,selectedTables:round.selectedTables||null,total:round.qs.length,correctFirst:round.results.filter(x=>x.ok).length,finishedAt:new Date().toISOString(),localDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-'),elapsedMs:Date.now()-round.start};
+ const a={mode:round.type,table:round.table,selectedTables:round.selectedTables||null,selectionMode:round.selectionMode||null,total:round.qs.length,correctFirst:round.results.filter(x=>x.ok).length,finishedAt:new Date().toISOString(),localDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-'),elapsedMs:Date.now()-round.start};
  data().sessions.push(a);if(data().sessions.length>120)data().sessions=data().sessions.slice(-100);E.save();
  finished={...a,results:round.results};round=null;go('result');
 }
@@ -238,13 +238,13 @@ function mount(){
  case 'toggleStudyRow':if(studyAnswersHidden&&route().startsWith('table/')){const k=Number(b.dataset.value);if(k>=1&&k<=10){if(studyRevealed.has(k))studyRevealed.delete(k);else studyRevealed.add(k);draw();const btn=shadow.querySelector('[data-act="toggleStudyRow"][data-value="'+k+'"]');if(btn)btn.focus({preventScroll:true})}}break;
  case 'practice':begin('table',b.dataset.value);break;
  case 'mixed':begin('mixed');break;
- case 'selectedTable':if(route()==='selftest'){const t=Number(b.dataset.value);if(t>=1&&t<=10){selectedTest.tables=selectedTest.tables.includes(t)?selectedTest.tables.filter(x=>x!==t):[...selectedTest.tables,t].sort((x,y)=>x-y);if(selectedTest.tables.length<2)selectedTest.count=10;draw()}}break;
+ case 'selectedTable':if(route()==='selftest'){const t=Number(b.dataset.value);if(t>=1&&t<=10){selectedTest.tables=selectedTest.tables.includes(t)?selectedTest.tables.filter(x=>x!==t):[...selectedTest.tables,t].sort((x,y)=>x-y);if(selectedTest.tables.length<2&&selectedTest.count===20)selectedTest.count=10;draw()}}break;
  case 'selectedRange':if(route()==='selftest'){selectedTest.tables=[6,7,8,9];draw()}break;
  case 'selectedAll':if(route()==='selftest'){selectedTest.tables=Array.from({length:10},(_,i)=>i+1);draw()}break;
  case 'selectedClear':if(route()==='selftest'){selectedTest.tables=[];selectedTest.count=10;draw()}break;
- case 'selectedCount':if(route()==='selftest'){const c=Number(b.dataset.value);if(c===10||(c===20&&selectedTest.tables.length>=2)){selectedTest.count=c;draw()}}break;
+ case 'selectedCount':if(route()==='selftest'){const c=b.dataset.value;if(c==='all'||c==='10'||(c==='20'&&selectedTest.tables.length>=2)){selectedTest.count=c==='all'?'all':Number(c);draw()}}break;
  case 'selectedStart':if(route()==='selftest')begin('selected');break;
- case 'selectedAgain':if(finished&&finished.selectedTables){selectedTest.tables=finished.selectedTables.slice();selectedTest.count=finished.total===20?20:10;begin('selected')}break;
+ case 'selectedAgain':if(finished&&finished.selectedTables){selectedTest.tables=finished.selectedTables.slice();selectedTest.count=finished.selectionMode==='all'?'all':finished.total===20?20:10;begin('selected')}break;
   case 'autonext':autoNext=!autoNext;draw();break;
  case 'next':next();break;
  case 'duelTable':if(route()==='duel/setup'){duelPrefs.names=[shadow.getElementById('player1').value,shadow.getElementById('player2').value];const t=Number(b.dataset.value);if(duelPrefs.tables.includes(t)){if(duelPrefs.tables.length>1)duelPrefs.tables=duelPrefs.tables.filter(x=>x!==t)}else duelPrefs.tables.push(t);draw()}break;
