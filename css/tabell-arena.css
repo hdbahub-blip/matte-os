@@ -79,3 +79,7 @@
 .arena-app[data-mode="dark"] .btn{color:#152332}.arena-app[data-mode="dark"] .btn.ghost{background:var(--paper2);color:var(--ink)}
 .arena-app[data-mode="dark"] .playerbox{background:#293e5c;color:var(--ink)}.arena-app[data-mode="dark"] .playerbox.right{background:#442b37}
 .arena-app[data-mode="dark"] .duel-descr{background:var(--paper2)}.arena-app[data-mode="dark"] .extra.duel{background:#392d36;color:var(--ink);border-color:var(--line)}
+
+.arena-app[data-mode="dark"] .symbol{color:#152332}
+.arena-app[data-mode="dark"] .extra.mixed{background:#273b55;color:#f2f5f8}
+.arena-app[data-mode="dark"] .pillbtn{background:var(--paper2);color:var(--ink);border-color:var(--line)}

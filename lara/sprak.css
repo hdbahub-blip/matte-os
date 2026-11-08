@@ -61,3 +61,8 @@ html[data-mode="dark"] .wk-input{background:var(--paper);color:var(--ink);border
 .ord-actions{display:grid;gap:10px;margin:16px 0}.ord-actions .wk-mode{width:100%}
 .ord-numbers{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap}.ord-numbers span{background:var(--paper2);border:1px solid var(--border);border-radius:12px;padding:10px 14px}
 .ord-prompt{font-size:1.1rem;font-weight:650;background:var(--paper2);padding:16px;border-radius:12px}
+
+html[data-mode="dark"] .wk-option.on b{color:#152332}
+html[data-mode="dark"] .wk-reading p.wk-hl{box-shadow:0 0 0 5px #32496a}
+html[data-mode="dark"] .wk-feedback blockquote{background:var(--paper2);color:var(--ink)}
+html[data-mode="dark"] .wk-challenge{background:var(--accent-soft);color:var(--accent-dark)}
