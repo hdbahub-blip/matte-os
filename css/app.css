@@ -467,3 +467,9 @@ details.fold > .in { padding: 0 16px 14px; }
 .focus-back svg{width:17px;height:17px}
 @media(max-width:380px){.nav button,.nav a{font-size:10px}.nav button svg,.nav a svg{width:19px;height:19px}.focus-back{padding:0 7px;font-size:12px}}
 @media(max-width:520px){.card.hero .hero-vis{display:none}.calm-choices.learn-grid{grid-template-columns:1fr}}
+
+/* Cup stays directly reachable without becoming a fifth full-size home card. */
+.game-shortcut{min-height:50px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:9px;padding:11px 14px;margin:0 0 13px;border-radius:13px}
+.game-shortcut strong{font-size:15px}
+.game-shortcut span{font-size:12px;text-align:right}
+@media(max-width:375px){.game-shortcut{flex-direction:column;align-items:stretch;gap:2px}.game-shortcut span{text-align:left}}

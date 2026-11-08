@@ -110,7 +110,7 @@
       <a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Lär dig med enkla exempel</span></a>
       <a class="calm-choice" href="#/trana"><strong>Träna matte</strong><span>Räkna egna uppgifter</span></a>
       <a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>En tabell eller flera tillsammans</span></a>
-      <a class="calm-choice learn-choice" href="lara/"><strong>Svenska och engelska</strong><span>Läs, förstå och öva språk</span></a></div><details class="fold"><summary>Spel, prov och planering (fler val)</summary><div class="in"><a class="tap" href="#/cup"><div><div class="t">Spela tillsammans</div><div class="s">Matte OS Cup · spela på varsin mobil</div></div><span class="chev">${I.chev}</span></a>${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
+      <a class="calm-choice learn-choice" href="lara/"><strong>Svenska och engelska</strong><span>Läs, förstå och öva språk</span></a></div><a class="calm-choice game-shortcut" href="#/cup"><strong>Spela tillsammans</strong><span>Matte OS Cup · spela på varsin mobil</span></a><details class="fold"><summary>Prov och planering (fler val)</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
   }
 
 function boostCard() {
