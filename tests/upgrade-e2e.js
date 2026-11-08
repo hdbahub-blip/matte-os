@@ -1,5 +1,5 @@
 'use strict';
-/* Same-origin upgrade acceptance: 5.5.0 -> 5.5.6 with SYNTHETIC progress created in a fresh browser profile.
+/* Same-origin upgrade acceptance: 5.5.0 -> current candidate with SYNTHETIC progress created in a fresh browser profile.
    One origin serves the baseline build, then the candidate build is swapped in behind the same URL,
    exactly like a GitHub Pages deploy. Verifies persistence, service-worker cache switch, backup
    export/reset/import and offline recovery. Never touches real student data.
@@ -8,6 +8,10 @@ const http = require('node:http'), fs = require('node:fs'), path = require('node
 const assert = require('node:assert/strict');
 const { chromium, devices } = require('playwright');
 const BASELINE = path.resolve(process.argv[2] || ''), CANDIDATE = path.resolve(process.argv[3] || '.');
+const swText = fs.readFileSync(path.join(CANDIDATE, 'sw.js'), 'utf8');
+const swVersion = swText.match(/const VERSION\s*=\s*'([^']+)'/);
+assert(swVersion, 'Candidate worker version missing');
+const expectedCache = 'matte-os-' + swVersion[1];
 assert(fs.existsSync(path.join(BASELINE, 'sw.js')), 'Baseline build missing: ' + BASELINE);
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml', '.png': 'image/png' };
 let root = BASELINE;
@@ -50,7 +54,7 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     ok(JSON.stringify(B5.profiles.grade9.lessons || {}).includes(sid), 'Synthetic lesson progress not stored by 5.5.0');
     ok(Object.keys((B5.profiles.grade9.tables || {}).facts || {}).length >= 1, 'Synthetic table progress not stored by 5.5.0');
 
-    // 2. Deploy 5.5.6 behind the same origin and reload as a returning student would.
+    // 2. Deploy current candidate behind the same origin and reload as a returning student would.
     root = CANDIDATE;
     await page.goto(B, { waitUntil: 'networkidle' }); await page.reload({ waitUntil: 'networkidle' });
     ok(await page.evaluate(() => MO_CORE.version) === '5.5.6', 'Candidate 5.5.6 not served after deploy');
@@ -62,8 +66,8 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     ok(after.cup === before.cup && after.prov === before.prov, 'Cup or Prov storage changed by upgrade');
     ok(/Fortsätt · steg 2 av 3/.test(await page.locator('.hero .btn').innerText()), 'Home does not resume the saved lesson step');
     let keys = [];
-    for (let i = 0; i < 30; i++) { keys = await page.evaluate(() => caches.keys()); if (keys.some(k => k.includes('5.5.6')) && !keys.some(k => k.includes('5.5.0'))) break; await page.waitForTimeout(500); }
-    ok(keys.some(k => k.includes('5.5.6')) && !keys.some(k => k.includes('5.5.0')), 'Service-worker cache not switched to 5.5.6: ' + keys);
+    for (let i = 0; i < 30; i++) { keys = await page.evaluate(() => caches.keys()); if (keys.includes(expectedCache) && !keys.some(k => k.includes('5.5.0'))) break; await page.waitForTimeout(500); }
+    ok(keys.includes(expectedCache) && !keys.some(k => k.includes('5.5.0')), 'Service-worker cache not switched to '+expectedCache+': ' + keys);
     await page.reload({ waitUntil: 'networkidle' });
     ok(await page.evaluate(() => localStorage.getItem('matteos.v5')) === after.v5, 'Progress changed by a second reload');
 
@@ -83,7 +87,7 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     ok(JSON.stringify(R5.profiles.grade9.tables) === JSON.stringify(A5.profiles.grade9.tables), 'Import did not restore table progress');
     fs.unlinkSync(backup);
 
-    // 4. Offline recovery from the 5.5.6 cache.
+    // 4. Offline recovery from the candidate cache.
     await context.setOffline(true);
     for (const route of ['#/', '#/formler', '#/trana', '#/installningar', '#/l/' + sid + '/0']) {
       await page.goto(B + route); await page.waitForTimeout(300);
@@ -95,6 +99,6 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     await context.setOffline(false);
     ok(errors.length === 0, 'Page errors: ' + errors.join(' | '));
     await context.close();
-    console.log('UPGRADE 5.5.0 -> 5.5.6 same-origin acceptance ' + n + '/' + n + ' PASS');
+    console.log('UPGRADE 5.5.0 -> '+swVersion[1]+' same-origin acceptance ' + n + '/' + n + ' PASS');
   } finally { await browser.close(); server.close(); }
 })().catch(e => { console.error(e); process.exitCode = 1; server.close(); });
