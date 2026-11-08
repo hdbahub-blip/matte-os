@@ -41,3 +41,8 @@ html[data-mode="dark"] .mark,html[data-mode="dark"] .avatar{background:var(--acc
 html[data-mode="dark"] .btn:not(.ghost){color:#152332}
 html[data-mode="dark"] .theme-toggle{background:var(--paper2);color:var(--accent-dark)}
 html[data-mode="dark"] .profile,html[data-mode="dark"] .bottom a{color:var(--ink)}
+
+html[data-mode="dark"],html[data-mode="dark"] body,html[data-mode="dark"] #app{background-color:#101820;color:var(--ink)}
+html[data-mode="dark"] .transcript,html[data-mode="dark"] .speaking,html[data-mode="dark"] .state,html[data-mode="dark"] .hint{background:var(--paper2);color:var(--ink);border-color:var(--border)}
+html[data-mode="dark"] .bottom{background:var(--paper);color:var(--ink)}
+html[data-mode="dark"] .subjectCard,html[data-mode="dark"] .teamCard{background:var(--paper);color:var(--ink)}

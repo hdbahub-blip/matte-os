@@ -483,3 +483,10 @@ html[data-mode="dark"] input,html[data-mode="dark"] textarea,html[data-mode="dar
 html[data-mode="dark"] .vis svg text{fill:var(--ink)}
 html[data-mode="dark"] .icon-btn{font-size:22px}
 @media print{html[data-mode="dark"]{color-scheme:light;--bg:#fff;--paper:#fff;--paper2:#fff;--ink:#000;--ink2:#222;--muted:#444;--line:#aaa}}
+
+/* Explicit dark surfaces so long student pages never leave light islands. */
+html[data-mode="dark"],html[data-mode="dark"] body,html[data-mode="dark"] #app{background-color:#101820;color:var(--ink)}
+html[data-mode="dark"] .paper-diagram,html[data-mode="dark"] .paper,html[data-mode="dark"] .mult-form input,html[data-mode="dark"] .sheet{background:var(--paper2);color:var(--ink);border-color:var(--line)}
+html[data-mode="dark"] .nav{background-color:var(--paper);color:var(--ink)}
+html[data-mode="dark"] .weekplan,html[data-mode="dark"] .plan-card,html[data-mode="dark"] .chapter-card{background:var(--paper);color:var(--ink);border-color:var(--line)}
+html[data-mode="dark"] button:not(.btn),html[data-mode="dark"] input,html[data-mode="dark"] textarea{color:inherit}

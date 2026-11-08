@@ -66,3 +66,9 @@ html[data-mode="dark"] .wk-option.on b{color:#152332}
 html[data-mode="dark"] .wk-reading p.wk-hl{box-shadow:0 0 0 5px #32496a}
 html[data-mode="dark"] .wk-feedback blockquote{background:var(--paper2);color:var(--ink)}
 html[data-mode="dark"] .wk-challenge{background:var(--accent-soft);color:var(--accent-dark)}
+
+html[data-mode="dark"] .wk-sentences,html[data-mode="dark"] .wk-compare>div{background:var(--paper2);color:var(--ink);border-color:var(--border)}
+html[data-mode="dark"] .wk-sent.on{background:var(--accent-soft);color:var(--accent-dark)}
+html[data-mode="dark"] .wk-reading,html[data-mode="dark"] .wk-book,html[data-mode="dark"] .wk-card{background-color:var(--paper);color:var(--ink)}
+html[data-mode="dark"] .wk-option b{background:var(--paper2);color:var(--ink)}
+html[data-mode="dark"] .wk-option.on b{background:var(--accent);color:#152332}
