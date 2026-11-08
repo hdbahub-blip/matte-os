@@ -75,6 +75,7 @@ if(!['chromium','webkit','firefox'].includes(engine))throw Error('Unknown browse
   assert.match(await arena.locator('.question-head').innerText(),/1 \/ 30/);checks++;
   await page.goto(base+'/#/tabell/selftest');
   await arena.locator('[data-act="selectedAll"]').click();
+  await arena.locator('[data-act="selectedCount"][data-value="all"]').click();
   assert.match(await arena.locator('[data-act="selectedStart"]').innerText(),/100 frågor/);checks++;
   await arena.locator('[data-act="selectedClear"]').click();
 
