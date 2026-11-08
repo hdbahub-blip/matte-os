@@ -6,6 +6,8 @@ const esc=x=>String(x==null?'':x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const shuffle=x=>{let a=x.slice();for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const key=(a,b)=>Math.min(a,b)+'x'+Math.max(a,b);
 let round=null,duel=null,finished=null,n=7,duelPrefs={names:['Spelare 1','Spelare 2'],tables:[1,2,3,4,5,6,7,8,9,10],firstSec:5,secondSec:3};
+// Local selection only; scores and history remain in existing per-grade profiles.
+let selectedTest={tables:[],count:10};
 let autoNext=false, nextTimer=null, duelTimer=null, duelTicker=null;
 let studyAnswersHidden=false, studyRevealed=new Set(), studyTable=null;
 const reducedMotion=()=>!!(root.matchMedia&&root.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -33,7 +35,7 @@ const weekDays=()=>{
 };
 function shell(content){
  if(!shadow)return;
- shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.5.4"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
+ shadow.innerHTML='<link rel="stylesheet" href="css/tabell-arena.css?v=5.5.6-selected1"><div class="arena-app" data-grade="'+pid()+'"><div class="container">'+content+'</div></div>';
 }
 function go(v){if(nextTimer){clearTimeout(nextTimer);nextTimer=null;}if(v!=='duel/play')stopDuelTimer();const h='#/tabell/'+v;if(location.hash===h)draw();else location.hash=h;window.scrollTo(0,0)}
 const route=()=>location.hash.replace(/^#\/tabell\/?/,'')||'home';
@@ -43,7 +45,7 @@ function home(){
  const t=i+1,x=info(t);
  return `<a class="tabtile" href="#/tabell/table/${t}" aria-label="Öppna ${t}:ans tabell"><span class="tabtile-top"><span>${t}:ans tabell</span><span>↗</span></span><span class="tabtile-num">${t}<small style="font-size:1.1rem;color:var(--accent)"> ×</small></span><span class="tbar"><i style="width:${x.percent}%"></i></span><span class="tabtile-bottom"><i class="status-dot ${x.stable?'stable':x.tries?'progress':''}"></i>${x.status}</span></a>`;
  }).join('');
- shell(`<section class="home-hero"><div><div class="eyebrow">Matte OS · Grundträning</div><h1>En tabell i taget.<br>Sen blandar vi.</h1><p class="lead">Välj 7:an eller någon annan tabell. Se först alla svar, träna tio frågor och bygg säkerhet. Sedan kan du testa dig på hela blandningen.</p><span class="ribbon">${stables()} av 10 tabeller sitter stabilt</span> <span class="ribbon" style="margin-top:7px">Veckouppdrag: ${Math.min(weekDays(),3)}/3 träningsdagar</span></div><div class="hero-graphic" aria-hidden="true"><span class="hero-calc">7<span> × </span>8<span> = </span>56</span></div></section><div class="sectionheading"><div><h2>Välj din tabell</h2><p>Alla tio tabeller finns här, med hela tabellen utskriven.</p></div></div><div class="grid">${tiles}</div><div class="extras"><section class="extra mixed"><div class="extra-sign">∑</div><div><div class="eyebrow">NÄSTA NIVÅ</div><h2>Blandad utmaning</h2><p>20 frågor från alla tabeller. Utan ledtrådar, facit först efter inlämning.</p></div><button class="btn" data-act="mixed">Starta blandprovet</button></section><section class="extra duel"><div class="extra-sign">VS</div><div><div class="eyebrow">SPELA TILLSAMMANS</div><h2>Snabbast vinner</h2><p>Två spelare. Först att trycka får svara. Spela på en mobil eller dator.</p></div><button class="btn" data-to="duel/setup">Spela duell</button></section><section class="extra duel"><div class="extra-sign">CUP</div><div><div class="eyebrow">SPELA TILLSAMMANS · VARSIN MOBIL</div><h2>Matte OS Cup</h2><p>Studera tabellerna, spela samma frågor på varsin mobil och gå från kval till final.</p></div><a class="btn" href="#/cup">Öppna Matte OS Cup</a></section></div><p class="subtle">Progressen sparas lokalt på enheten och följer med Matte OS-säkerhetskopian. Inga offentliga resultatlistor.</p>`);
+ shell(`<section class="home-hero"><div><div class="eyebrow">Matte OS · Grundträning</div><h1>En tabell i taget.<br>Sen blandar vi.</h1><p class="lead">Välj 7:an eller någon annan tabell. Se först alla svar, träna tio frågor och bygg säkerhet. Sedan kan du testa dig på hela blandningen.</p><span class="ribbon">${stables()} av 10 tabeller sitter stabilt</span> <span class="ribbon" style="margin-top:7px">Veckouppdrag: ${Math.min(weekDays(),3)}/3 träningsdagar</span></div><div class="hero-graphic" aria-hidden="true"><span class="hero-calc">7<span> × </span>8<span> = </span>56</span></div></section><div class="sectionheading"><div><h2>Välj din tabell</h2><p>Alla tio tabeller finns här, med hela tabellen utskriven.</p></div></div><div class="grid">${tiles}</div><div class="extras"><section class="extra mixed"><div class="extra-sign">∑</div><div><div class="eyebrow">NÄSTA NIVÅ</div><h2>Testa dig själv</h2><p>Välj en eller flera tabeller, och svara utan ledtrådar. Facit kommer först efter sista frågan.</p></div><div class="selected-home-actions"><button class="btn" data-to="selftest">Välj tabeller</button><button class="btn" data-act="mixed">Alla 1–10 · 20 frågor</button></div></section><section class="extra duel"><div class="extra-sign">VS</div><div><div class="eyebrow">SPELA TILLSAMMANS</div><h2>Snabbast vinner</h2><p>Två spelare. Först att trycka får svara. Spela på en mobil eller dator.</p></div><button class="btn" data-to="duel/setup">Spela duell</button></section><section class="extra duel"><div class="extra-sign">CUP</div><div><div class="eyebrow">SPELA TILLSAMMANS · VARSIN MOBIL</div><h2>Matte OS Cup</h2><p>Studera tabellerna, spela samma frågor på varsin mobil och gå från kval till final.</p></div><a class="btn" href="#/cup">Öppna Matte OS Cup</a></section></div><p class="subtle">Progressen sparas lokalt på enheten och följer med Matte OS-säkerhetskopian. Inga offentliga resultatlistor.</p>`);
 }
 function table(v){
  n=Number(v);if(!(n>=1&&n<=10)){go('home');return}
@@ -64,8 +66,33 @@ function mixedQs(){
  for(const a of shuffle(Array.from({length:10},(_,i)=>i+1)))for(const b of shuffle(Array.from({length:10},(_,i)=>i+1))){if(qs.length>=20)break;add(a,b)}
  return shuffle(qs.slice(0,20));
 }
+
+function selectedQs(tables,count=10){
+ const chosen=[...new Set(tables.map(Number))].filter(t=>Number.isInteger(t)&&t>=1&&t<=10).sort((x,y)=>x-y);
+ if(!chosen.length)return [];
+ // Balanced sampling across chosen tables without identical a × b repeats.
+ const baskets=chosen.map(t=>({t,others:shuffle(Array.from({length:10},(_,i)=>i+1))}));
+ const qs=[],limit=Math.min(count===20?20:10,chosen.length*10);
+ for(let pos=0;pos<10&&qs.length<limit;pos++){
+  for(const entry of shuffle(baskets)){
+   if(qs.length>=limit)break;
+   qs.push({a:entry.t,b:entry.others[pos]});
+  }
+ }
+ return shuffle(qs);
+}
+function selectedSetup(){
+ const tables=selectedTest.tables.slice().sort((x,y)=>x-y),size=tables.length,count=size===1?10:selectedTest.count;
+ const buttons=Array.from({length:10},(_,i)=>i+1).map(t=>'<button type="button" class="duel-table-chip'+(tables.includes(t)?' on':'')+'" data-act="selectedTable" data-value="'+t+'" aria-pressed="'+tables.includes(t)+'" aria-label="'+t+':ans tabell'+(tables.includes(t)?', vald':'')+'">'+t+'</button>').join('');
+ shell('<section class="selected-setup"><button class="linkback" data-to="home">← Alla tabeller</button><div class="eyebrow">SJÄLVTEST · INGA LEDTRÅDAR</div><h1>Vilka tabeller vill du testa?</h1><p class="lead">Välj en eller flera tabeller. Frågorna blandas, och du får facit när du är klar.</p><div class="card"><div class="field">Välj tabeller (1–10)</div><div class="duel-table-grid" role="group" aria-label="Tabeller att testa">'+buttons+'</div><div class="duel-presets"><button class="btn ghost" data-act="selectedRange">6–9</button><button class="btn ghost" data-act="selectedAll">Alla 1–10</button><button class="btn ghost" data-act="selectedClear">Rensa val</button></div><div class="selected-count"><div class="field">Hur många frågor?</div><div class="selected-count-buttons" role="group" aria-label="Antal frågor"><button class="duel-table-chip'+(count===10?' on':'')+'" data-act="selectedCount" data-value="10" aria-pressed="'+(count===10)+'">10 frågor</button><button class="duel-table-chip'+(count===20?' on':'')+'" data-act="selectedCount" data-value="20" aria-pressed="'+(count===20)+'"'+(size<2?' disabled title="Välj minst två tabeller för 20 frågor"':'')+'>20 frågor</button></div></div><p class="selected-summary" aria-live="polite">'+(size?'Valda tabeller: '+tables.map(t=>t+':an').join(', ')+'.':'Välj minst en tabell för att starta.')+(size===1?' En tabell har tio olika frågor.':'')+'</p><button class="btn full" data-act="selectedStart"'+(size?'':' disabled')+'>Starta självtest · '+count+' frågor</button></div><p class="subtle">Utan tidspress och ledtrådar. Resultatet visar hur många du klarade totalt och per tabell. Resultatet sparas bara på din elevprofil.</p></section>');
+}
 function begin(type,value){
  if(type==='table'){n=Number(value);round={type:'table',table:n,qs:tableQs(n),i:0,results:[],feedback:null,start:Date.now()}}
+ else if(type==='selected'){
+  const tables=selectedTest.tables.slice().sort((x,y)=>x-y),qs=selectedQs(tables,selectedTest.count);
+  if(!qs.length){go('selftest');return}
+  round={type:'mixed',table:null,selectedTables:tables,qs,i:0,results:[],feedback:null,start:Date.now()};
+ }
  else round={type:'mixed',table:null,qs:mixedQs(),i:0,results:[],feedback:null,start:Date.now()};
  go(type==='table'?'practice':'mixed');
 }
@@ -73,7 +100,8 @@ function task(){
  if(!round){go('home');return}
  const q=round.qs[round.i];if(!q){finish();return}
  const test=round.type==='mixed',count=round.qs.length,done=round.i+(round.feedback?1:0);
- shell(`<div class="centered"><button class="linkback" data-to="${test?'home':'table/'+n}">← ${test?'Alla tabeller':n+':ans tabell'}</button><section class="question-card"><div class="question-head"><span>${test?'BLANDPROV · UTAN HJÄLP':n+':ANS TABELL · TRÄNING'}</span><span>${round.i+1} / ${count}</span></div><div class="progressline"><i style="width:${100*done/count}%"></i></div><div class="equation">${q.a} <span>×</span> ${q.b} <span>= ?</span></div>${round.feedback?`<div class="feedback ${round.feedback.ok?'ok':'no'}" role="status" aria-live="polite"><div><b>${round.feedback.ok?'Rätt!':'Bra att du försökte.'}</b><span>${q.a} × ${q.b} = ${q.a*q.b}</span></div><button class="btn" data-act="next">${round.i+1===count?'Visa resultat':'Nästa →'}</button></div>`:`<form id="answerform" class="answerform" novalidate><input id="answer" class="answerfield" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Ditt svar" aria-label="Svar på ${q.a} gånger ${q.b}"><button type="submit" class="btn">${test?(round.i+1===count?'Lämna in':'Nästa →'):'Svara'}</button></form>`}</section><p class="round-note">${test?'Rättning kommer när alla 20 frågor är klara.':'Försök utan tidspress. Ett fel hjälper oss hitta vad du kan öva på.'}</p></div>`);
+ const back=round.selectedTables?'selftest':'home',label=round.selectedTables?'SJÄLVTEST · '+round.selectedTables.join(', ')+':ANS TABELLER':'BLANDPROV · UTAN HJÄLP';
+ shell(`<div class="centered"><button class="linkback" data-to="${test?back:'table/'+n}">← ${test?'Alla tabeller':n+':ans tabell'}</button><section class="question-card"><div class="question-head"><span>${test?label:n+':ANS TABELL · TRÄNING'}</span><span>${round.i+1} / ${count}</span></div><div class="progressline"><i style="width:${100*done/count}%"></i></div><div class="equation">${q.a} <span>×</span> ${q.b} <span>= ?</span></div>${round.feedback?`<div class="feedback ${round.feedback.ok?'ok':'no'}" role="status" aria-live="polite"><div><b>${round.feedback.ok?'Rätt!':'Bra att du försökte.'}</b><span>${q.a} × ${q.b} = ${q.a*q.b}</span></div><button class="btn" data-act="next">${round.i+1===count?'Visa resultat':'Nästa →'}</button></div>`:`<form id="answerform" class="answerform" novalidate><input id="answer" class="answerfield" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="Ditt svar" aria-label="Svar på ${q.a} gånger ${q.b}"><button type="submit" class="btn">${test?(round.i+1===count?'Lämna in':'Nästa →'):'Svara'}</button></form>`}</section><p class="round-note">${test?'Rättning kommer när alla ${count} frågor är klara.':'Försök utan tidspress. Ett fel hjälper oss hitta vad du kan öva på.'}</p></div>`);
 }
 function factScore(q,ok){
  const s=T.factState(pid(),key(q.a,q.b));s.attempts++;s.last=Date.now();
@@ -98,15 +126,16 @@ function next(){
 }
 function finish(){
  if(!round)return;
- const a={mode:round.type,table:round.table,total:round.qs.length,correctFirst:round.results.filter(x=>x.ok).length,finishedAt:new Date().toISOString(),localDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-'),elapsedMs:Date.now()-round.start};
+ const a={mode:round.type,table:round.table,selectedTables:round.selectedTables||null,total:round.qs.length,correctFirst:round.results.filter(x=>x.ok).length,finishedAt:new Date().toISOString(),localDate:[new Date().getFullYear(),String(new Date().getMonth()+1).padStart(2,'0'),String(new Date().getDate()).padStart(2,'0')].join('-'),elapsedMs:Date.now()-round.start};
  data().sessions.push(a);if(data().sessions.length>120)data().sessions=data().sessions.slice(-100);E.save();
  finished={...a,results:round.results};round=null;go('result');
 }
 function result(){
  if(!finished){go('home');return}
- const a=finished,pct=a.correctFirst/a.total,good=pct>=.9;
+ const a=finished,pct=a.correctFirst/a.total,good=pct>=.9,selected=a.selectedTables&&a.selectedTables.length?a.selectedTables:null;
+ const perTable=selected?'<div class="selected-breakdown"><h2>Resultat per tabell</h2>'+selected.map(t=>{const qs=a.results.filter(q=>q.a===t);return '<div><span>'+t+':ans tabell</span><strong>'+qs.filter(q=>q.ok).length+'/'+qs.length+' rätt</strong></div>'}).join('')+'</div>':'';
  const rows=a.results.map(q=>`<div><span>${q.a} × ${q.b} = ${q.a*q.b}</span><strong class="${q.ok?'ok':'no'}">${q.ok?'Rätt':'Ditt svar: '+q.answer}</strong></div>`).join('');
- shell(`<div class="centered"><button class="linkback" data-to="home">← Alla tabeller</button><section class="card results"><div class="eyebrow">${a.mode==='mixed'?'BLANDPROV KLART':a.table+':ANS TABELL · KLAR'}</div><div class="stat">${a.correctFirst}/${a.total}</div><h1>${good?'Snyggt jobbat.':'Nästa gång kan det sitta bättre.'}</h1><p>${a.mode==='table'?'Träna gärna igen en annan dag. Två rundor med minst 9/10 på olika dagar ger stabil markering.':'Så här gick ditt blandprov. Alla rätt och fel visas nedan.'}</p><div class="resultsteps">${rows}</div><div class="actionrow">${a.mode==='table'?`<a class="btn" href="#/tabell/practice/${a.table}">Träna ${a.table}:an igen</a><button class="btn ghost" data-to="table/${a.table}">Se tabellen</button>`:`<button class="btn" data-act="mixed">Gör nytt blandprov</button>`}<button class="btn ghost" data-to="home">Till översikten</button></div></section></div>`);
+ shell(`<div class="centered"><button class="linkback" data-to="home">← Alla tabeller</button><section class="card results"><div class="eyebrow">${selected?'SJÄLVTEST · '+selected.join(', ')+':ANS TABELLER':a.mode==='mixed'?'BLANDPROV KLART':a.table+':ANS TABELL · KLAR'}</div><div class="stat">${a.correctFirst}/${a.total}</div><h1>${good?'Snyggt jobbat.':'Nästa gång kan det sitta bättre.'}</h1><p>${a.mode==='table'?'Träna gärna igen en annan dag. Två rundor med minst 9/10 på olika dagar ger stabil markering.':'Så här gick ditt blandprov. Alla rätt och fel visas nedan.'}</p><div class="resultsteps">${rows}</div>${perTable}<div class="actionrow">${a.mode==='table'?`<a class="btn" href="#/tabell/practice/${a.table}">Träna ${a.table}:an igen</a><button class="btn ghost" data-to="table/${a.table}">Se tabellen</button>`:`${selected?'<button class="btn" data-act="selectedAgain">Testa samma tabeller igen</button><button class="btn ghost" data-to="selftest">Ändra tabeller</button>':'<button class="btn" data-act="mixed">Gör nytt blandprov</button>'}`}<button class="btn ghost" data-to="home">Till översikten</button></div></section></div>`);
 }
 function setup(){
  const p=duelPrefs;
@@ -184,6 +213,7 @@ function draw(){
  if(!pid()){chooseProfile();return}
  const r=route();
  if(r==='home')home();
+ else if(r==='selftest')selectedSetup();
  else if(r.startsWith('table/'))table(r.split('/')[1]);
  else if(/^practice\/(?:[1-9]|10)$/.test(r))begin('table',Number(r.split('/')[1]));
  else if(r==='practice'||r==='mixed')task();
@@ -208,6 +238,13 @@ function mount(){
  case 'toggleStudyRow':if(studyAnswersHidden&&route().startsWith('table/')){const k=Number(b.dataset.value);if(k>=1&&k<=10){if(studyRevealed.has(k))studyRevealed.delete(k);else studyRevealed.add(k);draw();const btn=shadow.querySelector('[data-act="toggleStudyRow"][data-value="'+k+'"]');if(btn)btn.focus({preventScroll:true})}}break;
  case 'practice':begin('table',b.dataset.value);break;
  case 'mixed':begin('mixed');break;
+ case 'selectedTable':if(route()==='selftest'){const t=Number(b.dataset.value);if(t>=1&&t<=10){selectedTest.tables=selectedTest.tables.includes(t)?selectedTest.tables.filter(x=>x!==t):[...selectedTest.tables,t].sort((x,y)=>x-y);if(selectedTest.tables.length<2)selectedTest.count=10;draw()}}break;
+ case 'selectedRange':if(route()==='selftest'){selectedTest.tables=[6,7,8,9];draw()}break;
+ case 'selectedAll':if(route()==='selftest'){selectedTest.tables=Array.from({length:10},(_,i)=>i+1);draw()}break;
+ case 'selectedClear':if(route()==='selftest'){selectedTest.tables=[];selectedTest.count=10;draw()}break;
+ case 'selectedCount':if(route()==='selftest'){const c=Number(b.dataset.value);if(c===10||(c===20&&selectedTest.tables.length>=2)){selectedTest.count=c;draw()}}break;
+ case 'selectedStart':if(route()==='selftest')begin('selected');break;
+ case 'selectedAgain':if(finished&&finished.selectedTables){selectedTest.tables=finished.selectedTables.slice();selectedTest.count=finished.total===20?20:10;begin('selected')}break;
   case 'autonext':autoNext=!autoNext;draw();break;
  case 'next':next();break;
  case 'duelTable':if(route()==='duel/setup'){duelPrefs.names=[shadow.getElementById('player1').value,shadow.getElementById('player2').value];const t=Number(b.dataset.value);if(duelPrefs.tables.includes(t)){if(duelPrefs.tables.length>1)duelPrefs.tables=duelPrefs.tables.filter(x=>x!==t)}else duelPrefs.tables.push(t);draw()}break;
@@ -245,5 +282,5 @@ window.addEventListener('hashchange',()=>{
     nextTimer=null;
   }
 });
-root.MOTabellArena={mount,qa:{info,mixedQs,tableQs,stables}};
+root.MOTabellArena={mount,qa:{info,mixedQs,selectedQs,tableQs,stables}};
 })(typeof window!=='undefined'?window:globalThis);

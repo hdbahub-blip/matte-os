@@ -47,7 +47,9 @@ jobs:
       - name: Figure, unit and geometry checks
         run: node tests/figure-consistency.js
       - name: Table arena and progress integration
-        run: node tests/tabell-integration.js
+        run: |
+          node tests/tabell-integration.js
+          node --check tests/tabell-selected-e2e.js
       - name: Book-first regression
         run: node tests/book-first-regression.js
       - name: Learning hub unit and content verification
@@ -85,6 +87,7 @@ jobs:
           node tests/larande-live-e2e.js http://127.0.0.1:8765/
           node tests/sprak-e2e.js http://127.0.0.1:8765/
           node tests/knep-e2e.js http://127.0.0.1:8765/ test-screenshots
+          node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ chromium
       - name: Same-origin upgrade from production 5.5.0 with synthetic progress
         run: |
           git fetch --depth 1 origin 7f87feeac11fc4800b05cbee0cfded415b1052ff
@@ -123,6 +126,8 @@ jobs:
           node tests/cross-engine-e2e.js http://127.0.0.1:8765/
           node tests/sprak-cross-engine.js http://127.0.0.1:8765/
           node tests/knep-cross-engine.js http://127.0.0.1:8765/
+          node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ webkit
+          node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ firefox
 
   cup-backend:
     runs-on: ubuntu-24.04
