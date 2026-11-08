@@ -50,12 +50,14 @@
       <button data-a="nav" data-h="#/" ${tab === 'home' ? 'aria-current="page"' : ''}>${I.home}<span>Hem</span></button>
       <button data-a="nav" data-h="#/formler" ${tab === 'formler' ? 'aria-current="page"' : ''}>${I.book}<span>Förstå</span></button>
       <button data-a="nav" data-h="#/trana" ${tab === 'trana' ? 'aria-current="page"' : ''}>${I.pen}<span>Träna</span></button>
+      <button data-a="nav" data-h="#/tabell/home" ${tab === 'tabell' ? 'aria-current="page"' : ''}>${I.grid}<span>Tabeller</span></button>
+      <a href="lara/" aria-label="Öppna svenska, engelska och studieteknik">${I.book}<span>Språk</span></a>
     </div></nav>`;
   }
   function focusShell(content, { title, sub, steps, cur, exit = '#/', formula }) {
     const bar = steps ? `<div class="steps" aria-hidden="true">${Array.from({ length: steps }, (_, i) => `<i class="${i < cur ? 'on' : i === cur ? 'cur' : ''}"></i>`).join('')}</div>` : '';
     return `<header class="fbar"><div class="fbar-in">
-      <button class="icon-btn" data-a="exit" data-h="${exit}" aria-label="Avsluta och gå tillbaka">${I.close}</button>
+      <button class="focus-back" data-a="exit" data-h="${exit}" aria-label="Avsluta och gå tillbaka">${I.back}<span>Tillbaka</span></button>
       <div class="ttl"><small>${esc(sub || '')}</small><b>${esc(title || '')}</b>${bar}</div>
       ${formula ? `<button class="icon-btn" data-a="formula" data-sid="${formula}" aria-label="Visa formelkort">${I.f}</button>` : ''}
     </div></header><main id="main" class="focus">${content}</main>`;
@@ -103,7 +105,12 @@
     return shell(`<div class="ctx">${ctx}</div>
       <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'Vad vill du göra idag?')}</h1>
       <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Välj det som passar dig. Du kan alltid komma tillbaka.</p>
-      ${hero}${KNEP && KNEP.dueCount() ? `<a class="tap knep-home" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">Svara först, titta sedan. Tar en minut.</div></div><span class="chev">${I.chev}</span></a>` : ''}<div class="calm-choices learn-grid" aria-label="Välj vad du vill göra"><a class="calm-choice learn-choice" href="lara/"><strong>Svenska, engelska &amp; studieteknik</strong><span>Förstå · Träna · Tillsammans</span></a><a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Enkla exempel och förklaringar</span></a><a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>Läs en tabell och prova själv</span></a><a class="calm-choice" href="#/cup"><strong>Spela tillsammans</strong><span>Skapa spel eller gå med via kod</span></a></div><details class="fold"><summary>Alla områden, prov och planering</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
+      ${hero}${KNEP && KNEP.dueCount() ? `<a class="tap knep-home" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">Svara först, titta sedan. Tar en minut.</div></div><span class="chev">${I.chev}</span></a>` : ''}<h2 class="home-choice-heading">Eller välj själv</h2>
+      <div class="calm-choices learn-grid" aria-label="Välj vad du vill göra">
+      <a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Lär dig med enkla exempel</span></a>
+      <a class="calm-choice" href="#/trana"><strong>Träna matte</strong><span>Räkna egna uppgifter</span></a>
+      <a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>En tabell eller flera tillsammans</span></a>
+      <a class="calm-choice learn-choice" href="lara/"><strong>Svenska och engelska</strong><span>Läs, förstå och öva språk</span></a></div><details class="fold"><summary>Spel, prov och planering (fler val)</summary><div class="in"><a class="tap" href="#/cup"><div><div class="t">Spela tillsammans</div><div class="s">Matte OS Cup · spela på varsin mobil</div></div><span class="chev">${I.chev}</span></a>${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
   }
 
 function boostCard() {
@@ -185,7 +192,7 @@ function boostCard() {
     return shell(`<p class="eyebrow">Förstå · ${esc(pr.label)}</p><h1>Förstå matte</h1>
       <div class="searchbox">${I.search}<input id="fq" type="search" placeholder="Sök: cirkel, procent, x båda sidor…" value="${esc(UI.fq)}" aria-label="Sök en förklaring" autocomplete="off"></div>
       ${q ? `<p class="mut small">${list.length} träffar</p>` : `<div class="seg-ctl" role="group" aria-label="Kapitel">${chOrder.map(c => `<button data-a="fch" data-ch="${c.id}" aria-pressed="${c.id === UI.fch}">${esc(c.name)}${c.id === rec.chapter ? ' ·&nbsp;nu' : ''}</button>`).join('')}</div>`}
-      <div id="flist">${list.map(formulaCard).join('') || '<p class="mut">Inga träffar. Prova ett annat ord.</p>'}</div>${knepEntry()}`, 'formler');
+      ${knepEntry()}<div id="flist">${list.map(formulaCard).join('') || '<p class="mut">Inga träffar. Prova ett annat ord.</p>'}</div>`, 'formler');
   }
 
   /* ================= TRÄNA ================= */
@@ -203,7 +210,7 @@ function boostCard() {
         <div style="height:14px"></div>
         <button class="btn block" data-a="startTrain" data-ch="${rec.chapter}">Starta</button>
       </div></div>
-      <section class="calm-multiply"><h2>Multiplikation</h2><p class="mut small">Börja med en tabell. Spela när du känner dig redo.</p><a class="btn block" href="#/tabell/home">Studera och öva tabeller</a><a class="btn ghost block" href="#/cup">Spela tillsammans på egna mobiler</a><details class="fold"><summary>Hela tabellaffischen (valfritt)</summary><div class="in"><a class="btn ghost block" href="affischer/?visa=tabeller&ak=${pid() === 'grade8' ? '8' : '9'}">Visa eller skriv ut alla tabeller</a></div></details></section>
+      <section class="calm-multiply"><h2>Multiplikation</h2><p class="mut small">Börja med en tabell. Spela när du känner dig redo.</p><a class="btn block" href="#/tabell/selftest">Testa flera tabeller själv</a><a class="btn ghost block" href="#/tabell/home">Lär en tabell</a><a class="btn ghost block" href="#/cup">Spela tillsammans</a><details class="fold"><summary>Hela tabellaffischen (valfritt)</summary><div class="in"><a class="btn ghost block" href="affischer/?visa=tabeller&ak=${pid() === 'grade8' ? '8' : '9'}">Visa eller skriv ut alla tabeller</a></div></details></section>
        <button class="tap" data-a="startTest" data-ch="${rec.chapter}"><div><div class="t">Öppna Matte Prov · ${esc(chName(rec.chapter))}</div><div class="s">Inga ledtrådar, ingen metod angiven. Analys efteråt.</div></div><span class="chev">${I.chev}</span></button>
       ${rests.map(r => `<button class="tap" data-a="nav" data-h="#/rest/${r.id}"><div><div class="t">${esc(r.title)}</div><div class="s">${r.date ? 'datum ' + esc(r.date) : 'Lägg till provdatum (valfritt)'}</div></div><span class="chev">${I.chev}</span></button>`).join('')}
       <details class="fold"><summary>Välj ett annat område</summary><div class="in">
@@ -581,7 +588,7 @@ function boostCard() {
           const inside = '<div id="arena" aria-label="Tabellarenan"></div>';
           html = ['practice','mixed','duel/play'].includes(sub)
             ? focusShell(inside,{title:'Tabellarenan',sub:'Träna och spela',exit:'#/tabell/home'})
-            : shell(inside,'trana');
+            : shell(inside,'tabell');
           break;
         }
         case 'cup': html = focusShell('<div id="cup" aria-label="Matte OS Cup"></div>', { title: 'Matte OS Cup', sub: 'Spela tillsammans', exit: '#/tabell/home' }); break;

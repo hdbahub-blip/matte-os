@@ -445,3 +445,25 @@ details.fold > .in { padding: 0 16px 14px; }
 .knep-opt.wrong { border-color: var(--warn); }
 .knep-opt:disabled { opacity: 1; }
 .knep-home { text-decoration: none; color: var(--ink); }
+
+/* Clear student navigation: predictable routes and fewer first-screen choices. */
+.nav-in{grid-template-columns:repeat(5,minmax(0,1fr));max-width:560px}
+.nav button,.nav a{min-width:0;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:none;font-size:11px;font-weight:650;color:var(--muted);text-decoration:none;text-align:center;padding:4px 2px}
+.nav button svg,.nav a svg{width:20px;height:20px}
+.nav button[aria-current="page"],.nav a[aria-current="page"]{color:var(--acc);font-weight:800}
+.nav button[aria-current="page"]::after,.nav a[aria-current="page"]::after{content:"";width:21px;height:2px;background:var(--acc);border-radius:3px}
+.home-choice-heading{font-size:18px;line-height:1.3;margin:20px 0 8px}
+.calm-choices.learn-grid{gap:9px;margin:8px 0 16px}
+.calm-choices.learn-grid .calm-choice{min-height:73px;padding:12px 14px}
+.calm-choices.learn-grid .calm-choice strong{font-size:16px}
+.calm-choices.learn-grid .calm-choice span{font-size:13px}
+.home-h{font-size:clamp(24px,5vw,30px)}
+.home-sub{font-size:15px}
+.card.hero .hero-vis svg{max-height:82px}
+.card.hero .hero-body{padding:13px 16px 15px}
+.card.hero .hero-body h2{font-size:21px}
+.card.hero .hero-body .btn{min-height:46px}
+.focus-back{border:1px solid var(--line);background:var(--paper);color:var(--ink2);border-radius:11px;display:flex;align-items:center;justify-content:center;gap:3px;min-height:44px;padding:0 10px;font-size:13px;font-weight:750;flex:none}
+.focus-back svg{width:17px;height:17px}
+@media(max-width:380px){.nav button,.nav a{font-size:10px}.nav button svg,.nav a svg{width:19px;height:19px}.focus-back{padding:0 7px;font-size:12px}}
+@media(max-width:520px){.card.hero .hero-vis{display:none}.calm-choices.learn-grid{grid-template-columns:1fr}}

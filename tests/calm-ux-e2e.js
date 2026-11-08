@@ -16,7 +16,7 @@ const BASE=process.argv[2]||'http://127.0.0.1:8765/';
         assert.match(await page.locator('#main').innerText(),/Cup skickar tillfälliga speluppgifter/);n++;
         await page.locator('[data-p="'+grade+'"]').click();
         await page.waitForSelector('.calm-choices');
-        for(const [route,text] of [['formler','Förstå matte'],['tabell/home','Öva multiplikation'],['cup','Spela tillsammans']]){
+        for(const [route,text] of [['formler','Förstå matte'],['tabell/home','Öva multiplikation'],['trana','Träna matte']]){
           const link=page.locator('.calm-choice[href="#/'+route+'"]');
           assert.equal(await link.count(),1,'Missing clear path '+route);n++;
           assert.match(await link.innerText(),new RegExp(text));n++;
