@@ -21,7 +21,7 @@ const engine=process.argv[3]||'chromium';
    const cards=p.locator('.calm-choices.learn-grid .calm-choice');
    assert.equal(await cards.count(),4);checks++;
    for(const href of ['#/formler','#/trana','#/tabell/home','lara/']){
-    assert.equal(await cards.locator('[href="'+href+'"]').count(),1,'home choice '+href);checks++;
+    assert.equal(await p.locator('.calm-choices.learn-grid .calm-choice[href="'+href+'"]').count(),1,'home choice '+href);checks++;
    }
    assert.equal(await p.locator('.calm-choices [href="#/cup"]').count(),0);checks++;
    await p.locator('nav.nav [data-h="#/tabell/home"]').click();
