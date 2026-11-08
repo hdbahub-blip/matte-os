@@ -49,6 +49,7 @@ jobs:
       - name: Table arena and progress integration
         run: |
           node tests/tabell-integration.js
+          node --check tests/navigation-ux-e2e.js
           node --check tests/tabell-selected-e2e.js
       - name: Book-first regression
         run: node tests/book-first-regression.js
@@ -88,6 +89,7 @@ jobs:
           node tests/sprak-e2e.js http://127.0.0.1:8765/
           node tests/knep-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ chromium
+          node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ chromium
       - name: Same-origin upgrade from production 5.5.0 with synthetic progress
         run: |
           git fetch --depth 1 origin 7f87feeac11fc4800b05cbee0cfded415b1052ff
@@ -128,6 +130,8 @@ jobs:
           node tests/knep-cross-engine.js http://127.0.0.1:8765/
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ webkit
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ firefox
+          node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ webkit
+          node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ firefox
 
   cup-backend:
     runs-on: ubuntu-24.04
