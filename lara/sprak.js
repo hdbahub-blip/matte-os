@@ -92,7 +92,7 @@ function validAt(x){return Number.isFinite(x)&&x>1600000000000&&x<Date.now()+DAY
 function sanitize(raw){const out=empty();if(!raw||raw.v!==3||!raw.profiles)return out;
  for(const p of PROFILES){const src=raw.profiles[p];if(!src)continue;
   for(const [key,r] of Object.entries(src.tasks||{})){const known=KNOWN_TASKS.get(key);if(!known||!r||!validAt(r.at))continue;const rec={at:Math.floor(r.at),mode:r.mode==='listen'?'listen':'solo',help:!!r.help,n:Math.max(1,Math.min(99,Math.floor(Number(r.n)||1)))};
-   if(known.k.type==='open'){rec.self=Math.max(0,Math.min(known.k.criteria.length,Math.floor(Number(r.self)||0)));}else{rec.ok=r.ok===true;}
+   if(known.k.type==='open'){rec.self=Math.max(0,Math.min(known.k.criteria.length,Math.floor(Number(r.self)||0)));}else{rec.ok=r.ok===true;rec.wrong=Math.max(0,Math.min(999,Math.floor(Number(r.wrong) || (!rec.ok?1:0))));rec.lastOk=r.lastOk===true||(r.lastOk===undefined&&rec.ok);if(validAt(r.lastAt))rec.lastAt=Math.floor(r.lastAt);}
    out.profiles[p].tasks[key]=rec;}
   for(const [key,r] of Object.entries(src.texts||{})){if(!KNOWN_TEXTS.has(key)||!r)continue;const rec={};if(validAt(r.started))rec.started=Math.floor(r.started);if(validAt(r.done))rec.done=Math.floor(r.done);rec.pair=Math.max(0,Math.min(999,Math.floor(Number(r.pair)||0)));if(rec.started||rec.done||rec.pair)out.profiles[p].texts[key]=rec;}
  }
@@ -105,8 +105,8 @@ function save(){try{storage().setItem(STORE,JSON.stringify(store));saveError=fal
 function profileData(p){return store.profiles[PROFILES.includes(p)?p:'grade9'];}
 function oldCount(p){try{const raw=JSON.parse(storage()?.getItem(OLD_STORE)||'null');return raw&&raw.v===2?Object.keys(raw.profiles?.[p]?.done||{}).length:0;}catch{return 0;}}
 /* Only the first individual attempt per task counts as evidence; repeats only raise the counter. */
-function recordTask(p,t,k,res){const key=t.lang+':'+t.id+':'+k.id,d=profileData(p);const prior=d.tasks[key];if(prior){prior.n=Math.min(99,(prior.n||1)+1);save();return prior;}
- const rec={at:Date.now(),mode:res.mode,help:!!res.help,n:1};if(k.type==='open')rec.self=res.self||0;else rec.ok=!!res.ok;d.tasks[key]=rec;save();return rec;}
+function recordTask(p,t,k,res){const key=t.lang+':'+t.id+':'+k.id,d=profileData(p);const prior=d.tasks[key];if(prior){prior.n=Math.min(99,(prior.n||1)+1);if(k.type!=='open'){prior.wrong=Math.max(0,Math.min(999,(prior.wrong??(prior.ok?0:1))+(res.ok?0:1)));prior.lastOk=!!res.ok;prior.lastAt=Date.now();}save();return prior;}
+ const rec={at:Date.now(),mode:res.mode,help:!!res.help,n:1};if(k.type==='open')rec.self=res.self||0;else{rec.ok=!!res.ok;rec.wrong=res.ok?0:1;rec.lastOk=!!res.ok;rec.lastAt=rec.at;}d.tasks[key]=rec;save();return rec;}
 function markText(p,t,field){const key=t.lang+':'+t.id,d=profileData(p);const rec=d.texts[key]||(d.texts[key]={pair:0});if(field==='pair')rec.pair=(rec.pair||0)+1;else if(!rec[field])rec[field]=Date.now();save();}
 
 /* ---------- progression ---------- */
@@ -153,6 +153,12 @@ function stepsBar(list){return `<div class="wk-steps" role="img" aria-label="Upp
 function chip(s){return `<span class="wk-chip ${s.cls}">${e(s.label)}</span>`;}
 function tr(t,sv,en){return t.lang==='en'?en:sv;}
 
+/* Misstag log: only task identifiers, correctness and attempts are saved; no free text. */
+function wrongTasks(p,lang){const d=profileData(p),out=[];for(const [key,r] of Object.entries(d.tasks)){const entry=KNOWN_TASKS.get(key);if(!entry||entry.t.lang!==lang||entry.k.type==='open')continue;const wrong=r.wrong??(r.ok?0:1);if(wrong>0)out.push({entry,r,key,wrong});}return out.sort((a,b)=>(b.r.lastAt||b.r.at)-(a.r.lastAt||a.r.at));}
+function mistakes(lang,p){if(!LANG[lang])return '<p>Okänt språk.</p>';const arr=wrongTasks(p,lang);const unresolved=arr.filter(x=>x.r.lastOk!==true).length;
+return '<a class="back" href="#/'+lang+'">‹ Till alla texter</a><p class="wk-eyebrow">MINA FEL · '+(p==='grade8'?'ÅK 8':'ÅK 9')+'</p><h1>Lär av dina misstag</h1><p class="mut">Här finns frågor som någon gång blev fel: både dem du behöver öva igen och sådant du senare klarat. Vi sparar inte vad du skrev eller vilket alternativ du valde.</p><div class="ord-numbers"><span><strong>'+arr.length+'</strong> frågor med minst ett fel</span><span><strong>'+unresolved+'</strong> behöver repeteras</span></div><a class="wk-quick" href="#/ord/'+lang+'"><strong>Träna ord som känns svåra</strong><span>Ordlek · korta kryssfrågor ›</span></a>'
++(arr.length?arr.map(({entry,r,wrong})=>{const t=entry.t,k=entry.k;const q=k.type==='cloze'?k.sentence:k.type==='evidence'?k.claim:k.ask;return '<section class="wk-card"><span class="wk-chip '+(r.lastOk?'good':'mid')+'">'+(r.lastOk?'Klarat vid senare försök':'Behöver övas')+'</span><p class="wk-eyebrow">'+e(t.title)+'</p><h2>'+e(q||'Vilket svar visar att du förstår texten?')+'</h2><p class="mut small">'+wrong+' felaktiga försök · '+(r.n||1)+' försök totalt</p><details><summary>Visa rätt svar och förklaring</summary><p><strong>Rätt svar:</strong> '+e(solution(t,k))+'</p><p>'+e(k.why||'Läs stycket i texten och försök igen.')+'</p></details><a class="wk-link" href="#/verkstad/'+t.lang+'/'+t.id+'">Öppna texten och öva igen ›</a></section>';}).join(''):'<p>Inga fel registrerade ännu. Välj en text och pröva.</p>');}
+
 /* ---------- library ---------- */
 function library(lang,active){if(!LANG[lang])return '<p>Okänt språk.</p>';const pool=BANK.filter(t=>t.lang===lang);const rec=recommend(active,lang);const skills=skillStatus(active,lang);
  const practised=Object.entries(skills).filter(([,v])=>v.level>0);
@@ -160,6 +166,7 @@ function library(lang,active){if(!LANG[lang])return '<p>Okänt språk.</p>';cons
  return `<a class="back" href="#/">‹ Till start</a><p class="wk-eyebrow">SPRÅKVERKSTAD 3.0 · SAMMA TEXTER FÖR BÅDA</p><h1>${LANG[lang]} – läsa, förstå, samtala</h1>
  <p class="wk-lead">${lang==='sv'?'Riktiga texter i olika genrer. Svara själv, visa var i texten svaret finns och förklara för varandra.':'Real texts in different genres. Answer on your own, show the evidence in the text and explain to each other.'}</p>
  <section class="wk-feature"><div><span class="wk-eyebrow">NÄSTA STEG FÖR DEN HÄR PROFILEN</span><h2>${e(rec.t.title)}</h2><p>${e(rec.why)}</p><small>${e(rec.t.genre)} · nivå ${rec.t.level} ${e(LEVEL[rec.t.level])} · ca ${minutes(rec.t)} min</small></div><a class="wk-btn" href="#/verkstad/${lang}/${rec.t.id}">Öppna texten →</a></section>
+ <div class="wk-toplinks"><a class="wk-quick" href="#/ord/${lang}"><strong>${lang==='sv'?'Lek med svenska ord':'Play with English words'}</strong><span>Betydelse · ord i meningar · skriv själv ›</span></a><a class="wk-quick" href="#/fel/${lang}"><strong>Mina fel · ${wrongTasks(active,lang).length}</strong><span>Se vad som blev fel och repetera ›</span></a></div>
  ${[1,2,3].map(lvl=>`<h2 class="wk-section">Nivå ${lvl} · ${LEVEL[lvl]}</h2><p class="mut small">${LEVEL_INFO[lvl]}</p><div class="wk-booklist">${pool.filter(t=>t.level===lvl).map(t=>`<a class="wk-book" href="#/verkstad/${lang}/${t.id}"><span class="wk-book-meta">${e(t.genre)} · ${words(t)} ord · ca ${minutes(t)} min</span><h3>${e(t.title)}</h3><p>${e(t.lead)}</p>${chip(textStatus(active,t))}</a>`).join('')}</div>`).join('')}
  <section class="wk-card wk-skills"><h2>Vad den här profilen har visat</h2>${practised.length?`<ul class="wk-skilllist">${practised.map(([k,v])=>`<li class="lvl${v.level}"><strong>${e(SKILLS[k])}</strong><span>${e(v.label)}</span></li>`).join('')}</ul>`:'<p class="mut">Inget än. Gör en text på egen hand, så visas här vad du klarar – inte bara hur mycket du gjort.</p>'}
  <p class="mut small">Bara ditt första försök på varje uppgift räknas, och uppgifter där du tog ledtråd räknas som ”med stöd”. Att göra om samma text visar inte att du kan något nytt. Öppna svar bedömer du själv mot kriterier. ${old?'Från Språkverkstad 2.0 finns '+old+' tränade nivåer sparade på enheten; de raderas inte.':''}</p></section>
@@ -299,7 +306,7 @@ function importData(obj){if(!obj||typeof obj!=='object')return false;let changed
  return changed;}
 function resetProfile(p){if(!PROFILES.includes(p))return;store.profiles[p]=emptyProfile();save();ui=fresh('');}
 const audit=()=>({texts:BANK.length,perLang:Object.fromEntries(Object.keys(LANG).map(l=>[l,BANK.filter(t=>t.lang===l).length])),tasks:BANK.reduce((a,t)=>a+t.tasks.length,0),store:STORE,engine:ENGINE});
-return {library,page,audit,exportData,importData,resetProfile,STORE,OLD_STORE,ENGINE,
+return {library,page,mistakes,audit,exportData,importData,resetProfile,STORE,OLD_STORE,ENGINE,
  _test:{BANK,hash,permutation,displayOrder,sentences,sentenceList,evaluate,sanitize,empty,norm,skillStatus,recommend,textStats,code,words,tasksFor,setStore:s=>{store=sanitize(s);},getStore:()=>JSON.parse(JSON.stringify(store)),SKILLS,LEVEL},
  _debug:()=>({ui:JSON.parse(JSON.stringify(ui)),store:JSON.parse(JSON.stringify(store))})};
 });
