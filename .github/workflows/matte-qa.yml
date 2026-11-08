@@ -64,6 +64,9 @@ jobs:
           node --check lara/texts-sv.js
           node --check lara/texts-en.js
           node tests/sprak-qa.js
+          node --check lara/ordlek.js
+          node --check tests/ordlek-night-e2e.js
+          node tests/ordlek-qa.js
 
   browser-mobile:
     runs-on: ubuntu-24.04
@@ -87,6 +90,7 @@ jobs:
           node tests/calm-ux-e2e.js http://127.0.0.1:8765/
           node tests/larande-live-e2e.js http://127.0.0.1:8765/
           node tests/sprak-e2e.js http://127.0.0.1:8765/
+          node tests/ordlek-night-e2e.js http://127.0.0.1:8765/ chromium
           node tests/knep-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ chromium
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ chromium
@@ -127,6 +131,8 @@ jobs:
           sleep 2
           node tests/cross-engine-e2e.js http://127.0.0.1:8765/
           node tests/sprak-cross-engine.js http://127.0.0.1:8765/
+          node tests/ordlek-night-e2e.js http://127.0.0.1:8765/ webkit
+          node tests/ordlek-night-e2e.js http://127.0.0.1:8765/ firefox
           node tests/knep-cross-engine.js http://127.0.0.1:8765/
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ webkit
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ firefox

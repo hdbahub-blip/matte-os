@@ -473,3 +473,13 @@ details.fold > .in { padding: 0 16px 14px; }
 .game-shortcut strong{font-size:15px}
 .game-shortcut span{font-size:12px;text-align:right}
 @media(max-width:375px){.game-shortcut{flex-direction:column;align-items:stretch;gap:2px}.game-shortcut span{text-align:left}}
+
+html[data-mode="dark"]{color-scheme:dark;--bg:#101820;--paper:#1b2733;--paper2:#253543;--ink:#f3f5f7;--ink2:#dce4eb;--muted:#bfccd7;--line:#415363;--line2:#546778;--good:#a8e3c4;--good-soft:#1e4035;--warn:#f3cc92;--warn-soft:#49351f;--bad:#ffc0c6;--bad-soft:#4b2831;--acc:#f4bdd0;--acc-ink:#ffe5ee;--acc-soft:#442b37;--acc-soft2:#573b48;--acc2:#f1c4d2;--acc2-soft:#382732;--on-acc:#301b24}
+html[data-mode="dark"][data-theme="navy"]{--acc:#b7d6ff;--acc-ink:#e5f0ff;--acc-soft:#293e5c;--acc-soft2:#365171;--acc2:#f1c2d6;--acc2-soft:#412d3c;--on-acc:#172f4b}
+html[data-mode="dark"] .brand-m,html[data-mode="dark"] .chip-btn .av{background:var(--acc);color:var(--on-acc)}
+html[data-mode="dark"] .nav,html[data-mode="dark"] .card,html[data-mode="dark"] .fold,html[data-mode="dark"] .tap,html[data-mode="dark"] .sheet{background:var(--paper);color:var(--ink);border-color:var(--line)}
+html[data-mode="dark"] .calm-choice,html[data-mode="dark"] .game-shortcut{background:var(--paper2);color:var(--ink);border-color:var(--line)}
+html[data-mode="dark"] input,html[data-mode="dark"] textarea,html[data-mode="dark"] select{background:var(--paper);color:var(--ink);border-color:var(--line)}
+html[data-mode="dark"] .vis svg text{fill:var(--ink)}
+html[data-mode="dark"] .icon-btn{font-size:22px}
+@media print{html[data-mode="dark"]{color-scheme:light;--bg:#fff;--paper:#fff;--paper2:#fff;--ink:#000;--ink2:#222;--muted:#444;--line:#aaa}}

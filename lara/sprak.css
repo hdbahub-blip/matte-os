@@ -49,3 +49,20 @@
 /* Keep focused or scrolled-to controls clear of the sticky header and fixed bottom menu (WCAG 2.4.11). */
 html{scroll-padding-top:96px;scroll-padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
 .wk-sent{display:inline;white-space:normal;word-break:normal;overflow-wrap:anywhere;-webkit-user-select:none;user-select:none}.wk-sent[aria-disabled=true]{cursor:default}
+
+html[data-mode="dark"] .wk-feature,html[data-mode="dark"] .wk-reading,html[data-mode="dark"] .wk-card,html[data-mode="dark"] .wk-book,html[data-mode="dark"] .wk-option,html[data-mode="dark"] .wk-mode,html[data-mode="dark"] .wk-quick{background:var(--paper);color:var(--ink);border-color:var(--border)}
+html[data-mode="dark"] .wk-purpose,html[data-mode="dark"] .wk-sentence,html[data-mode="dark"] .wk-claim,html[data-mode="dark"] .wk-note{background:var(--paper2);color:var(--ink)}
+html[data-mode="dark"] .wk-feedback.good{background:var(--green-soft);color:var(--green)}
+html[data-mode="dark"] .wk-feedback.try{background:#493038;color:#ffd0d7}
+html[data-mode="dark"] .wk-reading .wk-hl{background:#32496a}
+html[data-mode="dark"] .wk-option.on,html[data-mode="dark"] .wk-option[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+html[data-mode="dark"] .wk-btn{background:var(--accent);color:#152332!important}
+html[data-mode="dark"] .wk-input{background:var(--paper);color:var(--ink);border-color:var(--border)}
+.ord-actions{display:grid;gap:10px;margin:16px 0}.ord-actions .wk-mode{width:100%}
+.ord-numbers{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap}.ord-numbers span{background:var(--paper2);border:1px solid var(--border);border-radius:12px;padding:10px 14px}
+.ord-prompt{font-size:1.1rem;font-weight:650;background:var(--paper2);padding:16px;border-radius:12px}
+
+html[data-mode="dark"] .wk-option.on b{color:#152332}
+html[data-mode="dark"] .wk-reading p.wk-hl{box-shadow:0 0 0 5px #32496a}
+html[data-mode="dark"] .wk-feedback blockquote{background:var(--paper2);color:var(--ink)}
+html[data-mode="dark"] .wk-challenge{background:var(--accent-soft);color:var(--accent-dark)}

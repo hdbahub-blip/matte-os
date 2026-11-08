@@ -4,6 +4,9 @@
   const E = window.MOEngine, M = window.MOMath, V = window.MOVis, CORE = window.MO_CORE, T = window.MOTables;
   const esc = M.esc, R = M.rich, TX = M.texBlock, SIMPLE = window.MOSimple;
   const app = document.getElementById('app');
+  const LOOK='matteos.appearance.v1';
+  const mode=()=>{try{return localStorage.getItem(LOOK)==='dark'?'dark':'light'}catch{return 'light'}};
+  const setMode=v=>{try{localStorage.setItem(LOOK,v)}catch{}document.documentElement.dataset.mode=v};
   const sheetRoot = document.getElementById('sheet');
   const UI = { fopen: new Set(), fq: '', ex: null, lesson: null, run: null, sheet: null, confirmReset: false, lessonFrom: '#/', runFrom: '#/trana', previousFocus: null };
 
@@ -35,13 +38,14 @@
   const lvl = (sid) => { const k = E.level(pid(), sid); return `<span class="lvl l${k}">${E.levelInfo(k).label}</span>`; };
   const segBar = levels => `<div class="seg" aria-hidden="true">${levels.map(l => `<i class="l${l}"></i>`).join('')}</div>`;
   const displayName = id => { const n = E.prof(id).name; return n ? n : CORE.profiles[id].label; };
-  function applyTheme() { document.documentElement.dataset.theme = pid() ? CORE.profiles[pid()].theme : 'burgundy'; const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#f6f1e9'; }
+  function applyTheme() { document.documentElement.dataset.mode=mode();document.documentElement.dataset.theme = pid() ? CORE.profiles[pid()].theme : 'burgundy'; const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#f6f1e9'; }
 
   /* ---------- skal ---------- */
   function shell(content, tab) {
     const p = pid();
     return `<header class="top"><div class="top-in">
       <button class="brand" data-a="nav" data-h="#/" aria-label="Matte OS – start"><span class="brand-m">M</span><span class="brand-t">MATTE OS</span></button>
+      <button class="icon-btn" data-a="appearance" title="Växla nattläge" aria-label="${mode()==="dark"?"Ljust läge":"Nattläge"}" aria-pressed="${mode()==="dark"}"><span aria-hidden="true">${mode()==="dark"?"☀":"☾"}</span></button>
       <button class="icon-btn" data-a="search" aria-label="Sök">${I.search}</button>
       <button class="chip-btn" data-a="profile" aria-label="Byt profil, nu ${esc(displayName(p))}"><span class="av">${esc(CORE.profiles[p].short)}</span>${E.prof(p).name ? `<span class="n">${esc(E.prof(p).name)}</span>` : ''}</button>
     </div></header>
@@ -630,6 +634,7 @@ function boostCard() {
 
   /* ================= HÄNDELSER ================= */
   const actions = {
+    appearance:()=>{setMode(mode()==='dark'?'light':'dark');render()},
     nav: b => { closeSheet(); go(b.dataset.h); },
     exit: b => { UI.ex = null; go(b.dataset.h || '#/'); },
     search: () => openSheet({ type: 'search', q: '' }),
