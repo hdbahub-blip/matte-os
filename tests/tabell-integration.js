@@ -74,6 +74,38 @@ for(let i=0;i<20;i++){
   if(i<19)ok(!shadow.innerHTML.includes('class="feedback'),'no live correction in mixed '+i);
 }
 ok(shadow.innerHTML.includes('20/20'),'mixed scoring');
+
+goto('selftest');
+ok(shadow.innerHTML.includes('Vilka tabeller vill du testa?'),'selected setup reachable');
+ok(shadow.innerHTML.includes('data-act="selectedStart" disabled'),'empty selection prevents start');
+click('selectedTable','3');ok(shadow.innerHTML.includes('Valda tabeller: 3:an'),'first chosen table');
+ok(shadow.innerHTML.includes('data-act="selectedCount" data-value="20" aria-pressed="false" disabled'),'one table only has ten unique questions');
+click('selectedTable','6');click('selectedTable','9');
+click('selectedCount','20');
+ok(shadow.innerHTML.includes('Starta självtest · 20 frågor'),'selected quiz configured');
+click('selectedStart');
+ok(shadow.innerHTML.includes('SJÄLVTEST')&&shadow.innerHTML.includes('1 / 20'),'selected quiz starts');
+const sampledTables=new Set(),uniqueQuestions=new Set();
+for(let i=0;i<20;i++){
+ const m=shadow.innerHTML.match(/<div class="equation">(\d+) <span>×<\/span> (\d+)/);
+ if(!m){ok(false,'selected question '+i);break}
+ const a=Number(m[1]),b=Number(m[2]);
+ sampledTables.add(a);uniqueQuestions.add(a+'x'+b);
+ ok([3,6,9].includes(a),'only selected operands '+i);
+ ok(!shadow.innerHTML.includes('class="feedback'),'no early correction '+i);
+ submit('answerform',a*b);
+ if(i<19)ok(!shadow.innerHTML.includes('class="feedback'),'no correction after answer '+i);
+}
+ok(sampledTables.size===3,'each selected table included');
+ok(uniqueQuestions.size===20,'all ordered equations unique');
+ok(shadow.innerHTML.includes('20/20')&&shadow.innerHTML.includes('Resultat per tabell'),'result breakdown');
+ok(['3:ans tabell','6:ans tabell','9:ans tabell'].every(t=>shadow.innerHTML.includes(t)),'chosen tables breakdown');
+const selectedSession=win.MOEngine.prof('grade9').tables.sessions.at(-1);
+ok(selectedSession.mode==='mixed'&&selectedSession.selectedTables.join(',')==='3,6,9'&&selectedSession.total===20,'selected session saved');
+ok(win.MOEngine.prof('grade8').tables.sessions.length===0,'other profile isolated');
+click('selectedAgain');
+ok(shadow.innerHTML.includes('SJÄLVTEST')&&shadow.innerHTML.includes('1 / 20'),'retry chosen tables');
+goto('home');
 goto('duel/setup');ok(shadow.innerHTML.includes('duelform'),'duel setup');
 click('duelSubset');click('duelTable','6');click('duelTable','9');
 ok(shadow.innerHTML.includes('aria-pressed="true" data-act="duelTable" data-value="7"') && shadow.innerHTML.includes('aria-pressed="true" data-act="duelTable" data-value="8"'),'selected two tables');
@@ -96,7 +128,7 @@ click('buzz','0');tick();tick();click('awardDuel','none');ok(shadow.innerHTML.in
 for(let i=2;i<10;i++){click('buzz',String(i%2));tick();tick();click('awardDuel',String(i%2));tick();}
 ok(shadow.innerHTML.includes('DUELL KLAR'),'duel result');
 ok(activeTimers.size===0,'no dangling duel countdown');
-ok(win.MOEngine.prof('grade9').tables.sessions.length===2,'duel does not contaminate pupil mastery');
+ok(win.MOEngine.prof('grade9').tables.sessions.length===3,'duel does not contaminate pupil mastery');
 ok(!!JSON.parse(win.MOEngine.exportData()).state.profiles.grade9.tables,'backup includes table state');
 console.log('Tabellarenan integrated QA: '+(checks-failed.length)+'/'+checks+' PASS');
 if(failed.length){console.error(failed.join('\n'));process.exitCode=1}
