@@ -7,6 +7,7 @@ const output=path.join('test-screenshots','color-harmony');
 fs.mkdirSync(output,{recursive:true});
 function l(hex){const xs=hex.match(/\d+(?:\.\d+)?/g).slice(0,3).map(v=>Number(v)/255).map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));return .2126*xs[0]+.7152*xs[1]+.0722*xs[2]}
 function contrast(a,b){const x=l(a),y=l(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+const asRGB=h=>'rgb('+[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(', ')+')';
 (async()=>{
  let n=0;const browser=await chromium.launch({headless:true});
  try{
@@ -50,7 +51,11 @@ function contrast(a,b){const x=l(a),y=l(b);return (Math.max(x,y)+.05)/(Math.min(
    const accent=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-primary').trim());
    assert.equal(table.accent,accent,'Table arena inherits selected grade accent');
    assert.ok(contrast(table.foreground,table.background)>=7,'Table arena reading contrast');
-   n+=2;
+   const tableBtn=await page.locator('#arena .selected-front .btn').first().evaluate(el=>({bg:getComputedStyle(el).backgroundColor,ink:getComputedStyle(el).color}));
+   const cta=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-cta').trim());
+   assert.equal(tableBtn.bg,asRGB(cta),'Arena action uses intentional CTA, not a pastel text color');
+   assert.ok(contrast(tableBtn.ink,tableBtn.bg)>=4.5,'Arena action contrast');
+   n+=4;
    await page.screenshot({path:path.join(output,grade+'-'+mode+'-tables.png')});
    await page.goto(base+'lara/#/sv',{waitUntil:'domcontentloaded'});
    await page.locator('nav.bottom').waitFor();
@@ -59,6 +64,13 @@ function contrast(a,b){const x=l(a),y=l(b);return (Math.max(x,y)+.05)/(Math.min(
    await page.goto(base+'prov/?g='+grade,{waitUntil:'domcontentloaded'});
    await page.locator('html[data-exam-grade="'+grade+'"]').waitFor();
    await verify('exam','.top');
+   const modeAction=page.locator('.mode.primary').first();
+   await modeAction.waitFor();
+   const modeBtn=await modeAction.evaluate(el=>({bg:getComputedStyle(el).backgroundColor,ink:getComputedStyle(el).color}));
+   const examCTA=await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-cta').trim());
+   assert.equal(modeBtn.bg,asRGB(examCTA),'Prov action uses intentional CTA');
+   assert.ok(contrast(modeBtn.ink,modeBtn.bg)>=4.5,'Prov action contrast');
+   n+=2;
    assert.deepEqual(errors,[],grade+'/'+mode+' JavaScript errors');n++;
    await context.close();
   }
