@@ -40,5 +40,5 @@ for (const [path, src] of [['index',index],['root-worker',sw],['core',core]]) {
 for (const [path, src] of [['prov',provIndex],['prov-worker',provSw]]) {
   assert(src.includes('5.4.5'), path + ': unexpectedly changed independent prov shared asset version');
 }
-assert(provIndex.includes('1.2.4') && provSw.includes('1.2.4'), 'Prov worker/build version mismatch');
+assert(provIndex.includes('1.2.5') && provSw.includes('1.2.5'), 'Prov worker/build version mismatch');
 console.log('Book-first and PWA version consistency: PASS');

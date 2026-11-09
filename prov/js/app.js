@@ -3,6 +3,7 @@
 
 const STORE_KEY='matte-prov-v1';
 const ACTIVE_KEY=STORE_KEY+'-active';
+const APPEARANCE_KEY='matteos.appearance.v1';
 const app=document.getElementById('app');
 const M=window.MOMath, V=window.MOExamVisuals, C=window.MO_CORE, PC=window.MOProvCore;
 let store=loadStore();
@@ -27,14 +28,18 @@ function profile(){return C.profiles[store.grade]}
 function skills(){return store.grade==='grade8'?window.MO_CONTENT8:window.MO_CONTENT9}
 function skillList(ch){return skills().filter(s=>s.ch===ch)}
 function chapter(id){return profile().chapters.find(c=>c.id===id)}
+function appearance(){try{return localStorage.getItem(APPEARANCE_KEY)==='dark'?'dark':'light'}catch{return 'light'}}
+function toggleAppearance(){try{localStorage.setItem(APPEARANCE_KEY,appearance()==='dark'?'light':'dark')}catch{}render()}
 function setTheme(){
- const g=store.grade;
- document.documentElement.style.setProperty('--accent',g==='grade8'?'#1d3557':'#6e1f35');
- document.documentElement.style.setProperty('--soft',g==='grade8'?'#e9eef5':'#f5e8ec');
+ const g=store.grade,dark=appearance()==='dark';
+ document.documentElement.dataset.mode=dark?'dark':'light';
+ document.documentElement.dataset.grade=g||'none';
+ document.documentElement.style.setProperty('--accent',g==='grade8'?(dark?'#bfd9ff':'#1d3557'):(dark?'#f4bdcf':'#6e1f35'));
+ document.documentElement.style.setProperty('--soft',g==='grade8'?(dark?'#293f60':'#e9eef5'):(dark?'#492f3e':'#f5e8ec'));
 }
 function header(){
  const p=profile();
- return `<header class="top"><div class="topin"><div class="brand"><div class="mark">P</div><div><b>MATTE PROV</b><small>separat från Matte OS</small></div></div><div class="spacer"></div>${p?`<button class="grade" data-grade aria-label="Byt årskurs">Å${p.label.replace(/\D/g,'')}</button>`:''}</div></header>`;
+ return `<header class="top"><div class="topin"><div class="brand"><div class="mark">P</div><div><b>MATTE PROV</b><small>separat från Matte OS</small></div></div><div class="spacer"></div><button type="button" class="mode-toggle" data-mode-toggle aria-label="${appearance()==='dark'?'Ljust läge':'Nattläge'}" aria-pressed="${appearance()==='dark'}">${appearance()==='dark'?'☀':'☾'}</button>${p?`<button class="grade" data-grade aria-label="Byt årskurs">Å${p.label.replace(/\D/g,'')}</button>`:''}</div></header>`;
 }
 function shell(content,focus=false){
  return `<div class="app">${focus?'':header()}<main class="wrap ${focus?'focus-wrap':''}">${content}</main></div>`;
@@ -50,7 +55,7 @@ function renderGradePick(){
    <div class="pick-intro"><div class="kicker">SEPARAT TESTMILJÖ</div><div class="seal">P</div><h1>Matte Prov</h1><p>Här får eleven visa vad hon kan <b>utan ledtrådar, formelsamling eller direkt rättning</b>.</p></div>
    <button class="pickbtn" data-pick="grade9"><span class="avatar g9">Å9</span><span><b>Åk 9</b><small>Tal · Geometri · Procent</small></span><span class="arrow">→</span></button>
    <button class="pickbtn" data-pick="grade8"><span class="avatar g8">Å8</span><span><b>Åk 8</b><small>Tal · Geometri · Algebra</small></span><span class="arrow">→</span></button>
-   <p class="privacy">Resultat sparas bara på den här enheten.</p>
+   <p class="privacy">Resultat sparas bara på den här enheten.</p><p class="privacy"><a href="../">Tillbaka till Matte OS</a></p>
  </section>`;
 }
 function currentInfo(){
@@ -59,7 +64,7 @@ function currentInfo(){
 }
 function countFor(ch,mode){return PC.selectRun(skills(),ch,mode,(store.attemptNo||0)+1).length}
 function renderHome(){
- const {p,week,ch}=currentInfo(),recent=(store.attempts||[]).slice(-4).reverse();
+ const {p,week,ch}=currentInfo(),recent=(store.attempts||[]).filter(a=>a.grade===store.grade).slice(-4).reverse();
  const dc=countFor(ch.id,'diagnos'),pc=countFor(ch.id,'prov');
  return `
  <section class="home-head"><div class="kicker">ÅK ${p.label.replace(/\D/g,'')} · VECKA ${week}</div><h1>Testa utan hjälp.</h1><p>Matte OS används för att lära och träna. Här mäter ni vad som går att lösa självständigt.</p></section>
@@ -73,7 +78,7 @@ function renderHome(){
  </section>
  <details class="area-picker"><summary>Välj ett annat område</summary><div class="area-list">${p.chapters.map(x=>`<div class="area-row"><div><b>${esc(x.name)}</b><small>${skillList(x.id).length} moment · planerat kapitelprov v${x.examWeek}</small></div><div><button data-start="diagnos" data-ch="${x.id}">Diagnos</button><button class="dark" data-start="prov" data-ch="${x.id}">Prov</button></div></div>`).join('')}</div></details>
  ${recent.length?`<section class="history-card"><div class="section-title">Senaste resultat</div>${recent.map(a=>`<div class="history-row"><div><b>${esc(a.chapterName)} · ${a.mode==='prov'?'Prov':'Diagnos'}</b><small>${new Date(a.finishedAt).toLocaleDateString('sv-SE')} · ${a.correct}/${a.total} rätt</small></div><strong>${a.percent}%</strong></div>`).join('')}</section>`:''}
- <footer>Ingen provtid har lagts in eftersom skolans faktiska provtid inte är verifierad.</footer>`;
+ <footer>Ingen provtid har lagts in eftersom skolans faktiska provtid inte är verifierad.<br><a href="../">Tillbaka till Matte OS</a></footer>`;
 }
 function begin(mode,ch){
  store.attemptNo=(store.attemptNo||0)+1;saveStore();
@@ -171,6 +176,7 @@ function clearIncomingSelection(){
   }catch(e){}
 }
 function bindHome(){
+ document.querySelector('[data-mode-toggle]')?.addEventListener('click',toggleAppearance);
  document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{clearIncomingSelection();store.grade=b.dataset.pick;saveStore();render()});
  document.querySelector('[data-grade]')?.addEventListener('click',()=>{clearIncomingSelection();store.grade=null;saveStore();render()});
  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>begin(b.dataset.start,b.dataset.ch));

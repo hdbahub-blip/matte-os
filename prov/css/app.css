@@ -29,3 +29,19 @@ footer{text-align:center;color:var(--mut);font-size:.72rem;margin:21px auto 0;ma
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{.top,.question-nav,.result-actions,footer{display:none!important}.wrap{max-width:none}.question-sheet,.result-card,.review-sheet{box-shadow:none}}
+
+/* FULLSPEC: shared daylight and night-time examination modes with grade identity. */
+.mode-toggle{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--accent);font-size:23px;cursor:pointer;}
+.mode-toggle:focus-visible,.pickbtn:focus-visible,.mode:focus-visible,.exit:focus-visible{outline:3px solid var(--accent);outline-offset:3px;}
+html[data-grade="grade8"] .pickbtn[data-pick="grade8"]{border-left:4px solid #6b4b99;}
+html[data-mode="dark"]{color-scheme:dark;--bg:#181119;--paper:#2b202b;--ink:#f7f0f5;--mut:#d1c4ce;--line:#594657;--soft:#492f3e;--shadow:0 12px 36px #0004;}
+html[data-mode="dark"][data-grade="grade8"]{--bg:#111a2d;--paper:#1b2a40;--ink:#f2f6ff;--mut:#c8d5e7;--line:#405371;--soft:#293f60;}
+html[data-mode="dark"] .top{background:var(--paper);border-color:var(--line);}
+html[data-mode="dark"] .grade,html[data-mode="dark"] .pickbtn,html[data-mode="dark"] .mode:not(.primary),html[data-mode="dark"] .mode-toggle,html[data-mode="dark"] .exam-card,html[data-mode="dark"] .history-card,html[data-mode="dark"] .result-card,html[data-mode="dark"] .review-sheet,html[data-mode="dark"] .question-sheet{background:var(--paper);color:var(--ink);border-color:var(--line);}
+html[data-mode="dark"] .rules span,html[data-mode="dark"] .area-picker,html[data-mode="dark"] .area-row button,html[data-mode="dark"] .visual,html[data-mode="dark"] .question-meta,html[data-mode="dark"] .flag,html[data-mode="dark"] .exit-box{background:var(--soft);color:var(--ink);border-color:var(--line);}
+html[data-mode="dark"] .mode.primary{background:var(--soft);border-color:var(--accent);color:var(--ink);}
+html[data-mode="dark"] input,html[data-mode="dark"] textarea{background:var(--paper);color:var(--ink);border-color:var(--line);}
+html[data-mode="dark"] .exam-progress{background:var(--line);}
+html[data-mode="dark"] .avatar.g9{background:#743a56;}html[data-mode="dark"] .avatar.g8{background:#375a8d;}
+html[data-mode="dark"] .week-chip,html[data-mode="dark"] .grade{color:var(--accent);}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;}}
