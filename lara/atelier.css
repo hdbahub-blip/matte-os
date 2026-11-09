@@ -1,0 +1,23 @@
+/* MATTE OS ATELIER 4.0 — deliberate editorial study room */
+:root{--bg:#F9F5F2;--paper:#FFFDFC;--paper2:#F6EFEF;--ink:#271D27;--ink2:#493C47;--muted:#625964;--border:#E8DDE0;--accent:#682A41;--accent-soft:#F7E9EE;--accent-dark:#562036;--purple:#985F79;--a-shadow:0 14px 36px rgba(64,27,43,.055);--serif:"Iowan Old Style","Baskerville",Georgia,serif}
+html[data-profile="grade8"]{--bg:#F5F7FC;--paper:#FFF;--paper2:#EEF2FA;--ink:#182A45;--ink2:#344866;--muted:#596B85;--border:#DDE5F2;--accent:#1F3F69;--accent-soft:#E7EFFB;--accent-dark:#183459;--purple:#6F579F;--a-shadow:0 14px 34px rgba(31,62,108,.06)}
+html[data-mode="dark"]:not([data-profile="grade8"]){color-scheme:dark;--bg:#170F18;--paper:#281C28;--paper2:#362736;--ink:#FBF3F5;--ink2:#EADDE4;--muted:#CFC2CD;--border:#503A4E;--accent:#F0BCD0;--accent-soft:#483040;--accent-dark:#FFE4EF;--purple:#E1ADC5;--a-shadow:0 17px 42px #0004}
+html[data-mode="dark"][data-profile="grade8"]{color-scheme:dark;--bg:#0F1A31;--paper:#192C4A;--paper2:#243957;--ink:#F0F5FF;--ink2:#DCE6F5;--muted:#C0CDE1;--border:#3A5170;--accent:#C4DAFF;--accent-soft:#2B4466;--accent-dark:#E7F0FF;--purple:#D3BDF8;--a-shadow:0 17px 42px #0005}
+html,body{background:var(--bg);color:var(--ink)}
+h1,h2,.hero h2,.wk-feature h2,.wk-book h3,.subjectCard strong{font-family:var(--serif);font-weight:700;letter-spacing:-.028em;text-wrap:balance}h1{font-size:clamp(30px,5.6vw,41px)}h2{font-size:clamp(22px,4.3vw,28px)}
+.sitehead{background:color-mix(in srgb,var(--bg) 94%,transparent);border-color:var(--border)}.brand{font-family:var(--serif)}.mark{background:var(--accent);color:var(--paper)}html[data-mode="dark"] .mark{color:var(--bg)}main{max-width:810px;padding-top:25px}
+.hero,.wk-feature{background:var(--paper);color:var(--ink);border:1px solid var(--border);box-shadow:var(--a-shadow);border-radius:20px;padding:24px}
+.subjectCard,.teamCard,.lessonItem,.wk-book,.wk-card,.card,.question{background:var(--paper);color:var(--ink);border:1px solid var(--border);border-radius:17px;box-shadow:var(--a-shadow)}.subjectCard{padding:16px 18px}.subjectCard strong{font-size:21px}
+.symbol{background:var(--accent-soft);color:var(--accent-dark)}.teamCard{background:var(--paper);border-left:4px solid var(--purple)}
+html[data-profile="grade8"] .symbol.team{background:#EEE8F9;color:#6F579F}html[data-mode="dark"][data-profile="grade8"] .symbol.team{background:#3C3759;color:#D3BDF8}
+.wk-book{box-shadow:var(--a-shadow)}.wk-book-meta{color:var(--accent-dark)}.wk-toplinks{gap:12px}.wk-quick{background:var(--paper);border:1px solid var(--border);box-shadow:var(--a-shadow);border-radius:16px}
+.wk-btn,.btn:not(.ghost){background:var(--accent);color:var(--paper)!important;border-radius:12px}html[data-mode="dark"] .wk-btn,html[data-mode="dark"] .btn:not(.ghost){color:var(--bg)!important}
+.wk-mode{background:var(--paper);color:var(--ink);border:1px solid var(--border);border-radius:14px}.wk-option{background:var(--paper2);color:var(--ink);border:1px solid var(--border)}
+.wk-option[aria-pressed="true"],.wk-option.on{border-color:var(--accent);background:var(--accent-soft)}
+.recommended{background:var(--accent-soft);color:var(--ink);border-color:var(--border)}
+.bottom{grid-template-columns:repeat(5,minmax(0,1fr));background:color-mix(in srgb,var(--paper) 96%,transparent);border-color:var(--border);padding:0 6px env(safe-area-inset-bottom,0px);gap:2px}
+.bottom a{color:var(--muted);min-height:61px;border-radius:11px 11px 0 0}.bottom a[aria-current="page"]{background:var(--accent-soft);color:var(--accent-dark)}
+.wk-level-selector{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 16px}.wk-level-selector button{min-height:44px;padding:9px 13px;border-radius:11px;background:var(--paper);color:var(--ink);border:1px solid var(--border);font-size:14px;font-weight:750}.wk-level-selector button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-dark);border-color:var(--accent)}
+.wk-word-count{font-size:14px;color:var(--muted);margin:0 0 10px}
+@media(max-width:370px){.bottom a{font-size:10px;line-height:1.25}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
