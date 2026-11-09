@@ -3,9 +3,9 @@
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const SV=require('../lara/texts-sv.js'),EN=require('../lara/texts-en.js'),W=require('../lara/sprak.js'),O=require('../lara/ordlek.js');
 const X=O._test;let n=0;const ok=(pass,msg)=>{n++;assert(pass,msg)};
-ok(SV.length===8&&EN.length===8,'8 original texts per language after expansion');
-ok(W._test.BANK.length===16,'workshop loads all 16 books');
-ok(W._test.BANK.reduce((a,t)=>a+t.tasks.length,0)===143,'143 reading tasks');
+ok(SV.length===11&&EN.length===11,'11 original-plus-new texts per language');
+ok(W._test.BANK.length===22,'workshop loads all 22 books');
+ok(W._test.BANK.reduce((a,t)=>a+t.tasks.length,0)===191,'191 reading tasks');
 ok(X.WORDS.length===122,'61 distinct vocabulary words per language, distributed across 3 levels');
 const ids=new Set(),pos=[0,0,0];
 for(const w of X.WORDS){
