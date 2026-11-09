@@ -7,7 +7,7 @@ const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/?$/,'/');
   let checks=0;
   try {
     for (const grade of ['grade8','grade9']) {
-      const context=await browser.newContext({viewport:{width:320,height:700}});
+      const context=await browser.newContext({viewport:{width:320,height:700},serviceWorkers:'block'}); // Offline SW behavior is covered by the separate upgrade/offline suites.
       const page=await context.newPage();
       await page.goto(base,{waitUntil:'domcontentloaded'});
       await page.locator('[data-a="pickprofile"][data-p="'+grade+'"]').click();
@@ -16,7 +16,7 @@ const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/?$/,'/');
       assert.equal(await page.locator('nav.nav button,nav.nav a').count(),5);checks++;
       assert.equal(await page.locator('html').getAttribute('data-theme'),grade==='grade8'?'navy':'burgundy');checks++;
       if(grade==='grade8'){
-        assert.equal((await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--acc2').trim())),'#6F579F');checks++;
+        assert.equal((await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--acc2').trim())),'#6B5798');checks++;
       }
       await page.locator('[data-a="appearance"]').first().click();
       await page.locator('html[data-mode="dark"]').waitFor({timeout:12000});

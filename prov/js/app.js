@@ -34,8 +34,9 @@ function setTheme(){
  const g=store.grade,dark=appearance()==='dark';
  document.documentElement.dataset.mode=dark?'dark':'light';
  document.documentElement.dataset.examGrade=g||'none';
- document.documentElement.style.setProperty('--accent',g==='grade8'?(dark?'#bfd9ff':'#1d3557'):(dark?'#f4bdcf':'#6e1f35'));
- document.documentElement.style.setProperty('--soft',g==='grade8'?(dark?'#293f60':'#e9eef5'):(dark?'#492f3e':'#f5e8ec'));
+ // Remove legacy hard-coded profile colors; CSS now owns all grade/mode color roles.
+ document.documentElement.style.removeProperty('--accent');
+ document.documentElement.style.removeProperty('--soft');
 }
 function header(){
  const p=profile();
