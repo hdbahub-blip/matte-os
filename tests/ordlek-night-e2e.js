@@ -15,7 +15,7 @@ const engine=process.argv[3]||'chromium';
   assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;
   assert.equal(await p.locator('html').getAttribute('data-theme'),'navy');n++;
   const mathVars=await p.evaluate(()=>({bg:getComputedStyle(document.body).backgroundColor,text:getComputedStyle(document.body).color}));
-  assert.equal(mathVars.bg,'rgb(16, 24, 32)');n++;
+  assert.equal(mathVars.bg,'rgb(17, 26, 45)');n++; // Grade 8 navy night background.
   await p.goto(base+'/lara/',{waitUntil:'domcontentloaded'});
   await p.locator('.theme-toggle').waitFor();
   assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;
