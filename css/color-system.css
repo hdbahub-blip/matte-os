@@ -13,6 +13,8 @@
   --ui-border:#E5E5E9;
   --ui-border-strong:#D5D3DA;
   --ui-primary:#722B45;
+  --ui-cta:#722B45;
+  --ui-on-cta:#FFFFFF;
   --ui-on-primary:#FFFFFF;
   --ui-primary-tint:#F6ECEF;
   --ui-primary-tint-strong:#F0DFE6;
@@ -73,6 +75,8 @@ html[data-theme="navy"],html[data-profile="grade8"],html[data-exam-grade="grade8
   --ui-border:#E4E9F0;
   --ui-border-strong:#CDD6E3;
   --ui-primary:#284B77;
+  --ui-cta:#284B77;
+  --ui-on-cta:#FFFFFF;
   --ui-on-primary:#FFFFFF;
   --ui-primary-tint:#EAF0F9;
   --ui-primary-tint-strong:#DCE6F5;
@@ -132,6 +136,8 @@ html[data-mode="dark"]:not([data-theme="navy"]):not([data-profile="grade8"]):not
   --ui-border:#35343D;
   --ui-border-strong:#494752;
   --ui-primary:#E5A7C0;
+  --ui-cta:#7A3656;
+  --ui-on-cta:#FFFFFF;
   --ui-on-primary:#291722;
   --ui-primary-tint:#392731;
   --ui-primary-tint-strong:#493240;
@@ -191,6 +197,8 @@ html[data-mode="dark"][data-theme="navy"],html[data-mode="dark"][data-profile="g
   --ui-border:#3A4557;
   --ui-border-strong:#526079;
   --ui-primary:#BCD4F3;
+  --ui-cta:#315680;
+  --ui-on-cta:#FFFFFF;
   --ui-on-primary:#142238;
   --ui-primary-tint:#293951;
   --ui-primary-tint-strong:#354866;
@@ -252,8 +260,8 @@ h1{line-height:1.14;}
 a{color:var(--ui-primary);}
 .top,.fbar,.sitehead,.nav,.bottom{background:var(--ui-navigation);border-color:var(--ui-border);box-shadow:none;}
 .nav button[aria-current="page"],.nav a[aria-current="page"],.bottom a[aria-current="page"]{background:var(--ui-primary-tint);color:var(--ui-on-tint);}
-.brand-m,.chip-btn .av,.mark{background:var(--ui-primary);color:var(--ui-on-primary);}
-.btn,.wk-btn,.btn.primary,.mode.primary{background:var(--ui-primary);color:var(--ui-on-primary);font-weight:730;}
+.brand-m,.chip-btn .av,.mark{background:var(--ui-cta);color:var(--ui-on-cta);}
+.btn,.wk-btn,.btn.primary,.mode.primary{background:var(--ui-cta);color:var(--ui-on-cta);font-weight:730;}
 .btn.ghost,.mode:not(.primary),.wk-mode,.icon-btn,.chip-btn,.mode-toggle{background:var(--ui-surface);color:var(--ui-text);border-color:var(--ui-border);}
 .btn.soft,.pill,.wk-chip:not(.good):not(.mid){background:var(--ui-primary-tint);color:var(--ui-on-tint);border-color:var(--ui-border);}
 .card,.fold,.tap,.calm-choice,.game-shortcut,.sheet,.hero,.subjectCard,.teamCard,.lessonItem,.wk-book,.wk-card,.question,.wk-feature,.exam-card,.history-card,.result-card,.review-sheet,.question-sheet,.pickbtn{
@@ -281,27 +289,28 @@ a{color:var(--ui-primary);}
 .wk-feedback blockquote{background:var(--ui-surface);color:var(--ui-text);}
 .wk-jump-button,.wk-level-selector button{background:var(--ui-surface);color:var(--ui-text);border-color:var(--ui-border);}
 .wk-jump-button:hover,.wk-level-selector button[aria-pressed="true"]{background:var(--ui-primary-tint);color:var(--ui-on-tint);border-color:var(--ui-primary);}
-.wk-steps span.active,.wk-option.on b{background:var(--ui-primary);color:var(--ui-on-primary);}
+.wk-steps span.active,.wk-option.on b{background:var(--ui-cta);color:var(--ui-on-cta);}
 .wk-option,.state{background:var(--ui-surface-2);color:var(--ui-text-2);border-color:var(--ui-border);}
 .wk-option.on{background:var(--ui-primary-tint);color:var(--ui-on-tint);border-color:var(--ui-primary);}
 .wk-complete{background:var(--ui-success-soft);color:var(--ui-success);}
 .wk-feature .wk-eyebrow{color:var(--ui-primary);}
 .wk-feature h2{color:var(--ui-text);}
-.wk-option.on b,html[data-mode="dark"] .wk-option.on b{color:var(--ui-on-primary);}
-html[data-mode="dark"] .wk-btn,html[data-mode="dark"] .btn:not(.ghost),html[data-mode="dark"] .mark{color:var(--ui-on-primary);}
+.wk-option.on b,html[data-mode="dark"] .wk-option.on b{color:var(--ui-on-cta);}
+html[data-mode="dark"] .wk-btn,html[data-mode="dark"] .btn:not(.ghost){background:var(--ui-cta);color:var(--ui-on-cta);}
+html[data-mode="dark"] .mark{background:var(--ui-cta);color:var(--ui-on-cta);}
 html[data-mode="dark"] .wk-reading,html[data-mode="dark"] .wk-sentences,html[data-mode="dark"] .wk-input,html[data-mode="dark"] textarea,html[data-mode="dark"] .ansinput,html[data-mode="dark"] .opt,html[data-mode="dark"] .visual,html[data-mode="dark"] .review-grid button{background:var(--ui-surface);color:var(--ui-text);border-color:var(--ui-border);}
 html[data-mode="dark"] .wk-note,html[data-mode="dark"] .wk-feedback,html[data-mode="dark"] .wk-compare>div,html[data-mode="dark"] .exit-box,html[data-mode="dark"] .warning{background:var(--ui-surface-2);color:var(--ui-text);border-color:var(--ui-border);}
 html[data-mode="dark"] .wk-feedback.good,html[data-mode="dark"] .wk-compare>div.good,html[data-mode="dark"] .wk-chip.good{background:var(--ui-success-soft);color:var(--ui-success);}
 html[data-mode="dark"] .wk-chip.mid{background:var(--ui-warning-soft);color:var(--ui-warning);}
 html[data-mode="dark"] .wk-reading p.wk-hl,html[data-mode="dark"] .wk-reading .wk-hl{background:var(--ui-primary-tint);color:var(--ui-text);box-shadow:none;}
 html[data-mode="dark"] .wk-feedback.try{background:var(--ui-primary-tint);color:var(--ui-text);}
-html[data-mode="dark"] .mode.primary,html[data-mode="dark"] .btn.primary{background:var(--ui-primary);color:var(--ui-on-primary);border-color:var(--ui-primary);}
+html[data-mode="dark"] .mode.primary,html[data-mode="dark"] .btn.primary{background:var(--ui-cta);color:var(--ui-on-cta);border-color:var(--ui-cta);}
 html[data-mode="dark"] .grade,html[data-mode="dark"] .mode-toggle{background:var(--ui-surface);color:var(--ui-primary);border-color:var(--ui-border);}
 html[data-mode="dark"] .teamCard{background:var(--ui-surface);border-color:var(--ui-border);}
 html[data-mode="dark"] .symbol.team{background:var(--ui-primary-tint);color:var(--ui-secondary);}
 html[data-mode="dark"] .state{background:var(--ui-surface-2);color:var(--ui-text-2);}
-html[data-mode="dark"] .mark,html[data-mode="dark"] .avatar{background:var(--ui-primary);color:var(--ui-on-primary);}
-html[data-mode="dark"] .wk-steps span.active{color:var(--ui-on-primary);}
+html[data-mode="dark"] .mark,html[data-mode="dark"] .avatar{background:var(--ui-cta);color:var(--ui-on-cta);}
+html[data-mode="dark"] .wk-steps span.active{background:var(--ui-cta);color:var(--ui-on-cta);}
 html[data-mode="dark"] .wk-sent.on{background:var(--ui-primary-tint);color:var(--ui-text);}
 html[data-mode="dark"] .wk-feedback blockquote{background:var(--ui-surface);color:var(--ui-text);}
 html[data-mode="dark"] .opt:hover,html[data-mode="dark"] .wk-option:hover{border-color:var(--ui-primary);}

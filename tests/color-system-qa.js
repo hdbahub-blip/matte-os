@@ -22,7 +22,8 @@ for(const [i,block] of blocks.entries()){
  const primary=value(p,'primary'),on=value(p,'on-primary');
  const tint=value(p,'primary-tint'),tintInk=value(p,'on-tint');
  const secondary=value(p,'secondary');
- for(const [a,b,n] of [[ink,bg,'text/canvas'],[ink,paper,'text/surface'],[muted,paper,'muted/surface'],[primary,paper,'accent/surface'],[secondary,paper,'secondary/surface'],[on,primary,'on-primary/primary'],[tintInk,tint,'on-tint/tint']]){
+ const cta=value(p,'cta'),ctaInk=value(p,'on-cta');
+ for(const [a,b,n] of [[ink,bg,'text/canvas'],[ink,paper,'text/surface'],[muted,paper,'muted/surface'],[primary,paper,'accent/surface'],[secondary,paper,'secondary/surface'],[on,primary,'on-primary/primary'],[ctaInk,cta,'CTA ink/button'],[tintInk,tint,'on-tint/tint']]){
    check(contrast(a,b)>=4.5,desc+' '+n+' contrast '+contrast(a,b).toFixed(2));
  }
  check(contrast(bg,paper)>=1.03,desc+' background vs surface not identical');
