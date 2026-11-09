@@ -83,3 +83,11 @@
 .arena-app[data-mode="dark"] .symbol{color:#152332}
 .arena-app[data-mode="dark"] .extra.mixed{background:#273b55;color:#f2f5f8}
 .arena-app[data-mode="dark"] .pillbtn{background:var(--paper2);color:var(--ink);border-color:var(--line)}
+
+/* FULLSPEC: navy and lavender for grade 8, burgundy for grade 9. */
+.arena-app[data-grade="grade8"]{--accent:#1d3557;--accent2:#6b4b99;--soft:#e8ecf9;--line:#d9e1ef;}
+.arena-app[data-mode="dark"][data-grade="grade8"]{--bg:#111a2d;--paper:#1b2a40;--ink:#f4f7ff;--line:#405371;--accent:#bfd9ff;--accent2:#d2baff;--soft:#303b5a;}
+.arena-app[data-mode="dark"][data-grade="grade9"]{--bg:#181119;--paper:#2b202b;--ink:#f8f0f4;--line:#554253;--soft:#492f3e;}
+.arena-app[data-grade="grade8"] .selected-front{border-left:4px solid var(--accent2);}
+.arena-app .pillbtn:focus-visible,.arena-app .btn:focus-visible,.arena-app .tabtile:focus-visible{outline:3px solid var(--accent);outline-offset:2px;}
+@media(prefers-reduced-motion:reduce){.arena-app *, .arena-app *::before,.arena-app *::after{transition-duration:.01ms!important;animation-duration:.01ms!important;}}
