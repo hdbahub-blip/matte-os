@@ -31,7 +31,7 @@ async function answer(page,info){
   const ctx=await browser.newContext(phone),page=await ctx.newPage();watch(page);page.setDefaultTimeout(10000);
   await page.goto(base,{waitUntil:'domcontentloaded'});await page.locator('.homegrid').waitFor();
   await page.locator('a[href="#/sv"]').first().click();await page.locator('.wk-book').first().waitFor();
-  ok(await page.locator('.wk-book').count()===8,'eight Swedish texts listed');
+  ok(await page.locator('.wk-book').count()===11,'eleven Swedish texts listed across three levels');
   ok((await page.locator('main').innerText()).includes('Nivå 3 · Utmaning'),'levels shown');
   await page.locator('a.wk-book[href="#/verkstad/sv/buss"]').click();
   await page.locator('.wk-challenge').waitFor();ok((await page.locator('.wk-challenge strong').innerText())==='SV-BUSS · v1','challenge code shown');
