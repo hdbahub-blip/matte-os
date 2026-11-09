@@ -18,4 +18,6 @@ const html=root('lara/index.html'),sw=root('lara/sw.js');
 for(const s of ['texts-extra-sv.js','texts-extra-en.js','words-extra.js','atelier.css']){check(html.includes(s),'HTML loads '+s);check(sw.includes(s),'offline retains '+s);}
 check(!root('lara/sprak.js').includes('Math.random'),'assessment order stays deterministic');
 check(root('lara/ordlek.js').includes('chosenLevel'),'vocabulary selection uses three levels');
+check(root('lara/sprak.js').includes('data-a="jump-level"'),'one-tap difficulty navigation in reading library');
+check(root('lara/app.js').includes("'jump-level':b=>"),'difficulty navigation wired to real action');
 console.log('ATELIER learning coverage: '+n+'/'+n+' PASS ('+W.audit().texts+' books, '+W.audit().tasks+' tasks, '+O._test.WORDS.length+' words)');

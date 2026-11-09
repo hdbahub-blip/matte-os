@@ -21,3 +21,8 @@ html[data-profile="grade8"] .symbol.team{background:#EEE8F9;color:#6F579F}html[d
 .wk-word-count{font-size:14px;color:var(--muted);margin:0 0 10px}
 @media(max-width:370px){.bottom a{font-size:10px;line-height:1.25}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+.wk-jump{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0 25px}
+.wk-jump-button{display:inline-flex;align-items:center;justify-content:center;min-height:45px;padding:10px 14px;background:var(--paper2);color:var(--accent-dark);border:1px solid var(--border);border-radius:11px;font:750 13px/1.25 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;cursor:pointer}
+.wk-jump-button:hover,.wk-jump-button:focus-visible{background:var(--accent-soft);border-color:var(--accent);outline-offset:3px}
+.wk-section[id]{scroll-margin-top:91px}.wk-section[id]:focus{outline:0}.wk-section[id]:focus-visible{outline:3px solid var(--purple);outline-offset:5px}
