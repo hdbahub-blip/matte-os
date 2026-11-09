@@ -483,3 +483,18 @@ html[data-mode="dark"] input,html[data-mode="dark"] textarea,html[data-mode="dar
 html[data-mode="dark"] .vis svg text{fill:var(--ink)}
 html[data-mode="dark"] .icon-btn{font-size:22px}
 @media print{html[data-mode="dark"]{color-scheme:light;--bg:#fff;--paper:#fff;--paper2:#fff;--ink:#000;--ink2:#222;--muted:#444;--line:#aaa}}
+
+/* FULLSPEC 2026-11-09: calm wayfinding and grade-owned day/night identities. */
+html[data-theme="navy"]{--bg:#f3f5fb;--paper:#fff;--paper2:#f2f3fa;--line:#dfe3f0;--line2:#cbd4e6;--acc:#1d3557;--acc-ink:#142640;--acc-soft:#e7ecf8;--acc-soft2:#d6dff2;--acc2:#6b4b99;--acc2-soft:#efe9f9;}
+html[data-mode="dark"]:not([data-theme="navy"]){--bg:#181119;--paper:#2b202b;--paper2:#372a37;--line:#554253;--line2:#705968;--acc:#f4bdcf;--acc-ink:#ffe5ef;--acc-soft:#492f3e;--acc-soft2:#634154;--acc2:#efbbd0;--acc2-soft:#442d39;}
+html[data-mode="dark"][data-theme="navy"]{--bg:#111a2d;--paper:#1b2a40;--paper2:#253752;--line:#405371;--line2:#546b8d;--acc:#bfd9ff;--acc-ink:#e5f0ff;--acc-soft:#293f60;--acc-soft2:#365577;--acc2:#d2baff;--acc2-soft:#403b5f;}
+html[data-theme="navy"] .calm-choices.learn-grid .learn-choice{border-left:4px solid var(--acc2);background:color-mix(in srgb,var(--acc2-soft) 60%,var(--paper));}
+html[data-theme="navy"] .learn-choice strong{color:var(--acc2);}
+.calm-choice,.game-shortcut,.tap{transition:border-color .12s ease,background-color .12s ease;}
+.calm-choice:hover,.calm-choice:focus-visible,.tap:hover,.tap:focus-visible{border-color:var(--acc);}
+.nav button[aria-current="page"]{background:var(--acc-soft);border-radius:11px;}
+.nav button[aria-current="page"] span{font-weight:800;}
+.storage-warning{position:sticky;top:0;z-index:99;background:#fff1da;color:#58380c;border-bottom:2px solid #ad741e;padding:12px 18px;font:600 14px/1.5 var(--font);text-align:center;}
+html[data-mode="dark"] .storage-warning{background:#49351f;color:#ffdfad;border-color:#e8b76f;}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;}}
+@media print{html[data-theme="navy"],html[data-mode="dark"][data-theme="navy"],html[data-mode="dark"]:not([data-theme="navy"]){--bg:#fff;--paper:#fff;--paper2:#fff;--ink:#000;--ink2:#222;--muted:#444;--line:#aaa;}}

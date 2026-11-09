@@ -256,7 +256,7 @@ function boostCard() {
       <p class="eyebrow">Inställningar · ${esc(P().label)}</p><h1>Inställningar</h1>
       <div class="card"><div class="field"><label for="pname">Namn (visas bara på den här enheten)</label><input id="pname" maxlength="30" value="${esc(pr.name)}" placeholder="${esc(P().label)}" autocomplete="off"></div>
         <button class="btn sm soft" data-a="savename">Spara namn</button></div>
-      <div class="card"><h3>Säkerhetskopia</h3><p class="mut small">Framstegen sparas bara på den här enheten. Spara en kopia ibland – t.ex. i Filer eller som mejl till dig själv.</p>
+      <div class="card"><h3>Säkerhetskopia</h3><p class="mut small">Matematik och Minnesknep sparas i samma säkerhetskopia. Språk och provresultat har egna separata kopior. Spara filen i en trygg mapp.</p>
         <div class="actions"><button class="btn" data-a="export">Spara säkerhetskopia</button><button class="btn ghost" data-a="import">Återställ från fil</button></div>
         <input type="file" id="importfile" accept=".json,application/json" hidden></div>
       <div class="card"><h3>Börja om</h3><p class="mut small">Raderar svar och framsteg för ${esc(P().label)} på den här enheten.</p>
@@ -701,7 +701,10 @@ function boostCard() {
   document.addEventListener('change', e => {
     const t = e.target;
     if (t.id === 'restdate') { const pr = E.prof(pid()); pr.rests[t.dataset.id] = { ...(pr.rests[t.dataset.id] || {}), date: t.value || null }; E.save(); toast(t.value ? 'Datumet är sparat.' : 'Datumet är borttaget.'); render(); }
-    if (t.id === 'importfile' && t.files && t.files[0]) { const rd = new FileReader(); rd.onload = () => { const r = E.importData(String(rd.result)); toast(r.msg); render(); }; rd.readAsText(t.files[0]); t.value = ''; }
+    if (t.id === 'importfile' && t.files && t.files[0]) { const rd = new FileReader(); rd.onload = () => {
+      if (!window.confirm('Återställa säkerhetskopian? Den ersätter befintliga matteframsteg på den här enheten. Spara en kopia av nuvarande framsteg först om du vill behålla dem.')) return;
+      const r = E.importData(String(rd.result)); toast(r.msg); render();
+    }; rd.readAsText(t.files[0]); t.value = ''; }
     if (t.id === 'fq') { /* hanteras av input */ }
   });
   // iPhone: när tangentbordet öppnas – håll svarsfält + Kontrollera synliga
@@ -713,6 +716,14 @@ function boostCard() {
   // formelsök-rutan: håll fokus när listan ritas om
   window.addEventListener('hashchange', () => { if (UI.sheet) closeSheet(); render(); });
 
+  /* A persistent warning if the device cannot save progress. */
+  document.addEventListener('matte-os-storage-error', () => {
+    if (document.getElementById('mo-storage-warning')) return;
+    const w = document.createElement('div');
+    w.id = 'mo-storage-warning'; w.className = 'storage-warning'; w.setAttribute('role', 'alert');
+    w.textContent = 'Framstegen kunde inte sparas på den här enheten. Kontrollera lagringsutrymmet och spara en säkerhetskopia.';
+    document.body.prepend(w);
+  });
   /* ================= START ================= */
   E.load();
   E.migrateV4().then(n => { if (n) { toast(`Tidigare framsteg flyttades över (${n} svar).`); render(); } });
