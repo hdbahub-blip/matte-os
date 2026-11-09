@@ -33,7 +33,7 @@ footer{text-align:center;color:var(--mut);font-size:.72rem;margin:21px auto 0;ma
 /* FULLSPEC: shared daylight and night-time examination modes with grade identity. */
 .mode-toggle{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--accent);font-size:23px;cursor:pointer;}
 .mode-toggle:focus-visible,.pickbtn:focus-visible,.mode:focus-visible,.exit:focus-visible{outline:3px solid var(--accent);outline-offset:3px;}
-html[data-grade="grade8"] .pickbtn[data-pick="grade8"]{border-left:4px solid #6b4b99;}
+html[data-exam-grade="grade8"] .pickbtn[data-pick="grade8"]{border-left:4px solid #6b4b99;}
 html[data-mode="dark"]{color-scheme:dark;--bg:#181119;--paper:#2b202b;--ink:#f7f0f5;--mut:#d1c4ce;--line:#594657;--soft:#492f3e;--shadow:0 12px 36px #0004;}
 html[data-mode="dark"][data-grade="grade8"]{--bg:#111a2d;--paper:#1b2a40;--ink:#f2f6ff;--mut:#c8d5e7;--line:#405371;--soft:#293f60;}
 html[data-mode="dark"] .top{background:var(--paper);border-color:var(--line);}

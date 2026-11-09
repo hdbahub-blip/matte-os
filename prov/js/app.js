@@ -33,7 +33,7 @@ function toggleAppearance(){try{localStorage.setItem(APPEARANCE_KEY,appearance()
 function setTheme(){
  const g=store.grade,dark=appearance()==='dark';
  document.documentElement.dataset.mode=dark?'dark':'light';
- document.documentElement.dataset.grade=g||'none';
+ document.documentElement.dataset.examGrade=g||'none';
  document.documentElement.style.setProperty('--accent',g==='grade8'?(dark?'#bfd9ff':'#1d3557'):(dark?'#f4bdcf':'#6e1f35'));
  document.documentElement.style.setProperty('--soft',g==='grade8'?(dark?'#293f60':'#e9eef5'):(dark?'#492f3e':'#f5e8ec'));
 }
@@ -178,7 +178,7 @@ function clearIncomingSelection(){
 function bindHome(){
  document.querySelector('[data-mode-toggle]')?.addEventListener('click',toggleAppearance);
  document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{clearIncomingSelection();store.grade=b.dataset.pick;saveStore();render()});
- document.querySelector('[data-grade]')?.addEventListener('click',()=>{clearIncomingSelection();store.grade=null;saveStore();render()});
+ document.querySelector('button[data-grade]')?.addEventListener('click',()=>{clearIncomingSelection();store.grade=null;saveStore();render()});
  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>begin(b.dataset.start,b.dataset.ch));
 }
 function bindQuestion(){

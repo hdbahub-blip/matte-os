@@ -81,7 +81,7 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     await page.waitForTimeout(300);
     ok(!JSON.stringify(JSON.parse(await page.evaluate(() => localStorage.getItem('matteos.v5'))).profiles.grade9.lessons || {}).includes(sid), 'Reset did not clear synthetic progress');
     await page.goto(B + '#/installningar'); await page.waitForSelector('#importfile', { state: 'attached' });
-    await page.setInputFiles('#importfile', backup); await page.waitForTimeout(500);
+    page.once('dialog',d=>d.accept());await page.setInputFiles('#importfile', backup); await page.waitForTimeout(500);
     const R5 = JSON.parse(await page.evaluate(() => localStorage.getItem('matteos.v5')));
     ok(JSON.stringify(R5.profiles.grade9.lessons) === JSON.stringify(A5.profiles.grade9.lessons), 'Import did not restore lesson progress');
     ok(JSON.stringify(R5.profiles.grade9.tables) === JSON.stringify(A5.profiles.grade9.tables), 'Import did not restore table progress');
