@@ -1,0 +1,12 @@
+/* Matte Prov Atelier 1.3: a quiet examination paper, not a generic dashboard. */
+:root{--bg:#F9F5F2;--paper:#FFFDFC;--ink:#271D27;--mut:#625964;--line:#E8DDE0;--accent:#682A41;--soft:#F7E9EE;--shadow:0 14px 36px #40212b0e;--serif:"Iowan Old Style","Baskerville",Georgia,serif}
+html[data-exam-grade="grade8"]{--bg:#F5F7FC;--paper:#FFF;--ink:#182A45;--mut:#596B85;--line:#DDE5F2;--accent:#1F3F69;--soft:#E7EFFB}
+html[data-mode="dark"]:not([data-exam-grade="grade8"]){--bg:#170F18;--paper:#281C28;--ink:#FBF3F5;--mut:#CFC2CD;--line:#503A4E;--accent:#F0BCD0;--soft:#483040;--shadow:0 17px 42px #0004}
+html[data-mode="dark"][data-exam-grade="grade8"]{--bg:#0F1A31;--paper:#192C4A;--ink:#F0F5FF;--mut:#C0CDE1;--line:#3A5170;--accent:#C4DAFF;--soft:#2B4466;--shadow:0 17px 42px #0005}
+body{background:var(--bg);color:var(--ink)}h1,h2,.question-text{font-family:var(--serif);font-weight:700;letter-spacing:-.023em}h1{font-size:clamp(31px,5vw,42px)}
+.top{background:var(--bg);border-color:var(--line)}.brand{color:var(--ink);text-decoration:none;min-height:44px}.brand:hover b{text-decoration:underline}.mark,.seal{background:var(--accent);color:var(--paper)}html[data-mode="dark"] .mark,html[data-mode="dark"] .seal{color:var(--bg)}
+.exam-card,.history-card,.result-card,.review-sheet,.question-sheet,.pickbtn{background:var(--paper);color:var(--ink);border-color:var(--line);box-shadow:var(--shadow)}.pickbtn{min-height:84px;border-radius:16px}
+.mode.primary,.btn.primary{background:var(--accent);color:var(--paper)}html[data-mode="dark"] .mode.primary,html[data-mode="dark"] .btn.primary{background:var(--soft);color:var(--ink);border:1px solid var(--accent)}
+.mode:not(.primary),.mode-toggle,.grade,.area-picker,.rules span{background:var(--paper);color:var(--ink);border-color:var(--line)}.question-text{font-size:clamp(22px,4.4vw,29px)}
+html[data-mode="dark"] .area-row button.dark{background:var(--soft);color:var(--ink)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
