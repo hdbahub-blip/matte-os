@@ -114,7 +114,8 @@
       <a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Lär dig med enkla exempel</span></a>
       <a class="calm-choice" href="#/trana"><strong>Träna matte</strong><span>Räkna egna uppgifter</span></a>
       <a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>En tabell eller flera tillsammans</span></a>
-      <a class="calm-choice learn-choice" href="lara/"><strong>Svenska och engelska</strong><span>Läs, förstå och öva språk</span></a></div><a class="calm-choice game-shortcut" href="#/cup"><strong>Spela tillsammans</strong><span>Matte OS Cup · spela på varsin mobil</span></a><details class="fold"><summary>Prov och planering (fler val)</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
+      <a class="calm-choice learn-choice" href="lara/#/sv"><strong>Svenska</strong><span>Läsförståelse · ord · 3 nivåer</span></a>
+      <a class="calm-choice learn-choice" href="lara/#/en"><strong>Engelska</strong><span>Reading · vocabulary · 3 nivåer</span></a></div><a class="calm-choice game-shortcut" href="#/cup"><strong>Spela tillsammans</strong><span>Matte OS Cup · spela på varsin mobil</span></a><details class="fold"><summary>Prov och planering (fler val)</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
   }
 
 function boostCard() {

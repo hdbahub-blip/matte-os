@@ -21,3 +21,7 @@ h1,h2,.home-h,.hero-body h2{font-family:var(--serif);font-weight:700;letter-spac
 html[data-mode="dark"] .btn.ghost{background:var(--paper2);color:var(--ink)}html[data-mode="dark"] .vis svg text{fill:var(--ink)}
 @media(max-width:520px){main{padding-top:20px}.calm-choices.learn-grid .calm-choice{min-height:78px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+.calm-choices.learn-grid .learn-choice{min-height:84px}
+.calm-choices.learn-grid .learn-choice:hover,.calm-choices.learn-grid .learn-choice:focus-visible{border-left-color:var(--acc2);background:var(--acc2-soft)}
+html[data-mode="dark"] .calm-choices.learn-grid .learn-choice{background:var(--paper)}
