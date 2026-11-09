@@ -120,8 +120,11 @@ const configs = [
           const progressBeforeExam = await page.evaluate(() => localStorage.getItem('matteos.v5'));
           await page.goto(BASE + 'prov/?g=' + grade, { waitUntil: 'domcontentloaded' });
           assert.match(await page.title(), /Matte Prov/); n++;
+          const provErrors=[];
+          page.on('pageerror',e=>{if(page.url().includes('/prov/'))provErrors.push(e.message);});
           await page.locator('[data-start="diagnos"]').first().click();
-          await page.locator('.question-sheet').waitFor();
+          try{await page.locator('.question-sheet').waitFor({timeout:15000});}
+          catch(e){console.error('PROV DIAG: url='+page.url()+' errors='+JSON.stringify(provErrors)+' body='+(await page.locator('body').innerText().catch(()=>'' )).slice(0,1800));throw e;}
           assert.equal(await page.locator('.question-sheet .solution, .question-sheet .result-detail, .result-head').count(), 0, name + ' exam leaks a solution before submission'); n++;
           const total = Number((await page.locator('.qcount').innerText()).split('/')[1]);
           assert(total > 0 && total < 50, name + ' invalid diagnosis length'); n++;

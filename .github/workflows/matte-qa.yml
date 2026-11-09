@@ -60,6 +60,7 @@ jobs:
           node --check lara/logic.js
           node --check lara/sw.js
           node tests/larande-qa.js
+          node tests/fullspec-release-qa.js
           node --check lara/sprak.js
           node --check lara/texts-sv.js
           node --check lara/texts-en.js
@@ -89,6 +90,7 @@ jobs:
           node tests/paper-lessons-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/calm-ux-e2e.js http://127.0.0.1:8765/
           node tests/larande-live-e2e.js http://127.0.0.1:8765/
+          node tests/fullspec-release-e2e.js http://127.0.0.1:8765/
           node tests/sprak-e2e.js http://127.0.0.1:8765/
           node tests/ordlek-night-e2e.js http://127.0.0.1:8765/ chromium
           node tests/knep-e2e.js http://127.0.0.1:8765/ test-screenshots

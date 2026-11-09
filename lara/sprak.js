@@ -163,7 +163,7 @@ return '<a class="back" href="#/'+lang+'">‹ Till alla texter</a><p class="wk-e
 function library(lang,active){if(!LANG[lang])return '<p>Okänt språk.</p>';const pool=BANK.filter(t=>t.lang===lang);const rec=recommend(active,lang);const skills=skillStatus(active,lang);
  const practised=Object.entries(skills).filter(([,v])=>v.level>0);
  const old=oldCount(active);
- return `<a class="back" href="#/">‹ Till start</a><p class="wk-eyebrow">SPRÅKVERKSTAD 3.0 · SAMMA TEXTER FÖR BÅDA</p><h1>${LANG[lang]} – läsa, förstå, samtala</h1>
+ return `<a class="back" href="#/">‹ Till start</a><p class="wk-eyebrow">SPRÅKVERKSTAD 3.1 · SAMMA TEXTER FÖR BÅDA</p><h1>${LANG[lang]} – läsa, förstå, samtala</h1>
  <p class="wk-lead">${lang==='sv'?'Riktiga texter i olika genrer. Svara själv, visa var i texten svaret finns och förklara för varandra.':'Real texts in different genres. Answer on your own, show the evidence in the text and explain to each other.'}</p>
  <section class="wk-feature"><div><span class="wk-eyebrow">NÄSTA STEG FÖR DEN HÄR PROFILEN</span><h2>${e(rec.t.title)}</h2><p>${e(rec.why)}</p><small>${e(rec.t.genre)} · nivå ${rec.t.level} ${e(LEVEL[rec.t.level])} · ca ${minutes(rec.t)} min</small></div><a class="wk-btn" href="#/verkstad/${lang}/${rec.t.id}">Öppna texten →</a></section>
  <div class="wk-toplinks"><a class="wk-quick" href="#/ord/${lang}"><strong>${lang==='sv'?'Lek med svenska ord':'Play with English words'}</strong><span>Betydelse · ord i meningar · skriv själv ›</span></a><a class="wk-quick" href="#/fel/${lang}"><strong>Mina fel · ${wrongTasks(active,lang).length}</strong><span>Se vad som blev fel och repetera ›</span></a></div>

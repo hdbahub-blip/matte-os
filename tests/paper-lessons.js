@@ -30,6 +30,6 @@ assert(app.includes('<details class="paper-more">'),'Advanced symbol sections mu
 assert(index.includes('js/teach-simple.js?v=5.5.6'),'Presentational layer loaded');
 assert(worker.includes('./js/teach-simple.js?v=5.5.6'),'Simple layer available offline');
 assert(core.includes("version: '5.5.6'"),'Coordinated build');
-assert(read('prov/index.html').includes('1.2.4'),'Separate exam must remain unchanged');
+assert(read('prov/index.html').includes('1.2.5'),'Separate exam must remain unchanged');
 for(let a=1;a<=10;a++)for(let b=1;b<=10;b++)assert.equal(a*b,b*a);
 console.log('Paper-first 63/63 curriculum lessons: '+checks+' checks PASS. 100 multiplication facts PASS. Offline/core compatibility PASS.');

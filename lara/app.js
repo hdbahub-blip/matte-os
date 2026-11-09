@@ -10,7 +10,7 @@ function rootProfile(){try{const a=JSON.parse(localStorage.getItem('matteos.v5')
 function load(){try{return M.sanitize(JSON.parse(localStorage.getItem(M.STORE)),D.lessons,D.baseline);}catch{return M.initial();}}
 let state=load(),ui={route:'',phase:0,assist:false,show:false,answer:'',showModel:false,soloRated:false,practiceDone:false,soloDone:false,partnerDone:false,duel:null,coop:null,pickProfile:false,notice:'',lastFocus:''};
 // New learners start with the profile selected in original Matte OS. This app stores its own separate progress.
-const rp=rootProfile();if(rp&&state.profiles.grade8.attempts.length+state.profiles.grade9.attempts.length===0)state.active=rp;
+const rp=rootProfile();if(rp)state.active=rp; // Follow deliberately selected maths grade without changing another profile's history.
 function save(){try{localStorage.setItem(M.STORE,JSON.stringify(state));return true;}catch{ui.notice='Framstegen kunde inte sparas på den här enheten. Använd säkerhetskopian om det går.';return false;}}
 function syncRootProfile(p){try{const raw=localStorage.getItem('matteos.v5');if(!raw)return;const x=JSON.parse(raw);if(x&&x.v===5&&x.profiles?.grade8&&x.profiles?.grade9){x.active=p;localStorage.setItem('matteos.v5',JSON.stringify(x));}}catch{/* Fail closed: no maths progress mutation */}}
 const active=()=>state.active;
@@ -20,9 +20,17 @@ function h(s){location.hash=s;}
 function toast(msg){ui.notice=msg;render();}
 function banner(){return ui.notice?`<div class="notice" role="status">${esc(ui.notice)}<button data-a="dismiss" aria-label="Stäng meddelande">×</button></div>`:'';}
 function header(){return `<header class="sitehead"><div class="headinner"><a class="brand" href="#/" aria-label="Till startsidan för svenska och engelska"><span class="mark">M</span><span>MATTE OS <small>LÄRANDE</small></span></a><button class="theme-toggle" data-a="appearance" aria-pressed="${mode()==='dark'}" aria-label="${mode()==='dark'?'Ljust läge':'Nattläge'}">${mode()==='dark'?'☀':'☾'}</button><button class="profile" data-a="profile" aria-expanded="${ui.pickProfile}"><span class="avatar">${active()==='grade8'?'8':'9'}</span> ${short[active()]} <span aria-hidden="true">⌄</span></button></div></header>${ui.pickProfile?`<div class="profileMenu" role="group" aria-label="Byt elevprofil"><p>Vem tränar just nu?</p>${['grade8','grade9'].map(p=>`<button data-a="choose-profile" data-p="${p}" ${active()===p?'aria-current="true"':''}>${short[p]} ${active()===p?'· aktiv':''}</button>`).join('')}<small>Varje elev har sina egna framsteg. Matte OS-profilen uppdateras också vid byte.</small></div>`:''}`;}
-function bottom(){return `<nav class="bottom" aria-label="Huvudmeny"><a href="../" aria-label="Till matematiken"><span aria-hidden="true">×</span> Matte</a><a href="#/" ${route()==='/'?'aria-current="page"':''}><span aria-hidden="true">⌂</span> Hem</a><a href="#/sv" ${route()==='/sv'?'aria-current="page"':''}>Svenska</a><a href="#/en" ${route()==='/en'?'aria-current="page"':''}>Engelska</a><a href="#/study" ${route()==='/study'?'aria-current="page"':''}>Studieteknik</a></nav>`;}
+function bottom(){return `<nav class="bottom" aria-label="Huvudmeny"><a href="../" aria-label="Till matematiken"><span aria-hidden="true">×</span> Matte</a><a href="#/" ${activeNav()==='home'?'aria-current="page"':''}><span aria-hidden="true">⌂</span> Hem</a><a href="#/sv" ${activeNav()==='sv'?'aria-current="page"':''}>Svenska</a><a href="#/en" ${activeNav()==='en'?'aria-current="page"':''}>Engelska</a><a href="#/study" ${activeNav()==='study'?'aria-current="page"':''}>Studieteknik</a></nav>`;}
 function shell(body){app.innerHTML=header()+banner()+`<main id="main" tabindex="-1">${body}</main>`+bottom();document.title='Matte OS · Lärande';}
 function route(){return decodeURIComponent(location.hash.replace(/^#/,''))||'/';}
+function activeNav(){
+  const r=route();
+  if(r.startsWith('/lektion/')) return D.lessons.find(l=>l.id===r.split('/')[2])?.subject||'home';
+  if(/(^|\/)sv(\/|$)/.test(r)) return 'sv';
+  if(/(^|\/)en(\/|$)/.test(r)) return 'en';
+  if(r.startsWith('/study')) return 'study';
+  return 'home';
+}
 function progress(l){const v=M.level(state,active(),l.id);return{level:v,label:M.LABEL[v]};}
 const btn=(title,to,secondary=false)=>`<a class="btn ${secondary?'ghost':''}" href="${esc(to)}">${esc(title)}</a>`;
 function home(){const s=['sv','en','study'];const recs=s.map(a=>M.recommend(state,active(),D.lessons,a,Date.now(),D.baseline));
@@ -100,7 +108,9 @@ const actions={
 };
 document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;if(!actions[b.dataset.a])return;e.preventDefault();actions[b.dataset.a](b);});
 document.addEventListener('input',e=>{if(e.target.id==='written')ui.answer=e.target.value;else if(e.target.name==='answer')ui.answer=e.target.value;});
-document.addEventListener('change',e=>{if(e.target.name==='answer')ui.answer=e.target.value;if(e.target.id==='importfile'&&e.target.files?.length){const f=e.target.files[0];if(f.size>2_000_000){toast('Filen är för stor.');return;}f.text().then(s=>{let obj;try{obj=JSON.parse(s);}catch{toast('Filen är inte giltig JSON.');return;}if(obj?.v!==1||!obj.profiles){toast('Det här är inte en Matte OS Lärande-säkerhetskopia.');return;}const next=M.sanitize(obj,D.lessons,D.baseline);state=next;save();if(obj.sprak)window.MO_WORKSHOP?.importData?.(obj.sprak);if(obj.ordlek)window.MO_ORDLEK?.importData?.(obj.ordlek);ui.pickProfile=false;toast('Lärandeframstegen återställda. Kontrollera att rätt elev är vald.');}).catch(()=>toast('Filen kunde inte läsas.'));}});
+document.addEventListener('change',e=>{if(e.target.name==='answer')ui.answer=e.target.value;if(e.target.id==='importfile'&&e.target.files?.length){const f=e.target.files[0];if(f.size>2_000_000){toast('Filen är för stor.');return;}f.text().then(s=>{let obj;try{obj=JSON.parse(s);}catch{toast('Filen är inte giltig JSON.');return;}if(obj?.v!==1||!obj.profiles){toast('Det här är inte en Matte OS Lärande-säkerhetskopia.');return;}if(!window.confirm('Återställa säkerhetskopian? Den ersätter lärandeframsteg på den här enheten. Spara först en kopia om du vill behålla dem.'))return;
+  const next=M.sanitize(obj,D.lessons,D.baseline),before=state;state=next;
+  if(!save()){state=before;toast('Kunde inte återställa på den här enheten.');return;}if(obj.sprak)window.MO_WORKSHOP?.importData?.(obj.sprak);if(obj.ordlek)window.MO_ORDLEK?.importData?.(obj.ordlek);ui.pickProfile=false;toast('Lärandeframstegen återställda. Kontrollera att rätt elev är vald.');}).catch(()=>toast('Filen kunde inte läsas.'));}});
 window.addEventListener('hashchange',render);
 window.addEventListener('beforeunload',()=>{if('speechSynthesis'in window)window.speechSynthesis.cancel();});
 window.MOL_RENDER=render;window.MOL_ACTIVE=active;window.MOL_DEBUG={getState:()=>structuredClone(state),getUi:()=>structuredClone(ui)};

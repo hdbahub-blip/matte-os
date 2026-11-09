@@ -91,7 +91,7 @@ async function answer(page,info){
   ok(!JSON.stringify(backup).includes(SECRET),'backup contains no free text');
   await page.locator('[data-a="reset-one"]').click();await page.locator('[data-a="reset-one"]').click();
   ok(Object.keys(JSON.parse(await page.evaluate(()=>localStorage.getItem('matteos.sprak.v3'))).profiles.grade9.tasks).length===0,'reset clears workshop progress for this profile');
-  await page.setInputFiles('#importfile',file);await page.waitForTimeout(400);
+  page.once('dialog',d=>d.accept());await page.setInputFiles('#importfile',file);await page.waitForTimeout(400);
   ok(Object.keys(JSON.parse(await page.evaluate(()=>localStorage.getItem('matteos.sprak.v3'))).profiles.grade9.tasks).length===total,'import restores workshop progress');
   fs.unlinkSync(file);
   await page.goto(base+'#/verkstad/sv/skarmbild/2');ok((await page.locator('main').innerText()).includes('ersatts'),'old 2.0 link is explained');

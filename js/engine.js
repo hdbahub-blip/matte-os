@@ -36,7 +36,7 @@
   const defaultState = () => ({ v: 5, active: null, profiles: { grade9: blankProfile(), grade8: blankProfile() }, settings: {}, created: new Date().toISOString() });
   let mem = null;
   function safeGet() { try { return root.localStorage ? root.localStorage.getItem(KEY) : null; } catch (e) { return null; } }
-  function safeSet(v) { try { root.localStorage && root.localStorage.setItem(KEY, v); return true; } catch (e) { return false; } }
+  function safeSet(v) { try { if (!root.localStorage) return false; root.localStorage.setItem(KEY, v); return true; } catch (e) { return false; } }
   function sanitize(st) {
     const d = defaultState();
     if (!st || typeof st !== 'object') return d;
@@ -65,7 +65,17 @@
     mem = sanitize(st);
     return mem;
   }
-  function save() { if (mem) safeSet(JSON.stringify(mem)); }
+  let storageWarningSent = false;
+  function save() {
+    if (!mem) return false;
+    const ok = safeSet(JSON.stringify(mem));
+    if (ok) storageWarningSent = false;
+    else if (!storageWarningSent) {
+      storageWarningSent = true;
+      if (root.document && typeof root.CustomEvent === 'function') root.document.dispatchEvent(new root.CustomEvent('matte-os-storage-error'));
+    }
+    return ok;
+  }
   const state = () => load();
   const prof = pid => load().profiles[pid || load().active || 'grade9'];
 
@@ -241,17 +251,24 @@
   }
 
   /* ---------- Backup ---------- */
-  function exportData() { return JSON.stringify({ app: 'matte-os', v: 5, exported: new Date().toISOString(), state: load() }, null, 1); }
+  function exportData() {
+    const knep = root.MOKnep && typeof root.MOKnep.exportData === 'function' ? root.MOKnep.exportData() : null;
+    return JSON.stringify({ app: 'matte-os', v: 5, exported: new Date().toISOString(), state: load(), knep }, null, 1);
+  }
   function importData(text) {
     let obj; try { obj = JSON.parse(text); } catch (e) { return { ok: false, msg: 'Filen kunde inte läsas. Välj en fil som heter matte-os-…json.' }; }
     const st = obj && obj.app === 'matte-os' ? obj.state : (obj && obj.profiles ? obj : null);
+    if (obj?.knep && (obj.knep.v !== 1 || !obj.knep.profiles)) return { ok: false, msg: 'Minnesknep-delen i säkerhetskopian är inte giltig. Inget har återställts.' };
     if (!st) return { ok: false, msg: 'Det här ser inte ut som en Matte OS-säkerhetskopia.' };
     // v4-format (attempts med skillId) stöds också
     for (const pid of ['grade9', 'grade8']) {
       const p = st.profiles && st.profiles[pid];
       if (p && Array.isArray(p.attempts)) p.attempts = p.attempts.map(a => a.skillId ? { s: a.skillId, x: 'v4', ok: !!a.correct, h: a.hintsUsed || 0, m: 'v4', t: Date.parse(a.ts) || Date.now() } : a);
     }
-    mem = sanitize(st); save();
+    const previous = mem || load();
+    mem = sanitize(st);
+    if (!save()) { mem = previous; return { ok: false, msg: 'Kunde inte skriva återställningen till enheten. Tidigare framsteg har behållits.' }; }
+    if (obj?.knep && root.MOKnep && typeof root.MOKnep.importData === 'function') root.MOKnep.importData(obj.knep);
     const n = mem.profiles.grade9.attempts.length + mem.profiles.grade8.attempts.length;
     return { ok: true, msg: `Återställt. ${n} sparade svar lästes in.` };
   }
