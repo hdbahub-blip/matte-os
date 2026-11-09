@@ -65,6 +65,7 @@ jobs:
           node --check lara/texts-sv.js
           node --check lara/texts-en.js
           node tests/sprak-qa.js
+          node tests/atelier-content-qa.js
           node --check lara/ordlek.js
           node --check tests/ordlek-night-e2e.js
           node tests/ordlek-qa.js

@@ -1,0 +1,27 @@
+/* MATTE OS · ATELIER 6.0 — authored editorial palette, not generic utility gradients.
+   Paired light/dark designs retain the exact same routing and local progress data. */
+:root{--bg:#F9F5F2;--paper:#FFFDFC;--paper2:#F6EFEF;--ink:#271D27;--ink2:#493C47;--muted:#625964;--line:#E8DDE0;--line2:#DCC9D1;--acc:#682A41;--acc-ink:#562036;--acc-soft:#F7E9EE;--acc-soft2:#EDD4DE;--acc2:#985F79;--acc2-soft:#F6E7EE;--on-acc:#FFF;--a-shadow:0 14px 36px rgba(64,27,43,.055);--serif:"Iowan Old Style","Baskerville","Palatino Linotype",Georgia,serif}
+html[data-theme="navy"]{--bg:#F5F7FC;--paper:#FFF;--paper2:#EEF2FA;--ink:#182A45;--ink2:#344866;--muted:#596B85;--line:#DDE5F2;--line2:#C7D4E7;--acc:#1F3F69;--acc-ink:#183459;--acc-soft:#E7EFFB;--acc-soft2:#D2DFF0;--acc2:#6F579F;--acc2-soft:#EEE8F9;--on-acc:#FFF;--a-shadow:0 14px 34px rgba(31,62,108,.06)}
+html[data-mode="dark"]:not([data-theme="navy"]){color-scheme:dark;--bg:#170F18;--paper:#281C28;--paper2:#362736;--ink:#FBF3F5;--ink2:#EADDE4;--muted:#CFC2CD;--line:#503A4E;--line2:#6A5063;--acc:#F0BCD0;--acc-ink:#FFE4EF;--acc-soft:#483040;--acc-soft2:#624256;--acc2:#E1ADC5;--acc2-soft:#43303E;--on-acc:#271621;--a-shadow:0 17px 42px #0004}
+html[data-mode="dark"][data-theme="navy"]{color-scheme:dark;--bg:#0F1A31;--paper:#192C4A;--paper2:#243957;--ink:#F0F5FF;--ink2:#DCE6F5;--muted:#C0CDE1;--line:#3A5170;--line2:#4D6787;--acc:#C4DAFF;--acc-ink:#E7F0FF;--acc-soft:#2B4466;--acc-soft2:#3C587D;--acc2:#D3BDF8;--acc2-soft:#3C3759;--on-acc:#192A45;--a-shadow:0 17px 42px #0005}
+html,body{background:var(--bg);color:var(--ink)}
+h1,h2,.home-h,.hero-body h2{font-family:var(--serif);font-weight:700;letter-spacing:-.033em;text-wrap:balance}h1{font-size:clamp(29px,5vw,39px);line-height:1.14;margin-bottom:12px}h2{font-size:clamp(21px,4vw,27px)}h3{letter-spacing:-.015em}
+.top,.fbar{background:color-mix(in srgb,var(--bg) 94%,transparent);border-color:var(--line)}
+.brand-m,.chip-btn .av{background:var(--acc);color:var(--on-acc);border-radius:10px}.brand-t{font:800 16px var(--serif);letter-spacing:.06em}
+.icon-btn,.chip-btn,.focus-back{background:var(--paper);border:1px solid var(--line)}
+.btn{border-radius:13px;font-weight:750}.btn:not(.ghost):not(.text):not(.soft){background:var(--acc);color:var(--on-acc)}.btn.ghost{background:var(--paper);color:var(--ink);border-color:var(--line2)}
+.card,.fold,.tap,.calm-choice,.game-shortcut,.sheet{background:var(--paper);border-color:var(--line);box-shadow:var(--a-shadow)}
+.card.hero{border-color:var(--line2);box-shadow:var(--a-shadow)}.card.hero .hero-vis{background:var(--paper2)}.card.hero .hero-body{padding:17px 20px 19px}.card.hero .hero-body h2{font-size:clamp(24px,4vw,30px)}
+.calm-choices.learn-grid{gap:12px}.calm-choices.learn-grid .calm-choice{border:1px solid var(--line);border-radius:17px;padding:17px;min-height:87px;box-shadow:var(--a-shadow)}
+.calm-choices.learn-grid .learn-choice{background:var(--paper);border-left:4px solid var(--acc2)}html[data-theme="navy"] .learn-choice strong{color:var(--ink)}
+.game-shortcut{border-left:4px solid var(--acc)}.tap .t,.calm-choice strong{font-weight:750}
+.nav{background:color-mix(in srgb,var(--paper) 96%,transparent);border-color:var(--line);box-shadow:0 -8px 20px #1111}.nav-in{max-width:620px;gap:3px;padding:4px 7px}
+.nav button,.nav a{border-radius:12px;font-size:11px;min-height:56px}.nav button[aria-current="page"],.nav a[aria-current="page"]{background:var(--acc-soft);color:var(--acc-ink);font-weight:800}.nav button[aria-current="page"]::after{height:3px;width:18px}
+:focus-visible{outline:3px solid var(--acc2);outline-offset:3px}
+html[data-mode="dark"] .btn.ghost{background:var(--paper2);color:var(--ink)}html[data-mode="dark"] .vis svg text{fill:var(--ink)}
+@media(max-width:520px){main{padding-top:20px}.calm-choices.learn-grid .calm-choice{min-height:78px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+.calm-choices.learn-grid .learn-choice{min-height:84px}
+.calm-choices.learn-grid .learn-choice:hover,.calm-choices.learn-grid .learn-choice:focus-visible{border-left-color:var(--acc2);background:var(--acc2-soft)}
+html[data-mode="dark"] .calm-choices.learn-grid .learn-choice{background:var(--paper)}

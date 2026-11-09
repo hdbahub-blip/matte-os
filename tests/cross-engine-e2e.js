@@ -24,7 +24,7 @@ const configs = [
           await page.goto(BASE, { waitUntil: 'domcontentloaded' });
           await page.locator('[data-p="' + grade + '"]').click();
           await page.locator('.calm-choices').waitFor();
-          assert.equal(await page.locator('.calm-choices .calm-choice').count(), 4, name + ' main home choices'); n++;
+          assert.equal(await page.locator('.calm-choices .calm-choice').count(), 5, name + ' main home choices'); n++;
            assert.equal(await page.locator('a.game-shortcut[href="#/cup"]').count(), 1, name + ' visible Cup shortcut'); n++;
 
           await page.locator('.calm-choice[href="#/formler"]').click();
