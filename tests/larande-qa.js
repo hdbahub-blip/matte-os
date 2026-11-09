@@ -57,6 +57,6 @@ check(!/fetch\s*\(/.test(app),'learner does not send network requests');
 check(app.includes('written')&&app.includes('Inställningar'),'free response and settings exist');
 check(app.includes('undo-duel')&&app.includes('duel-point'),'duel transparency/undo');
 check(app.includes('speechSynthesis'),'listening available with graceful fallback');
-check(sw.includes('matte-os-larande-3.1.0-orddark')&&sw.includes('app.js?v=3.1.0-orddark')&&ui.includes('app.js?v=3.1.0-orddark')&&sw.includes('ordlek.js?v=1.0.0')&&sw.includes('index.html'),'offline cache scope and version parity');
+check(sw.includes('matte-os-larande-3.1.1-fullspec')&&sw.includes('app.js?v=3.1.1-fullspec')&&ui.includes('app.js?v=3.1.1-fullspec')&&sw.includes('ordlek.js?v=1.0.0')&&sw.includes('index.html'),'offline cache scope and version parity');
 check(ui.includes('lang="sv"'),'Swedish accessibility');
 console.log('Matte OS Lärande QA: PASS ('+n+' checks, '+data.lessons.length+' lessons, '+data.duels.length+' duel cards).');

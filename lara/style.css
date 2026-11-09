@@ -41,3 +41,20 @@ html[data-mode="dark"] .mark,html[data-mode="dark"] .avatar{background:var(--acc
 html[data-mode="dark"] .btn:not(.ghost){color:#152332}
 html[data-mode="dark"] .theme-toggle{background:var(--paper2);color:var(--accent-dark)}
 html[data-mode="dark"] .profile,html[data-mode="dark"] .bottom a{color:var(--ink)}
+
+/* FULLSPEC 2026-11-09: one row for all five destinations, visible active route. */
+.bottom{grid-template-columns:repeat(5,minmax(0,1fr));}
+.bottom a{min-width:0;min-height:62px;padding:7px 3px;line-height:1.25;overflow-wrap:anywhere;}
+.bottom a[aria-current="page"]{background:var(--accent-soft);border-radius:11px 11px 0 0;color:var(--accent-dark);}
+.bottom a[aria-current="page"]::after{content:"";width:24px;height:3px;background:var(--accent);border-radius:3px;}
+html[data-profile="grade8"]{--bg:#f3f5fb;--paper:#fff;--paper2:#f0f2fa;--border:#dbe2f0;--accent:#1d3557;--accent-soft:#e6ecf9;--accent-dark:#142d50;--purple:#6b4b99;}
+html[data-profile="grade8"] .symbol.team{background:#eee8fa;color:var(--purple);}
+html[data-profile="grade8"] .teamCard{background:#f7f3fe;border-color:#d9cdec;}
+html[data-mode="dark"]:not([data-profile="grade8"]){--bg:#181119;--paper:#2b202b;--paper2:#372a37;--border:#554253;--accent:#f4bdcf;--accent-soft:#492f3e;--accent-dark:#ffe5ef;}
+html[data-mode="dark"][data-profile="grade8"]{--bg:#111a2d;--paper:#1b2a40;--paper2:#253752;--border:#405371;--accent:#bfd9ff;--accent-soft:#293f60;--accent-dark:#e5f0ff;--purple:#d2baff;}
+html[data-mode="dark"][data-profile="grade8"] .teamCard{background:#2b2d4a;border-color:#524b73;}
+html[data-mode="dark"][data-profile="grade8"] .symbol.team{background:#403b60;color:#dbc9ff;}
+html[data-mode="dark"] .recommended{background:var(--accent-soft);border-color:var(--border);color:var(--ink);}
+html[data-mode="dark"] .state{background:var(--paper2);color:var(--ink2);}
+@media(max-width:370px){.bottom a{font-size:10px;letter-spacing:-.02em;}.bottom a span{font-size:18px;}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;}}
