@@ -8,3 +8,19 @@
 .arena-app .hero-graphic{background:linear-gradient(150deg,#3D1C2C,#71334B)}.arena-app[data-grade="grade8"] .hero-graphic{background:linear-gradient(150deg,#172F57,#68528E)}
 .arena-app .btn{background:var(--accent);color:#FFF;border-radius:12px}.arena-app[data-mode="dark"] .btn{color:var(--bg)}.arena-app .tabtile:hover{transform:none;border-color:var(--accent)}
 @media(prefers-reduced-motion:reduce){.arena-app *, .arena-app *::before,.arena-app *::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+/* Arena inputs, multiplayer cards and practice feedback share one ink system. */
+.arena-app{--accent2:#985F79}
+.arena-app .answerfield,.arena-app .resultsteps,.arena-app .duel-descr,.arena-app .playerbox,.arena-app .playerbox.right,.arena-app .duel-solution{background:var(--paper2);color:var(--ink);border-color:var(--line)}
+.arena-app .extra.duel{background:var(--paper2);color:var(--ink);border:1px solid var(--line)}
+.arena-app .extra.duel .btn{background:var(--accent);color:#FFF}
+.arena-app .extra.mixed{background:linear-gradient(135deg,#342033,#693B55);color:#FFF}
+.arena-app[data-grade="grade8"] .extra.mixed{background:linear-gradient(135deg,#173457,#594778);color:#FFF}
+.arena-app .extra.mixed .btn{background:#FFF;color:#21354C}
+.arena-app .buzzer.right{background:var(--accent2);color:#FFF}
+.arena-app[data-mode="dark"] .answerfield,.arena-app[data-mode="dark"] .resultsteps,.arena-app[data-mode="dark"] .duel-descr,.arena-app[data-mode="dark"] .playerbox,.arena-app[data-mode="dark"] .playerbox.right,.arena-app[data-mode="dark"] .duel-solution,.arena-app[data-mode="dark"] .extra.duel{background:var(--paper2);color:var(--ink);border-color:var(--line)}
+.arena-app[data-mode="dark"] .extra.duel .btn{background:var(--accent);color:var(--bg)}
+.arena-app[data-mode="dark"] .answerfield:focus{outline:3px solid var(--accent2);outline-offset:3px}
+.arena-app[data-mode="dark"] .extra.mixed .btn{background:#FFF;color:#21354C}
+.arena-app[data-mode="dark"] .buzzer.right{background:var(--accent2);color:var(--bg)}
+@media(max-width:380px){.arena-app .tabtile,.arena-app .selected-front{padding:13px}}

@@ -10,3 +10,13 @@ body{background:var(--bg);color:var(--ink)}h1,h2,.question-text{font-family:var(
 .mode:not(.primary),.mode-toggle,.grade,.area-picker,.rules span{background:var(--paper);color:var(--ink);border-color:var(--line)}.question-text{font-size:clamp(22px,4.4vw,29px)}
 html[data-mode="dark"] .area-row button.dark{background:var(--soft);color:var(--ink)}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Exam input and review ink never inherit light text over hard-coded white. */
+.ansinput,.opt,.review-grid button,.visual,.exit-box,.exit-box button,.flag,.solution{background:var(--paper);color:var(--ink);border-color:var(--line)}
+.rules span,.area-picker,.area-row button{background:var(--paper);color:var(--ink);border-color:var(--line)}
+.exit-box{background:var(--soft)}.exit-box span{color:var(--mut)}
+.opt:focus-visible,.ansinput:focus-visible,.review-grid button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+html[data-mode="dark"] .ansinput,html[data-mode="dark"] .opt,html[data-mode="dark"] .review-grid button,html[data-mode="dark"] .visual,html[data-mode="dark"] .exit-box button,html[data-mode="dark"] .flag,html[data-mode="dark"] .solution{background:var(--paper);color:var(--ink);border-color:var(--line)}
+html[data-mode="dark"] .exit-box,html[data-mode="dark"] .warning,html[data-mode="dark"] .review-grid .missing{background:var(--soft);color:var(--ink);border-color:var(--line)}
+html[data-mode="dark"] .flag.on{background:var(--soft);color:var(--accent);border-color:var(--accent)}
+html[data-mode="dark"] .mode.primary{color:var(--ink)}
