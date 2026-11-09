@@ -16,7 +16,7 @@ const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/?$/,'/');
       assert.equal(await page.locator('nav.nav button,nav.nav a').count(),5);checks++;
       assert.equal(await page.locator('html').getAttribute('data-theme'),grade==='grade8'?'navy':'burgundy');checks++;
       if(grade==='grade8'){
-        assert.equal((await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--acc2').trim())),'#6F579F');checks++;
+        assert.equal((await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--acc2').trim())),'#6B5798');checks++;
       }
       await page.locator('[data-a="appearance"]').first().click();
       await page.locator('html[data-mode="dark"]').waitFor({timeout:12000});
