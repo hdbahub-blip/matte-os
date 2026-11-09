@@ -7,7 +7,7 @@ const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/?$/,'/');
   let checks=0;
   try {
     for (const grade of ['grade8','grade9']) {
-      const context=await browser.newContext({viewport:{width:320,height:700}});
+      const context=await browser.newContext({viewport:{width:320,height:700},serviceWorkers:'block'}); // Offline SW behavior is covered by the separate upgrade/offline suites.
       const page=await context.newPage();
       await page.goto(base,{waitUntil:'domcontentloaded'});
       await page.locator('[data-a="pickprofile"][data-p="'+grade+'"]').click();
