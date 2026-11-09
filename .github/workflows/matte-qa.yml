@@ -66,6 +66,7 @@ jobs:
           node --check lara/texts-en.js
           node tests/sprak-qa.js
           node tests/atelier-content-qa.js
+          node tests/color-system-qa.js
           node --check lara/ordlek.js
           node --check tests/ordlek-night-e2e.js
           node tests/ordlek-qa.js
@@ -92,6 +93,7 @@ jobs:
           node tests/calm-ux-e2e.js http://127.0.0.1:8765/
           node tests/larande-live-e2e.js http://127.0.0.1:8765/
           node tests/fullspec-release-e2e.js http://127.0.0.1:8765/
+          node tests/color-system-e2e.js http://127.0.0.1:8765/
           node tests/sprak-e2e.js http://127.0.0.1:8765/
           node tests/ordlek-night-e2e.js http://127.0.0.1:8765/ chromium
           node tests/knep-e2e.js http://127.0.0.1:8765/ test-screenshots
