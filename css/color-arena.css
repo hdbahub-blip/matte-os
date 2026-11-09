@@ -1,0 +1,60 @@
+/* MATTE OS COLOR SYSTEM 6.1 — Shadow-DOM table arena.
+   Values inherit from the parent grade/mode theme instead of drifting independently.
+*/
+.arena-app,
+.arena-app[data-grade="grade8"],
+.arena-app[data-mode="dark"][data-grade="grade9"],
+.arena-app[data-mode="dark"][data-grade="grade8"]{
+ --bg:var(--ui-canvas);--paper:var(--ui-surface);--paper2:var(--ui-surface-2);
+ --ink:var(--ui-text);--mut:var(--ui-muted);--line:var(--ui-border);
+ --accent:var(--ui-primary);--accent2:var(--ui-secondary);--soft:var(--ui-primary-tint);
+ --green:var(--ui-success);--greenbg:var(--ui-success-soft);
+ --red:var(--ui-danger);--redbg:var(--ui-danger-soft);
+ --shadow:var(--ui-shadow);color:var(--ui-text);background:var(--ui-canvas);
+}
+.arena-app h1,.arena-app h2,.arena-app h3{
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Arial,sans-serif;
+ letter-spacing:-.03em;font-weight:750;
+}
+.arena-app .home-hero{background:var(--ui-canvas);color:var(--ui-text);border:0;}
+.arena-app .hero-graphic,.arena-app[data-grade="grade8"] .hero-graphic{
+ background:var(--ui-hero);border:1px solid var(--ui-border-strong);
+ box-shadow:none;border-radius:18px;
+}
+.arena-app .hero-calc{color:#FFFFFF;}
+.arena-app[data-mode="dark"] .hero-calc{color:var(--ui-text);}
+.arena-app .tabtile,.arena-app .selected-front,.arena-app .card,.arena-app .eqrow{
+ background:var(--ui-surface);color:var(--ui-text);border:1px solid var(--ui-border);
+ box-shadow:var(--ui-shadow);border-radius:16px;
+}
+.arena-app .tabtile:hover,.arena-app .tabtile:focus-visible{background:var(--ui-surface-2);border-color:var(--ui-border-strong);transform:none;}
+.arena-app .selected-front{border-left:3px solid var(--ui-secondary);}
+.arena-app .btn,.arena-app .extra.duel .btn,.arena-app[data-mode="dark"] .btn,.arena-app[data-mode="dark"] .extra.duel .btn{
+ background:var(--ui-primary);color:var(--ui-on-primary);border-color:var(--ui-primary);font-weight:740;border-radius:12px;
+}
+.arena-app .btn.ghost,.arena-app .selected-front-actions .ghost{
+ background:var(--ui-surface);color:var(--ui-text);border:1px solid var(--ui-border);
+}
+.arena-app .extra.duel,.arena-app[data-mode="dark"] .extra.duel{
+ background:var(--ui-surface-2);color:var(--ui-text);border:1px solid var(--ui-border);
+}
+.arena-app .extra.mixed,.arena-app[data-grade="grade8"] .extra.mixed,
+.arena-app[data-mode="dark"] .extra.mixed{
+ background:var(--ui-hero);color:#FFFFFF;
+}
+.arena-app .extra.mixed .btn,.arena-app[data-mode="dark"] .extra.mixed .btn{
+ background:#FFFFFF;color:#253247;border:1px solid #FFFFFF;
+}
+.arena-app .answerfield,.arena-app .resultsteps,.arena-app .duel-descr,
+.arena-app .playerbox,.arena-app .playerbox.right,.arena-app .duel-solution,
+.arena-app[data-mode="dark"] .answerfield,.arena-app[data-mode="dark"] .resultsteps,
+.arena-app[data-mode="dark"] .duel-descr,.arena-app[data-mode="dark"] .playerbox,
+.arena-app[data-mode="dark"] .playerbox.right,.arena-app[data-mode="dark"] .duel-solution{
+ background:var(--ui-surface-2);color:var(--ui-text);border:1px solid var(--ui-border);
+}
+.arena-app .buzzer.right,.arena-app[data-mode="dark"] .buzzer.right{background:var(--ui-secondary);color:var(--ui-on-primary);}
+.arena-app .tbar,.arena-app .progressline{background:var(--ui-border);}
+.arena-app .ribbon,.arena-app .status-dot{color:var(--ui-muted);}
+.arena-app .duel-table-chip.on,.arena-app .tabtile:active{background:var(--ui-primary);color:var(--ui-on-primary);border-color:var(--ui-primary);}
+.arena-app .pillbtn:focus-visible,.arena-app .btn:focus-visible,.arena-app .tabtile:focus-visible{outline:3px solid var(--ui-secondary);outline-offset:3px;}
+@media(prefers-reduced-motion:reduce){.arena-app *, .arena-app *::before,.arena-app *::after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important;}}
