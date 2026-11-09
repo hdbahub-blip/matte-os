@@ -1,0 +1,10 @@
+/* Tabellarenan Atelier: matches the learning and mathematics palette in shadow DOM. */
+.arena-app{--bg:#F9F5F2;--paper:#FFFDFC;--ink:#271D27;--mut:#625964;--line:#E8DDE0;--accent:#682A41;--soft:#F7E9EE;--shadow:0 14px 36px #40212b0e;background:var(--bg);color:var(--ink)}
+.arena-app[data-grade="grade8"]{--bg:#F5F7FC;--paper:#FFF;--ink:#182A45;--mut:#596B85;--line:#DDE5F2;--accent:#1F3F69;--accent2:#6F579F;--soft:#E7EFFB}
+.arena-app[data-mode="dark"][data-grade="grade9"]{--bg:#170F18;--paper:#281C28;--ink:#FBF3F5;--mut:#CFC2CD;--line:#503A4E;--accent:#F0BCD0;--accent2:#E1ADC5;--soft:#483040;--shadow:0 17px 42px #0004}
+.arena-app[data-mode="dark"][data-grade="grade8"]{--bg:#0F1A31;--paper:#192C4A;--ink:#F0F5FF;--mut:#C0CDE1;--line:#3A5170;--accent:#C4DAFF;--accent2:#D3BDF8;--soft:#2B4466;--shadow:0 17px 42px #0005}
+.arena-app h1,.arena-app h2,.arena-app h3{font-family:"Iowan Old Style","Baskerville",Georgia,serif;letter-spacing:-.035em}
+.arena-app .tabtile,.arena-app .selected-front,.arena-app .card,.arena-app .eqrow{background:var(--paper);color:var(--ink);border-color:var(--line);box-shadow:var(--shadow);border-radius:17px}
+.arena-app .hero-graphic{background:linear-gradient(150deg,#3D1C2C,#71334B)}.arena-app[data-grade="grade8"] .hero-graphic{background:linear-gradient(150deg,#172F57,#68528E)}
+.arena-app .btn{background:var(--accent);color:#FFF;border-radius:12px}.arena-app[data-mode="dark"] .btn{color:var(--bg)}.arena-app .tabtile:hover{transform:none;border-color:var(--accent)}
+@media(prefers-reduced-motion:reduce){.arena-app *, .arena-app *::before,.arena-app *::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
