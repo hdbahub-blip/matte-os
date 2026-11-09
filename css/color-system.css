@@ -50,6 +50,7 @@
   --acc2-soft:var(--ui-primary-tint);
   --accent:var(--ui-primary);
   --accent-soft:var(--ui-primary-tint);
+  --soft:var(--ui-primary-tint);
   --accent-dark:var(--ui-on-tint);
   --border:var(--ui-border);
   --mut:var(--ui-muted);
