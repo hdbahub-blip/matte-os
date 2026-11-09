@@ -18,7 +18,7 @@ sv:{
 ['uppgift','något som ska göras eller lösas','Läs varje uppgift innan du svarar.'],
 ['påstående','något någon säger är sant','Ett påstående behöver ibland kontrolleras.'],
 ['ledtråd','något som hjälper dig förstå eller lösa','Fotspåret blev en viktig ledtråd.'],
-['tydlig','lätt att förstå','Hennes tydlig förklaring hjälpte gruppen.'],
+['tydlig','lätt att förstå','Hennes tydliga förklaring hjälpte gruppen.'],
 ['ordning','följden som saker kommer i','Berätta händelserna i rätt ordning.']
 ],
 2:[
@@ -48,7 +48,7 @@ sv:{
 ['reservation','ett uttryckt undantag eller en tvekan','Han lade in en reservation om kostnaden.'],
 ['marginalisera','göra att någon hamnar utanför','Reglerna kan marginalisera personer som saknar internet.'],
 ['orsakssamband','när ett förhållande faktiskt leder till ett annat','Ett orsakssamband kräver mer än att två kurvor följs åt.'],
-['representativ','visar en grupp på ett rimligt sätt','Ett representativ urval gör resultatet mer användbart.'],
+['representativ','visar en grupp på ett rimligt sätt','Ett representativt urval gör resultatet mer användbart.'],
 ['generaliserbar','kan gälla även utanför de undersökta fallen','Forskarna frågade om slutsatsen var generaliserbar.'],
 ['ambivalens','när man har motstridiga känslor samtidigt','Hennes ambivalens gjorde beslutet svårt.'],
 ['argumentationsfel','ett misstag i hur ett argument är uppbyggt','Ett argumentationsfel är att angripa personen i stället för saken.'],
