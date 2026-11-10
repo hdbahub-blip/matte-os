@@ -15,7 +15,8 @@ create table if not exists public.study_links (
  mentor_id uuid not null references auth.users(id) on delete cascade,
  grade text not null check (grade in ('grade8','grade9')),
  linked_at timestamptz not null default now(),
- constraint study_distinct_people check (mentor_id<>learner_id)
+ constraint study_distinct_people check (mentor_id<>learner_id),
+ constraint study_one_pupil_per_grade unique(mentor_id,grade)
 );
 create index if not exists study_links_mentor_idx on public.study_links(mentor_id,grade);
 create table if not exists public.study_invites (
@@ -162,7 +163,9 @@ create policy study_snapshots_update on public.study_snapshots for update to aut
 create policy study_snapshots_delete on public.study_snapshots for delete to authenticated using (learner_id=(select auth.uid()));
 
 create policy study_sessions_read on public.study_sessions for select to authenticated using (
- mentor_id=(select auth.uid()) or learner_id=(select auth.uid())
+ (mentor_id=(select auth.uid()) or learner_id=(select auth.uid()))
+ and exists(select 1 from public.study_links l where l.mentor_id=study_sessions.mentor_id
+ and l.learner_id=study_sessions.learner_id and l.grade=study_sessions.grade)
 );
 create policy study_sessions_insert on public.study_sessions for insert to authenticated with check (
  mentor_id=(select auth.uid()) and phase='answering' and exists(
@@ -170,10 +173,11 @@ create policy study_sessions_insert on public.study_sessions for insert to authe
  and l.learner_id=study_sessions.learner_id and l.grade=study_sessions.grade)
 );
 create policy study_session_answers_read on public.study_session_answers for select to authenticated using (
- actor_id=(select auth.uid()) or exists (
- select 1 from public.study_sessions s where s.id=study_session_answers.session_id and
+ exists(select 1 from public.study_sessions s where s.id=study_session_answers.session_id
+ and exists(select 1 from public.study_links l where l.mentor_id=s.mentor_id and l.learner_id=s.learner_id)
+ and (actor_id=(select auth.uid()) or (
  (s.mentor_id=(select auth.uid()) or s.learner_id=(select auth.uid()))
- and s.phase in ('review','closed'))
+ and s.phase in ('review','closed'))))
 );
 create policy study_session_answers_insert on public.study_session_answers for insert to authenticated with check (
  actor_id=(select auth.uid()) and exists(
@@ -241,6 +245,8 @@ begin
  select * into v_session from public.study_sessions
  where id=p_session and mentor_id=v_me for update;
  if not found then return false;end if;
+ if not exists(select 1 from public.study_links l where l.mentor_id=v_session.mentor_id
+ and l.learner_id=v_session.learner_id and l.grade=v_session.grade) then return false;end if;
  if p_phase='review' then
    if v_session.phase<>'answering' then return false;end if;
    select count(*) into v_count from public.study_session_answers
@@ -252,6 +258,23 @@ begin
 end $;
 revoke all on function public.study_advance(uuid,text) from public,anon,authenticated;
 grant execute on function public.study_advance(uuid,text) to authenticated;
+
+-- Count progress without disclosing either participant's private answers before review.
+create or replace function public.study_session_progress(p_session uuid)
+returns integer language plpgsql security definer set search_path='' as $
+declare v_me uuid := (select auth.uid());v_session public.study_sessions%rowtype;v_count integer;
+begin
+ if v_me is null then return 0;end if;
+ select * into v_session from public.study_sessions where id=p_session;
+ if not found then return 0;end if;
+ if v_me not in (v_session.mentor_id,v_session.learner_id) then return 0;end if;
+ if not exists(select 1 from public.study_links l where l.mentor_id=v_session.mentor_id
+ and l.learner_id=v_session.learner_id and l.grade=v_session.grade) then return 0;end if;
+ select count(*) into v_count from public.study_session_answers where session_id=p_session;
+ return v_count;
+end $;
+revoke all on function public.study_session_progress(uuid) from public,anon,authenticated;
+grant execute on function public.study_session_progress(uuid) to authenticated;
 
 -- Table changes can be delivered to authorized clients through Supabase Postgres Changes.
 -- No raw anonymous channels are used; each event is filtered again by RLS.
