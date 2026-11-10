@@ -51,7 +51,7 @@ const Q=(g,subject)=>{
 };
 const GRADE=g=>g==='grade8'?'Åk 8':'Åk 9',name=s=>({math:'Matematik',sv:'Svenska',en:'Engelska',study:'Studieteknik',vocab:'Ordträning'})[s]||s;
 let links=[],sessions=[],current=null,answers=[],practice=null,subject='math',grade=new URLSearchParams(location.search).get('grade')==='grade8'?'grade8':'grade9';
-let busy=false,error='',notice='',me=null,ready=false,channel=null,lastSession='',loading=false;
+let busy=false,error='',notice='',me=null,ready=false,channel=null,lastSession='',loading=false,serverAnswered=0;
 const db=()=>S.client(),profile=()=>S.profile(),isMentor=()=>profile()?.role==='mentor';
 const text=v=>typeof v==='string'?v:JSON.stringify(v??'');
 function header(){return '<header class="topbar"><div class="topinner"><a class="brand" href="../"><span class="monogram">M</span><span><b>MATTE OS</b><small>STUDERA TILLSAMMANS</small></span></a><a class="tiny" href="../foralder/">Marble Green</a></div></header>'}
@@ -105,7 +105,7 @@ function otherAnswer(q){return answers.find(a=>a.actor_id!==profile()?.user_id&&
 function sessionPage(){
  const s=current,me=profile()?.user_id,isParent=s.mentor_id===me,review=s.phase!=='answering';
  const answered=new Set(answers.map(x=>x.actor_id+'|'+x.question_id));
- const required=s.questions.length*2,finished=answered.size;
+ const required=s.questions.length*2,finished=serverAnswered;
  let html='<section class="hero"><span class="eyebrow">'+(isParent?'Du leder passet':'Du studerar med din mentor')+' · '+esc(s.phase)+'</span><h1>'+esc(s.title)+'</h1><p>Arbeta utan att titta på varandras svar. När alla har lämnat in öppnas jämförelsen.</p></section>'+
  '<div class="actions"><button class="btn secondary" data-action="back">Alla pass</button><button class="btn secondary" data-action="refresh">Uppdatera</button></div>'+
  '<div class="card" style="margin-top:15px"><h2>Framsteg</h2><p>'+finished+' av '+required+' inlämnade svar</p><div class="study-progress"><i style="width:'+Math.round(finished/required*100)+'%"></i></div>'+
@@ -118,8 +118,8 @@ function sessionPage(){
    (own?'<div class="tutorresult"><strong>Ditt inlämnade svar</strong><p>'+esc(text(own.answer.value))+'</p></div>':
    s.phase==='answering'?'<form class="session-answer" data-q="'+esc(q.id)+'">'+inputHTML(q)+'<button type="submit" class="btn">Lämna in mitt svar</button></form>':'<p class="note">Du lämnade inte in något svar.</p>')+
    (review?'<div class="tutorresult" style="margin-top:10px"><strong>'+ (isParent?'Elevens':'Mentorns')+' svar</strong><p>'+esc(other?.answer?.value?text(other.answer.value):'Inget svar inlämnat')+'</p>'+
-   '<strong>Facit eller exempelsvar</strong><p>'+esc(q.correct||'Öppen fråga – använd bedömningskriterier')+'</p>'+
-   '<small>'+esc(q.explanation||'')+'</small></div>':'<p class="note">Den andras svar och förklaringen visas först när ni båda är färdiga.</p>')+
+   '<strong>Facit eller exempelsvar</strong><p>'+esc(Q(s.grade,q.subject).find(x=>x.id===q.id)?.correct||'Öppen fråga – använd bedömningskriterier')+'</p>'+
+   '<small>'+esc(Q(s.grade,q.subject).find(x=>x.id===q.id)?.explanation||'')+'</small></div>':'<p class="note">Den andras svar och förklaringen visas först när ni båda är färdiga.</p>')+
    '</section>';
  }
  return html;
@@ -139,6 +139,8 @@ async function loadAnswers(){
  if(!current)return;
  const {data,error:e}=await db().from('study_session_answers').select('id,session_id,actor_id,question_id,answer,submitted_at').eq('session_id',current.id).order('submitted_at',{ascending:true}).limit(50);
  if(e)throw e;answers=data||[];
+ const {data:progress,error:pe}=await db().rpc('study_session_progress',{p_session:current.id});if(pe)throw pe;
+ serverAnswered=Math.max(0,Number(progress)||0);
 }
 function subscribe(){
  if(!db()||channel)return;
@@ -152,7 +154,7 @@ function queueReload(){if(reloadTimer)clearTimeout(reloadTimer);reloadTimer=setT
 async function create(){
  const l=links.find(x=>x.grade===grade);
  if(!l)throw Error('Den valda elevprofilen är inte kopplad till din mentorprofil.');
- const questions=Q(grade,subject).slice(0,6);
+ const questions=Q(grade,subject).slice(0,6).map(({correct,explanation,...safe})=>safe);
  if(!questions.length)throw Error('Inga frågor finns för detta område.');
  const payload={mentor_id:profile().user_id,learner_id:l.learner_id,grade,title:name(subject)+' · '+GRADE(grade),questions,phase:'answering'};
  const {data,error:e}=await db().from('study_sessions').insert(payload).select().single();
