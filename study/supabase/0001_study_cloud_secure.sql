@@ -237,7 +237,7 @@ grant execute on function public.study_unlink(uuid) to authenticated;
 
 -- Revealing answers is a state transition validated by the database, not by a disabled button.
 create or replace function public.study_advance(p_session uuid,p_phase text)
-returns boolean language plpgsql security definer set search_path='' as $
+returns boolean language plpgsql security definer set search_path='' as $$
 declare v_me uuid := (select auth.uid());v_session public.study_sessions%rowtype;
 v_count integer;
 begin
@@ -255,13 +255,13 @@ begin
  elsif v_session.phase<>'review' then return false;end if;
  update public.study_sessions set phase=p_phase,updated_at=now() where id=p_session;
  return true;
-end $;
+end $$;
 revoke all on function public.study_advance(uuid,text) from public,anon,authenticated;
 grant execute on function public.study_advance(uuid,text) to authenticated;
 
 -- Count progress without disclosing either participant's private answers before review.
 create or replace function public.study_session_progress(p_session uuid)
-returns integer language plpgsql security definer set search_path='' as $
+returns integer language plpgsql security definer set search_path='' as $$
 declare v_me uuid := (select auth.uid());v_session public.study_sessions%rowtype;v_count integer;
 begin
  if v_me is null then return 0;end if;
@@ -272,7 +272,7 @@ begin
  and l.learner_id=v_session.learner_id and l.grade=v_session.grade) then return 0;end if;
  select count(*) into v_count from public.study_session_answers where session_id=p_session;
  return v_count;
-end $;
+end $$;
 revoke all on function public.study_session_progress(uuid) from public,anon,authenticated;
 grant execute on function public.study_session_progress(uuid) to authenticated;
 
