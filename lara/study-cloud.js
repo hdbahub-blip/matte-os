@@ -20,7 +20,7 @@ const short=(s,n)=>String(s??'').slice(0,n);
 const uuid=()=>root.crypto?.randomUUID?.()||'';
 const dataURL=()=>new URL('study/',new URL(root.location?.pathname||'/',root.location?.origin||'https://example.test/')).href;
 const device=(()=>{const old=get(DEVICE);if(/^[0-9a-f-]{36}$/.test(old||''))return old;const id=uuid();if(id)set(DEVICE,id);return id;})();
-let db=null,session=null,member=null,status='offline',lastError='',flushing=false,timer=null,initialized=false;
+let db=null,session=null,member=null,status='offline',lastError='',flushing=false,timer=null,initialized=false,firstSyncFor='';
 let cache=safe(get(CACHE)),pending=safe(get(OUTBOX))||{events:[],dirty:[]};
 if(!Array.isArray(pending.events))pending.events=[];
 if(!Array.isArray(pending.dirty))pending.dirty=[];
@@ -44,7 +44,7 @@ async function refresh(){
  const {data,error}=await db.from('study_profiles').select('user_id,role,grade,display_name').eq('user_id',session.user.id).maybeSingle();
  if(error){status='error';lastError=error.message;dispatch();return null;}
  member=data||null;
- if(member){cache=member;set(CACHE,JSON.stringify(member));status='connected';lastError='';dispatch();scheduleFlush();}else{status='needs-profile';dispatch();}
+ if(member){cache=member;set(CACHE,JSON.stringify(member));status='connected';lastError='';dispatch();if(member.role==='learner'&&firstSyncFor!==member.user_id){firstSyncFor=member.user_id;syncAll();}scheduleFlush();}else{status='needs-profile';dispatch();}
  return member;
 }
 async function signUp(email,password){
@@ -144,6 +144,10 @@ function compact(part){
  if(!m?.compactModule)return null;
  const value=m.compactModule(part,raw,member.grade);
  if(!value)return null;
+ if(part==='exam'){
+  // A finished exam already has exact answers/results in localStorage. Preserve that history for recovery.
+  value.attempts=(Array.isArray(raw.attempts)?raw.attempts:[]).filter(x=>x.grade===member.grade).slice(-70);
+ }
  return value;
 }
 function scheduleFlush(){
