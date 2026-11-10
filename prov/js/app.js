@@ -56,7 +56,7 @@ function renderGradePick(){
    <div class="pick-intro"><div class="kicker">SEPARAT TESTMILJÖ</div><div class="seal">P</div><h1>Matte Prov</h1><p>Här får eleven visa vad hon kan <b>utan ledtrådar, formelsamling eller direkt rättning</b>.</p></div>
    <button class="pickbtn" data-pick="grade9"><span class="avatar g9">Å9</span><span><b>Åk 9</b><small>Tal · Geometri · Procent</small></span><span class="arrow">→</span></button>
    <button class="pickbtn" data-pick="grade8"><span class="avatar g8">Å8</span><span><b>Åk 8</b><small>Tal · Geometri · Algebra</small></span><span class="arrow">→</span></button>
-   <p class="privacy">Resultat sparas bara på den här enheten.</p><p class="privacy"><a href="../">Tillbaka till Matte OS</a></p>
+   <a class="pickbtn" href="../foralder/"><span class="avatar" style="background:#205C43;color:#fff">M</span><span><b>Min översikt</b><small>Marble Green · Åk 8 och 9 · skrivskyddad</small></span><span class="arrow">→</span></a><p class="privacy">Resultat sparas bara på den här enheten.</p><p class="privacy"><a href="../">Tillbaka till Matte OS</a></p>
  </section>`;
 }
 function currentInfo(){
@@ -79,7 +79,7 @@ function renderHome(){
  </section>
  <details class="area-picker"><summary>Välj ett annat område</summary><div class="area-list">${p.chapters.map(x=>`<div class="area-row"><div><b>${esc(x.name)}</b><small>${skillList(x.id).length} moment · planerat kapitelprov v${x.examWeek}</small></div><div><button data-start="diagnos" data-ch="${x.id}">Diagnos</button><button class="dark" data-start="prov" data-ch="${x.id}">Prov</button></div></div>`).join('')}</div></details>
  ${recent.length?`<section class="history-card"><div class="section-title">Senaste resultat</div>${recent.map(a=>`<div class="history-row"><div><b>${esc(a.chapterName)} · ${a.mode==='prov'?'Prov':'Diagnos'}</b><small>${new Date(a.finishedAt).toLocaleDateString('sv-SE')} · ${a.correct}/${a.total} rätt</small></div><strong>${a.percent}%</strong></div>`).join('')}</section>`:''}
- <footer>Ingen provtid har lagts in eftersom skolans faktiska provtid inte är verifierad.<br><a href="../">Tillbaka till Matte OS</a></footer>`;
+ <footer>Ingen provtid har lagts in eftersom skolans faktiska provtid inte är verifierad.<br><a href="../">Tillbaka till Matte OS</a> · <a href="../foralder/#/dela/${store.grade}">Dela resultatrapport</a></footer>`;
 }
 function begin(mode,ch){
  store.attemptNo=(store.attemptNo||0)+1;saveStore();

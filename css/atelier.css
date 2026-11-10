@@ -25,3 +25,11 @@ html[data-mode="dark"] .btn.ghost{background:var(--paper2);color:var(--ink)}html
 .calm-choices.learn-grid .learn-choice{min-height:84px}
 .calm-choices.learn-grid .learn-choice:hover,.calm-choices.learn-grid .learn-choice:focus-visible{border-left-color:var(--acc2);background:var(--acc2-soft)}
 html[data-mode="dark"] .calm-choices.learn-grid .learn-choice{background:var(--paper)}
+
+/* Parent overview entry: jade as a third visual identity without recoloring either child. */
+.parent-profile-card{background:linear-gradient(115deg,#F1F7F1,#F8FBF7);border:1px solid #C8DED0;border-left:4px solid #2F7454!important;color:var(--ink);margin-top:12px}
+.parent-profile-card .parent-av{width:44px;height:44px;display:grid;place-items:center;flex:none;background:#205C43;color:#FFFFFF;border-radius:13px;font:800 21px Georgia,serif}
+.parent-profile-card:hover,.parent-profile-card:focus-visible{border-color:#378463;background:linear-gradient(115deg,#E8F2E9,#F6FBF5)}
+html[data-mode="dark"] .parent-profile-card{background:linear-gradient(115deg,#182A22,#21352A);color:var(--ink);border-color:#41664F;border-left-color:#9FCDAE!important}
+html[data-mode="dark"] .parent-profile-card .parent-av{background:#A6D3B7;color:#153623}
+html[data-mode="dark"] .parent-profile-card:hover{background:#263D30}
