@@ -1,6 +1,6 @@
-const CACHE='matte-prov-v1.3.2-20261110-parent';
+const CACHE='matte-prov-v1.3.3-20261110-study-cloud';
 const CORE=[
- './','./index.html','./css/app.css?v=1.2.5','./css/atelier.css?v=1.3.0','./css/color-system.css?v=6.1.0','./js/color-runtime.js?v=6.1.0','./js/exam-core.js?v=1.2.5','./js/exam-visuals.js?v=1.2.5','./js/app.js?v=1.3.2-parent',
+ './','./index.html','./css/app.css?v=1.2.5','./css/atelier.css?v=1.3.0','./css/color-system.css?v=6.1.0','./js/color-runtime.js?v=6.1.0','./js/exam-core.js?v=1.2.5','./js/exam-visuals.js?v=1.2.5','./js/app.js?v=1.3.3-cloud','./js/study-model.js?v=1.0.0','./js/study-cloud.js?v=1.0.0',
  './manifest.webmanifest','./icon.svg',
  '../js/math.js?v=5.5.6','../js/core.js?v=5.5.6','../js/content9.js?v=5.5.6','../js/content8.js?v=5.5.6'
 ];
