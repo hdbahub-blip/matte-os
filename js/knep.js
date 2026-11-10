@@ -244,11 +244,20 @@
     if (act === 'check') { const key = el.dataset.key; const [id, i] = key.split(':'); const k = find(id); if (!k) return; const input = root.document?.getElementById('kn-' + key)?.value ?? ui.inputs[key] ?? '';
       if (!String(input).trim()) { root.document?.getElementById('kn-' + key)?.focus(); return; }
       ui.inputs[key] = input; const ok = checkTask(k.tasks[+i], input); ui.results[key] = { ok };
+      root.MO_STUDY?.capture({grade:pid(),module:'memory',question_id:id+':'+i,
+        question_text:k.tasks[+i].q,answer:String(input).slice(0,250),
+        solution_text:String(fmt(value(k.tasks[+i]))),is_correct:ok,
+        type:'num',mode:'practice',content_version:'5.5.6'});
       const r = rec(id); const slot = 't' + i; if (!r[slot]) { r[slot] = { at: Date.now(), ok }; save(); }
       ui.open = id; redraw(); root.requestAnimationFrame?.(() => root.document?.getElementById('kf-' + key)?.scrollIntoView?.({ block: 'nearest' })); return; }
     if (act === 'rpick') { if (ui.recallDone[el.dataset.id]) return; ui.recallPick[el.dataset.id] = Number(el.dataset.i); redraw(); return; }
     if (act === 'rcheck') { const id = el.dataset.id, k = find(id); const pick = ui.recallPick[id]; if (!k || pick === undefined) return; ui.recallDone[id] = true;
-      const ok = displayOrder(k)[pick] === 0; const r = rec(id); r.recall = { at: Date.now(), ok, n: (r.recall?.n || 0) + 1 }; save(); redraw(); return; }
+      const ok = displayOrder(k)[pick] === 0;
+      root.MO_STUDY?.capture({grade:pid(),module:'memory',question_id:id+':recall',
+        question_text:k.recall.q,answer:k.recall.options[displayOrder(k)[pick]],
+        solution_text:k.recall.options[0],is_correct:ok,
+        type:'choice',mode:'delayed-recall',content_version:'5.5.6'});
+      const r = rec(id); r.recall = { at: Date.now(), ok, n: (r.recall?.n || 0) + 1 }; save(); redraw(); return; }
   }
   if (typeof document !== 'undefined') {
     document.addEventListener('click', ev => { const b = ev.target.closest('[data-kn]'); if (!b || b.disabled) return; ev.preventDefault(); handle(b.dataset.kn, b); });
