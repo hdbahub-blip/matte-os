@@ -184,6 +184,94 @@ function syncAll(){
  Object.keys(PARTS).forEach(part=>{if(get(PARTS[part]))markDirty(part)});
  scheduleFlush();return true;
 }
+/* Explicit, reversible recovery. Never auto-replace local state while a learner studies.
+   A local pre-restore checkpoint must succeed before a single existing store is changed. */
+const mapObj=x=>x&&typeof x==='object'&&!Array.isArray(x)?x:{};
+function mergedList(a,b,limit){
+ const x=[...(Array.isArray(a)?a:[]),...(Array.isArray(b)?b:[])];
+ const seen=new Set();
+ return x.filter(v=>{const key=JSON.stringify(v);if(seen.has(key))return false;seen.add(key);return true;}).slice(-limit);
+}
+function mergeProfile(part,local,cloud){
+ const a=mapObj(local),b=mapObj(cloud);
+ if(part==='math'){
+  return {...a,name:a.name||b.name||'',attempts:mergedList(a.attempts,b.attempts,3000),
+  lessons:{...mapObj(b.lessons),...mapObj(a.lessons)},
+  tests:mergedList(a.tests,b.tests,50),
+  tables:{...mapObj(a.tables),
+    facts:{...mapObj(b.tables?.facts),...mapObj(a.tables?.facts)},
+    sessions:mergedList(a.tables?.sessions,b.tables?.sessions,120)}};
+ }
+ if(part==='learning')return {...a,attempts:mergedList(a.attempts,b.attempts,1500),
+  baseline:{...mapObj(b.baseline),...mapObj(a.baseline)}};
+ if(part==='reading'){
+  const tasks={...mapObj(b.tasks)};for(const [key,x] of Object.entries(mapObj(a.tasks)))
+   if(!tasks[key]||(x.at||0)>=(tasks[key].at||0))tasks[key]=x;
+  const texts={...mapObj(b.texts)};for(const [key,x] of Object.entries(mapObj(a.texts))){
+   const prev=mapObj(texts[key]);texts[key]={started:Math.min(...[x.started,prev.started].filter(Boolean))||0,
+    done:Math.max(x.done||0,prev.done||0),pair:Math.max(x.pair||0,prev.pair||0)};
+  }
+  return {...a,tasks,texts};
+ }
+ if(part==='vocab'){
+  const attempts={...mapObj(b.attempts)};for(const [key,x] of Object.entries(mapObj(a.attempts)))
+   if(!attempts[key]||(x.at||0)>=(attempts[key].at||0))attempts[key]=x;
+  return {...a,attempts,rounds:{sv:Math.max(a.rounds?.sv||0,b.rounds?.sv||0),en:Math.max(a.rounds?.en||0,b.rounds?.en||0)}};
+ }
+ if(part==='memory'){
+  const merged={...b,...a};for(const key of Object.keys({...b,...a})){
+   const prev=mapObj(b[key]),cur=mapObj(a[key]);merged[key]={};
+   for(const field of ['t0','t1','recall']){const old=prev[field],now=cur[field];
+    merged[key][field]=(now?.at||0)>=(old?.at||0)?now||old:old||now;
+   }
+  }
+  return merged;
+ }
+ return {...b,...a};
+}
+async function recover(){
+ if(!db||member?.role!=='learner'||session?.user?.id!==member.user_id)throw Error('Logga in som rätt elev.');
+ if(pending.events.some(x=>x.learner_id===member.user_id))throw Error('Synka väntande lokala svar innan återställning.');
+ const {data,error}=await db.from('study_snapshots').select('module,grade,payload,updated_at').eq('learner_id',member.user_id).order('updated_at',{ascending:true}).limit(250);
+ if(error)throw error;
+ const rows=(data||[]).filter(x=>x.grade===member.grade);
+ if(!rows.length)throw Error('Inga molnsäkerhetskopior finns att hämta.');
+ const before=Object.fromEntries(Object.entries(PARTS).map(([part,key])=>[part,get(key)]));
+ const checkpoint='matteos.study.pre-restore.'+Date.now();
+ if(!set(checkpoint,JSON.stringify(before)))throw Error('Kunde inte skapa en lokal säkerhetskopia. Inga data har ändrats.');
+ const updates={};
+ for(const part of Object.keys(PARTS)){
+  const relevant=rows.filter(x=>x.module===part);
+  if(!relevant.length)continue;
+  let raw=safe(before[part]);
+  if(part==='exam'){
+   raw=mapObj(raw);const a=Array.isArray(raw.attempts)?raw.attempts:[];
+   const remote=relevant.flatMap(x=>Array.isArray(x.payload?.attempts)?x.payload.attempts:[]).filter(x=>x.grade===member.grade);
+   updates[part]={...raw,grade:raw.grade||member.grade,attempts:mergedList(a,remote,100),
+    attemptNo:Math.max(raw.attemptNo||0,a.length+remote.length)};
+  }else{
+   raw=mapObj(raw);if(!raw.v)raw.v={math:5,learning:1,reading:3,vocab:1,memory:1}[part];
+   if(!raw.profiles)raw.profiles={grade8:{},grade9:{}};
+   let merged=mapObj(raw.profiles[member.grade]);
+   for(const row of relevant)merged=mergeProfile(part,merged,row.payload);
+   updates[part]={...raw,profiles:{...raw.profiles,[member.grade]:merged}};
+  }
+ }
+ // Only JSON serialization and localStorage writes; never modify a second pupil's profile.
+ const written=[];
+ try{
+  for(const [part,payload] of Object.entries(updates)){
+   const key=PARTS[part];if(!set(key,JSON.stringify(payload)))throw Error('Lagringen är full.');
+   written.push(part);
+  }
+ }catch(e){
+  // Roll back every store using the pre-restore checkpoint, including absent keys.
+  for(const part of written){const old=before[part];try{if(old===null)root.localStorage.removeItem(PARTS[part]);else set(PARTS[part],old)}catch{}}
+  throw Error('Återställningen avbröts och tidigare data återställdes: '+e.message);
+ }
+ written.forEach(markDirty);
+ return {parts:written,checkpoint};
+}
 function onActiveGrade(grade){
  if((member||cache)?.role==='learner'&&(member||cache).grade!==grade){status='grade-mismatch';dispatch();}
 }
@@ -202,5 +290,5 @@ function start(){
  }
 }
 if(typeof root.document!=='undefined')start();
-return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,onActiveGrade,hashCode,compact,canCapture};
+return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,recover,onActiveGrade,hashCode,compact,canCapture,mergeProfile};
 });
