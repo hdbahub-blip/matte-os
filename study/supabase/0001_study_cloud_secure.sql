@@ -109,10 +109,9 @@ grant select,insert on public.study_profiles to authenticated;
 grant select on public.study_links to authenticated;
 grant select,insert on public.study_invites to authenticated;
 grant select,insert,delete on public.study_events to authenticated;
-grant select,insert,delete on public.study_snapshots to authenticated;
-grant update(payload,updated_at) on public.study_snapshots to authenticated;
+grant select,insert,update,delete on public.study_snapshots to authenticated;
 grant select,insert on public.study_sessions to authenticated;
-grant update(phase,updated_at) on public.study_sessions to authenticated;
+-- Phase changes only through study_advance(), which verifies both have submitted.
 grant select,insert on public.study_session_answers to authenticated;
 grant select,insert,delete on public.study_mentor_practice to authenticated;
 
@@ -170,10 +169,6 @@ create policy study_sessions_insert on public.study_sessions for insert to authe
  select 1 from public.study_links l where l.mentor_id=(select auth.uid())
  and l.learner_id=study_sessions.learner_id and l.grade=study_sessions.grade)
 );
-create policy study_sessions_update on public.study_sessions for update to authenticated using (
- mentor_id=(select auth.uid())
-) with check (mentor_id=(select auth.uid()));
-
 create policy study_session_answers_read on public.study_session_answers for select to authenticated using (
  actor_id=(select auth.uid()) or exists (
  select 1 from public.study_sessions s where s.id=study_session_answers.session_id and
@@ -234,6 +229,29 @@ begin
 end $$;
 revoke all on function public.study_unlink(uuid) from public,anon,authenticated;
 grant execute on function public.study_unlink(uuid) to authenticated;
+
+
+-- Revealing answers is a state transition validated by the database, not by a disabled button.
+create or replace function public.study_advance(p_session uuid,p_phase text)
+returns boolean language plpgsql security definer set search_path='' as $
+declare v_me uuid := (select auth.uid());v_session public.study_sessions%rowtype;
+v_count integer;
+begin
+ if v_me is null or p_phase not in ('review','closed') then return false;end if;
+ select * into v_session from public.study_sessions
+ where id=p_session and mentor_id=v_me for update;
+ if not found then return false;end if;
+ if p_phase='review' then
+   if v_session.phase<>'answering' then return false;end if;
+   select count(*) into v_count from public.study_session_answers
+   where session_id=p_session;
+   if v_count <> 2*jsonb_array_length(v_session.questions) then return false;end if;
+ elsif v_session.phase<>'review' then return false;end if;
+ update public.study_sessions set phase=p_phase,updated_at=now() where id=p_session;
+ return true;
+end $;
+revoke all on function public.study_advance(uuid,text) from public,anon,authenticated;
+grant execute on function public.study_advance(uuid,text) to authenticated;
 
 -- Table changes can be delivered to authorized clients through Supabase Postgres Changes.
 -- No raw anonymous channels are used; each event is filtered again by RLS.
