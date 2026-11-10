@@ -101,6 +101,7 @@ function activity(section,x){
 }
 function hasActivity(r){return Object.entries(obj(r?.sections)).some(([k,v])=>activity(k,v)>0)}
 function mergeImported(current,incoming,at){
+ if(current?.grade&&current.grade!==incoming.grade)throw Error('Rapporterna tillhör olika årskurser.');
  const out={v:1,grade:incoming.grade,createdAt:at||new Date().toISOString(),sections:{...obj(current?.sections)}};
  const changed=[];
  for(const [k,v] of Object.entries(obj(incoming.sections))){
