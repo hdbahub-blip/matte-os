@@ -29,7 +29,7 @@ function compactModule(section,value,grade){
  case 'learning':{
   const src=value.profiles?p:value;
   return {attempts:arr(src.attempts).slice(-1500).map(a=>({lesson:ident(a?.lesson),at:time(a?.at),mode:text(a?.mode,10),ok:a?.ok===true,help:a?.help===true})).filter(a=>a.lesson&&a.at),
-   baseline:copiedMap(src.baseline,100,x=>x===true)}; // baseline is below replaced with booleans
+   baseline:Object.fromEntries(Object.entries(obj(src.baseline)).slice(0,100).filter(([k,v])=>ident(k)&&typeof v==='boolean'))};
  }
  case 'reading':{
   const src=value.profiles?p:value;
@@ -42,7 +42,7 @@ function compactModule(section,value,grade){
    rounds:{sv:limited(src.rounds?.sv,9999),en:limited(src.rounds?.en,9999)}};
  }
  case 'memory':{
-  const src=value.profiles?p:value;
+  const src=value.profiles?p:(value.records||value);
   return {records:copiedMap(src,60,x=>({
    t0:x.t0?{at:time(x.t0.at),ok:x.t0.ok===true}:null,
    t1:x.t1?{at:time(x.t1.at),ok:x.t1.ok===true}:null,
@@ -91,7 +91,7 @@ function fromFile(input){
 function activity(section,x){
  switch(section){
   case'math':return arr(x.attempts).length+Object.values(obj(x.lessons)).filter(y=>y.step||y.done).length+arr(x.tests).length+arr(x.tables?.sessions).length;
-  case'learning':return arr(x.attempts).length;
+  case'learning':return arr(x.attempts).length+cnt(x.baseline);
   case'reading':return cnt(x.tasks)+cnt(x.texts);
   case'vocab':return cnt(x.attempts)+limited(x.rounds?.sv)+limited(x.rounds?.en);
   case'memory':return cnt(x.records);
@@ -138,7 +138,7 @@ function summary(report,meta,now=Date.now()){
  const attempts=arr(m?.attempts),bySkill=new Map();
  for(const a of attempts) {if(!bySkill.has(a.s))bySkill.set(a.s,[]);bySkill.get(a.s).push(a);}
  const mathSkills=skills.map(s=>{const x=bySkill.get(s.id)||[],lv=mathLevel(x),lesson=obj(m?.lessons?.[s.id]);return{id:s.id,title:s.title,chapter:s.ch,lv,started:lv>0||lesson.step>0||lesson.done===true,lessonDone:lesson.done===true,attempts:x.length,last:Math.max(0,...x.map(a=>a.t),Number(lesson.t)||0)};});
- const math={present:!!m,started:mathSkills.filter(x=>x.started).length,total:mathSkills.length,independent:mathSkills.filter(x=>x.lv>=3).length,lessonDone:mathSkills.filter(x=>x.lessonDone).length,needsSupport:mathSkills.filter(x=>x.started&&x.lv<3&&x.attempts>0),notStarted:mathSkills.filter(x=>!x.started),attempts:attempts.length,
+ const math={present:!!m,skills:mathSkills,started:mathSkills.filter(x=>x.started).length,total:mathSkills.length,independent:mathSkills.filter(x=>x.lv>=3).length,lessonDone:mathSkills.filter(x=>x.lessonDone).length,needsSupport:mathSkills.filter(x=>x.started&&x.lv<3&&x.attempts>0),notStarted:mathSkills.filter(x=>!x.started),attempts:attempts.length,
  chapters:chapters.map(ch=>{const all=mathSkills.filter(s=>s.chapter===ch.id);return{id:ch.id,title:ch.name,total:all.length,started:all.filter(x=>x.started).length,independent:all.filter(x=>x.lv>=3).length,lessonDone:all.filter(x=>x.lessonDone).length,missing:all.filter(x=>!x.started),needsSupport:all.filter(x=>x.started&&x.lv<3&&x.attempts>0)};}),
  tests:arr(m?.tests).map(x=>({...x,percent:x.n?Math.round(x.ok/x.n*100):0})),last:Math.max(0,...attempts.map(x=>x.t)),table:null
  };
@@ -146,14 +146,14 @@ function summary(report,meta,now=Date.now()){
  math.table={present:!!m,started:factList.filter(x=>x.attempts>0).length,total:tableTotal,secure:factList.filter(x=>x.score>=9&&x.firstCorrect>=4).length,sessions:arr(m?.tables?.sessions).length};
  const lessons=miniLessons.map(l=>{const arrs=arr(learn?.attempts).filter(a=>a.lesson===l.id);return{id:l.id,title:l.title,subject:l.subject,lv:studyLevel(arrs,now),last:Math.max(0,...arrs.map(x=>x.at))};});
  const subjects=['sv','en','study'].map(sub=>{const a=lessons.filter(l=>l.subject===sub);return{subject:sub,total:a.length,started:a.filter(l=>l.lv>0).length,independent:a.filter(l=>l.lv>=2).length,repeated:a.filter(l=>l.lv>=3).length,remaining:a.filter(l=>l.lv===0)}};});
- const language={present:!!learn,total:lessons.length,started:lessons.filter(l=>l.lv>0).length,subjects,attempts:arr(learn?.attempts).length,baseline:Object.values(obj(learn?.baseline)).filter(x=>typeof x==='boolean').length};
+ const language={present:!!learn,lessons,total:lessons.length,started:lessons.filter(l=>l.lv>0).length,subjects,attempts:arr(learn?.attempts).length,baseline:Object.values(obj(learn?.baseline)).filter(x=>typeof x==='boolean').length};
  const books=readBooks.map(t=>{const key=t.lang+':'+t.id,rec=obj(read?.texts?.[key]),attemptedTasks=t.tasks.filter(k=>!!read?.tasks?.[key+':'+k.id]).length,independent=t.tasks.filter(k=>{const a=read?.tasks?.[key+':'+k.id];return a?.ok&&!a?.help}).length;return{id:t.id,lang:t.lang,title:t.title,level:t.level,genre:t.genre,total:t.tasks.length,done:!!rec.done,started:!!rec.started||!!rec.done||attemptedTasks>0,attemptedTasks,independent};});
  const reading={present:!!read,books,done:books.filter(x=>x.done).length,started:books.filter(x=>x.started).length,total:books.length,forLang:['sv','en'].map(lang=>{const pool=books.filter(x=>x.lang===lang);return{lang,total:pool.length,done:pool.filter(x=>x.done).length,started:pool.filter(x=>x.started).length,byLevel:[1,2,3].map(level=>{const list=pool.filter(x=>x.level===level);return{level,total:list.length,done:list.filter(x=>x.done).length,started:list.filter(x=>x.started).length,remaining:list.filter(x=>!x.started)}})};})};
  const wordAttempts=obj(vocab?.attempts),uniqueWords=new Set(Object.keys(wordAttempts).map(k=>k.split(':').slice(0,2).join(':')));
  const wordTotal=words.length||122;
- const vocabulary={present:!!vocab,started:uniqueWords.size,total:wordTotal,attempts:Object.values(wordAttempts).reduce((n,a)=>n+(a.n||0),0),pending:Object.entries(wordAttempts).filter(([,v])=>v.wrong>0&&!v.last).map(([key])=>key),forLang:['sv','en'].map(lang=>({lang,total:words.filter(x=>x.lang===lang).length,started:[...uniqueWords].filter(k=>k.startsWith(lang+':')).length,rounds:limited(vocab?.rounds?.[lang])}))};
- const records=obj(knep?.records),memory={present:!!knep,total:kneps.length,started:cnt(records),remembered:0,due:0};
- for(const k of kneps){const x=records[k.id];if(!x)continue;const ts=[x.t0,x.t1].filter(y=>y?.at>0),first=Math.min(...ts.map(x=>x.at),Infinity);if(x.recall?.ok&&x.recall?.at-first>=86400000)memory.remembered++;else if(first<Infinity&&now-first>=86400000)memory.due++;}
+ const vocabulary={present:!!vocab,words:words.map(w=>({word:w.word,lang:w.lang,level:w.level,started:uniqueWords.has(w.lang+':'+w.word),needsRepeat:['meaning','sentence'].some(kind=>{const r=wordAttempts[w.lang+':'+w.word+':'+kind];return r?.wrong>0&&!r?.last})})),started:uniqueWords.size,total:wordTotal,attempts:Object.values(wordAttempts).reduce((n,a)=>n+(a.n||0),0),pending:Object.entries(wordAttempts).filter(([,v])=>v.wrong>0&&!v.last).map(([key])=>key),forLang:['sv','en'].map(lang=>({lang,total:words.filter(x=>x.lang===lang).length,started:[...uniqueWords].filter(k=>k.startsWith(lang+':')).length,rounds:limited(vocab?.rounds?.[lang])}))};
+ const records=obj(knep?.records),memory={present:!!knep,total:kneps.length,started:cnt(records),remembered:0,due:0,items:[]};
+ for(const k of kneps){const x=records[k.id];if(!x){memory.items.push({id:k.id,title:k.topic||k.id,status:'Inte påbörjat'});continue;}const ts=[x.t0,x.t1].filter(y=>y?.at>0),first=Math.min(...ts.map(x=>x.at),Infinity);let status='Påbörjat';if(x.recall?.ok&&x.recall?.at-first>=86400000){memory.remembered++;status='Befäst efter repetition';}else if(first<Infinity&&now-first>=86400000){memory.due++;status='Dags att repetera';}memory.items.push({id:k.id,title:k.topic||k.id,status});}
  const results=arr(exam?.attempts).filter(x=>x.grade===grade),valid=results.filter(x=>x.total>0);
  const exams={present:!!exam,attempts:valid.length,last:valid.length?valid[valid.length-1]:null,history:valid.slice(-8).reverse(),mean:valid.length?Math.round(valid.reduce((n,x)=>n+x.correct/x.total,0)/valid.length*100):null};
  const activityDates=[];
@@ -163,6 +163,7 @@ function summary(report,meta,now=Date.now()){
  for(const a of Object.values(wordAttempts))if(a.at)activityDates.push(a.at);
  for(const a of Object.values(records)){for(const b of [a.t0,a.t1,a.recall])if(b?.at)activityDates.push(b.at);}
  for(const a of results)if(a.finishedAt)activityDates.push(a.finishedAt);
+ for(const a of arr(m?.tables?.sessions)){const ms=Date.parse(a.finishedAt);if(Number.isFinite(ms))activityDates.push(ms);}
  const today=new Date(now);today.setHours(0,0,0,0);
  const activity14=Array.from({length:14},(_,i)=>{const t=today.getTime()-(13-i)*86400000,end=t+86400000;return{day:date(t),date:new Date(t).toISOString().slice(0,10),count:activityDates.filter(x=>x>=t&&x<end).length};});
  return {grade,name:text(m?.name||'',30),math,language,reading,vocabulary,memory,exams,activity14,sectionsPresent:Object.fromEntries(Object.keys(STORAGE).map(k=>[k,!!sec[k]])),source:report.local?'local':'imported',capturedAt:report.createdAt||'',lastActivity:Math.max(0,...activityDates)};
