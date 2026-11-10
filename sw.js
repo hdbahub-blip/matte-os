@@ -2,12 +2,12 @@
    - Allt appinnehåll förcachas vid installation → fungerar offline.
    - Nätverk först för allt (färsk version när nätet finns), cache som reserv.
    - Ny version: CACHE-namnet byts → gamla cachar raderas vid aktivering. */
-const VERSION = '6.1.0-20261109-harmony';
+const VERSION = '6.2.0-20261110-parent';
 const CACHE = 'matte-os-' + VERSION;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-512.png',
-  './css/app.css?v=5.5.9-fullspec', './css/atelier.css?v=6.0.0', './css/color-system.css?v=6.1.0', './js/color-runtime.js?v=6.1.0', './js/math.js?v=5.5.6', './js/visuals.js?v=5.5.6', './js/core.js?v=5.5.6',
-  './js/content9.js?v=5.5.6', './js/content8.js?v=5.5.6', './js/engine.js?v=5.5.6', './js/tables.js?v=5.5.6', './js/tabell-arena.js?v=5.5.9-fullspec', './css/tabell-arena.css?v=5.5.9-fullspec', './css/atelier-arena.css?v=6.0.0', './css/color-arena.css?v=6.1.0', './js/teach-simple.js?v=5.5.6', './js/knep.js?v=5.5.6', './js/qr.js?v=5.5.6', './js/cup-config.js?v=5.5.6', './js/cup-api.js?v=5.5.6', './js/cup.js?v=5.5.6', './css/cup.css?v=5.5.4', './js/app.js?v=5.5.9-fullspec',
-  './affischer/', './affischer/index.html', './affischer/posters.css?v=1.1.0', './affischer/posters.js?v=1.1.0'];
+  './css/app.css?v=5.5.9-fullspec', './css/atelier.css?v=6.2.0-parent', './css/color-system.css?v=6.1.0', './js/color-runtime.js?v=6.1.0', './js/math.js?v=5.5.6', './js/visuals.js?v=5.5.6', './js/core.js?v=5.5.6',
+  './js/content9.js?v=5.5.6', './js/content8.js?v=5.5.6', './js/engine.js?v=5.5.6', './js/tables.js?v=5.5.6', './js/tabell-arena.js?v=5.5.9-fullspec', './css/tabell-arena.css?v=5.5.9-fullspec', './css/atelier-arena.css?v=6.0.0', './css/color-arena.css?v=6.1.0', './js/teach-simple.js?v=5.5.6', './js/knep.js?v=5.5.6', './js/qr.js?v=5.5.6', './js/cup-config.js?v=5.5.6', './js/cup-api.js?v=5.5.6', './js/cup.js?v=5.5.6', './css/cup.css?v=5.5.4', './js/app.js?v=6.2.0-parent',
+  './foralder/', './foralder/index.html', './foralder/style.css?v=1.0.0', './foralder/model.js?v=1.0.0', './foralder/app.js?v=1.0.0', './lara/content.js?v=1.1.0', './lara/texts-extra-sv.js?v=4.0.1', './lara/texts-sv.js?v=4.0.1', './lara/texts-extra-en.js?v=4.0.1', './lara/texts-en.js?v=4.0.1', './lara/words-extra.js?v=1.1.0', './lara/ordlek.js?v=1.1.0', './affischer/', './affischer/index.html', './affischer/posters.css?v=1.1.0', './affischer/posters.js?v=1.1.0'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
@@ -23,8 +23,9 @@ self.addEventListener('fetch', e => {
   const path = new URL(req.url).pathname;
   if (path.startsWith(base + 'prov/') || path.startsWith(base + 'tabell/') || path.startsWith(base + 'lara/')) return;
   const posterNav = req.mode === 'navigate' && (path === base + 'affischer/' || path === base + 'affischer/index.html');
-  if (req.mode === 'navigate' && path !== base && path !== base + 'index.html' && !posterNav) return;
-  const offlineKey = posterNav ? './affischer/index.html' : './index.html';
+  const parentNav = req.mode === 'navigate' && (path === base + 'foralder/' || path === base + 'foralder/index.html');
+  if (req.mode === 'navigate' && path !== base && path !== base + 'index.html' && !posterNav && !parentNav) return;
+  const offlineKey = parentNav ? './foralder/index.html' : posterNav ? './affischer/index.html' : './index.html';
   e.respondWith((async () => {
     try {
       const res = await fetch(req, { cache: 'no-cache' });

@@ -51,3 +51,7 @@ html[data-mode="dark"] .wk-chip.good{background:#24483E;color:#EDFFF6;border-col
 html[data-mode="dark"] .wk-chip.mid{background:#4C3C25;color:#FFE8BC;border-color:#8C7049}
 html[data-mode="dark"] .state{background:var(--paper2);color:var(--ink2)}
 html[data-mode="dark"] .wk-option.on b{color:var(--bg)}
+
+.parent-learning-entry{display:block;margin-top:8px;padding:13px 15px;border:1px solid #BFDAC5;border-left:4px solid #377153;border-radius:13px;background:#ECF5ED;color:#285A43;text-decoration:none;font-weight:750}
+.parent-learning-entry:hover,.parent-learning-entry:focus-visible{background:#DFEDE0}
+html[data-mode="dark"] .parent-learning-entry{background:#213B2D;color:#D1EBD8;border-color:#5D886B;border-left-color:#B0D9BD}
