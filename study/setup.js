@@ -30,7 +30,7 @@ function memberView(){
  let s='<section class="hero"><span class="eyebrow">Kontot är anslutet</span><h1>'+(isMentor?'Min mentorprofil':gradeText(u.grade))+'.</h1><p>'+(isMentor?'Följ elever efter att de använt din privata inbjudan.':'Dina inlämnade svar och framsteg kan sparas automatiskt. En mentor kan bara se dem efter att du själv kopplat profilen.')+'</p></section>';
  s+='<div class="card"><div class="card-head"><div><h2>Konto och synk</h2><p>Inloggat som '+esc(u.display_name||gradeText(u.grade)||'Mentor')+'</p></div><button data-action="logout" class="btn secondary">Logga ut</button></div><p class="study-status">Status: '+esc(inf.status)+'</p>'+
  (isMentor?'<p class="note">Din profil läser elevers resultat. Den kan inte skriva över deras enskilda framsteg.</p>':
- '<p class="note">Väntande svar: '+inf.waiting+'. Ditt arbete sparas också lokalt. Om du är offline skickas det vid nästa uppkoppling.</p><button class="btn" data-action="sync">Synkronisera nu</button>')+'</div>';
+ '<p class="note">Väntande svar: '+inf.waiting+'. Ditt arbete sparas också lokalt. Om du är offline skickas det vid nästa uppkoppling.</p><div class="actions"><button class="btn" data-action="sync">Synkronisera nu</button><button class="btn secondary" data-action="recover">Återställ framsteg från molnet</button></div><p class="note">Återställning gör först en lokal säkerhetskopia och slår samman bara din egen årskurs. Gör detta först när väntande svar är synkade; öppna därefter elevappen på nytt.</p>')+'</div>';
  if(isMentor){
   s+='<div class="card"><h2>Koppla en elev</h2><p>Skapa en engångsinbjudan för rätt årskurs. Eleven öppnar sin egen inloggning och skriver in koden. Efter godkännandet börjar din översikt uppdateras.</p>'+
   '<div class="setup-actions"><button class="btn" data-action="invite" data-grade="grade8">Bjud in årskurs 8</button><button class="btn" data-action="invite" data-grade="grade9">Bjud in årskurs 9</button></div>'+
@@ -78,6 +78,12 @@ document.addEventListener('click',async e=>{
    notice='Inbjudningslänken har kopierats.';
   }
   if(action==='sync'){await S.syncAll();await S.flush();notice='Synkstatus har uppdaterats.';}
+  if(action==='recover'){
+   if(!window.confirm('Hämta din tidigare sparade studiehistorik från molnet? Det skapas först en lokal säkerhetskopia. Dina egna resultat i andra årskurser påverkas inte.'))return;
+   await S.flush();
+   const r=await S.recover();
+   notice='Återställda delar: '+r.parts.join(', ')+'. Din tidigare lokala kopia finns kvar som återställningspunkt. Öppna Matte OS igen för att se sammanslagningen.';
+  }
   if(action==='logout'){await S.signOut();links=[];notice='Du har loggat ut.';}
   if(action==='reload'){await updateLinks();notice='Kopplingarna uppdaterade.';}
   if(action==='unlink'){
