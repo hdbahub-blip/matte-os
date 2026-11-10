@@ -30,8 +30,9 @@ function client(){return db;}
 function profile(){return member;}
 function validClient(){return root.supabase&&typeof root.supabase.createClient==='function'}
 async function initialize(){
- if(initialized)return db;initialized=true;
+ if(initialized&&db)return db;
  if(!validClient()){status='no-sdk';lastError='Synkklienten är inte tillgänglig. Dina lokala uppgifter fungerar ändå.';dispatch();return null;}
+ initialized=true;
  db=root.supabase.createClient(CONFIG.url,CONFIG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'matteos-study-auth-v1'}});
  db.auth.onAuthStateChange((_event,s)=>{session=s; if(!s){member=null;status='signed-out';}else status='checking';dispatch();Promise.resolve().then(()=>refresh().catch(()=>{}));});
  try{const r=await db.auth.getSession();session=r.data?.session||null;if(session)await refresh();else{status='signed-out';dispatch();}}
@@ -183,7 +184,13 @@ function onActiveGrade(grade){
  if((member||cache)?.role==='learner'&&(member||cache).grade!==grade){status='grade-mismatch';dispatch();}
 }
 function start(){
- initialize().catch(()=>{});
+ if(validClient())initialize().catch(()=>{});
+ else if(root.document){const el=root.document.createElement('script');
+  el.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js';
+  el.async=true;el.crossOrigin='anonymous';el.onload=()=>initialize().catch(()=>{});
+  el.onerror=()=>{status='no-sdk';lastError='Molnsynk är offline. Fortsätt öva lokalt.';dispatch();};
+  root.document.head.appendChild(el);
+ }
  if(root.addEventListener){
  root.addEventListener('online',()=>scheduleFlush());
  root.addEventListener('focus',()=>{refresh().catch(()=>{});scheduleFlush()});
