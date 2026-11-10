@@ -39,6 +39,7 @@ const now=Date.now();let n=0;
    await p.locator('button[data-action=lock]').click();
    await p.locator('form#unlock').waitFor();n++;
    await p.locator('#pin').fill('123456');await p.locator('form#unlock button[type=submit]').click();
+   await p.locator('.notice.error').filter({hasText:'Koden stämmer inte.'}).waitFor(); // Authenticate completes asynchronously before retry.
    assert.equal(await p.locator('form#unlock').count(),1,'Wrong PIN does not unlock');n++;
    await p.locator('#pin').fill('384729');await p.locator('form#unlock button[type=submit]').click();
    await p.locator('.student').first().waitFor({timeout:20000}).catch(()=>{});
