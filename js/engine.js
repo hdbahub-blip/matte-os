@@ -69,7 +69,7 @@
   function save() {
     if (!mem) return false;
     const ok = safeSet(JSON.stringify(mem));
-    if (ok) storageWarningSent = false;
+    if (ok) { storageWarningSent = false; root.MO_STUDY?.markDirty('math'); }
     else if (!storageWarningSent) {
       storageWarningSent = true;
       if (root.document && typeof root.CustomEvent === 'function') root.document.dispatchEvent(new root.CustomEvent('matte-os-storage-error'));

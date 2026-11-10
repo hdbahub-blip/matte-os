@@ -18,7 +18,7 @@ if(!run && (entryGrade==='grade8'||entryGrade==='grade9')){
 
 function emptyStore(){return {grade:null,attempts:[],attemptNo:0}}
 function loadStore(){try{return {...emptyStore(),...(JSON.parse(localStorage.getItem(STORE_KEY))||{})}}catch{return emptyStore()}}
-function saveStore(){localStorage.setItem(STORE_KEY,JSON.stringify(store))}
+function saveStore(){localStorage.setItem(STORE_KEY,JSON.stringify(store));window.MO_STUDY?.markDirty('exam')}
 function loadActive(){try{const x=JSON.parse(sessionStorage.getItem(ACTIVE_KEY));return x&&Array.isArray(x.items)?x:null}catch{return null}}
 function saveActive(){if(run)sessionStorage.setItem(ACTIVE_KEY,JSON.stringify(run))}
 function clearActive(){sessionStorage.removeItem(ACTIVE_KEY)}
@@ -56,6 +56,8 @@ function renderGradePick(){
    <div class="pick-intro"><div class="kicker">SEPARAT TESTMILJÖ</div><div class="seal">P</div><h1>Matte Prov</h1><p>Här får eleven visa vad hon kan <b>utan ledtrådar, formelsamling eller direkt rättning</b>.</p></div>
    <button class="pickbtn" data-pick="grade9"><span class="avatar g9">Å9</span><span><b>Åk 9</b><small>Tal · Geometri · Procent</small></span><span class="arrow">→</span></button>
    <button class="pickbtn" data-pick="grade8"><span class="avatar g8">Å8</span><span><b>Åk 8</b><small>Tal · Geometri · Algebra</small></span><span class="arrow">→</span></button>
+   <a class="pickbtn" href="../study/"><span class="avatar">☁</span><span><b>Konto och synk</b><small>Skyddad lagring och mentorskoppling</small></span><span class="arrow">→</span></a>
+   <a class="pickbtn" href="../studera/"><span class="avatar">◈</span><span><b>Studera tillsammans</b><small>Gemensamma uppgifter</small></span><span class="arrow">→</span></a>
    <a class="pickbtn" href="../foralder/"><span class="avatar" style="background:#205C43;color:#fff">M</span><span><b>Min översikt</b><small>Marble Green · Åk 8 och 9 · skrivskyddad</small></span><span class="arrow">→</span></a><p class="privacy">Resultat sparas bara på den här enheten.</p><p class="privacy"><a href="../">Tillbaka till Matte OS</a></p>
  </section>`;
 }
@@ -143,7 +145,12 @@ function submit(){
  });
  const correct=results.filter(r=>r.ok).length,total=results.length;
  const a={id:Date.now(),grade:store.grade,chapter:run.chapter,chapterName:run.chapterName,mode:run.mode,startedAt:run.startedAt,finishedAt:Date.now(),correct,total,percent:Math.round(100*correct/total),results};
- store.attempts.push(a);saveStore();run=null;clearActive();renderResult(a);
+ store.attempts.push(a);saveStore();
+ for(const [i,r] of results.entries())window.MO_STUDY?.capture({grade:store.grade,module:'exam',
+  question_id:a.id+':'+i+':'+r.sid+':'+r.key,question_text:r.q,answer:r.raw,
+  solution_text:r.correct+' · '+r.sol.join(' '),is_correct:r.ok,help_used:false,
+  type:run.mode,mode:run.mode,content_version:'1.3.3'});
+ run=null;clearActive();renderResult(a);
 }
 function renderResult(a){
  setTheme();app.innerHTML=shell(resultHTML(a));bindResult(a);

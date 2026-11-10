@@ -272,6 +272,8 @@ function boostCard() {
       <h1>Matte OS</h1><p class="mut">Din matte – en sak i taget. Välj årskurs.</p></div>
       <div style="height:16px"></div>
       ${Object.values(CORE.profiles).map(p => `<button class="tap" data-a="pickprofile" data-p="${p.id}" style="min-height:76px"><span class="chip-btn" style="border:0;padding:0;height:auto" data-theme="${p.theme}"><span class="av" style="width:44px;height:44px;font-size:16px;border-radius:12px;background:${p.theme === 'navy' ? '#1d3557' : '#7a1f35'}">${p.short}</span></span><div><div class="t">${p.label}</div><div class="s">${p.chapters.map(c => c.name).join(' · ')}</div></div><span class="chev">${I.chev}</span></button>`).join('')}
+      <a class="tap" href="study/" aria-label="Konto och säker synk"><span class="ic">☁</span><div><div class="t">Konto & synk</div><div class="s">Skyddat konto · spara svar · dela med mentor</div></div><span class="chev">${I.chev}</span></a>
+      <a class="tap" href="studera/" aria-label="Studera tillsammans"><span class="ic">◈</span><div><div class="t">Studera tillsammans</div><div class="s">Gemensamma övningar på varsin mobil</div></div><span class="chev">${I.chev}</span></a>
       <a class="tap parent-profile-card" href="foralder/" aria-label="Öppna min föräldraöversikt" style="min-height:78px"><span class="parent-av" aria-hidden="true">M</span><div><div class="t">Min översikt</div><div class="s">Marble Green · Följ båda årskurserna · skrivskyddat</div></div><span class="chev">${I.chev}</span></a>
       <p class="mut small center" style="margin-top:18px">Matteframsteg sparas på enheten. Cup skickar tillfälliga speluppgifter till spelservern.</p></main>`;
   }
@@ -356,6 +358,10 @@ function boostCard() {
     const raw = readAnswer(ex);
     const r = M.check(x, raw);
     if (r.status === 'empty' || r.status === 'invalid') { ex.status = r.status; ex.msg = r.msg; return; }
+    window.MO_STUDY?.capture({grade:pid(),module:'math',question_id:ex.sid+':'+ex.key,
+      question_text:String(x.q||''),answer:raw,solution_text:answerText(x),
+      is_correct:!!r.ok,help_used:!!ex.hints||!!ex.sol,type:x.type||'num',mode:ex.mode,
+      content_version:CORE.version});
     if (ex.mode === 'test') {
       ex.done = true; ex.ok = r.ok; ex.first = r.ok; ex.mc = r.ok ? null : r.msg; finishEx(ex); return;
     }
@@ -564,6 +570,8 @@ function boostCard() {
     } else if (s.type === 'profile') {
       inner = `<div class="sheet-head"><h2 style="margin:0">Vem pluggar?</h2><button class="icon-btn" data-a="closesheet" aria-label="Stäng">${I.close}</button></div>
         ${Object.values(CORE.profiles).map(p => `<button class="tap" data-a="pickprofile" data-p="${p.id}" ${p.id === pid() ? 'aria-current="true" style="border-color:var(--acc)"' : ''}><span class="chip-btn" style="border:0;padding:0;height:auto"><span class="av" style="background:${p.theme === 'navy' ? '#1d3557' : '#7a1f35'}">${p.short}</span></span><div><div class="t">${esc(displayName(p.id))}</div><div class="s">${p.label} · ${p.chapters.map(c => c.name).join(', ')}</div></div>${p.id === pid() ? `<span class="chev" style="color:var(--acc)">${I.check.replace('<svg', '<svg width="20" height="20"')}</span>` : ''}</button>`).join('')}
+        <a class="tap" href="study/"><span class="ic">☁</span><div><div class="t">Konto och synk</div><div class="s">Logga in · spara dina svar · kontrollera mentorskoppling</div></div><span class="chev">${I.chev}</span></a>
+        <a class="tap" href="studera/"><span class="ic">◈</span><div><div class="t">Studera tillsammans</div><div class="s">Öppna dina gemensamma studiepass</div></div><span class="chev">${I.chev}</span></a>
         <a class="tap parent-profile-card" href="foralder/" aria-label="Öppna din föräldraöversikt"><span class="parent-av" aria-hidden="true">M</span><div><div class="t">Min översikt</div><div class="s">Marble Green · Åk 8 och 9 · inget elevresultat ändras</div></div><span class="chev">${I.chev}</span></a>
         <button class="tap" data-a="nav" data-h="#/installningar">${I.gear.replace('<svg', '<svg width="20" height="20"')}<div><div class="t">Inställningar och säkerhetskopia</div><div class="s">Namn, restprovsdatum, spara/återställ</div></div><span class="chev">${I.chev}</span></button>`;
     }

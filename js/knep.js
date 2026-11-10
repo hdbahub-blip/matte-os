@@ -197,7 +197,7 @@
     return out; }
   function storage() { try { return root.localStorage; } catch { return null; } }
   let store = (() => { try { return sanitize(JSON.parse(storage()?.getItem(STORE) || 'null')); } catch { return empty(); } })();
-  function save() { try { storage().setItem(STORE, JSON.stringify(store)); } catch { /* private mode: keep in memory */ } }
+  function save() { try { storage().setItem(STORE, JSON.stringify(store)); root.MO_STUDY?.markDirty('memory'); } catch { /* private mode: keep in memory */ } }
   function pid() { const p = root.MOEngine?.state?.()?.active; return PROFILES.includes(p) ? p : 'grade9'; }
   function rec(id, p = pid()) { return store.profiles[p][id] || (store.profiles[p][id] = {}); }
   /* Status from evidence: tried a new task alone, then remembered it on a later day. */
