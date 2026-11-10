@@ -261,9 +261,8 @@ document.addEventListener('submit',async e=>{
    if(!await unlockPin(pin))throw Error('Koden stämmer inte.');
    ui.notice='Välkommen till din översikt.';ui.error=false;
   }
-  render();
- }catch(err){note(err.message||'Kunde inte verifiera koden.',true)}
- finally{ui.busy=false}
+ }catch(err){ui.notice=err.message||'Kunde inte verifiera koden.';ui.error=true;}
+ finally{ui.busy=false;render()}
 });
 document.addEventListener('click',e=>{
  const b=e.target.closest('[data-action]');if(!b)return;
