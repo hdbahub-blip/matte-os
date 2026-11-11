@@ -63,7 +63,7 @@ async function load(reset=true){
    state.more=state.attempts.length>=Math.max(100,state.offset+100);
   }else{state.rows=[];state.attempts=[];state.more=false;}
   state.ready=true;state.lastLoad=Date.now();
-  if(!realtime)subscribe();
+  // Authoritative RLS-filtered refresh occurs every 20 seconds and on focus.
   notify();
  }catch(e){state.error='Molnöversikten kunde inte uppdateras: '+e.message;notify();}
  finally{state.loading=false;}

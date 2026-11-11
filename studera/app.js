@@ -176,7 +176,6 @@ function subscribe(){
  if(!db()||channel)return;
  channel=db().channel('study-together-'+profile().user_id)
  .on('postgres_changes',{event:'*',schema:'public',table:'study_sessions'},()=>queueReload())
- .on('postgres_changes',{event:'INSERT',schema:'public',table:'study_session_answers'},()=>queueReload())
  .subscribe();
 }
 let reloadTimer=null;
@@ -245,6 +244,13 @@ window.addEventListener('matte-study-status',async e=>{
  ready=true;stateScreen();
 });
 window.addEventListener('focus',()=>{if(profile())load().catch(()=>{})});
-setInterval(()=>{if(profile()&&document.visibilityState==='visible')load().catch(()=>{})},5000);
+let lastRefresh=0;
+setInterval(()=>{
+ if(!profile()||document.visibilityState!=='visible')return;
+ const interval=current?7000:20000;
+ if(Date.now()-lastRefresh<interval)return;
+ lastRefresh=Date.now();
+ load().catch(()=>{});
+},5000);
 S.init().then(async()=>{me=profile()?.user_id||null;ready=true;if(me)await load();stateScreen();}).catch(e=>{error=e.message;ready=true;stateScreen();});
 })();
