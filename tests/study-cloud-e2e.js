@@ -35,12 +35,13 @@ async function context(browser,role){
     limit(){return Promise.resolve({data:results(),error:null})},
     async maybeSingle(){return {data:results()[0]||null,error:null}},
     single(){return Promise.resolve({data:results()[0]||null,error:null})},
-    async insert(payload){const data={...payload,id:payload.id||'55550000-0000-4000-8000-000000000072'};
+    insert(payload){const data={...payload,id:payload.id||'55550000-0000-4000-8000-000000000072'};
      if(table==='study_sessions')sessions.push(data);
      if(table==='study_session_answers')answers.push(data);
      if(table==='study_mentor_practice')practices.push(data);
      if(table==='study_invites')invites.push(data);
-     return {data,error:null,select(){return {single:async()=>({data,error:null})}}};
+     return {select(){return this},single:async()=>({data,error:null}),
+      then(resolve,reject){return Promise.resolve({data,error:null}).then(resolve,reject)}};
     },
     async upsert(){return {error:null}},
     then(resolve,reject){return Promise.resolve({data:results(),error:null}).then(resolve,reject)}
@@ -99,7 +100,7 @@ async function assertVisible(page,locator,label){
   const pupilContext=await context(browser,'learner'),e=await pupilContext.newPage();
   const errorsP=[];e.on('pageerror',x=>errorsP.push(x.message));
   await e.goto(new URL('study/',base).href);
-  await assertVisible(e,e.getByText('Dina studieresultat med din mentor',{exact:false}).first(),'linked pupil consent view');
+  await assertVisible(e,e.getByText('Dela dina studieresultat',{exact:false}).first(),'linked pupil consent view');
   await e.goto(new URL('studera/',base).href);
   await assertVisible(e,e.getByText('Dina gemensamma studiepass',{exact:false}).first(),'learner view');
   assert.equal(errorsP.length,0,'no student JavaScript exceptions: '+errorsP.join('\n'));checks++;
