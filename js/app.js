@@ -275,7 +275,7 @@ function boostCard() {
       <a class="tap" href="study/" aria-label="Konto och säker synk"><span class="ic">☁</span><div><div class="t">Konto & synk</div><div class="s">Skyddat konto · spara svar · dela med mentor</div></div><span class="chev">${I.chev}</span></a>
       <a class="tap" href="studera/" aria-label="Studera tillsammans"><span class="ic">◈</span><div><div class="t">Studera tillsammans</div><div class="s">Gemensamma övningar på varsin mobil</div></div><span class="chev">${I.chev}</span></a>
       <a class="tap parent-profile-card" href="foralder/" aria-label="Öppna min föräldraöversikt" style="min-height:78px"><span class="parent-av" aria-hidden="true">M</span><div><div class="t">Min översikt</div><div class="s">Marble Green · Följ båda årskurserna · skrivskyddat</div></div><span class="chev">${I.chev}</span></a>
-      <p class="mut small center" style="margin-top:18px">Matteframsteg sparas lokalt. Med inloggat elevkonto synkroniseras inlämnade svar och framsteg till den skyddade studieprofilen. Cup skickar speluppgifter till spelservern.</p></main>`;
+      <p class="mut small center" style="margin-top:18px">Matteframsteg sparas lokalt. Med inloggat elevkonto synkroniseras inlämnade svar och framsteg till den skyddade studieprofilen. Cup skickar tillfälliga speluppgifter till spelservern.</p></main>`;
   }
 
   /* ================= UPPGIFTSKOMPONENT ================= */
