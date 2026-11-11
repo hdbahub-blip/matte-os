@@ -89,7 +89,7 @@ function cloudLesson(l,a,answer,mode,ok,help){
   is_correct:typeof ok==='boolean'?ok:null,help_used:!!help,type:a.type,mode,
   content_version:D.version});
 }
-function submitGuided(){const l=D.lessons.find(x=>route()==='/lektion/'+x.id),a=l?.guided;if(!a)return;const v=answerValue(a);if(!v){toast('Skriv eller välj ett svar först.');return;}ui.answer=v;ui.show=true;cloudLesson(l,a,v,'guided',M.checkChoice(a,v),true);render();}
+function submitGuided(){const l=D.lessons.find(x=>route()==='/lektion/'+x.id),a=l?.guided;if(!a)return;const v=answerValue(a);if(!v){toast('Skriv eller välj ett svar först.');return;}ui.answer=v;ui.show=true;cloudLesson(l,a,v,'guided',['choice','listen'].includes(a.type)?M.checkChoice(a,v):null,true);render();}
 function submitSolo(){const l=D.lessons.find(x=>route()==='/lektion/'+x.id),a=l?.solo;if(!a)return;const v=answerValue(a);if(!v||(a.type==='write'&&v.length<8)){toast('Gör ett eget försök först. Ett kort svar räcker.');return;}ui.answer=v;ui.show=true;
  if(['choice','listen'].includes(a.type)){const ok=M.checkChoice(a,v);cloudLesson(l,a,v,'solo',ok,ui.assist);M.record(state,active(),{lesson:l.id,mode:'auto',ok,help:ui.assist},D.lessons);save();ui.soloDone=true;}render();}
 function rateSelf(ok){if(ui.soloDone)return;const l=D.lessons.find(x=>route()==='/lektion/'+x.id);if(!l)return;cloudLesson(l,l.solo,ui.answer,'solo-self',null,ui.assist);M.record(state,active(),{lesson:l.id,mode:'self',ok,help:ui.assist},D.lessons);save();ui.soloDone=true;nextPhase(3);}

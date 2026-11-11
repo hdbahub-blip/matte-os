@@ -204,7 +204,8 @@ function mergeProfile(part,local,cloud){
  if(part==='math'){
   return {...a,name:a.name||b.name||'',attempts:mergedList(a.attempts,b.attempts,3000),
   lessons:{...mapObj(b.lessons),...mapObj(a.lessons)},
-  tests:mergedList(a.tests,b.tests,50),
+  rests:{...mapObj(b.rests),...mapObj(a.rests)},
+  tests:mergedList(a.tests,b.tests,50).sort((x,y)=>(x.t||0)-(y.t||0)),
   tables:{...mapObj(a.tables),
     facts:{...mapObj(b.tables?.facts),...mapObj(a.tables?.facts)},
     sessions:mergedList(a.tables?.sessions,b.tables?.sessions,120)}};
