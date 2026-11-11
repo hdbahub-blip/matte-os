@@ -23,14 +23,14 @@ async function context(browser,role){
     {s:'f8-fractions',t:1762820000000,first:true,ok:true,h:0,sol:false,m:'train'}],lessons:{},tests:[],tables:{facts:{},sessions:[]}},
     updated_at:'2026-11-10T17:00:00Z'};
   const sessions=[],answers=[],practices=[],invites=[];
-  const storage={profiles:[profile],links:linked,events:[event],snapshots:[snap],sessions,answers,practices,invites};
+  const storage={profiles:[profile],links:linked,events:[event],snapshots:[snap],sessions,answers,practices,invites,metrics:{fullEventReads:0,fullSnapshotReads:0}};
   function selectData(name){return name==='study_profiles'?storage.profiles:name==='study_links'?storage.links:
    name==='study_events'?storage.events:name==='study_snapshots'?storage.snapshots:
    name==='study_sessions'?storage.sessions:name==='study_session_answers'?storage.answers:[];}
   function q(table){
-   const params={};
+   const params={};let projection='';
    const obj={
-    select(){return obj},eq(k,v){params[k]=v;return obj},in(k,v){params[k]=v;return obj},
+    select(columns){projection=columns||'';return obj},eq(k,v){params[k]=v;return obj},in(k,v){params[k]=v;return obj},
     order(){return obj},range(){return Promise.resolve({data:results(),error:null})},
     limit(){return Promise.resolve({data:results(),error:null})},
     async maybeSingle(){return {data:results()[0]||null,error:null}},
@@ -46,7 +46,10 @@ async function context(browser,role){
     async upsert(){return {error:null}},
     then(resolve,reject){return Promise.resolve({data:results(),error:null}).then(resolve,reject)}
    };
-   function results(){let arr=selectData(table);for(const [key,val] of Object.entries(params)){
+   function results(){
+    if(table==='study_events'&&projection.includes('passage_text'))storage.metrics.fullEventReads++;
+    if(table==='study_snapshots'&&projection.includes('payload'))storage.metrics.fullSnapshotReads++;
+    let arr=selectData(table);for(const [key,val] of Object.entries(params)){
      if(Array.isArray(val))arr=arr.filter(row=>val.includes(row[key]));
      else arr=arr.filter(row=>row[key]===val);
     }return arr;
@@ -87,6 +90,26 @@ async function assertVisible(page,locator,label){
   await assertVisible(p,p.getByText('Varför tvekar Elias?'),'submitted real question visible after opening');
   await assertVisible(p,p.getByText('Han tvekar eftersom platsen är upptagen.'),'written answer visible');
   await assertVisible(p,p.getByText('Öppna hela texten:',{exact:false}).first(),'full original text available');
+  // No repeated large answer or backup downloads when nothing has changed.
+  const beforeRefresh=await p.evaluate(()=>({...window.__studyTest.metrics}));
+  await p.evaluate(()=>window.MO_STUDY_PARENT.load());
+  const afterRefresh=await p.evaluate(()=>({...window.__studyTest.metrics}));
+  assert.deepEqual(afterRefresh,beforeRefresh,'unchanged refresh must use cheap RLS metadata requests only');checks++;
+  await p.evaluate(()=>{
+   const x=JSON.parse(JSON.stringify(window.__studyTest.events[0]));
+   x.event_id='55550000-0000-4000-8000-000000000098';x.question_id='sv:ny:tema';
+   x.question_text='Vad hände efter bussen?';x.passage_title='Ny text efter synk';
+   x.answer={value:'Elevens andra skriftliga svar.'};
+   x.received_at=new Date().toISOString();window.__studyTest.events.unshift(x);
+   return window.MO_STUDY_PARENT.load();
+  });
+  await assertVisible(p,p.locator('#cloud-mentor summary').filter({hasText:'Ny text efter synk'}).first(),'new answer arrived after change');
+  const afterNew=await p.evaluate(()=>window.__studyTest.metrics.fullEventReads);
+  assert.ok(afterNew>afterRefresh.fullEventReads,'new submitted answer must trigger full refresh');checks++;
+  // Revocation must immediately discard all cached raw student answers from mentor view.
+  await p.evaluate(()=>{window.__studyTest.links.length=0;return window.MO_STUDY_PARENT.load();});
+  await assertVisible(p,p.locator('#cloud-mentor .empty'),'mentor screen cleared following revoked link');
+  assert.equal(await p.locator('#cloud-mentor summary').filter({hasText:'Ny text efter synk'}).count(),0);checks++;
   await p.goto(new URL('studera/',base).href);
   await assertVisible(p,p.getByText('Förstå mer, tillsammans.'),'shared study app');
   assert.ok((await p.locator('#study-unit option').allTextContents()).some(x=>x.includes('Geometri')),'all math chapters available');checks++;

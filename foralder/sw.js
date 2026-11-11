@@ -1,6 +1,6 @@
 /* Independent offline worker. Never deletes student learning, math or prov caches. */
-const CACHE='matte-parent-1.1.0-cloud';
-const ASSETS=['./','./index.html','./style.css?v=1.0.0','./model.js?v=1.0.0','./app.js?v=1.1.0-cloud','./study-cloud.js?v=1.0.0','./cloud-parent.js?v=1.0.0',
+const CACHE='matte-parent-1.1.1-private-history';
+const ASSETS=['./','./index.html','./style.css?v=1.0.0','./model.js?v=1.0.0','./app.js?v=1.1.0-cloud','./study-cloud.js?v=1.0.0','./cloud-parent.js?v=1.0.1',
  '../js/core.js?v=5.5.6','../js/content9.js?v=5.5.6','../js/content8.js?v=5.5.6','../js/knep.js?v=5.5.6',
  '../lara/content.js?v=1.1.0','../lara/texts-extra-sv.js?v=4.0.1','../lara/texts-sv.js?v=4.0.1',
  '../lara/texts-extra-en.js?v=4.0.1','../lara/texts-en.js?v=4.0.1','../lara/words-extra.js?v=1.1.0','../lara/ordlek.js?v=1.1.0'];
