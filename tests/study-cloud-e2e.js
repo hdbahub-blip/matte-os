@@ -111,11 +111,12 @@ async function assertVisible(page,locator,label){
    }
   }
   await assertVisible(p,p.locator('#mentor-practice .study-figure svg.vz').first(),'geometry figures rendered in tutor mode');
+  const previousMentorExercises=await p.evaluate(()=>window.__studyTest.practices.length);
   const field=p.locator('#practice-answer input[name=answer]');
   if(await field.count())await field.first().check();else await p.locator('#practice-answer textarea[name=answer]').fill('4');
   await p.locator('#practice-answer button[type=submit]').click();
   await assertVisible(p,p.getByText('Din lösning'),'mentor own answer');
-  assert.equal(await p.evaluate(()=>window.__studyTest.practices.length),1);checks++;
+  assert.equal(await p.evaluate(()=>window.__studyTest.practices.length),previousMentorExercises+1);checks++;
   assert.equal(errors.length,0,'no JavaScript exceptions: '+errors.join('\n'));checks++;
   await c.close();
   const pupilContext=await context(browser,'learner'),e=await pupilContext.newPage();
