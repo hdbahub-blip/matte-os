@@ -2,7 +2,7 @@
  * Short memory anchors for the most common mix-ups. Each one says WHY it works, WHEN it does not,
  * a typical mistake, two new tasks whose answers stay hidden until the learner has tried,
  * and a recall question for a later day (retrieval practice).
- * Stores only first results and dates per profile in localStorage 'matteos.knep.v1'. No free text.
+ * Stores first-attempt progression locally. Submitted answers also enter private cloud history if learner sync is enabled.
  */
 (function (root, factory) { const o = factory(root); if (typeof module === 'object' && module.exports) module.exports = o; root.MOKnep = o; })(typeof window !== 'undefined' ? window : globalThis, function (root) {
   'use strict';
@@ -197,7 +197,7 @@
     return out; }
   function storage() { try { return root.localStorage; } catch { return null; } }
   let store = (() => { try { return sanitize(JSON.parse(storage()?.getItem(STORE) || 'null')); } catch { return empty(); } })();
-  function save() { try { storage().setItem(STORE, JSON.stringify(store)); } catch { /* private mode: keep in memory */ } }
+  function save() { try { storage().setItem(STORE, JSON.stringify(store)); root.MO_STUDY?.markDirty('memory'); } catch { /* private mode: keep in memory */ } }
   function pid() { const p = root.MOEngine?.state?.()?.active; return PROFILES.includes(p) ? p : 'grade9'; }
   function rec(id, p = pid()) { return store.profiles[p][id] || (store.profiles[p][id] = {}); }
   /* Status from evidence: tried a new task alone, then remembered it on a later day. */
@@ -234,7 +234,7 @@
     return `<p class="eyebrow">Förstå · minnesknep</p><h1>Minnesknep</h1><p class="mut">Korta knep för det som är lätt att blanda ihop. Varje knep visar varför det fungerar och när det <b>inte</b> gör det. Prova alltid en ny uppgift innan du tittar på facit.</p>
       ${due.length ? `<section class="card knep-due"><h2>Dags att minnas (${due.filter(k => !ui.recallDone[k.id]).length})</h2><p class="mut small">Du klarade de här för minst en dag sedan. Svara utan att titta på knepet först.</p>${due.map(recallHTML).join('')}</section>` : ''}
       ${groups.map(g => `<h2 class="knep-group">${e(g)}</h2>${KNEP.filter(k => k.topic === g).map(k => { const s = status(k, p); return `<details class="knep knep-item" ${ui.open === k.id ? 'open' : ''} data-kid="${k.id}"><summary><span class="knep-title">${e(k.title)}</span><span class="knep-status lvl${s.level}">${e(s.label)}</span></summary>${body(k)}</details>`; }).join('')}`).join('')}
-      <p class="mut small">Status: ”Klarade nya uppgifter själv” betyder rätt på första försöket. ”Mindes efter … dagar” kräver att du svarar rätt på minns-frågan minst en dag senare. Bara första försöket sparas, aldrig det du skriver.</p>
+      <p class="mut small">Status: ”Klarade nya uppgifter själv” betyder rätt på första försöket. ”Mindes efter … dagar” kräver att du svarar rätt på minns-frågan minst en dag senare. Framstegsbedömningen använder första försöket. Om elevsynk är aktiv sparas inlämnade svar även i elevens privata svarshistorik, men aldrig utkast.</p>
       <details class="fold"><summary>Utskrivbar översikt (affisch, valfritt)</summary><div class="in"><p class="mut small">Affischen är en repetition att skriva ut. Lär dig hellre knepen här först – med varför och när de inte fungerar.</p><a class="btn ghost block" href="affischer/?visa=formler&ak=${p === 'grade8' ? '8' : '9'}">Visa affischen</a></div></details>`; }
 
   /* ---------- events ---------- */
@@ -244,11 +244,20 @@
     if (act === 'check') { const key = el.dataset.key; const [id, i] = key.split(':'); const k = find(id); if (!k) return; const input = root.document?.getElementById('kn-' + key)?.value ?? ui.inputs[key] ?? '';
       if (!String(input).trim()) { root.document?.getElementById('kn-' + key)?.focus(); return; }
       ui.inputs[key] = input; const ok = checkTask(k.tasks[+i], input); ui.results[key] = { ok };
+      root.MO_STUDY?.capture({grade:pid(),module:'memory',question_id:id+':'+i,
+        question_text:k.tasks[+i].q,answer:String(input).slice(0,250),
+        solution_text:String(fmt(value(k.tasks[+i]))),is_correct:ok,
+        type:'num',mode:'practice',content_version:'5.5.6'});
       const r = rec(id); const slot = 't' + i; if (!r[slot]) { r[slot] = { at: Date.now(), ok }; save(); }
       ui.open = id; redraw(); root.requestAnimationFrame?.(() => root.document?.getElementById('kf-' + key)?.scrollIntoView?.({ block: 'nearest' })); return; }
     if (act === 'rpick') { if (ui.recallDone[el.dataset.id]) return; ui.recallPick[el.dataset.id] = Number(el.dataset.i); redraw(); return; }
     if (act === 'rcheck') { const id = el.dataset.id, k = find(id); const pick = ui.recallPick[id]; if (!k || pick === undefined) return; ui.recallDone[id] = true;
-      const ok = displayOrder(k)[pick] === 0; const r = rec(id); r.recall = { at: Date.now(), ok, n: (r.recall?.n || 0) + 1 }; save(); redraw(); return; }
+      const ok = displayOrder(k)[pick] === 0;
+      root.MO_STUDY?.capture({grade:pid(),module:'memory',question_id:id+':recall',
+        question_text:k.recall.q,answer:k.recall.options[displayOrder(k)[pick]],
+        solution_text:k.recall.options[0],is_correct:ok,
+        type:'choice',mode:'delayed-recall',content_version:'5.5.6'});
+      const r = rec(id); r.recall = { at: Date.now(), ok, n: (r.recall?.n || 0) + 1 }; save(); redraw(); return; }
   }
   if (typeof document !== 'undefined') {
     document.addEventListener('click', ev => { const b = ev.target.closest('[data-kn]'); if (!b || b.disabled) return; ev.preventDefault(); handle(b.dataset.kn, b); });

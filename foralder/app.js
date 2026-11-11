@@ -17,11 +17,11 @@ const grName=g=>g==='grade8'?'Åk 8':'Åk 9';
 const gLabel=g=>g==='grade8'?'8':'9';
 const label=k=>names[k]||k;
 const imported=g=>state.snapshots?.[g]&&M.hasActivity(state.snapshots[g]);
-const selected=g=>ui.sources[g]||(imported(g)?'imported':'local');
+const selected=g=>ui.sources[g]||(window.MO_STUDY_PARENT?.has(g)?'cloud':imported(g)?'imported':'local');
 function localReport(g){return M.readLocal(g,localStorage)}
 function currentReport(g){
  const v=selected(g);
- return v==='imported'&&imported(g)?state.snapshots[g]:localReport(g);
+ return v==='cloud'&&window.MO_STUDY_PARENT?.has(g)?window.MO_STUDY_PARENT.reportForGrade(g):v==='imported'&&imported(g)?state.snapshots[g]:localReport(g);
 }
 function report(g){return M.summary(currentReport(g),M.metaFrom(window));}
 function save(){
@@ -47,11 +47,12 @@ function disclosure(title,summary,body){return '<details class="detail"><summary
 function empty(txt){return '<div class="empty">'+esc(txt)+'</div>'}
 function segmented(){return '<nav class="seg" aria-label="Välj profil">'+[['both','Båda'],['grade8','Åk 8'],['grade9','Åk 9']].map(([k,v])=>'<button type="button" data-action="view" data-view="'+k+'" aria-pressed="'+(ui.view===k)+'">'+v+'</button>').join('')+'</nav>'}
 function sourceSwitch(g){
- const here=localReport(g),there=imported(g),s=selected(g);
+ const here=localReport(g),there=imported(g),cloud=window.MO_STUDY_PARENT?.has(g),s=selected(g);
  return '<div class="actions" style="margin:8px 0 17px"><span class="note">Datakälla för '+grName(g)+':</span>'+
  '<button type="button" class="tiny" data-action="source" data-grade="'+g+'" data-source="local" aria-pressed="'+(s==='local')+'" style="'+(s==='local'?'border-color:var(--forest)':'')+'">Den här enheten</button>'+
+ (cloud?'<button type="button" class="tiny" data-action="source" data-grade="'+g+'" data-source="cloud" aria-pressed="'+(s==='cloud')+'">Automatisk molnsynk</button>':'')+
  (there?'<button type="button" class="tiny" data-action="source" data-grade="'+g+'" data-source="imported" aria-pressed="'+(s==='imported')+'" style="'+(s==='imported'?'border-color:var(--forest)':'')+'">Inläst rapport</button>':'')+
- '</div><p class="note">'+(s==='imported'&&there?'Inläst: '+latest(Date.parse(state.snapshots[g].createdAt))+'. Uppdateras först när en ny fil läses in.':'Visar bara resultat som sparats i den här webbläsaren.')+'</p>';
+ '</div><p class="note">'+(s==='imported'&&there?'Inläst: '+latest(Date.parse(state.snapshots[g].createdAt))+'. Uppdateras först när en ny fil läses in.':s==='cloud'?'Synkade elevresultat uppdateras automatiskt från kopplad profil. Äldre lokala resultat från andra enheter kan finnas separat.':'Visar bara resultat som sparats i den här webbläsaren.')+'</p>';
 }
 function sourceHealth(data){
  const absent=Object.entries(data.sectionsPresent).filter(([,present])=>!present).map(([k])=>label(k));
@@ -200,7 +201,8 @@ function pupil(g){
 function dashboard(){
  return wrap('<div class="meta"><span class="pill"><span class="dot"></span> Skrivskyddat</span><span class="pill">Åk 8 & 9</span><span class="pill">Marble Green</span></div>'+
  segmented()+(ui.view==='both'?compare():pupil(ui.view))+
- '<div class="card" style="margin-top:25px"><div class="card-head"><div><h2>Integritet och inställningar</h2><p>All data lagras lokalt. Ingen elevprofil ändras när du öppnar översikten.</p></div></div><div class="actions"><button class="btn secondary" data-action="change-pin">Byt åtkomstkod</button><button class="btn warning" data-action="reset-parent">'+(ui.confirmReset?'Bekräfta: radera enbart föräldraöversikten':'Rensa enbart föräldraöversikten')+'</button></div><p class="note">Rensning tar bort din kod och importerade rapportkopior på denna enhet. Elevprofilerna påverkas inte.</p></div>');
+ (window.MO_STUDY_PARENT?.panel()||'')+
+ '<div class="card" style="margin-top:25px"><div class="card-head"><div><h2>Integritet och inställningar</h2><p>Lokala rapporter sparas på din enhet. Med kopplade elevkonton hämtas deras skyddade molnresultat automatiskt. Ingen elevprofil ändras när du läser översikten.</p></div></div><div class="actions"><button class="btn secondary" data-action="change-pin">Byt åtkomstkod</button><button class="btn warning" data-action="reset-parent">'+(ui.confirmReset?'Bekräfta: radera enbart föräldraöversikten':'Rensa enbart föräldraöversikten')+'</button></div><p class="note">Rensning tar bort din lokala kod och importerade filkopior. Molnkontot och elevernas resultat påverkas inte. Ändra molnkopplingar i Konto & synk.</p></div>');
 }
 function access(){const setup=!state.pin;
  return wrap('<section class="hero"><span class="eyebrow">Marble Green · Personlig översikt</span><h1>En plats för deras framsteg.</h1><p>Följ årskurs 8 och 9 i matematiken, språk, läsning och prov — utan att ändra något i elevprofilerna.</p><span class="hero-tag">Privat på den här enheten</span></section>'+
@@ -324,6 +326,7 @@ document.addEventListener('change',async e=>{
  }catch(err){note(err.message||'Kunde inte läsa filen. Inga data ändrades.',true)}
 });
 window.addEventListener('hashchange',()=>{ui.notice='';render()});
+window.addEventListener('matte-study-parent-updated',()=>{if(unlocked())render();});
 window.addEventListener('storage',e=>{if(e.key===K){state=getState();render();}});
 render();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});

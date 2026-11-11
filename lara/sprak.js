@@ -1,7 +1,7 @@
 /* Matte OS · Språkverkstad 3.0
  * Shared texts and tasks for both learner profiles; separate, evidence-based progress per profile.
  * - Answer options are shuffled deterministically per task (same order on every device and profile).
- * - No free text, names or audio are stored. Open answers stay in memory only.
+ * - Unsubmitted drafts and audio stay transient. Submitted written/selected answers can sync to a linked account with explicit sharing.
  * - Pair results are never credited as one learner's individual mastery.
  */
 (function(root,factory){const o=factory(root);if(typeof module==='object'&&module.exports)module.exports=o;root.MO_WORKSHOP=o;})(typeof window!=='undefined'?window:globalThis,function(root){
@@ -101,7 +101,7 @@ function storage(){try{return root.localStorage;}catch{return null;}}
 function load(){try{const s=storage();return sanitize(JSON.parse(s?.getItem(STORE)||'null'));}catch{return empty();}}
 let store=load();
 let saveError=false;
-function save(){try{storage().setItem(STORE,JSON.stringify(store));saveError=false;return true;}catch{saveError=true;return false;}}
+function save(){try{storage().setItem(STORE,JSON.stringify(store));root.MO_STUDY?.markDirty('reading');saveError=false;return true;}catch{saveError=true;return false;}}
 function profileData(p){return store.profiles[PROFILES.includes(p)?p:'grade9'];}
 function oldCount(p){try{const raw=JSON.parse(storage()?.getItem(OLD_STORE)||'null');return raw&&raw.v===2?Object.keys(raw.profiles?.[p]?.done||{}).length:0;}catch{return 0;}}
 /* Only the first individual attempt per task counts as evidence; repeats only raise the counter. */
@@ -232,7 +232,7 @@ function taskView(t,active){const list=tasksFor(t,ui.mode);const k=list[ui.i];if
  const feedback=done?`<div class="wk-feedback ${ui.res.ok?'good':'try'}" role="status" tabindex="-1" data-wfb><b>${ui.res.ok?(ui.help?tr(t,'Rätt – med stöd','Correct – with support'):tr(t,'Rätt, och helt själv','Correct, all on your own')):tr(t,'Inte riktigt','Not quite')}</b>${ui.res.near?`<p>${e(ui.res.near)}</p>`:''}${!ui.res.ok?`<p><strong>${tr(t,'Rätt svar','Correct answer')}:</strong> ${e(solution(t,k))}</p>`:''}${explain(t,k)}</div><button class="wk-btn wk-wide" data-w="next">${ui.i<list.length-1?tr(t,'Nästa uppgift →','Next task →'):tr(t,'Till samtalet →','To the discussion →')}</button>`:
   `<button class="wk-btn wk-wide" data-w="check" ${ready(k)?'':'disabled'}>${tr(t,'Kontrollera','Check')}</button>`;
  return `${stepsBar(list)}${label}<div class="wk-card">${ask}${answerInput(t,k,done)}${helpTools(t,k,done)}${feedback}${textToggle(t,k)}</div>`;}
-function openSolo(t,k,ask){return `<div class="wk-card">${ask}<p class="mut small">${tr(t,'Svara skriftligt eller muntligt. Det du skriver sparas inte och skickas ingenstans.','Answer in writing or out loud. What you write is not saved or sent anywhere.')}</p><label class="wk-label" for="wk-open">${tr(t,'Ditt svar (frivilligt att skriva)','Your answer (writing is optional)')}</label><textarea id="wk-open" class="wk-input wk-text" rows="5" maxlength="1500">${e(ui.open)}</textarea>
+function openSolo(t,k,ask){return `<div class="wk-card">${ask}<p class="mut small">${tr(t,'Svara skriftligt eller muntligt. Om elevsynk är aktiv sparas inlämnad text och visas för din kopplade mentor; annars stannar den lokalt tills synk aktiveras.','Answer in writing or out loud. What you write is not saved or sent anywhere.')}</p><label class="wk-label" for="wk-open">${tr(t,'Ditt svar (frivilligt att skriva)','Your answer (writing is optional)')}</label><textarea id="wk-open" class="wk-input wk-text" rows="5" maxlength="1500">${e(ui.open)}</textarea>
  ${!ui.checked?`<button class="wk-btn wk-wide" data-w="open-done">${tr(t,'Jag har svarat – visa kriterierna','I have answered – show the criteria')}</button>`:
  `<div class="wk-feedback neutral"><b>${tr(t,'Bedöm ditt svar','Check your own answer')}</b><p class="mut small">${tr(t,'Kryssa i det ditt svar faktiskt innehåller. Det här är en självbedömning, inte en automatisk rättning.','Tick what your answer really contains. This is self-assessment, not automatic marking.')}</p>${k.criteria.map((c,j)=>`<label class="wk-check"><input type="checkbox" data-w-crit="${j}" ${ui.self.includes(j)?'checked':''}><span>${e(c)}</span></label>`).join('')}
  ${ui.modelShown?`<blockquote><small>${tr(t,'Ett exempel – andra svar kan vara lika bra','One example – other answers can be just as good')}</small><p>${e(k.model)}</p></blockquote>`:`<button type="button" class="wk-link" data-w="model">${tr(t,'Visa ett exempelsvar','Show an example answer')}</button>`}</div><button class="wk-btn wk-wide" data-w="open-next">${tr(t,'Spara bedömningen och gå vidare →','Save my assessment and continue →')}</button>`}
@@ -274,11 +274,24 @@ function handle(action,el){const t=current();if(!t)return;const active=activePro
  case 'order':{const i=Number(el.dataset.i);if(!ui.picks.includes(i))ui.picks.push(i);break;}
  case 'order-undo':ui.picks.pop();break;
  case 'fill':ui.typed=el.dataset.value||'';break;
- case 'check':{if(k?.type==='cloze')syncTyped();if(!k||ui.checked||!ready(k))return;const res=evaluate(t,k,currentAnswer(k));ui.res=res;ui.checked=true;ui.focus='fb';ui.solo.auto++;if(res.ok&&!ui.help)ui.solo.indep++;else if(res.ok)ui.solo.helped++;recordTask(active,t,k,{ok:res.ok,help:ui.help>0,mode:ui.mode});break;}
+ case 'check':{if(k?.type==='cloze')syncTyped();if(!k||ui.checked||!ready(k))return;const res=evaluate(t,k,currentAnswer(k));ui.res=res;ui.checked=true;ui.focus='fb';ui.solo.auto++;if(res.ok&&!ui.help)ui.solo.indep++;else if(res.ok)ui.solo.helped++;recordTask(active,t,k,{ok:res.ok,help:ui.help>0,mode:ui.mode});
+   root.MO_STUDY?.capture({grade:active,module:'reading',question_id:t.lang+':'+t.id+':'+k.id,
+     question_text:k.ask||k.claim||k.sentence||'',passage_title:t.title,
+     passage_text:t.paragraphs.join('\n\n'),answer:describeAnswer(t,k,currentAnswer(k)),
+     solution_text:solution(t,k),is_correct:!!res.ok,help_used:ui.help>0,type:k.type,
+     mode:ui.mode,content_version:String(t.version||1)});
+   break;}
  case 'next':ui.i++;resetTask();ui.showText=false;if(ui.i>=list.length)ui.view='talk';break;
  case 'open-done':ui.checked=true;ui.focus=false;break;
  case 'model':ui.modelShown=true;ui.focus=false;break;
- case 'open-next':recordTask(active,t,k,{self:ui.self.length,mode:ui.mode,help:false});ui.solo.open++;ui.i++;resetTask();ui.showText=false;if(ui.i>=list.length)ui.view='talk';break;
+ case 'open-next':{
+ const written=root.document?.getElementById?.('wk-open')?.value??ui.open;
+ root.MO_STUDY?.capture({grade:active,module:'reading',question_id:t.lang+':'+t.id+':'+k.id,
+   question_text:k.ask||'',passage_title:t.title,passage_text:t.paragraphs.join('\n\n'),
+   answer:String(written||'').slice(0,1500),solution_text:k.model||'',is_correct:null,
+   help_used:false,type:'open',mode:ui.mode,content_version:String(t.version||1),
+   criteria:ui.self.map(i=>k.criteria[i])});
+ recordTask(active,t,k,{self:ui.self.length,mode:ui.mode,help:false});ui.solo.open++;ui.i++;resetTask();ui.showText=false;if(ui.i>=list.length)ui.view='talk';break;}
  case 'pair-lock':{if(k?.type==='cloze')syncTyped();if(!k||!ready(k))return;const n=playerNow();ui.pair.ans[n]=currentAnswer(k);ui.pair.help[n]=ui.help;ui.pair.res[n]=evaluate(t,k,ui.pair.ans[n]);ui.sel=null;ui.typed='';ui.picks=[];ui.help=0;ui.showText=false;
   if(ui.pair.turn===0){ui.pair.turn=1;ui.pair.phase='pass';}else{ui.pair.phase='reveal';ui.focus='fb';for(const m of [0,1])ui.pair.score[m]+=ui.pair.res[m].ok?(ui.pair.help[m]?1:2):0;}break;}
  case 'pair-take':ui.pair.phase='answer';ui.focus=true;break;

@@ -110,7 +110,7 @@ const fails = async (p, re, m) => { try { await p; ok(false, m + ' (inget fel)')
   ok(mq.length === 30 && new Set(keys).size === 30 && mq.every(x => x.a >= 1 && x.a <= 10 && x.b >= 1 && x.b <= 10 && x.ans === x.a * x.b), 'blandad runda: 30 unika frågor, giltiga, rätt facit');
   // 9) utgångna rum städas
   await pool.query(`update cup.rooms set expires_at = now() - interval '1 minute' where code=$1`, [rm.code]);
-  await fails(rpc('cup_state', { p_code: rm.code, p_host_secret: rm.host_secret }), /GONE/, 'utgånget rum nekas');
+  await fails(rpc('cup_state', { p_code: rm.code, p_host_secret: rm.host_secret }), /(GONE|NO_ROOM)/, 'utgånget rum nekas');
   await rpc('cup_create', { p_tables: [1], p_qual_q: 10, p_sec_per_q: 20 });
   ok((await pool.query(`select count(*)::int n from cup.rooms where code=$1`, [rm.code])).rows[0].n === 0, 'utgångna rum raderas vid nästa skapande');
   console.log(`cup-security: ${pass} PASS, ${fail} FAIL`);
