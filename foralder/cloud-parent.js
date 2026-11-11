@@ -13,7 +13,7 @@ const school=g=>g==='grade8'?'Åk 8':'Åk 9';
 const stamp=t=>{try{return new Date(t).toLocaleString('sv-SE',{dateStyle:'medium',timeStyle:'short'})}catch{return ''}};
 const state={links:[],rows:[],attempts:[],ready:false,loading:false,error:'',expanded:'',module:'all',grade:'all',offset:0,more:false,lastLoad:0,requests:0};
 const linked=new Set();
-let realtime=null,lastUser=null,interval=null,connecting=false;
+let realtime=null,lastUser=null,interval=null,connecting=false,lastRemoteSignature='',lastFullFetch=0;
 function has(g){return state.links.some(x=>x.grade===g);}
 function combine(part,current,next){
  if(!current)return next;
@@ -52,6 +52,25 @@ async function load(reset=true){
   state.links=await S.links();state.links.forEach(l=>linked.add(l.learner_id));
   const ids=state.links.map(x=>x.learner_id);
   if(ids.length){
+   // Lightweight RLS-authorized change detection on every 20s refresh.
+   // The full passage and answer payload is fetched only when needed,
+   // and at most once per five minutes when no changes occur.
+   const [headSnapshot,headEvent]=await Promise.all([
+    db.from('study_snapshots').select('device_id,updated_at').in('learner_id',ids).order('updated_at',{ascending:false}).limit(1),
+    db.from('study_events').select('event_id,received_at').in('learner_id',ids).order('received_at',{ascending:false}).limit(1)
+   ]);
+   if(headSnapshot.error)throw headSnapshot.error;
+   if(headEvent.error)throw headEvent.error;
+   const signature=JSON.stringify({
+    ids:ids.slice().sort(),
+    newestBackup:headSnapshot.data?.[0]?.updated_at||'',
+    newestAnswer:headEvent.data?.[0]?.event_id||'',
+    page:state.offset
+   });
+   if(state.ready&&signature===lastRemoteSignature&&Date.now()-lastFullFetch<300000){
+    state.lastLoad=Date.now();
+    return;
+   }
    const [snap,events]=await Promise.all([
     db.from('study_snapshots').select('learner_id,grade,module,device_id,payload,updated_at').in('learner_id',ids).order('updated_at',{ascending:false}).limit(120),
     db.from('study_events').select('event_id,learner_id,grade,module,question_id,question_text,passage_title,passage_text,answer,solution_text,is_correct,help_used,content_version,context,answered_at,received_at').in('learner_id',ids).order('received_at',{ascending:false}).range(0,Math.max(99,state.offset+99))
@@ -61,6 +80,7 @@ async function load(reset=true){
    state.rows=snap.data||[];
    state.attempts=events.data||[];
    state.more=state.attempts.length>=Math.max(100,state.offset+100);
+   lastRemoteSignature=signature;lastFullFetch=Date.now();
   }else{state.rows=[];state.attempts=[];state.more=false;}
   state.ready=true;state.lastLoad=Date.now();
   // Authoritative RLS-filtered refresh occurs every 20 seconds and on focus.
@@ -87,7 +107,7 @@ function notify(){
 }
 function stop(){
  if(realtime&&S.client())S.client().removeChannel(realtime).catch(()=>{});
- realtime=null;state.ready=false;state.rows=[];state.attempts=[];state.links=[];state.lastLoad=0;
+ realtime=null;lastRemoteSignature='';lastFullFetch=0;state.ready=false;state.rows=[];state.attempts=[];state.links=[];state.lastLoad=0;
 }
 function start(){
  const p=S.profile();
