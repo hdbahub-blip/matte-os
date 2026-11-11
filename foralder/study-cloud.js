@@ -144,9 +144,16 @@ function compact(part){
  if(!m?.compactModule)return null;
  const value=m.compactModule(part,raw,member.grade);
  if(!value)return null;
+ // A complete, grade-isolated copy is kept alongside the parent-safe rollups.
+ // This preserves original exercise IDs, feedback, timestamps and retry details.
+ if(raw.profiles&&raw.profiles[member.grade]){
+  const full=JSON.parse(JSON.stringify(raw.profiles[member.grade]));
+  value.backup=full;
+ }
  if(part==='exam'){
   // A finished exam already has exact answers/results in localStorage. Preserve that history for recovery.
-  value.attempts=(Array.isArray(raw.attempts)?raw.attempts:[]).filter(x=>x.grade===member.grade).slice(-70);
+  value.backup={grade:member.grade,attempts:(Array.isArray(raw.attempts)?raw.attempts:[]).filter(x=>x.grade===member.grade).slice(-50),
+   attemptNo:Math.max(0,Number(raw.attemptNo)||0)};
  }
  return value;
 }
@@ -219,8 +226,11 @@ function mergeProfile(part,local,cloud){
   return {...a,attempts,rounds:{sv:Math.max(a.rounds?.sv||0,b.rounds?.sv||0),en:Math.max(a.rounds?.en||0,b.rounds?.en||0)}};
  }
  if(part==='memory'){
-  const merged={...b,...a};for(const key of Object.keys({...b,...a})){
-   const prev=mapObj(b[key]),cur=mapObj(a[key]);merged[key]={};
+  const fromCloud=mapObj(b.records);const fromLocal=mapObj(a.records);const clean={...a};
+  const prevRecords=Object.keys(fromCloud).length?fromCloud:b;
+  const curRecords=Object.keys(fromLocal).length?fromLocal:a;
+  const merged={...prevRecords,...curRecords};for(const key of Object.keys({...prevRecords,...curRecords})){
+   const prev=mapObj(prevRecords[key]),cur=mapObj(curRecords[key]);merged[key]={};
    for(const field of ['t0','t1','recall']){const old=prev[field],now=cur[field];
     merged[key][field]=(now?.at||0)>=(old?.at||0)?now||old:old||now;
    }
@@ -246,14 +256,14 @@ async function recover(){
   let raw=safe(before[part]);
   if(part==='exam'){
    raw=mapObj(raw);const a=Array.isArray(raw.attempts)?raw.attempts:[];
-   const remote=relevant.flatMap(x=>Array.isArray(x.payload?.attempts)?x.payload.attempts:[]).filter(x=>x.grade===member.grade);
+   const remote=relevant.flatMap(x=>Array.isArray(x.payload?.backup?.attempts)?x.payload.backup.attempts:[]).filter(x=>x.grade===member.grade);
    updates[part]={...raw,grade:raw.grade||member.grade,attempts:mergedList(a,remote,100),
     attemptNo:Math.max(raw.attemptNo||0,a.length+remote.length)};
   }else{
    raw=mapObj(raw);if(!raw.v)raw.v={math:5,learning:1,reading:3,vocab:1,memory:1}[part];
    if(!raw.profiles)raw.profiles={grade8:{},grade9:{}};
    let merged=mapObj(raw.profiles[member.grade]);
-   for(const row of relevant)merged=mergeProfile(part,merged,row.payload);
+   for(const row of relevant)merged=mergeProfile(part,merged,row.payload.backup||row.payload);
    updates[part]={...raw,profiles:{...raw.profiles,[member.grade]:merged}};
   }
  }
