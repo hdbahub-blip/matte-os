@@ -57,6 +57,12 @@ function render(){
  if(!inf.online){shell(authView());return;}
  if(!S.profile()){shell(createProfile());return;}
  shell(memberView());
+ // Preserve the invitation code across first signup, email verification and role selection.
+ if(S.profile().role==='learner'&&location.hash.startsWith('#/connect/')){
+  const code=location.hash.split('/')[2]||'';
+  const field=document.getElementById('invite-code');
+  if(field&&/^[0-9a-f]{32}$/i.test(code))field.value=code;
+ }
 }
 async function initial(){
  try{await S.init();await updateLinks();}catch(e){error=e.message}finally{ready=true;render()}
