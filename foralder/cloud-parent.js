@@ -15,12 +15,32 @@ const state={links:[],rows:[],attempts:[],ready:false,loading:false,error:'',exp
 const linked=new Set();
 let realtime=null,lastUser=null,interval=null,connecting=false;
 function has(g){return state.links.some(x=>x.grade===g);}
+function combine(part,current,next){
+ if(!current)return next;
+ if(part==='exam'){
+  const all=[...(current.attempts||[]),...(next.attempts||[])];
+  const seen=new Set();
+  return {attempts:all.filter(x=>{const key=x.id||JSON.stringify(x);
+    if(seen.has(key))return false;seen.add(key);return true;
+   }).sort((a,b)=>(a.finishedAt||0)-(b.finishedAt||0)).slice(-120)};
+ }
+ if(part==='memory')return {records:S.mergeProfile('memory',current.records||{},next.records||{})};
+ const merged=S.mergeProfile(part,next,current);
+ if(['math','learning'].includes(part)){
+  const key=part==='math'?'t':'at';
+  merged.attempts=(merged.attempts||[]).sort((a,b)=>(a[key]||0)-(b[key]||0));
+ }
+ return merged;
+}
 function reportForGrade(grade){
  if(!has(grade))return null;
  const learnerIds=new Set(state.links.filter(x=>x.grade===grade).map(x=>x.learner_id));
  const parts={};
- const filtered=state.rows.filter(x=>learnerIds.has(x.learner_id)).sort((a,b)=>Date.parse(b.updated_at)-Date.parse(a.updated_at));
- for(const r of filtered){if(!parts[r.module]&&r.payload&&NAMES[r.module])parts[r.module]=r.payload;}
+ const filtered=state.rows.filter(x=>learnerIds.has(x.learner_id))
+  .sort((a,b)=>Date.parse(a.updated_at)-Date.parse(b.updated_at));
+ for(const r of filtered){
+  if(r.payload&&NAMES[r.module])parts[r.module]=combine(r.module,parts[r.module],r.payload);
+ }
  return {v:1,grade,sections:parts,createdAt:state.lastLoad?new Date(state.lastLoad).toISOString():null};
 }
 async function load(reset=true){
