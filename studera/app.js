@@ -10,47 +10,69 @@ const Q=(g,subject)=>{
  const all=window.MO_BANK3||[],lessons=window.MOL_CONTENT?.lessons||[],words=window.MO_ORDLEK?._test?.WORDS||[];
  const r=[];
  if(subject==='math'){
-  for(const s of content.slice(0,14)){
+  for(const s of content){
    const x=s.p?.find(q=>q.type==='choice'&&q.opts?.length>1)||s.p?.[0];if(!x)continue;
    r.push({id:'math:'+s.id+':'+(x.lv||'p'),kind:x.type==='choice'?'choice':'text',title:s.title,
     prompt:x.q,options:x.type==='choice'?x.opts:[],correct:typeof x.a==='string'?x.a:String(x.a??''),
-    explanation:(x.sol||[]).join(' · '),subject:'math'});
-   if(r.length>=8)break;
+    explanation:(x.sol||[]).join(' · '),subject:'math',unit:s.ch});
+   
   }
  }
  if(subject==='sv'||subject==='en'){
   const books=all.filter(t=>t.lang===subject);
-  for(const t of books.slice(0,3)){
+  for(const t of books){
    for(const k of t.tasks){
     if(k.type!=='choice'&&k.type!=='open'&&k.type!=='cloze')continue;
     r.push({id:subject+':'+t.id+':'+k.id,kind:k.type==='choice'?'choice':'text',
      title:t.title,prompt:k.ask||k.sentence||'',options:k.options||[],
      correct:k.type==='choice'?k.options[0]:k.type==='open'?k.model:(k.accept||[])[0],
-     explanation:k.why||'',passage:t.paragraphs.join('\n\n'),subject});
-    if(r.length>=8)break;
+     explanation:k.why||'',passage:t.paragraphs.join('\n\n'),subject,unit:t.id});
+    
    }
-   if(r.length>=8)break;
+   
   }
  }
  if(subject==='study'){
-  for(const l of lessons.filter(x=>x.subject==='study').slice(0,8)){
+  for(const l of lessons.filter(x=>x.subject==='study')){
    const x=l.guided;r.push({id:'study:'+l.id,kind:'choice',title:l.title,prompt:x.prompt,
-    options:x.options,correct:x.options[x.correct],explanation:x.why||l.explain,subject:'study'});
+    options:x.options,correct:x.options[x.correct],explanation:x.why||l.explain,subject:'study',unit:l.id});
   }
  }
  if(subject==='vocab'){
-  for(const w of words.slice(0,12)){
+  for(const w of words){
    const others=words.filter(x=>x.lang===w.lang&&x.word!==w.word).slice(0,2).map(x=>x.meaning);
    r.push({id:'vocab:'+w.lang+':'+w.word,kind:'choice',title:w.word,
     prompt:'Vad betyder '+w.word+'?',options:[w.meaning,...others],correct:w.meaning,
-    explanation:w.sentence,subject:'vocab'});if(r.length>=8)break;
+    explanation:w.sentence,subject:'vocab',unit:w.lang});
   }
  }
- return r.map(x=>({...x,prompt:String(x.prompt||'').slice(0,600),
-  passage:String(x.passage||'').slice(0,3500),explanation:String(x.explanation||'').slice(0,500)}));
+ if(subject==='memory')for(const k of (window.MOKnep?.KNEP||[]))
+  r.push({id:'memory:'+k.id,unit:k.topic,kind:'choice',title:k.title,prompt:k.recall.q,
+   options:k.recall.options,correct:k.recall.options[0],explanation:k.recall.explain||k.anchor,subject});
+ if(subject==='short-sv'||subject==='short-en')for(const l of lessons.filter(x=>x.subject===subject.slice(6)))
+  for(const section of ['guided','solo']){
+   const x=l[section];if(!x)continue;const opts=['choice','listen'].includes(x.type)?x.options||[]:[];
+   r.push({id:subject+':'+l.id+':'+section,unit:l.id,kind:opts.length?'choice':'text',title:l.title,
+    prompt:x.prompt,options:opts,correct:opts.length?opts[x.correct]:x.model||'',explanation:x.why||l.explain,subject});
+  }
+ return r.map(x=>({...x,prompt:String(x.prompt||'').slice(0,1000),
+  passage:String(x.passage||'').slice(0,8500),explanation:String(x.explanation||'').slice(0,500)}));
 };
-const GRADE=g=>g==='grade8'?'Åk 8':'Åk 9',name=s=>({math:'Matematik',sv:'Svenska',en:'Engelska',study:'Studieteknik',vocab:'Ordträning'})[s]||s;
-let links=[],sessions=[],current=null,answers=[],practice=null,subject='math',grade=new URLSearchParams(location.search).get('grade')==='grade8'?'grade8':'grade9';
+function unitOptions(){
+ if(subject==='math')return (window.MO_CORE?.profiles?.[grade]?.chapters||[]).map(x=>[x.id,x.name]);
+ if(subject==='sv'||subject==='en')return (window.MO_BANK3||[]).filter(x=>x.lang===subject).map(x=>[x.id,x.title]);
+ if(['study','short-sv','short-en'].includes(subject))return (window.MOL_CONTENT?.lessons||[]).filter(x=>x.subject===(subject==='study'?'study':subject.slice(6))).map(x=>[x.id,x.title]);
+ if(subject==='vocab')return [['sv','Svenska ord'],['en','Engelska ord']];
+ if(subject==='memory')return [...new Set((window.MOKnep?.KNEP||[]).map(x=>x.topic))].map(x=>[x,x]);
+ return [];
+}
+function chosen(count){
+ const all=Q(grade,subject).filter(x=>unit==='all'||x.unit===unit);if(!all.length)return [];
+ const start=batchStart%all.length,selection=all.slice(start).concat(all.slice(0,start)).slice(0,count);
+ batchStart=(start+selection.length)%all.length;return selection;
+}
+const GRADE=g=>g==='grade8'?'Åk 8':'Åk 9',name=s=>({math:'Matematik',sv:'Svenska',en:'Engelska',study:'Studieteknik',vocab:'Ordträning',memory:'Minnesknep','short-sv':'Svenska kortlektioner','short-en':'Engelska kortlektioner'})[s]||s;
+let links=[],sessions=[],current=null,answers=[],practice=null,subject='math',unit='all',batchStart=0,grade=new URLSearchParams(location.search).get('grade')==='grade8'?'grade8':'grade9';
 let busy=false,error='',notice='',me=null,ready=false,channel=null,lastSession='',loading=false,serverAnswered=0;
 const db=()=>S.client(),profile=()=>S.profile(),isMentor=()=>profile()?.role==='mentor';
 const text=v=>typeof v==='string'?v:JSON.stringify(v??'');
@@ -67,7 +89,10 @@ function stateScreen(){
 function pick(){
  return '<div class="card"><h2>'+ (isMentor()?'Välj ett studiepass':'Dina gemensamma studiepass')+'</h2>'+
  (isMentor()?'<div class="grade-picker"><button class="tiny" data-grade="grade8" aria-pressed="'+(grade==='grade8')+'">Åk 8</button><button class="tiny" data-grade="grade9" aria-pressed="'+(grade==='grade9')+'">Åk 9</button></div>'+
- '<div class="field"><label for="topic">Välj ämne</label><select id="topic">'+[['math','Matematik'],['sv','Svenska · läsförståelse'],['en','Engelska · reading'],['study','Studieteknik'],['vocab','Ordträning']].map(([k,v])=>'<option value="'+k+'" '+(subject===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>'+
+ '<div class="field"><label for="topic">Välj ämne</label><select id="topic">'+[['math','Matematik'],['sv','Svenska · läsförståelse'],['en','Engelska · reading'],['short-sv','Svenska kortlektioner'],['short-en','Engelska kortlektioner'],['study','Studieteknik'],['vocab','Ordträning'],['memory','Minnesknep']].map(([k,v])=>'<option value="'+k+'" '+(subject===k?'selected':'')+'>'+v+'</option>').join('')+'</select></div>'+
+ '<div class="field"><label for="study-unit">Välj text, kapitel eller moment</label><select id="study-unit"><option value="all">Alla moment · blandat</option>'+
+ unitOptions().map(([id,label])=>'<option value="'+esc(id)+'" '+(unit===id?'selected':'')+'>'+esc(label)+'</option>').join('')+'</select></div>'+
+ '<p class="note">Materialet roterar mellan pass. Välj exempelvis Geometri, en särskild text eller ett minnesknep.</p>'+
  '<div class="tutor-actions"><button class="btn" data-action="practice">Öva själv som mentor</button>'+
  (links.some(l=>l.grade===grade)?'<button class="btn secondary" data-action="create">Börja med '+GRADE(grade)+'</button>':
  '<a class="btn secondary" href="../study/">Koppla elev i '+GRADE(grade)+' för gemensamt pass</a>')+'</div>':
@@ -154,7 +179,7 @@ function queueReload(){if(reloadTimer)clearTimeout(reloadTimer);reloadTimer=setT
 async function create(){
  const l=links.find(x=>x.grade===grade);
  if(!l)throw Error('Den valda elevprofilen är inte kopplad till din mentorprofil.');
- const questions=Q(grade,subject).slice(0,6).map(({correct,explanation,...safe})=>safe);
+ const questions=chosen(6).map(({correct,explanation,...safe})=>safe);
  if(!questions.length)throw Error('Inga frågor finns för detta område.');
  const payload={mentor_id:profile().user_id,learner_id:l.learner_id,grade,title:name(subject)+' · '+GRADE(grade),questions,phase:'answering'};
  const {data,error:e}=await db().from('study_sessions').insert(payload).select().single();
@@ -177,7 +202,7 @@ document.addEventListener('click',async e=>{
  if(b.dataset.grade){grade=b.dataset.grade;stateScreen();return;}
  const action=b.dataset.action;if(busy)return;busy=true;error='';notice='';
  try{
-  if(action==='practice'){const qs=Q(grade,subject);if(!qs.length)throw Error('Inga övningar hittades.');practice={questions:qs,index:0,checked:false,answer:''};}
+  if(action==='practice'){const qs=chosen(12);if(!qs.length)throw Error('Inga övningar hittades.');practice={questions:qs,index:0,checked:false,answer:''};}
   if(action==='next-practice'){practice.index++;practice.checked=false;practice.answer='';}
   if(action==='end-practice')practice=null;
   if(action==='create')await create();
@@ -189,7 +214,7 @@ document.addEventListener('click',async e=>{
  }catch(x){error=x.message||'Det gick inte att genomföra åtgärden.';}
  finally{busy=false;stateScreen();}
 });
-document.addEventListener('change',e=>{if(e.target.id==='topic'){subject=e.target.value;practice=null;stateScreen();}});
+document.addEventListener('change',e=>{if(e.target.id==='topic'){subject=e.target.value;unit='all';batchStart=0;practice=null;stateScreen();}else if(e.target.id==='study-unit'){unit=e.target.value;batchStart=0;practice=null;stateScreen();}});
 document.addEventListener('submit',async e=>{
  if(!['practice-answer'].includes(e.target.id)&&!e.target.classList.contains('session-answer'))return;e.preventDefault();if(busy)return;busy=true;error='';notice='';
  try{
