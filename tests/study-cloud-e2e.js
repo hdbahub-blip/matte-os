@@ -81,9 +81,10 @@ async function assertVisible(page,locator,label){
   await p.locator('#pin').fill('123456');await p.locator('#pin2').fill('123456');
   await p.locator('form#setup button[type=submit]').click();
   await assertVisible(p,p.getByText('Molnöversikt · synkar automatiskt'),'mentor cloud panel');
-  await assertVisible(p,p.getByText('Varför tvekar Elias?'),'submitted real question');
   const row=p.locator('#cloud-mentor details').filter({hasText:'Varför tvekar Elias?'}).first();
+  await assertVisible(p,row.locator('summary').first(),'linked student event is listed');
   await row.locator('summary').first().click();
+  await assertVisible(p,p.getByText('Varför tvekar Elias?'),'submitted real question visible after opening');
   await assertVisible(p,p.getByText('Han tvekar eftersom platsen är upptagen.'),'written answer visible');
   await assertVisible(p,p.getByText('Öppna hela texten:',{exact:false}).first(),'full original text available');
   await p.goto(new URL('studera/',base).href);
