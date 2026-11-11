@@ -1,5 +1,5 @@
 'use strict';
-const {chromium,devices}=require('playwright');
+const {chromium,webkit,devices}=require('playwright');
 const assert=require('node:assert/strict');
 const base=process.argv[2]||'http://127.0.0.1:8765/';
 let checks=0;
@@ -68,7 +68,7 @@ async function assertVisible(page,locator,label){
  await locator.waitFor({timeout:20000});assert.ok(await locator.isVisible(),label);checks++;
 }
 (async()=>{
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ const browser=await (process.argv[3]==='webkit'?webkit:chromium).launch({headless:true,args:process.argv[3]==='webkit'?[]:['--no-sandbox']});
  try{
   const c=await context(browser,'mentor'),p=await c.newPage();
   const errors=[];p.on('pageerror',e=>errors.push(e.message));
