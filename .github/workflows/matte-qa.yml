@@ -68,6 +68,11 @@ jobs:
           node tests/atelier-content-qa.js
           node tests/color-system-qa.js
           node tests/parent-model-qa.js
+          node --check study/cloud.js
+          node --check study/setup.js
+          node --check foralder/cloud-parent.js
+          node --check studera/app.js
+          node tests/study-cloud-qa.js
           node --check lara/ordlek.js
           node --check tests/ordlek-night-e2e.js
           node tests/ordlek-qa.js
