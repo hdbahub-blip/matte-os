@@ -89,6 +89,13 @@ async function assertVisible(page,locator,label){
   await assertVisible(p,p.getByText('Öppna hela texten:',{exact:false}).first(),'full original text available');
   await p.goto(new URL('studera/',base).href);
   await assertVisible(p,p.getByText('Förstå mer, tillsammans.'),'shared study app');
+  assert.ok((await p.locator('#study-unit option').allTextContents()).some(x=>x.includes('Geometri')),'all math chapters available');checks++;
+  await p.locator('#topic').selectOption('sv');
+  assert.ok(await p.locator('#study-unit option').count()>=12,'all Swedish reading texts selectable');checks++;
+  await p.locator('#topic').selectOption('memory');
+  assert.ok(await p.locator('#study-unit option').count()>=2,'memory-trick subject selectable');checks++;
+  await p.locator('#topic').selectOption('math');
+  await p.locator('#study-unit').selectOption('s9-geo');
   await p.locator('[data-action="practice"]').click();
   await assertVisible(p,p.locator('#mentor-practice'),'mentor separate practice');
   const field=p.locator('#practice-answer input[name=answer]');
