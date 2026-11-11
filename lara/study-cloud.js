@@ -289,9 +289,9 @@ function onActiveGrade(grade){
 function start(){
  // Avoid a third-party network fetch in unauthenticated learner/Cup sessions.
  // Sign-in page explicitly calls init() and loads the pinned SDK itself.
- if(!get('matteos-study-auth-v1')&&!get(CACHE))return;
- if(validClient())initialize().catch(()=>{});
- else if(root.document){const el=root.document.createElement('script');
+ const shouldLoad=!!get('matteos-study-auth-v1')||!!get(CACHE);
+ if(shouldLoad&&validClient())initialize().catch(()=>{});
+ else if(shouldLoad&&root.document){const el=root.document.createElement('script');
   el.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js';
   el.async=true;el.crossOrigin='anonymous';el.onload=()=>initialize().catch(()=>{});
   el.onerror=()=>{status='no-sdk';lastError='Molnsynk är offline. Fortsätt öva lokalt.';dispatch();};
