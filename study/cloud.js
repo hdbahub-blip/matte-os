@@ -287,6 +287,9 @@ function onActiveGrade(grade){
  if((member||cache)?.role==='learner'&&(member||cache).grade!==grade){status='grade-mismatch';dispatch();}
 }
 function start(){
+ // Avoid a third-party network fetch in unauthenticated learner/Cup sessions.
+ // Sign-in page explicitly calls init() and loads the pinned SDK itself.
+ if(!get('matteos-study-auth-v1')&&!get(CACHE))return;
  if(validClient())initialize().catch(()=>{});
  else if(root.document){const el=root.document.createElement('script');
   el.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js';
