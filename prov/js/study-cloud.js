@@ -20,7 +20,7 @@ const short=(s,n)=>String(s??'').slice(0,n);
 const uuid=()=>root.crypto?.randomUUID?.()||'';
 const dataURL=()=>new URL('study/',new URL(root.location?.pathname||'/',root.location?.origin||'https://example.test/')).href;
 const device=(()=>{const old=get(DEVICE);if(/^[0-9a-f-]{36}$/.test(old||''))return old;const id=uuid();if(id)set(DEVICE,id);return id;})();
-let db=null,session=null,member=null,status='offline',lastError='',flushing=false,timer=null,initialized=false,firstSyncFor='';
+let db=null,session=null,member=null,status='offline',lastError='',flushing=false,timer=null,initialized=false,firstSyncFor='',retryDelay=2500;
 let cache=safe(get(CACHE)),pending=safe(get(OUTBOX))||{events:[],dirty:[]};
 if(!Array.isArray(pending.events))pending.events=[];
 if(!Array.isArray(pending.dirty))pending.dirty=[];
@@ -182,8 +182,15 @@ async function flush(){
    if(error)throw error;
    pending.dirty=pending.dirty.filter(p=>p!==part);saveQueue();
   }
-  status='synced';lastError='';dispatch();return true;
- }catch(e){status='pending';lastError=e.message||'Kunde inte synkronisera.';dispatch();return false;}
+  status='synced';lastError='';retryDelay=2500;dispatch();return true;
+ }catch(e){
+  status='pending';lastError=e.message||'Kunde inte synkronisera.';dispatch();
+  // Retry transient upload failures without losing the on-device queue.
+  // The browser may defer timers in background; focus/online also retries.
+  const delay=retryDelay;retryDelay=Math.min(retryDelay*2,60000);
+  setTimeout(()=>{if(!flushing&&member?.role==='learner')flush().catch(()=>{});},delay);
+  return false;
+ }
  finally{flushing=false;}
 }
 function syncAll(){
