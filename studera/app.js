@@ -14,7 +14,7 @@ const Q=(g,subject)=>{
    const x=s.p?.find(q=>q.type==='choice'&&q.opts?.length>1)||s.p?.[0];if(!x)continue;
    r.push({id:'math:'+s.id+':'+(x.lv||'p'),kind:x.type==='choice'?'choice':'text',title:s.title,
     prompt:x.q,options:x.type==='choice'?x.opts:[],correct:typeof x.a==='string'?x.a:String(x.a??''),
-    explanation:(x.sol||[]).join(' · '),subject:'math',unit:s.ch});
+    explanation:(x.sol||[]).join(' · '),subject:'math',unit:s.ch,visual:x.vis||null});
    
   }
  }
@@ -117,8 +117,13 @@ function practiceScreen(){
  '</section>';
 }
 function questionHTML(q,ans,showCorrect){
+ // Reuse original diagram specifications from the authored curriculum.
+ // Collaborative sessions do not trust arbitrary SVG markup from the database.
+ const source=q.subject==='math'?(q.visual||Q(current?.grade||grade,'math').find(x=>x.id===q.id)?.visual):null;
+ const diagram=source&&window.MOVis?.render?window.MOVis.render(source):'';
  return (q.passage?'<details class="detail" open><summary>Öppna hela texten: '+esc(q.title)+'</summary><div class="passage">'+esc(q.passage)+'</div></details>':'')+
  '<div class="question-box"><p class="studykicker">'+esc(q.title||q.subject)+'</p><h3 class="study-question">'+esc(q.prompt)+'</h3>'+
+ (diagram?'<figure class="study-figure">'+diagram+'<figcaption>Figur från Matte OS · samma data som i uppgiften</figcaption></figure>':'')+
  (showCorrect?'<p class="note">Svar inlämnat.</p>':'')+'</div>';
 }
 function inputHTML(q){
@@ -179,7 +184,7 @@ function queueReload(){if(reloadTimer)clearTimeout(reloadTimer);reloadTimer=setT
 async function create(){
  const l=links.find(x=>x.grade===grade);
  if(!l)throw Error('Den valda elevprofilen är inte kopplad till din mentorprofil.');
- const questions=chosen(6).map(({correct,explanation,...safe})=>safe);
+ const questions=chosen(6).map(({correct,explanation,visual,...safe})=>safe);
  if(!questions.length)throw Error('Inga frågor finns för detta område.');
  const payload={mentor_id:profile().user_id,learner_id:l.learner_id,grade,title:name(subject)+' · '+GRADE(grade),questions,phase:'answering'};
  const {data,error:e}=await db().from('study_sessions').insert(payload).select().single();

@@ -14,8 +14,9 @@ function authView(){
  let nav='<div class="seg"><button data-mode="login" aria-pressed="'+(form==='login')+'">Logga in</button><button data-mode="signup" aria-pressed="'+(form==='signup')+'">Skapa konto</button></div>';
  let forms='<form id="auth" class="card"><h2>'+(form==='login'?'Välkommen tillbaka':'Skapa ditt konto')+'</h2>'+field('Din e-post','email','email','autocomplete="email" maxlength="180"')+field('Lösenord (minst 10 tecken)','password','password','passwordlength="10" minlength="10" autocomplete="'+(form==='login'?'current-password':'new-password')+'"')+
  (form==='signup'?'<label class="checkbox-row"><input name="consent" type="checkbox" required><span>Jag förstår att jag skapar mitt eget konto och att mina studieresultat kan delas med kopplad mentor efter att jag själv löst in en inbjudan.</span></label>':'')+
- '<button type="submit" class="btn">'+(busy?'Kontrollerar …':form==='login'?'Logga in':'Skapa konto')+'</button></form>';
- return intro+'<div class="auth-layout"><div>'+nav+forms+'</div><div class="card"><h2>Varför behövs konto?</h2><p>Utan inloggning finns resultaten bara på den aktuella telefonen. Med konto sparas nya inlämnade svar automatiskt i en skyddad databas, även efter att du byter enhet.</p><p>Det som gjorts innan aktiveringen kan synkroniseras som sammanfattade framsteg. Äldre skrivna svar som aldrig sparats kan inte återställas.</p><p class="note">Bekräftelse till e-posten kan krävas. Använd en egen e-postadress som du har tillgång till. Konton delas inte mellan personer.</p></div></div>';
+ '<button type="submit" class="btn">'+(busy?'Kontrollerar …':form==='login'?'Logga in':'Skapa konto')+'</button></form>'+
+ (form==='signup'?'<div class="warning"><b>Viktigt om kontoskapande</b><p>Supabases inbyggda e-posttjänst skickar normalt bara till projektteamets adresser och har låg gräns. För tre separata familjekonton krävs egen SMTP för e-postbekräftelse, alternativt att kontoägaren skapar och bekräftar kontona direkt under Supabase Authentication → Users → Add user → Create new user. Det senare kräver inga utgående e-postmeddelanden. Då använder ni fliken Logga in här.</p><p class="help">Behåll Confirm email för självregistrering med SMTP. Dela aldrig lösenord i gruppchattar. Lägg inte till barn som medlemmar i Supabase-projektets team.</p></div>':'');
+ return intro+'<div class="auth-layout"><div>'+nav+forms+'</div><div class="card"><h2>Varför behövs konto?</h2><p>Utan inloggning finns resultaten bara på den aktuella telefonen. Med konto sparas nya inlämnade svar automatiskt i en skyddad databas, även efter att du byter enhet.</p><p>Det som gjorts innan aktiveringen kan synkroniseras som sammanfattade framsteg. Äldre skrivna svar som aldrig sparats kan inte återställas.</p><p class="note">Bekräftelse till e-posten kan krävas. Använd en egen e-postadress som du har tillgång till. Konton delas inte mellan personer.</p><p class="note"><strong>iPhone:</strong> Använd en och samma installerade Matte OS-ikon för matte, språk, prov och mentorsvy. Separat installerade webbappar kan ha åtskild lokal lagring. Ta säkerhetskopia av äldre framsteg i varje separat installerad app innan du byter, och radera aldrig en gammal ikon förrän uppgifterna kontrollerats.</p></div></div>';
 }
 function createProfile(){
  return '<section class="hero"><span class="eyebrow">Nästa steg</span><h1>Välj din roll.</h1><p>Din roll låses vid skapandet så att elever och mentorer inte kan ta över varandras data.</p></section>'+
@@ -108,7 +109,7 @@ document.addEventListener('submit',async e=>{
    const email=String(f.get('email')||''),password=String(f.get('password')||'');
    if(password.length<10)throw Error('Lösenordet behöver minst 10 tecken.');
    if(form==='login'){await S.signIn(email,password);notice='Du är inloggad.';}
-   else{const v=await S.signUp(email,password);notice=v.confirmationNeeded?'Bekräfta e-postmeddelandet och logga sedan in.':'Kontot är registrerat. Välj din profil.';}
+   else{const v=await S.signUp(email,password);notice=v.confirmationNeeded?'Bekräfta e-postmeddelandet och logga sedan in. Om ingen bekräftelse kommer: se informationen om e-postleverans på den här sidan.':'Kontot är registrerat. Välj din profil.';}
   }
   if(e.target.id==='create-profile'){
    const role=String(f.get('role')||''),grade=String(f.get('grade')||'');
@@ -120,7 +121,13 @@ document.addEventListener('submit',async e=>{
    if(code.length!==32)throw Error('Koden måste vara 32 tecken.');
    await S.redeem(code);await updateLinks();await S.syncAll();notice='Mentor kopplad. Dina framtida svar och synkade framsteg blir synliga i mentorvyn.';
   }
- }catch(ex){error=ex.message||'Något gick fel. Inga elevdata ändrades.';}
+ }catch(ex){
+  const m=String(ex.message||'');
+  const code=String(ex.code||'');
+  error=/email_address_not_authorized|Email address not authorized|not authorized|email rate limit|over_email_send_rate_limit/i.test(m+' '+code)
+   ?'Supabase kan inte skicka bekräftelse till den här adressen. Använd administratörsskapade konton eller konfigurera egen SMTP. Inga elevresultat ändrades.'
+   :m||'Något gick fel. Inga elevdata ändrades.';
+ }
  finally{busy=false;render()}
 });
 window.addEventListener('matte-study-status',()=>{if(ready&&!busy&&document.visibilityState==='visible')render()});

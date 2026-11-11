@@ -83,5 +83,5 @@ ok(rootSW.includes("'./foralder/index.html'")&&rootSW.includes('parentNav'),'roo
 ok(rootUI.includes('Min översikt')&&lerUI.includes('Min översikt'),'discoverable third profile from both learning apps');
 ok(file('prov/js/app.js').includes('Dela resultatrapport'),'exam can enter report sharing flow');
 ok(file('foralder/style.css').includes('Marble green')&&file('foralder/style.css').includes('html[data-mode="dark"]'),'marble green both modes');
-ok(file('lara/index.html').includes('name="matte-larande-build" content="4.2.0"'),'Learning public metadata matches active 4.1.0 parent navigation');
+ok(file('lara/index.html').includes('name="matte-larande-build" content="4.2.1"'),'Learning public metadata matches active 4.1.0 parent navigation');
 console.log('Parent Insights QA '+n+'/'+n+' PASS — sources, privacy, backups, PIN, 6 dimensions, all grades');

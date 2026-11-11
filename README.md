@@ -39,3 +39,15 @@ Gemensam undervisning i svenska, engelska och studieteknik, med individuella ele
 Lärandedelen har 30 korta originallektioner, 24 duellkort och 8 frivilliga startkollsfrågor. Den är stödmaterial, inte ett komplett läromedel för hela årskurs 8–9 eller en officiell bedömning. Inga elevtexter eller ljudinspelningar sparas. Framsteg sparas per profil på enheten; använd säkerhetskopia vid enhetsbyte.
 
 Tester: `node tests/larande-qa.js` och `node tests/larande-live-e2e.js http://127.0.0.1:8765/`. Se även [drift och rollback](docs/LEARNING_HUB_V1_RELEASE.md).
+
+### Study Cloud – synk mellan elev och mentor (2026-11-11)
+
+Apparna `/study/`, `/studera/` och Marble Green `/foralder/` finns publicerade. Databasmigreringen `study/supabase/0001_study_cloud_secure.sql` är installerad i det separata Matte OS-Supabaseprojektet. RLS-test (elev, mentor, utomstående, återkallelse, dold facit, engångsinbjudan) genomfördes med syntetiska användare i rollback-transaktioner. PR #32 passerade CI och GitHub Pages.
+
+**Innan ni kan registrera riktiga konton:** Supabases *inbyggda* SMTP har begränsad leverans till projektteamets adresser och cirka två e-postmeddelanden per timme. Självregistrering till familjemedlemmars vanliga adresser kräver konfigurerad egen SMTP eller annan verifierad inloggningsmetod. På det befintliga Free-projektet kan kontoägaren alternativt manuellt skapa exakt tre bekräftade e-post-/lösenordskonton via **Authentication → Users → Add user → Create new user**, utan utskick. Skapa inte Supabase-teamkonton åt barn; de är inte samma sak som begränsade elevkonton i appen. Varje person loggar sedan in på `/study/` och väljer sin egen fasta roll, och kopplar elevprofilen via mentors engångskod.
+
+**Verifieringsgräns:** Officiell CI och simulerade mobiler har passerat, men ingen riktig familjeinloggning, verklig SMTP-leverans eller elevmobilssynk har ännu accepterats. Före slutligt familjegodkännande: registrera kontona, lämna in en ofarlig testuppgift per elev, kontrollera privat mentorsvy, testa offline→online samt frivillig återställning. Använd inte externa provsvar som första test.
+
+#### iPhone och tidigare lokala data
+
+På iPhone/iPadOS har varje separat installerad Home Screen-webbapp isolerad lagring; den delar inte automatiskt elevens gamla localStorage med Safari eller med en annan separat installation. Använd därför **en enda installerad Matte OS-huvudapp**, som har scope `./`, och navigera därifrån till matte, språk, prov och `/study/`. En registrerad och kopplad profil kan därefter synkronisera data inom den installationen. Om eleven redan har använt separata installerade Språk-/Prov-appar eller Safari: **exportera säkerhetskopior från respektive befintlig app innan de stängs/raderas**. Återställ i den nya huvudappen, öppna varje modul och synkronisera. Verifiera varje årskurs och modul på mentorsvyn innan äldre installationer tas bort. Detta är en hård enhetsgräns på iOS, inte ett fel som kan lösas genom att läsa andra appars privata lagring.

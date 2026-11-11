@@ -98,11 +98,25 @@ async function assertVisible(page,locator,label){
   await p.locator('#study-unit').selectOption('s9-geo');
   await p.locator('[data-action="practice"]').click();
   await assertVisible(p,p.locator('#mentor-practice'),'mentor separate practice');
+  const hasVisual=await p.evaluate(()=>window.MO_CONTENT9.filter(s=>s.ch==='s9-geo').some(s=>(s.p||[]).some(q=>!!q.vis)));
+  assert.ok(hasVisual,'source curriculum includes geometry figures');checks++;
+  if(!(await p.locator('#mentor-practice .study-figure svg.vz').count())){
+   for(let n=0;n<11;n++){
+    const v=p.locator('#practice-answer input[name=answer]');
+    if(await v.count())await v.first().check();
+    else await p.locator('#practice-answer textarea[name=answer]').fill('1');
+    await p.locator('#practice-answer button[type=submit]').click();
+    await p.locator('[data-action="next-practice"]').click();
+    if(await p.locator('#mentor-practice .study-figure svg.vz').count())break;
+   }
+  }
+  await assertVisible(p,p.locator('#mentor-practice .study-figure svg.vz').first(),'geometry figures rendered in tutor mode');
+  const previousMentorExercises=await p.evaluate(()=>window.__studyTest.practices.length);
   const field=p.locator('#practice-answer input[name=answer]');
   if(await field.count())await field.first().check();else await p.locator('#practice-answer textarea[name=answer]').fill('4');
   await p.locator('#practice-answer button[type=submit]').click();
   await assertVisible(p,p.getByText('Din lösning'),'mentor own answer');
-  assert.equal(await p.evaluate(()=>window.__studyTest.practices.length),1);checks++;
+  assert.equal(await p.evaluate(()=>window.__studyTest.practices.length),previousMentorExercises+1);checks++;
   assert.equal(errors.length,0,'no JavaScript exceptions: '+errors.join('\n'));checks++;
   await c.close();
   const pupilContext=await context(browser,'learner'),e=await pupilContext.newPage();

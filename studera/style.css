@@ -1,1 +1,28 @@
 .study-pass{padding-top:25px;padding-bottom:90px;max-width:980px}.study-subjects{display:flex;gap:7px;flex-wrap:wrap}.study-subjects .tiny[aria-pressed=true]{background:var(--forest);color:var(--on)}.question-box{background:var(--paper);border:1px solid var(--border);border-radius:20px;padding:20px;margin-top:14px}.question-box h3{font-family:var(--serif);font-size:22px}.study-options{display:grid;gap:9px}.study-options label{border:1px solid var(--border2);border-radius:13px;padding:13px;display:flex;gap:12px;cursor:pointer}.study-options label:has(input:checked){background:var(--mint);border-color:var(--forest)}.study-options input{accent-color:var(--forest)}textarea{background:var(--paper);color:var(--ink);width:100%;border:1px solid var(--border2);border-radius:12px;padding:13px;min-height:125px;font:inherit}.study-question{font-size:17px;white-space:pre-line}.passage{max-height:390px;overflow-y:auto;white-space:pre-line;padding:16px;background:var(--paper2);border-radius:14px;line-height:1.7}.tutor-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.studykicker{letter-spacing:.1em;text-transform:uppercase;font-size:11px;font-weight:750;color:var(--forest)}.tutorresult{white-space:pre-line;overflow-wrap:anywhere;border:1px solid var(--border);padding:13px;border-radius:12px;background:var(--paper2)}.study-progress{height:9px;background:var(--paper2);border-radius:9px;overflow:hidden}.study-progress i{display:block;background:var(--jade);height:9px}.study-banner{border:1px solid var(--border);border-left:4px solid var(--jade);background:var(--paper);border-radius:13px;padding:14px}.grade-picker{display:flex;gap:8px;flex-wrap:wrap}.student-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid var(--border)}@media(max-width:520px){.question-box{padding:16px}.tutor-actions .btn{width:100%}}
+/* Original authored geometry diagrams, rendered through MOVis on the tutoring page. */
+.study-figure{margin:14px 0 10px;padding:14px;background:var(--paper2);border:1px solid var(--border);border-radius:15px;text-align:center;overflow:hidden}
+.study-figure svg.vz{display:block;width:min(100%,460px);max-height:330px;margin:0 auto;font:14px/1.4 system-ui,sans-serif;overflow:visible}
+.study-figure figcaption{margin-top:8px;color:var(--muted);font-size:11px}
+.study-figure .vz .ln{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.study-figure .vz .thin{stroke-width:1.2}.study-figure .vz .dashed{stroke-dasharray:5 5}
+.study-figure .vz .hyp{stroke:var(--forest);stroke-width:3.5}
+.study-figure .vz line.acc,.study-figure .vz path.acc,.study-figure .vz rect.acc,.study-figure .vz polyline.acc{stroke:var(--forest)}
+.study-figure .vz .acc2:not(text){stroke:var(--jade);stroke-width:2.5}
+.study-figure .vz .grid{stroke:var(--border2);stroke-width:1}
+.study-figure .vz .box{fill:var(--paper);stroke:var(--border2);stroke-width:1.5}
+.study-figure .vz .box.hl{fill:var(--mint);stroke:var(--forest);stroke-width:2}
+.study-figure .vz .fillsoft{fill:var(--mint)}.study-figure .vz .fillsoft2{fill:var(--paper2)}
+.study-figure .vz .fillacc{fill:var(--sage)}.study-figure .vz .fillacc2{fill:var(--jade)}
+.study-figure .vz .ghost{fill:var(--paper2);stroke:var(--border2);stroke-dasharray:4 4;stroke-width:1}
+.study-figure .vz .circ{stroke:var(--forest);stroke-width:4;fill:var(--mint)}
+.study-figure .vz .arcm{fill:none;stroke:var(--ink2);stroke-width:1.6}
+.study-figure .vz .arr{fill:none;stroke:var(--ink2);stroke-width:1.8}
+.study-figure .vz .ahd{fill:var(--forest)}
+.study-figure .vz .dot{fill:var(--ink)}
+.study-figure .vz .set{fill:var(--paper2);stroke:var(--border2)}
+.study-figure .vz .tile.x{fill:var(--sage)}.study-figure .vz .tile.one{fill:var(--jade)}
+.study-figure .vz .tile.neg{fill:none;stroke:var(--negative);stroke-dasharray:3 2}
+.study-figure .vz text{fill:var(--ink);font-weight:650;paint-order:stroke;stroke:var(--paper2);stroke-width:3px;stroke-linejoin:round}
+.study-figure .vz text.w{stroke:none}.study-figure .vz .lb{font-size:14px}
+.study-figure .vz .lbs{font-size:12px}.study-figure .vz .lbx{font-size:11px}.study-figure .vz .big{font-size:20px}
+.study-figure .vz text.acc{fill:var(--forest)}.study-figure .vz text.mut{fill:var(--muted)}
