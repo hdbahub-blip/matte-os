@@ -58,7 +58,7 @@ function renderGradePick(){
    <button class="pickbtn" data-pick="grade8"><span class="avatar g8">Å8</span><span><b>Åk 8</b><small>Tal · Geometri · Algebra</small></span><span class="arrow">→</span></button>
    <a class="pickbtn" href="../study/"><span class="avatar">☁</span><span><b>Konto och synk</b><small>Skyddad lagring och mentorskoppling</small></span><span class="arrow">→</span></a>
    <a class="pickbtn" href="../studera/"><span class="avatar">◈</span><span><b>Studera tillsammans</b><small>Gemensamma uppgifter</small></span><span class="arrow">→</span></a>
-   <a class="pickbtn" href="../foralder/"><span class="avatar" style="background:#205C43;color:#fff">M</span><span><b>Min översikt</b><small>Marble Green · Åk 8 och 9 · skrivskyddad</small></span><span class="arrow">→</span></a><p class="privacy">Resultat sparas bara på den här enheten.</p><p class="privacy"><a href="../">Tillbaka till Matte OS</a></p>
+   <a class="pickbtn" href="../foralder/"><span class="avatar" style="background:#205C43;color:#fff">M</span><span><b>Min översikt</b><small>Marble Green · Åk 8 och 9 · skrivskyddad</small></span><span class="arrow">→</span></a><p class="privacy">Resultaten sparas lokalt. Med inloggat elevkonto skickas inlämnade provsvar till den skyddade molnhistoriken.</p><p class="privacy"><a href="../">Tillbaka till Matte OS</a></p>
  </section>`;
 }
 function currentInfo(){

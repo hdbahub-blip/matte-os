@@ -2,7 +2,7 @@
  * Short memory anchors for the most common mix-ups. Each one says WHY it works, WHEN it does not,
  * a typical mistake, two new tasks whose answers stay hidden until the learner has tried,
  * and a recall question for a later day (retrieval practice).
- * Stores only first results and dates per profile in localStorage 'matteos.knep.v1'. No free text.
+ * Stores first-attempt progression locally. Submitted answers also enter private cloud history if learner sync is enabled.
  */
 (function (root, factory) { const o = factory(root); if (typeof module === 'object' && module.exports) module.exports = o; root.MOKnep = o; })(typeof window !== 'undefined' ? window : globalThis, function (root) {
   'use strict';
@@ -234,7 +234,7 @@
     return `<p class="eyebrow">Förstå · minnesknep</p><h1>Minnesknep</h1><p class="mut">Korta knep för det som är lätt att blanda ihop. Varje knep visar varför det fungerar och när det <b>inte</b> gör det. Prova alltid en ny uppgift innan du tittar på facit.</p>
       ${due.length ? `<section class="card knep-due"><h2>Dags att minnas (${due.filter(k => !ui.recallDone[k.id]).length})</h2><p class="mut small">Du klarade de här för minst en dag sedan. Svara utan att titta på knepet först.</p>${due.map(recallHTML).join('')}</section>` : ''}
       ${groups.map(g => `<h2 class="knep-group">${e(g)}</h2>${KNEP.filter(k => k.topic === g).map(k => { const s = status(k, p); return `<details class="knep knep-item" ${ui.open === k.id ? 'open' : ''} data-kid="${k.id}"><summary><span class="knep-title">${e(k.title)}</span><span class="knep-status lvl${s.level}">${e(s.label)}</span></summary>${body(k)}</details>`; }).join('')}`).join('')}
-      <p class="mut small">Status: ”Klarade nya uppgifter själv” betyder rätt på första försöket. ”Mindes efter … dagar” kräver att du svarar rätt på minns-frågan minst en dag senare. Bara första försöket sparas, aldrig det du skriver.</p>
+      <p class="mut small">Status: ”Klarade nya uppgifter själv” betyder rätt på första försöket. ”Mindes efter … dagar” kräver att du svarar rätt på minns-frågan minst en dag senare. Framstegsbedömningen använder första försöket. Om elevsynk är aktiv sparas inlämnade svar även i elevens privata svarshistorik, men aldrig utkast.</p>
       <details class="fold"><summary>Utskrivbar översikt (affisch, valfritt)</summary><div class="in"><p class="mut small">Affischen är en repetition att skriva ut. Lär dig hellre knepen här först – med varför och när de inte fungerar.</p><a class="btn ghost block" href="affischer/?visa=formler&ak=${p === 'grade8' ? '8' : '9'}">Visa affischen</a></div></details>`; }
 
   /* ---------- events ---------- */

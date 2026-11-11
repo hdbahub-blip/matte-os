@@ -1,7 +1,7 @@
 /* Matte OS · Språkverkstad 3.0
  * Shared texts and tasks for both learner profiles; separate, evidence-based progress per profile.
  * - Answer options are shuffled deterministically per task (same order on every device and profile).
- * - No free text, names or audio are stored. Open answers stay in memory only.
+ * - Unsubmitted drafts and audio stay transient. Submitted written/selected answers can sync to a linked account with explicit sharing.
  * - Pair results are never credited as one learner's individual mastery.
  */
 (function(root,factory){const o=factory(root);if(typeof module==='object'&&module.exports)module.exports=o;root.MO_WORKSHOP=o;})(typeof window!=='undefined'?window:globalThis,function(root){

@@ -28,7 +28,7 @@ node tests/e2e.js http://localhost:8765/ # mobil end-to-end (kräver playwright)
 Höj `VERSION` i `sw.js` och `?v=` i `index.html`/`sw.js` så hämtar installerade appar den nya versionen.
 
 ## Integritet
-Ingen elevdata i koden. Framsteg, namn och restprovsdatum sparas bara i webbläsaren på enheten.
+Ingen elevdata finns i källkoden. Framsteg, namn och restprovsdatum sparas lokalt. Study Cloud är frivillig per användare: inloggade elevkonton säkerhetskopierar grad-isolerad progression och inlämnade svar i en Supabase-databas med RLS; en mentor kan bara läsa efter aktiv privat elevkoppling. Oinloggade elever lagrar endast lokalt.
 
 Granskningsrapport: `docs/AUDIT_V5.md`.
 
