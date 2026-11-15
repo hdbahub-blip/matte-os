@@ -10,7 +10,24 @@
  const get=(key)=>{try{return root.localStorage?.getItem(key)||null;}catch(_){return null;}};
  const set=(key,val)=>{try{root.localStorage?.setItem(key,val);return true;}catch(_){return false;}};
  const del=(key)=>{try{root.localStorage?.removeItem(key);}catch(_){}};
- function apiError(error){if(error)throw Error(String(error.message||error).slice(0,180));}
+ const SAFE_ERRORS={
+  INVALID_INVITE:'Rumskoden är felaktig, utgången eller rummet har redan startat.',
+  ROOM_FULL:'Rummet är fullt. Högst tio deltagare.',
+  ROOM_LIMIT:'Du har redan tre aktiva rum. Stäng ett innan du skapar fler.',
+  RATE_LIMIT:'För många försök. Vänta en minut innan du försöker igen.',
+  INVALID_ALIAS:'Visningsnamnet måste vara 1–24 tecken.',
+  INVALID_SOURCE:'Det valda originalmaterialet stöds inte.',
+  INVALID_DECK:'Det valda materialet har inte tillräckligt med frågor.',
+  INVALID_QUESTION:'Någon fråga går inte att använda.',
+  INVALID_OPTION:'Ett av svarsalternativen går inte att använda.',
+  NOT_MEMBER:'Logga in på ditt eget ordinarie Study Cloud-konto.',
+  NOT_FOUND:'Rummet är stängt, utgånget eller inte tillgängligt för dig.'
+ };
+ function message(raw){
+  const key=String(raw?.message||raw||'');
+  return SAFE_ERRORS[key]||key.slice(0,160)||'Åtgärden kunde inte slutföras.';
+ }
+ function apiError(error){if(error)throw Error(message(error));}
  async function init(){
   if(!db){
    const cfg=root.MO_CUP_CONFIG;
@@ -33,7 +50,7 @@
   if(!db||!person)throw Error('Logga in på ditt eget konto under Konto och synk.');
   const {data,error}=await db.rpc(fn,args);
   apiError(error);
-  if(data && typeof data==='object' && typeof data.error==='string')throw Error(data.error.slice(0,180));
+  if(data && typeof data==='object' && typeof data.error==='string')throw Error(message(data.error));
   return data;
  }
  function remember(room){if(!person)return false;return set(STORAGE,JSON.stringify({user:person.id,room}));}
