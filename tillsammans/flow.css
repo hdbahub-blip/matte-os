@@ -1,5 +1,7 @@
 /* Matte OS · Together — direct-start journey, 2026-11-15.
    Adds visual hierarchy without changing grade, guest or school data. */
+.flow-selected-guest{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px;padding:7px 12px;margin:0 0 13px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));color:var(--ink);background:var(--guest-light);font-size:13px;font-weight:680;}
+[data-mode=dark] .flow-selected-guest{background:var(--guest-dark);}
 .flow-welcome {
   background: radial-gradient(circle at 88% 0%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 44%),
     linear-gradient(145deg,var(--surface),color-mix(in srgb,var(--guest-light) 26%,var(--surface)));
