@@ -2,6 +2,12 @@
 
 **Status 2026-11-15:** DRAFT/STAGING; inte publicerad eller migrerad i produktion. Denna gren bygger på `feature/guest-together-v1-20261115`, som har ett separat lokalt pass-and-play. Produkt-/driftsmandat ska inte förväxlas med författad kod.
 
+
+
+### Read-only kontroll av befintligt dedikerat Supabaseprojekt, 2026-11-15
+
+Utförd med **enbart SELECT**, utan ändring av auth, schema eller data: PostgreSQL **17.11**, `public.study_profiles` finns och innehåller **0 profiler**, `together_live.rooms` saknas, och både `pgcrypto` och `pg_cron` är redan aktiva. `extensions.digest(text,text)`, `extensions.gen_random_bytes(integer)` samt `auth.users.is_anonymous` finns. Ingen produktionsmigration eller familjeinloggning har skett. Det gör test på två riktiga konton till en kvarstående releasegrind, inte en avklarad aktivitet.
+
 ## 1. Verkligt användningsområde och beroenden
 
 - Samma enhet: `/tillsammans/` fungerar lokalt utan konto och med Joker-gäster; detta är baslinje/rollback.
@@ -21,7 +27,7 @@ Funktionsomfattning: 1–10 autentiserade användare, en värd, tidsbegränsad i
 | `matteos.together.live.room.v1` | Endast senaste rummets ID och inloggat användar-ID, på personens enhet | Lokalt; byter inte konto/årskurs |
 | Gäst- och skolnycklar | `matteos.guests.v1`, `matteos.v5`, `matteos.larande.v1` | Skilda flöden; **ingen** automatisk uppladdning till live-rum |
 
-**Access control:** Varje RPC kontrollerar `auth.uid()` och befintlig `study_profiles`. Skapande och administration kräver värdens identitet. Läsning kräver faktisk medlemsrad, inte bara gissad UUID. Inbjudan krävs för att ansluta och fungerar bara innan värden startar; 10 medlemmar som högst. Anonyma användare har inget EXECUTE; direkta tabellgrant saknas och RLS är aktivt.
+**Access control:** Varje RPC kontrollerar `auth.uid()` och befintlig `study_profiles`. Skapande och administration kräver värdens identitet. Läsning kräver faktisk medlemsrad, inte bara gissad UUID. Inbjudan krävs för att ansluta och fungerar bara innan värden startar; 10 medlemmar som högst. Anonyma användare har inget EXECUTE; dessutom nekas Supabase Auth-användare med `is_anonymous=true` även om deras JWT bär rollen `authenticated`. Direkta tabellgrant saknas och RLS är aktivt.
 
 **Brute force:** 128-bitars slumpvärde, endast SHA-256-hash i databasen. Anslutningsförsök begränsas till 15/minut per autentiserad användare; *avslag ska konsumera kvot*. Skapande begränsas till 3/minut och maximalt 3 aktiva rum per användare. Detta eliminerar inte DoS eller ett komprometterat konto; ett storskaligt missbruk kräver Supabase- och edge-skydd på infrastrukturlagret.
 
