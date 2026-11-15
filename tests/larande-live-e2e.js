@@ -21,7 +21,7 @@ const {chromium} = require('playwright');
   });
   const res=await page.goto(base,{waitUntil:'networkidle'});
   assert(res?.ok(),`Matte OS root HTTP ${res?.status()}`);
-  const entry=page.locator('a.calm-choice[href="lara/#/sv"]');
+  const entry=page.locator('a.flow-home-topics a[href="lara/#/sv"]');
   await entry.waitFor({state:'visible'});
   assert.match(await entry.innerText(),/Svenska/);
   await entry.click();
