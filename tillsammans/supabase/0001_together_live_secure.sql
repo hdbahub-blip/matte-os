@@ -55,7 +55,8 @@ create function together_live.identity() returns uuid
 language plpgsql stable set search_path='' as $$
 declare v_uid uuid := (select auth.uid());
 begin
- if v_uid is null or not exists(select 1 from public.study_profiles p where p.user_id=v_uid) then
+ if v_uid is null or not exists(select 1 from public.study_profiles p join auth.users u on u.id=p.user_id
+    where p.user_id=v_uid and u.is_anonymous is false) then
    raise exception 'NOT_MEMBER' using errcode='P0001';
  end if;
  return v_uid;
