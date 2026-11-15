@@ -44,6 +44,11 @@
   }
   if (entryParams.get('start')==='group' && ui.page==='home' && !startRef) {
     ui.page='setup'; ui.ref=entryList(ui.topic).some(x=>x.ref===ui.ref)?ui.ref:defaultRef(ui.topic);
+    // The launch instruction is one-time. Reload must not restart navigation or lose paused-session recovery.
+    try {
+      const next=new URL(location.href);next.searchParams.delete('start');
+      history.replaceState(null,'',next.pathname+next.search+next.hash);
+    } catch(_) { /* Launch works even when history is unavailable. */ }
   }
   if (startRef && /^(sv|en):[a-zA-Z0-9_-]+:v[0-9]+$/.test(startRef)) {
     ui.page='read'; ui.ref=startRef;
