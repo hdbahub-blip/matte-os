@@ -173,7 +173,7 @@ begin
  'phase',r.phase,'round',r.idx,'total',jsonb_array_length(r.deck),
  'revision',r.revision,'members',v_members,'question',v_q,
  'answer_count',(select count(*) from together_live.answers a where a.room_id=r.id and a.round=r.idx),
- 'answers',v_answers,'expires_at',r.expires_at,'content_ref',r.content_ref,'content_hash',r.content_hash);
+ 'answers',v_answers,'expires_at',r.expires_at,'content_ref',r.content_ref);
 end $$;
 
 create function public.together_live_start(p_room uuid)
