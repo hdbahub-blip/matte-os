@@ -108,6 +108,9 @@ declare v_user uuid; v_code text; v_room uuid; v_hash text;
 begin
  v_user:=together_live.identity();
  perform together_live.rate(v_user,'create',3,60);
+ -- The throttle insert must commit EVEN for rejected payloads.
+ -- Catch validation errors in a nested subtransaction; return an error object.
+ begin
  if p_ref is null or p_ref !~ '^(sv|en|study|math|table):[a-zA-Z0-9_-]{1,64}(:v[0-9]{1,3})?$'
  then raise exception 'INVALID_SOURCE' using errcode='P0001'; end if;
  perform together_live.validate_deck(p_deck);
@@ -122,6 +125,9 @@ begin
  values(v_user,encode(extensions.digest(v_code,'sha256'),'hex'),p_ref,v_hash,p_deck) returning id into v_room;
  insert into together_live.members(room_id,user_id,alias) values(v_room,v_user,btrim(p_alias));
  return jsonb_build_object('room_id',v_room,'invite',v_code,'expires_in_minutes',240);
+ exception when sqlstate 'P0001' then
+   return jsonb_build_object('error',sqlerrm);
+ end;
 end $$;
 
 create function public.together_live_join(p_invite text,p_alias text)
@@ -130,6 +136,8 @@ declare v_user uuid; r together_live.rooms%rowtype; v_n integer;
 begin
  v_user:=together_live.identity();
  perform together_live.rate(v_user,'join',15,60);
+ -- Invalid invites must consume their allowance, not rollback the throttle row.
+ begin
  if p_invite is null or p_invite !~ '^[0-9a-fA-F]{32}$' then
  raise exception 'INVALID_INVITE' using errcode='P0001'; end if;
  perform together_live.check_alias(p_alias);
@@ -144,6 +152,9 @@ begin
    update together_live.rooms set revision=revision+1 where id=r.id;
  end if;
  return jsonb_build_object('room_id',r.id);
+ exception when sqlstate 'P0001' then
+   return jsonb_build_object('error',sqlerrm);
+ end;
 end $$;
 
 create function public.together_live_state(p_room uuid)
