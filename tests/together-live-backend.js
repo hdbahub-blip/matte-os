@@ -55,6 +55,7 @@ const fail=async(call,msg)=>{await assert.rejects(call,undefined,msg);};
   assert.equal(await rpc(people[0],'together_live_start',[room]),true);
   const initial=await rpc(people[1],'together_live_state',[room]);
   assert.equal(initial.phase,'answering');assert.equal(initial.members.length,2);
+  assert.equal(Object.prototype.hasOwnProperty.call(initial,'content_hash'),false,'No secret-answer deck hash exposed');
   assert.equal(initial.question.prompt,deck[0].prompt);
   assert.equal('correct' in initial.question,false,'Correct index hidden before all answers');
   assert.equal('why' in initial.question,false,'Hint/explanation hidden before all answers');
