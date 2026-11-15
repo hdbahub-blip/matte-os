@@ -80,7 +80,7 @@ ok(app.includes('PBKDF2')&&app.includes('165000'),'hashed local PIN, no plaintex
 ok(app.includes('foralder')===false||app.includes('snapshot')===false||true,'parent app loaded');
 ok(sw.includes("matte-parent-1.1.1-private-history")&&!sw.includes("caches.delete('matte-os-"),'independent parent cache');
 ok(rootSW.includes("'./foralder/index.html'")&&rootSW.includes('parentNav'),'root PWA parent offline fallback');
-ok(rootUI.includes('Min översikt')&&lerUI.includes('Min översikt'),'discoverable third profile from both learning apps');
+ok(rootUI.includes('MOProfileChooser.render')&&file('js/profile-chooser.js').includes('Min översikt')&&lerUI.includes('Min översikt'),'discoverable third profile from both learning apps');
 ok(file('prov/js/app.js').includes('Dela resultatrapport'),'exam can enter report sharing flow');
 ok(file('foralder/style.css').includes('Marble green')&&file('foralder/style.css').includes('html[data-mode="dark"]'),'marble green both modes');
 ok(file('lara/index.html').includes('name="matte-larande-build" content="4.2.1"'),'Learning public metadata matches active 4.1.0 parent navigation');
