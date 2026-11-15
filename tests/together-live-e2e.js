@@ -15,7 +15,7 @@ const byUser=(uid,fn,p)=>{
   return {room_id:rid,invite:code,expires_in_minutes:240};
  }
  if(fn==='together_live_join'){
-  if(!room||p.p_invite.toLowerCase()!==code||room.phase!=='lobby')throw Error('INVALID_INVITE');
+  if(!room||p.p_invite.toLowerCase()!==code||room.phase!=='lobby')return {error:'INVALID_INVITE'};
   if(!room.members.find(m=>m.id===uid))room.members.push({id:uid,name:p.p_alias});room.rev++;
   return {room_id:rid};
  }
@@ -79,6 +79,12 @@ const byUser=(uid,fn,p)=>{
   const invite=await host.page.locator('#live-link').inputValue();
   assert.ok(invite.endsWith('#join='+code),'Secret only in URL fragment');
   assert.ok(room.deck.length>=1,'Using real authored exercise source');
+  await guest.page.goto(start,{waitUntil:'load'});
+  await guest.page.locator('#join-code').fill('0'.repeat(32));
+  await guest.page.locator('[data-action=join]').click();
+  await guest.page.getByRole('alert').first().waitFor();
+  assert.match(await guest.page.locator('main').innerText(),/INVALID_INVITE/,
+    'Denied RPC payload should be visible, never open an undefined room');
   await guest.page.goto(invite,{waitUntil:'load'});
   await guest.page.locator('#invited-alias').waitFor();
   assert.equal(new URL(guest.page.url()).hash,'','Immediately clear secret from address bar');
