@@ -83,7 +83,7 @@ const byUser=(uid,fn,p)=>{
   await guest.page.locator('#join-code').fill('0'.repeat(32));
   await guest.page.locator('[data-action=join]').click();
   await guest.page.getByRole('alert').first().waitFor();
-  assert.match(await guest.page.locator('main').innerText(),/INVALID_INVITE/,
+  assert.match(await guest.page.locator('main').innerText(),/Rumskoden är felaktig/,
     'Denied RPC payload should be visible, never open an undefined room');
   await guest.page.goto(invite,{waitUntil:'load'});
   await guest.page.locator('#invited-alias').waitFor();
