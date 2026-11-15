@@ -103,6 +103,7 @@ const byUser=(uid,fn,p)=>{
   assert.equal(await guest.page.locator('main').getByText('Rätt svar:').count(),0);
   await host.page.locator('.choice').first().click();
   await host.page.locator('[data-action=answer]').click();
+  await host.page.getByText('Ditt svar är inskickat').first().waitFor();
   await host.page.reload({waitUntil:'load'});
   await host.page.locator('.live-answer-note').first().waitFor();
   assert.match(await host.page.locator('main').innerText(),/Ditt svar är inskickat/,
@@ -112,10 +113,12 @@ const byUser=(uid,fn,p)=>{
   assert.equal(await guest.page.locator('main').getByText('Rätt svar:').count(),0,'Hidden until ALL answer');
   await guest.page.locator('.choice').first().click();
   await guest.page.locator('[data-action=answer]').click();
+  await guest.page.getByText('Rätt svar:').first().waitFor();
   await host.page.locator('[data-action=refresh]').click();
   assert.match(await host.page.locator('main').innerText(),/Rätt svar:/);
   assert.match(await guest.page.locator('main').innerText(),/Rätt svar:/);
   await host.page.locator('[data-action=next]').click();
+  await host.page.getByText('Fråga 2').first().waitFor();
   assert.equal(room.round,1);
   await guest.page.locator('[data-action=refresh]').click();
   assert.match(await guest.page.locator('main').innerText(),/Fråga 2/);
