@@ -59,7 +59,7 @@ const url=process.argv[2]||'http://127.0.0.1:8765/';
     await page.waitForFunction(() => !!navigator.serviceWorker?.controller,{timeout:15000});
     await context.setOffline(true);
     await page.reload({waitUntil:'load'});
-    assert.match(await page.locator('main').innerText(),/Bussen 07\\.42/,'Offline exact reading link must work');
+    assert.match(await page.locator('main').innerText(),/Bussen 07\.42/,'Offline exact reading link must work');
     await context.setOffline(false);
     assert.deepEqual(errors,[],'No page JavaScript errors');
     console.log('Matte OS Together mobile: profiles, themes, 3-person hidden answers, resume, share source and school isolation PASS');
