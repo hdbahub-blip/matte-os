@@ -272,6 +272,7 @@ function boostCard() {
     return `<main id="main" class="pc-onboarding">
       <div class="pc-onboarding-brand"><span aria-hidden="true">M</span> MATTE OS</div>
       ${window.MOProfileChooser.render({active:pid(),closable:false})}
+      <p class="pc-onboard-privacy">Matteframsteg sparas på den här enheten. Med inloggat elevkonto kan svar synkroniseras till den skyddade studieprofilen. Cup skickar tillfälliga speluppgifter till en separat spelserver.</p>
       </main>`;
   }
 
