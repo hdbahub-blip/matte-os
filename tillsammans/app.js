@@ -37,7 +37,10 @@
     const g=ui.selectedGuest && ui.page!=='session' ? member(ui.selectedGuest) : null;
     const p=g && S.THEMES[g.theme] ? S.THEMES[g.theme] : S.THEMES.emerald;
     root.dataset.mode=appearance();
-    root.style.setProperty('--accent',ui.page==='session'?'#176B50':p.accent);
+    const darkColors={emerald:'#9AE2C1',plum:'#E3C3F0',teal:'#A9E3E8',champagne:'#E9CFAB'};
+    const effective=ui.page==='session'?'emerald':(g?.theme||'emerald');
+    root.style.setProperty('--accent',root.dataset.mode==='dark'?darkColors[effective]:p.accent);
+    root.style.setProperty('--action',ui.page==='session'?'#176B50':p.accent);
     root.style.setProperty('--guest-light',p.light);
     root.style.setProperty('--guest-dark',p.dark);
     const meta=document.querySelector('meta[name=theme-color]');
