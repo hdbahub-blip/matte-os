@@ -15,6 +15,7 @@ const BASE=process.argv[2]||'http://127.0.0.1:8765/';
         await page.goto(BASE,{waitUntil:'networkidle'});
         assert.match(await page.locator('#main').innerText(),/Cup skickar tillfälliga speluppgifter/);n++;
         await page.locator('[data-p="'+grade+'"]').click();
+        await page.locator('.flow-explore > summary').click();
         await page.waitForSelector('.calm-choices');
         for(const [route,text] of [['formler','Förstå matte'],['tabell/home','Öva multiplikation'],['trana','Träna matte']]){
           const link=page.locator('.calm-choice[href="#/'+route+'"]');
