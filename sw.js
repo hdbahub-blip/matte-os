@@ -27,8 +27,9 @@ self.addEventListener('fetch', e => {
   if (path.startsWith(base + 'prov/') || path.startsWith(base + 'tabell/') || path.startsWith(base + 'lara/')) return;
   const posterNav = req.mode === 'navigate' && (path === base + 'affischer/' || path === base + 'affischer/index.html');
   const parentNav = req.mode === 'navigate' && (path === base + 'foralder/' || path === base + 'foralder/index.html');
-  if (req.mode === 'navigate' && path !== base && path !== base + 'index.html' && !posterNav && !parentNav) return;
-  const offlineKey = parentNav ? './foralder/index.html' : posterNav ? './affischer/index.html' : './index.html';
+  const togetherNav = req.mode === 'navigate' && (path === base + 'tillsammans/' || path === base + 'tillsammans/index.html');
+  if (req.mode === 'navigate' && path !== base && path !== base + 'index.html' && !posterNav && !parentNav && !togetherNav) return;
+  const offlineKey = togetherNav ? './tillsammans/index.html' : parentNav ? './foralder/index.html' : posterNav ? './affischer/index.html' : './index.html';
   e.respondWith((async () => {
     try {
       const res = await fetch(req, { cache: 'no-cache' });
