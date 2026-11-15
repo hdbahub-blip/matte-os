@@ -706,6 +706,9 @@ function boostCard() {
 
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-a]'); if (!b) return;
+    // The backdrop surrounds ordinary <a> links in the sheet. Do NOT cancel their navigation.
+    // Only a direct backdrop click should close the sheet.
+    if (b.dataset.a === 'scrim' && e.target !== b) return;
     const a = actions[b.dataset.a]; if (!a) return;
     if (b.tagName === 'INPUT') return;
     e.preventDefault(); a(b, e);
