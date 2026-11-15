@@ -382,7 +382,7 @@
     if(a==='quick-solo'){
       const selected=ui.selectedGuest&&member(ui.selectedGuest)||S.load().guests.find(g=>g.id===S.load().activeGuestId)||S.load().guests[0];
       if(!selected){note('Skapa en Joker-profil först.');return;}
-      const ref=defaultRef(ui.topic==='sv'||ui.topic==='en'||ui.topic==='math'||ui.topic==='table'||ui.topic==='study'?ui.topic:'sv');
+      const ref=entryList(ui.topic).some(x=>x.ref===ui.ref)?ui.ref:defaultRef(ui.topic);
       const deck=questions(ref);
       if(!deck.length){note('Inga övningar kunde startas. Välj ett annat ämne.');return;}
       if(S.restoreSession()&&!window.confirm('Ersätta det pausade passet?'))return;
@@ -472,8 +472,13 @@
     const el=e.target;
     if(el.dataset.role==='participant'){
       if(el.checked)ui.members.add(el.value);else ui.members.delete(el.value);
+      if(ui.members.size>S.MEMBER_LIMIT){ui.members.delete(el.value);el.checked=false;note('Högst tio personer per pass.');return;}
       savePrefs();
-      if(ui.members.size>S.MEMBER_LIMIT){ui.members.delete(el.value);el.checked=false;note('Högst tio personer per pass.');}
+      const count=[...ui.members].filter(id=>member(id)).length;
+      const label=app.querySelector('.flow-players-head span');
+      if(label)label.textContent=count+' valda · max '+S.MEMBER_LIMIT;
+      const launch=app.querySelector('[data-action="start-session"]');
+      if(launch){launch.disabled=!count||!ui.ref;launch.textContent='Starta 5 frågor · '+count+' '+(count===1?'person':'personer');}
     }
     if(el.dataset.role==='topic'){
       ui.topic=el.value;ui.ref=defaultRef(ui.topic);savePrefs();render();
