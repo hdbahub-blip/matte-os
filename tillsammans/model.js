@@ -98,7 +98,12 @@
     return memory;
   }
   function save() { return writeKey(KEY, JSON.stringify(load())); }
-  function status() { return { storageOk, hasLocalStorage: !!root.localStorage }; }
+  function status() {
+    let hasLocalStorage = false;
+    try { hasLocalStorage = !!root.localStorage; }
+    catch (_) { storageOk = false; }
+    return { storageOk, hasLocalStorage };
+  }
   function addGuest(name) {
     const st = load();
     if (st.guests.length >= GUEST_LIMIT) return null;
@@ -111,20 +116,24 @@
   function updateGuest(id, patch) {
     const g = load().guests.find(x => x.id === id);
     if (!g || !isObject(patch)) return false;
+    // Validate the entire patch BEFORE touching in-memory or persisted state.
+    const next = { ...g };
     if (Object.prototype.hasOwnProperty.call(patch, 'name')) {
-      const n = cleanName(patch.name);
-      if (!n) return false;
-      g.name = n;
+      next.name = cleanName(patch.name);
+      if (!next.name) return false;
     }
     if (Object.prototype.hasOwnProperty.call(patch, 'theme')) {
-      if (!THEMES[patch.theme]) return false;
-      g.theme = patch.theme;
+      if (!Object.prototype.hasOwnProperty.call(THEMES, patch.theme)) return false;
+      next.theme = patch.theme;
     }
     if (Object.prototype.hasOwnProperty.call(patch, 'appearance')) {
       if (!APPEARANCES.includes(patch.appearance)) return false;
-      g.appearance = patch.appearance;
+      next.appearance = patch.appearance;
     }
-    save(); return true;
+    const old = { ...g };
+    Object.assign(g, next);
+    if (!save()) { Object.assign(g, old); return false; }
+    return true;
   }
   function activate(id) {
     if (!load().guests.some(g => g.id === id)) return false;
