@@ -1,0 +1,65 @@
+/* Unified profile chooser inside Lärande; same grade/guest colors as Matte OS. */
+.profileMenu.pc-learning-overlay {
+ position:fixed!important;
+ inset:0!important;
+ z-index:100!important;
+ width:100%!important;
+ max-width:none!important;
+ max-height:100dvh!important;
+ overflow-y:auto!important;
+ overscroll-behavior:contain;
+ padding:clamp(10px,3vw,22px)!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:0!important;
+ display:flex;
+ justify-content:center;
+ align-items:flex-start;
+ background:rgba(9,10,16,.86)!important;
+ backdrop-filter:blur(13px);
+ -webkit-backdrop-filter:blur(13px);
+ box-shadow:none!important;
+}
+.pc-learning-modal {
+ box-sizing:border-box;
+ width:min(100%,670px);
+ margin:auto;
+ border:1px solid rgba(242,165,211,.68);
+ border-radius:26px;
+ padding:clamp(15px,4vw,25px);
+ color:#fff9ff;
+ background:radial-gradient(circle at 5% 0%,rgba(151,62,128,.22),transparent 44%),linear-gradient(155deg,#211c29,#12141b 84%);
+ box-shadow:0 20px 70px rgba(0,0,0,.48);
+}
+.pc-learning-modal .pc-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;}
+.pc-learning-modal .pc-card {
+ min-width:0;
+ min-height:168px;
+ display:flex;
+ flex-direction:column;
+ gap:5px;
+ justify-content:flex-end;
+ align-items:center;
+ padding:15px 6px;
+ border-radius:20px;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+}
+.pc-learning-modal .pc-card .pc-name{font-size:clamp(15px,4vw,20px);}
+.pc-learning-modal .pc-card .pc-sub{font-size:11px;}
+.pc-learning-modal .pc-card .pc-avatar{display:grid;place-items:center;width:60px;height:60px;}
+.pc-learning-modal .pc-heading h2{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;}
+.pc-learning-manage {
+ display:flex;justify-content:center;align-items:center;
+ min-height:50px;
+ margin-top:17px;
+ padding:10px 15px;
+ border:1px solid #a779a1;
+ border-radius:14px;
+ color:#fff2ff;
+ text-decoration:none;
+ font-weight:720;
+ background:#53314c;
+}
+.pc-learning-manage:hover{background:#653c5c;}
+.pc-learning-modal .pc-card:focus-visible,.pc-learning-manage:focus-visible {outline:3px solid #ffe3a1;outline-offset:3px;}
+@media(max-width:360px){.pc-learning-modal{padding:12px;border-radius:20px;}.pc-learning-modal .pc-grid{gap:8px;}.pc-learning-modal .pc-card{min-height:151px;padding:12px 4px;border-radius:16px;}.pc-learning-modal .pc-card .pc-avatar{width:51px;height:51px;}}
