@@ -111,3 +111,6 @@ dialog::backdrop{background:#050c1399}
 @media(max-width:390px){.guest-grid{grid-template-columns:1fr}.participants{grid-template-columns:1fr}.options{grid-template-columns:1fr}.hero{padding:20px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
 @media(prefers-contrast:more){:root{--line:#656760}[data-mode=dark]{--line:#c8d6d3}.card,.turncard,.guest{box-shadow:none}}
+
+/* Reuse the original mathematics renderer without importing the school app layout. */
+.m{display:inline-flex;vertical-align:middle;align-items:center;gap:.1em}.m-frac{display:inline-flex;flex-direction:column;line-height:1.1;vertical-align:middle;align-items:center;font-size:.92em}.m-num{border-bottom:1px solid currentColor;padding:0 .15em}.m-den{padding:0 .15em}.m-sqrt{display:inline-flex;align-items:stretch}.m-rad{font-size:1.15em;padding-right:.06em}.m-under{border-top:1px solid currentColor;padding:0 .1em}.m-sup{font-size:.7em;vertical-align:super}.m-sub{font-size:.7em;vertical-align:sub}
