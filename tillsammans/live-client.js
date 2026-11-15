@@ -33,6 +33,7 @@
   if(!db||!person)throw Error('Logga in på ditt eget konto under Konto och synk.');
   const {data,error}=await db.rpc(fn,args);
   apiError(error);
+  if(data && typeof data==='object' && typeof data.error==='string')throw Error(data.error.slice(0,180));
   return data;
  }
  function remember(room){if(!person)return false;return set(STORAGE,JSON.stringify({user:person.id,room}));}
