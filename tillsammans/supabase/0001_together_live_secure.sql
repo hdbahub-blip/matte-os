@@ -266,5 +266,16 @@ grant execute on function public.together_live_start(uuid) to authenticated;
 grant execute on function public.together_live_answer(uuid,integer,integer) to authenticated;
 grant execute on function public.together_live_next(uuid,integer) to authenticated;
 grant execute on function public.together_live_leave(uuid) to authenticated;
+-- Internal housekeeping. Schedule using Supabase Cron after deployment and verify each run.
+-- Not public RPC; cascading delete removes members and all answers.
+create function together_live.prune_expired() returns integer
+language plpgsql set search_path='' as $$
+declare v_removed integer;
+begin
+ delete from together_live.rooms where expires_at<=now();
+ get diagnostics v_removed = row_count;
+ delete from together_live.throttle where window_start<now()-interval '2 hours';
+ return v_removed;
+end $$;
 revoke all on all functions in schema together_live from public,anon,authenticated;
 -- Purely local SQL staging: no writes to real Supabase in this migration file.
