@@ -15,6 +15,7 @@ const BASE=process.argv[2]||'http://127.0.0.1:8765/';
         await page.goto(BASE,{waitUntil:'networkidle'});
         assert.match(await page.locator('#main').innerText(),/Cup skickar tillfälliga speluppgifter/);n++;
         await page.locator('[data-p="'+grade+'"]').click();
+        await page.locator('.flow-explore > summary').click();
         await page.waitForSelector('.calm-choices');
         for(const [route,text] of [['formler','Förstå matte'],['tabell/home','Öva multiplikation'],['trana','Träna matte']]){
           const link=page.locator('.calm-choice[href="#/'+route+'"]');
@@ -42,7 +43,7 @@ const BASE=process.argv[2]||'http://127.0.0.1:8765/';
         await page.goto(BASE+'#/cup');
         await page.locator('#cup >> css=[data-v=host]').click();
         assert.equal(await page.locator('#cup >> css=[data-act=create]').count(),1);n++;
-        assert.equal(await page.locator('#cup >> css=.cup-customize[open]').count(),1);n++;
+        assert.equal(await page.locator('#cup >> css=.cup-customize[open]').count(),0,'advanced Cup options collapsed by default');n++;
         assert.match(await page.locator('#cup >> css=.card').last().innerText(),/10 frågor × 1 omgång/);n++;
         const widths=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);
         assert(widths[0]<=widths[1]+2,deviceName+' '+grade+' overflow '+widths);n++;

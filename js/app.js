@@ -25,7 +25,8 @@
     cal: svgI('<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/>'),
     flag: svgI('<path d="M5 21V4h11l-2 4 2 4H5"/>'),
     gear: svgI('<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>'),
-    grid: svgI('<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>')
+    grid: svgI('<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>'),
+    people: svgI('<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>')
   };
 
   /* ---------- hjälpare ---------- */
@@ -109,14 +110,34 @@
     return shell(`<div class="ctx">${ctx}</div>
       <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'Vad vill du göra idag?')}</h1>
       <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Välj det som passar dig. Du kan alltid komma tillbaka.</p>
-      ${hero}${KNEP && KNEP.dueCount() ? `<a class="tap knep-home" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">Svara först, titta sedan. Tar en minut.</div></div><span class="chev">${I.chev}</span></a>` : ''}<h2 class="home-choice-heading">Eller välj själv</h2>
+      <section class="flow-entry" aria-label="Börja öva">
+        <p class="flow-eyebrow">Börja här</p>
+        <h2>Hur vill du plugga?</h2>
+        <div class="flow-home-choices">
+          <button class="flow-home-choice flow-home-alone" data-a="startTrain" data-ch="${rec.chapter}">
+            <span class="flow-home-icon">${I.pen}</span><strong>Kör själv</strong>
+            <span>5 korta mattefrågor</span><b>Starta direkt <span aria-hidden="true">›</span></b>
+          </button>
+          <a class="flow-home-choice flow-home-together" href="tillsammans/?start=group">
+            <span class="flow-home-icon">${I.people}</span><strong>Kör tillsammans</strong>
+            <span>Samma mobil · välj spelare</span><b>Kom igång <span aria-hidden="true">›</span></b>
+          </a>
+        </div>
+        <div class="flow-home-topics" aria-label="Snabbval av ämne">
+          <a href="#/formler">Förstå matte</a><a href="lara/#/sv">Svenska</a><a href="lara/#/en">Engelska</a>
+        </div>
+      </section>
+      ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">Svara först, titta sedan. Tar en minut.</div></div><span class="chev">${I.chev}</span></a>` : ''}
+      ${rec.kind === 'continue' ? hero : ''}
+      <details class="flow-explore"><summary>Välj annat ämne eller aktivitet</summary><div class="flow-explore-body">
+      ${rec.kind === 'continue' ? '' : hero}<h2 class="home-choice-heading">Eller välj själv</h2>
       <div class="calm-choices learn-grid" aria-label="Välj vad du vill göra">
       <a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Lär dig med enkla exempel</span></a>
       <a class="calm-choice" href="#/trana"><strong>Träna matte</strong><span>Räkna egna uppgifter</span></a>
       <a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>En tabell eller flera tillsammans</span></a>
       <a class="calm-choice learn-choice" href="lara/#/sv"><strong>Svenska</strong><span>Läsförståelse · ord · 3 nivåer</span></a>
       <a class="calm-choice learn-choice" href="lara/#/en"><strong>Engelska</strong><span>Reading · vocabulary · 3 nivåer</span></a>
-      </div><a class="tap guest-home-shortcut" href="tillsammans/"><span class="ic">◈</span><div><div class="t">Gäster &amp; Tillsammans</div><div class="s">Jokrar · svenska · engelska · matte</div></div><span class="chev">${I.chev}</span></a><a class="calm-choice game-shortcut" href="#/cup"><strong>Spela tillsammans</strong><span>Matte OS Cup · spela på varsin mobil</span></a><details class="fold"><summary>Prov och planering (fler val)</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>`, 'home');
+      </div><a class="tap guest-home-shortcut" href="tillsammans/"><span class="ic">◈</span><div><div class="t">Hantera Jokrar</div><div class="s">Namn · färger · lokala profiler</div></div><span class="chev">${I.chev}</span></a><a class="calm-choice game-shortcut" href="#/cup"><strong>Cup · varsin mobil</strong><span>Skapa eller gå med utan konto</span></a><details class="fold"><summary>Prov och planering (fler val)</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details></div></details>`, 'home');
   }
 
 function boostCard() {
@@ -762,6 +783,14 @@ function boostCard() {
   E.load();
   E.migrateV4().then(n => { if (n) { toast(`Tidigare framsteg flyttades över (${n} svar).`); render(); } });
   render();
+  // A single consistent profile chooser across Maths and Lärande.
+  if (pid() && new URLSearchParams(location.search).get('profiles') === '1') {
+    openSheet({ type: 'profile' });
+    try {
+      const url = new URL(location.href); url.searchParams.delete('profiles');
+      history.replaceState(null, '', url.pathname + url.search + url.hash);
+    } catch (_) { /* choice still works with the query kept */ }
+  }
 
   // Service worker: ny version tas i bruk direkt, men laddar bara om när eleven inte är mitt i en uppgift.
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {

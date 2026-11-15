@@ -26,7 +26,7 @@
 
   function fresh() {
     return { view: 'menu', api: null, sess: null, st: null, recvAt: 0, banner: '', err: '', busy: false, local: null, pollT: null, tickT: null,
-      study: { tables: [7], cover: false, test: null }, setup: { mode: 'quick', tables: [1,2,3,4,5,6,7,8,9,10], qual: 10, rounds: 1, sec: 30, expanded: true }, joinCode: '', nick: '', lastSig: '' };
+      study: { tables: [7], cover: false, test: null }, setup: { mode: 'quick', tables: [1,2,3,4,5,6,7,8,9,10], qual: 10, rounds: 1, sec: 30, expanded: false }, joinCode: '', nick: '', lastSig: '' };
   }
   const page = () => (root.MOEngine && root.MOEngine.state && root.MOEngine.state().active) || 'grade9';
 
@@ -115,7 +115,7 @@
 
   // ---------- rendering ----------
   function shell(inner) {
-    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.5.4"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
+    shadow.innerHTML = '<link rel="stylesheet" href="css/cup.css?v=5.6.0-one-tap"><div class="cup" data-grade="' + page() + '"><div id="banner" class="banner" role="status" ' + (S.banner ? '' : 'hidden') + '>' + esc(S.banner) + '</div><div class="wrap">' + inner + '</div></div>';
   }
   const chips = (sel, act) => Array.from({ length: 10 }, (_, i) => i + 1).map(t => '<button type="button" class="chip' + (sel.includes(t) ? ' on' : '') + '" data-act="' + act + '" data-v="' + t + '" aria-pressed="' + sel.includes(t) + '">' + t + '</button>').join('');
   const errBox = () => S.err ? '<p class="err" role="alert">' + esc(S.err) + '</p>' : '';
@@ -123,14 +123,20 @@
 
   function menu() {
     const on = !!cfg();
-    shell(`<span class="eyebrow">Matte OS Cup</span><h1>Spela tillsammans</h1>
-      <p class="lead">Studera tabellerna först. Sedan spelar ni samma frågor på varsin mobil, med kval, semifinal och final.</p>
-      ${errBox()}
-      <button class="tile" data-act="go" data-v="study"><b>1 · Studera tabellerna</b><span>Läs, täck svaren och öva mönster. Räknas inte i tävlingen.</span></button>
-      <button class="tile" data-act="go" data-v="host" ${on ? '' : 'disabled'}><b>2 · Skapa spel</b><span>Du är värd och får en kod att dela.</span></button>
-      <button class="tile" data-act="go" data-v="join" ${on ? '' : 'disabled'}><b>3 · Gå med i spel</b><span>Skriv koden från värden och välj ett smeknamn.</span></button>
-      ${on ? '' : '<p class="note" id="offnote">Onlinespelet är inte påslaget ännu. Studieläget fungerar utan nät. Be värden slå på spelservern.</p>'}
-      <p class="small">Inga konton och inga riktiga namn. Använd ett smeknamn. Spelservern sparar tillfälliga smeknamn, sessioner och poäng. Utgångna spelrum rensas automatiskt.</p><details class="cup-customize"><summary>Hur fungerar integriteten?</summary><div class="customize-in"><p class="small">För att förhindra missbruk används även en kortlivad, saltad hash av nätverksadressen. Den tas bort genom automatisk gallring. Använd ett smeknamn i spelet.</p></div></details>`);
+    const iconHost='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5.5a3 3 0 0 1 0 5.5M20.5 20v-2a5 5 0 0 0-4-4.9"/></svg>';
+    const iconJoin='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 12h8m-4-4 4 4-4 4"/></svg>';
+    shell('<span class="eyebrow">MATTE OS CUP · VARSIN MOBIL</span><h1>Spela tillsammans</h1>'
+      +'<p class="lead">Inget konto behövs. En person skapar spelet, de andra går med via en kod.</p>'
+      +errBox()
+      +'<div class="cup-start-grid" role="group" aria-label="Börja Cup">'
+      +'<button class="tile cup-start-card cup-start-host" data-act="go" data-v="host" '+(on?'':'disabled')+'>'
+      +'<span class="cup-start-icon">'+iconHost+'</span><b>Skapa spel</b><span>Jag visar koden för de andra</span><strong>Starta som värd ›</strong></button>'
+      +'<button class="tile cup-start-card cup-start-join" data-act="go" data-v="join" '+(on?'':'disabled')+'>'
+      +'<span class="cup-start-icon">'+iconJoin+'</span><b>Gå med</b><span>Jag har redan en kod</span><strong>Anslut ›</strong></button></div>'
+      +'<div class="cup-training-link"><button type="button" class="link" data-act="go" data-v="study">Öva tabellerna först (valfritt)</button></div>'
+      +(on?'':'<p class="note" id="offnote">Onlinespelet är inte tillgängligt just nu. Det går fortfarande att öva tabellerna.</p>')
+      +'<p class="small">Använd ett smeknamn, inte riktiga namn. Spelrum och poäng är tillfälliga. '
+      +'En kortlivad skyddad adresshash används mot missbruk.</p>');
   }
 
   // --- studieläge ---
@@ -165,7 +171,7 @@
     const x = S.setup, quick = x.mode === 'quick';
     const tLabel = x.tables.length === 10 ? 'Alla tabeller 1–10 (blandat)' : 'Tabeller: ' + x.tables.join(', ');
     shell(`${back('menu', 'Till spela tillsammans')}<span class="eyebrow">Du är värd</span><h1>Skapa spel</h1>${errBox()}
-      <p class="lead">Spela tillsammans på varsin mobil. Välj hur ni vill tävla, skapa en spelkod och bjud in.</p>
+      <p class="lead">Snabbmatch är förvald: 10 frågor, 1 omgång och blandade tabeller. Skapa en kod direkt eller ändra detaljerna.</p>
       <div class="card"><h2>Hur vill ni spela?</h2>
         <div class="chips" role="group" aria-label="Välj spelläge">
           <button type="button" class="chip wide${quick?' on':''}" data-act="cmode" data-v="quick" aria-pressed="${quick}">Snabbmatch</button>

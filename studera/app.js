@@ -82,7 +82,7 @@ function shell(x){root.innerHTML=header()+'<main class="container study-pass">'+
 function navbar(){return '<div class="seg"><a class="tiny" href="../foralder/">Min översikt</a><a class="tiny" href="../study/">Mitt konto</a><a class="tiny" href="../">Matematik</a><a class="tiny" href="../lara/">Språk</a></div>';}
 function stateScreen(){
  if(!ready)return shell('<div class="card">Kontrollerar ditt konto …</div>');
- if(!profile())return shell('<section class="hero"><h1>Studera tillsammans.</h1><p>Logga in som mentor eller elev för att se era gemensamma studiepass. Var och en får sin egen svarshistorik.</p></section><p><a class="btn" href="../study/">Logga in eller skapa konto</a></p>');
+ if(!profile())return shell('<section class="hero"><h1>Studera tillsammans på olika telefoner</h1><p>Den här delen kräver egna inloggade elev- och mentorkonton. Var och en svarar separat och ser sina egna svar.</p></section><p><a class="btn" href="../study/">Konto och synk</a> <a class="btn secondary" href="../tillsammans/">Kör tillsammans utan konto</a></p>');
  if(current){shell(sessionPage());return;}
  shell(home());
 }

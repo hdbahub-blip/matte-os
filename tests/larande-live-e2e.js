@@ -21,7 +21,7 @@ const {chromium} = require('playwright');
   });
   const res=await page.goto(base,{waitUntil:'networkidle'});
   assert(res?.ok(),`Matte OS root HTTP ${res?.status()}`);
-  const entry=page.locator('a.calm-choice[href="lara/#/sv"]');
+  const entry=page.locator('.flow-home-topics a[href="lara/#/sv"]');
   await entry.waitFor({state:'visible'});
   assert.match(await entry.innerText(),/Svenska/);
   await entry.click();
@@ -63,6 +63,12 @@ const {chromium} = require('playwright');
   await context.setOffline(true);
   await page.goto(base+'lara/',{waitUntil:'domcontentloaded'});
   await page.getByRole('heading',{name:'Vad vill du öva idag?'}).waitFor();
+  const offlineShared=await page.evaluate(()=>({
+    guests:window.MOTogether?.load()?.guests?.length||0,
+    chooserCss:[...document.styleSheets].some(sheet=>sheet.href?.includes('profile-chooser.css'))
+  }));
+  assert(offlineShared.guests>=3,'Offline Learning retains the shared Joker profile model');
+  assert(offlineShared.chooserCss,'Offline Learning loads the shared profile CSS');
   await context.setOffline(false);
   await browser.close();
   console.log('LÄRANDE LIVE E2E PASS — HTTP root link, lessons, profiles, privacy, duel/undo, mobile, offline');
