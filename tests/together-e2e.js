@@ -1,10 +1,11 @@
 /* Matte OS Together: real Chromium/mobile smoke, isolation and 3-person answers. */
 'use strict';
 const assert=require('node:assert/strict');
-const { chromium }=require('playwright');
+const { chromium, webkit }=require('playwright');
 const url=process.argv[2]||'http://127.0.0.1:8765/';
 (async()=>{
-  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+  const engine=process.argv[3]==='webkit'?'webkit':'chromium';
+  const browser=await (engine==='webkit'?webkit:chromium).launch(engine==='chromium'?{headless:true,args:['--no-sandbox']}:{headless:true});
   try{
     const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:2,isMobile:true,hasTouch:true});
     const page=await context.newPage();
@@ -62,7 +63,7 @@ const url=process.argv[2]||'http://127.0.0.1:8765/';
     assert.match(await page.locator('main').innerText(),/Bussen 07\.42/,'Offline exact reading link must work');
     await context.setOffline(false);
     assert.deepEqual(errors,[],'No page JavaScript errors');
-    console.log('Matte OS Together mobile: profiles, themes, 3-person hidden answers, resume, share source and school isolation PASS');
+    console.log('Matte OS Together '+engine+' mobile: profiles, themes, 3-person hidden answers, resume, offline share source and school isolation PASS');
     await context.close();
   } finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exit(1)});
