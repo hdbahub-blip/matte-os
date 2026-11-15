@@ -159,6 +159,7 @@ jobs:
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ firefox
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ webkit
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ firefox
+          node tests/together-e2e.js http://127.0.0.1:8765/ webkit
 
   cup-backend:
     runs-on: ubuntu-24.04
