@@ -11,10 +11,28 @@
   const titles = { sv:'Svenska',en:'Engelska',study:'Studieteknik',math:'Matematik',table:'Multiplikation' };
   const ui = { page: 'home', notice:'', edit:null, topic:'sv', ref:'', members:new Set(),
     answer:null, selectedGuest:null, groupAppearance:'system', revealReading:false };
+  const PREF_KEY='matteos.together.flow.v1';
+  function loadPrefs() {
+    try {
+      const p=JSON.parse(localStorage.getItem(PREF_KEY)||'null');
+      if(!p||p.v!==1||!Object.prototype.hasOwnProperty.call(titles,p.topic))return null;
+      return {topic:p.topic,ref:typeof p.ref==='string'&&p.ref.length<=90?p.ref:'',
+        members:Array.isArray(p.members)?p.members.slice(0,S.MEMBER_LIMIT).filter(x=>typeof x==='string'):[]};
+    } catch(_) {return null;}
+  }
+  function savePrefs() {
+    try {
+      localStorage.setItem(PREF_KEY,JSON.stringify({v:1,topic:ui.topic,ref:ui.ref,
+        members:[...ui.members].filter(id=>member(id)).slice(0,S.MEMBER_LIMIT)}));
+    } catch(_) { /* Local preferences are optional. Never touch school storage. */ }
+  }
+  const prefs=loadPrefs();
+  if(prefs){ui.topic=prefs.topic;ui.ref=prefs.ref;}
   const entryParams = new URLSearchParams(location.search);
   const startRef = entryParams.get('text');
   const rawGuest = S.load().guests;
-  rawGuest.slice(0,3).forEach(g=>ui.members.add(g.id));
+  const rememberedMembers=[...new Set((prefs?.members||[]).filter(id=>school[id]||rawGuest.some(g=>g.id===id)))];
+  (rememberedMembers.length?rememberedMembers:rawGuest.slice(0,3).map(g=>g.id)).forEach(id=>ui.members.add(id));
   // Deep-link from the main Netflix-style profile chooser. Never change school profiles.
   const entryGuest = entryParams.get('guest');
   if (entryGuest && rawGuest.some(g=>g.id===entryGuest)) {
@@ -25,7 +43,7 @@
     ui.page='guests';
   }
   if (entryParams.get('start')==='group' && ui.page==='home' && !startRef) {
-    ui.page='setup'; ui.topic='sv'; ui.ref=defaultRef(ui.topic);
+    ui.page='setup'; ui.ref=entryList(ui.topic).some(x=>x.ref===ui.ref)?ui.ref:defaultRef(ui.topic);
   }
   if (startRef && /^(sv|en):[a-zA-Z0-9_-]+:v[0-9]+$/.test(startRef)) {
     ui.page='read'; ui.ref=startRef;
@@ -322,7 +340,7 @@
   }
   function page(next) {
     ui.page=next;ui.notice='';ui.answer=null;
-    if(next==='setup'||next==='share'){if(next==='share'&&!['sv','en'].includes(ui.topic))ui.topic='sv';ui.ref=defaultRef(ui.topic);}
+    if(next==='setup'||next==='share'){if(next==='share'&&!['sv','en'].includes(ui.topic))ui.topic='sv';if(!entryList(ui.topic).some(x=>x.ref===ui.ref))ui.ref=defaultRef(ui.topic);}
     if(next!=='guests')ui.edit=null;
     render();window.scrollTo({top:0,behavior:'instant'});
   }
@@ -412,6 +430,7 @@
       if(!deck.length){note('Välj en övning som har flervalsfrågor.');return;}
       const old=S.restoreSession();
       if(old&&!window.confirm('Ersätta ert pågående pass? Det tidigare gruppresultatet sparas inte.'))return;
+      savePrefs();
       const s=S.startSession(members,ui.ref,Math.min(5,deck.length));
       if(!s){note('Kunde inte starta passet. Kontrollera enhetens lagring.');return;}
       ui.selectedGuest=null;page('session');return;
@@ -453,12 +472,13 @@
     const el=e.target;
     if(el.dataset.role==='participant'){
       if(el.checked)ui.members.add(el.value);else ui.members.delete(el.value);
+      savePrefs();
       if(ui.members.size>S.MEMBER_LIMIT){ui.members.delete(el.value);el.checked=false;note('Högst tio personer per pass.');}
     }
     if(el.dataset.role==='topic'){
-      ui.topic=el.value;ui.ref=defaultRef(ui.topic);render();
+      ui.topic=el.value;ui.ref=defaultRef(ui.topic);savePrefs();render();
     }
-    if(el.dataset.role==='source')ui.ref=el.value;
+    if(el.dataset.role==='source'){ui.ref=el.value;savePrefs();}
     if(el.id==='guest-backup'&&el.files?.length){
       const file=el.files[0];if(file.size>250000){note('Gästbackupen är för stor.');return;}
       if(!window.confirm('Återställa gäster från denna fil? Nuvarande gästprofiler ersätts. Åk 8/9 berörs inte.'))return;
