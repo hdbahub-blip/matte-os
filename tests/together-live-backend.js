@@ -5,7 +5,7 @@ const {Pool}=require('pg');
 const db=new Pool({host:process.env.PGHOST||'127.0.0.1',port:+(process.env.PGPORT||5432),
   user:process.env.PGUSER||'postgres',password:process.env.PGPASSWORD||'postgres',
   database:process.env.PGDATABASE||'togethertest'});
-const people=['11111111-1111-4111-8111-111111111111','22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333'];
+const people=['11111111-1111-4111-8111-111111111111','22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333','44444444-4444-4444-8444-444444444444'];
 const deck=[{key:'v1:1',topic:'sv',prompt:'Var går bussen?',options:['Hållplats A','Hållplats B','C'],correct:1,why:'Det står i texten.'},
   {key:'v1:2',topic:'sv',prompt:'När går den?',options:['07.42','08.42'],correct:0,why:'Läs klockslaget.'}];
 const rpc=async(user,func,args=[],role='authenticated')=>{
@@ -31,6 +31,7 @@ const fail=async(call,msg)=>{await assert.rejects(call,undefined,msg);};
  try{
   await db.query('insert into auth.users(id) select unnest($1::uuid[]) on conflict do nothing',[people]);
   await db.query('insert into public.study_profiles(user_id) select unnest($1::uuid[]) on conflict do nothing',[people]);
+  await db.query('update auth.users set is_anonymous=true where id=$1',[people[3]]);
   const tables=await db.query("select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='together_live' and c.relkind='r' and not c.relrowsecurity");
   assert.equal(tables.rows.length,0,'RLS on ALL private tables');
   const t=await db.connect();try{
@@ -39,6 +40,7 @@ const fail=async(call,msg)=>{await assert.rejects(call,undefined,msg);};
    await t.query('rollback');
   }finally{t.release();}
   await fail(rpc(null,'together_live_state',['00000000-0000-4000-8000-000000000000'],'anon'),'No anon RPC');
+  await fail(rpc(people[3],'together_live_create',['sv:buss:v1',deck,'Anonymous']),'Anonymous Auth JWT blocked even if study profile exists');
   await fail(rpc(people[0],'together_live_create',['sv:buss:v1',[{prompt:'x',options:['a'],correct:0}],'Host']),'Reject malformed deck');
   const created=await rpc(people[0],'together_live_create',['sv:buss:v1',deck,'Host']);
   assert.match(created.invite,/^[0-9a-f]{32}$/);
