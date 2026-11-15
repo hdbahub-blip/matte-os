@@ -99,6 +99,14 @@ const fail=async(call,msg)=>{await assert.rejects(call,undefined,msg);};
   const expired=await rpc(people[2],'together_live_create',['sv:buss:v1',deck,'Expired']);
   await db.query("update together_live.rooms set expires_at=now()-interval '1 minute' where id=$1",[expired.room_id]);
   await fail(rpc(people[2],'together_live_state',[expired.room_id]),'Expired room denied');
+  const purged=(await db.query('select together_live.prune_expired() as n')).rows[0].n;
+  assert.ok(purged>=1,'Expired rooms are physically purged by private cleanup function');
+  assert.equal((await db.query('select count(*)::int n from together_live.rooms where id=$1',[expired.room_id])).rows[0].n,0);
+  const c2=await db.connect();try{
+    await c2.query('begin');await c2.query('set local role authenticated');
+    await assert.rejects(c2.query('select together_live.prune_expired()'),'Only system may run cleanup');
+    await c2.query('rollback');
+  }finally{c2.release();}
   const throttleBefore=(await db.query("select attempts from together_live.throttle where user_id=$1 and action='join'",[people[1]])).rows[0].attempts;
   assert.equal(throttleBefore,3,'Failed plus successful joins counted');
   for(let n=throttleBefore;n<15;n++){
