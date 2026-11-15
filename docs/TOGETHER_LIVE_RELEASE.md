@@ -1,12 +1,12 @@
 # Matte OS · Tillsammans Live v1 — säkerhets-, release- och rollbackprotokoll
 
-**Status 2026-11-15:** DRAFT/STAGING; inte publicerad eller migrerad i produktion. Denna gren bygger på `feature/guest-together-v1-20261115`, som har ett separat lokalt pass-and-play. Produkt-/driftsmandat ska inte förväxlas med författad kod.
+**Status 2026-11-15:** Det kontofria läget har mergats via PR #35. Live-koden har passerat 5/5 CI och är färdig för webbpublicering; de två isolerade Live-migrationerna är installerade i det dedikerade Supabaseprojektet. **Inga autentiserade Study Cloud-konton har skapats** och verkliga tvåtelefonssessioner är därför ännu inte verifierade. Fysisk iPhone-granskning och extern HTTPS-readback är egna återstående steg.
 
 
 
-### Read-only kontroll av befintligt dedikerat Supabaseprojekt, 2026-11-15
+### Read-only preflight före Live-installation, 2026-11-15
 
-Utförd med **enbart SELECT**, utan ändring av auth, schema eller data: PostgreSQL **17.11**, `public.study_profiles` finns och innehåller **0 profiler**, `together_live.rooms` saknas, och både `pgcrypto` och `pg_cron` är redan aktiva. `extensions.digest(text,text)`, `extensions.gen_random_bytes(integer)` samt `auth.users.is_anonymous` finns. Ingen produktionsmigration eller familjeinloggning har skett. Det gör test på två riktiga konton till en kvarstående releasegrind, inte en avklarad aktivitet.
+Utförd med **enbart SELECT**, utan ändring av auth, schema eller data: PostgreSQL **17.11**, `public.study_profiles` finns och innehåller **0 profiler**, `together_live.rooms` saknas, och både `pgcrypto` och `pg_cron` är redan aktiva. `extensions.digest(text,text)`, `extensions.gen_random_bytes(integer)` samt `auth.users.is_anonymous` finns. Detta var verifierat **före** Live-installationen. Test på två riktiga konton förblir en kvarstående funktionsgrind.
 
 ## 1. Verkligt användningsområde och beroenden
 
@@ -45,32 +45,26 @@ GitHub Actions `.github/workflows/matte-qa.yml`: `unit-and-content`, `browser-mo
 
 Allt testmaterial är syntetiskt. Varken verkliga barnkonton, lösenord, skolframsteg eller familjeinformation ska användas i CI-loggar.
 
-## 4. Obligatoriska grindar före publicering
+## 4. Produktionsinstallationen och kvarvarande aktiveringsgrindar
 
-1. **Schema och säkerhet:** granska exakt SQL-diff, alla SECURITY DEFINER-funktioner, effektiva GRANT/RLS och exponering från REST, RPC samt Postgres Changes; inget privat Live-objekt i Realtime-publication. Ingen användning av elevbackuper eller `study_session_answers`.
-2. **Konto och samtycke:** verifiera minst två separata autentiserade testkonton på befintlig Study Cloud i det dedikerade Matte OS-projektet. Minderårigas konton kräver ansvarig vuxens bedömning och lämpligt samtycke. SMTP och Auth-flöde måste fungera eller konton vara behörigt skapade i Supabase dashboard.
-3. **Retention:** installera/aktivera Supabase Cron (`pg_cron`) om det inte redan finns, skapa ett unikt jobb för `select together_live.prune_expired();` varje timme; kontrollera `cron.job` och lyckade poster i `cron.job_run_details`. Kontrollera att annat projekts cron-jobb lämnas intakta.
-4. **Nätverks- och misbrukstest:** två till tio faktiska enheter, in-/utloggning, två olika konton, giltig/felaktig/utgången/återanvänd kod, frånkoppling/återanslutning, långsam anslutning, dubbla tryck, stängt rum och sign-out under session; verifiera att utomstående alltid nekas och att privata facit inte läcker via trafik/API.
-5. **Verklig iPhone/PWA:** fysisk Safari och installerad Home Screen-app vid 320–430 px, tangentbord, VoiceOver, dynamisk text, storlek på tryckytor, färgkontrast, ljust/mörkt, strömsparläge och offline→online. Kontrollera att separat installerad PWA kan ha **annan localStorage** än Safari.
-6. **Ändringskontroll:** ta säkerhetskopia av befintliga lokala skolresultat på berörda enheter, mät regressionsstatus, inhämta publiceringsgodkännande för databasmigration och merge, och verifiera den publicerade `/matte-os/tillsammans/` och `/live.html` på HTTPS efter deploy.
+### Serverdrift — verifierade resultat 2026-11-15
 
-[FA] SQL och klienten är skrivna mot den befintliga Study Cloud-authmodellen och förutsätter att projektet har `pgcrypto` i `extensions`. Verifieringstest: introspektera målprojektets schema och rollprivilegier, migrera först i engångs-/stagingmiljö med anonym och autentiserad roll och testa två riktiga konton innan produktion.
+- Installerad migration `matte_os_together_live_auth_only_v1`, GitHubfil `tillsammans/supabase/0001_together_live_secure.sql`. Direkt efter installerad migration: **4 privata Live-tabeller, 4/4 med RLS, 7 avsiktligt auth-behöriga RPC, 0 anon-EXECUTE, 0 direkta SELECT-grants för anon/authenticated**.
+- Installerad migration `matte_os_together_live_hourly_expiry_v1`, GitHubfil `tillsammans/supabase/0002_together_live_hourly_expiry.sql`. Verifierad `cron.job`: `jobid=2`, `active=true`, `schedule='0 * * * *'`, `command='select together_live.prune_expired();'`.
+- Verifierad manuell körning av `together_live.prune_expired()`: returnerade **0** (inga utgångna rum vid kontrollen). **Schemalagd cron-körning är ännu inte separat bevittnad** i `cron.job_run_details`.
+- **0** skapade `study_profiles`, **0** Live-rum vid produktionskontroll. Ingen syntetisk testprofil skapades i produktionsauth. Befintliga `study_*` och `cup.*` lämnades oförändrade av migrationerna.
+- Backendtest på throwaway PostgreSQL 16 godkänt inklusive anonym roll, auth-identitet, rate-limit, svarsläckage, replay, TTL och purge. Ett separat kodbaserat test betyder inte att produktionens faktiska inloggningar provats.
 
-### Databasinstallationsförslag (**ej genomfört**)
+### Restgates innan full **live-användning**, inte blockerare för kontofritt läge
 
-1. Verifiera projekt-ID och backup. Kontrollera projektspecifik Postgres-version, `extensions.pgcrypto`, `auth.uid`, `public.study_profiles`, auth- och RLS-policyer.
-2. Kör `tillsammans/supabase/0001_together_live_secure.sql` i separat stagingmiljö. För ett produktionsbeslut: gör en granskad versionsmigrering enligt målprojektets migrationspolicy, aldrig ett improviserat manuellt SQL-klipp utan audit.
-3. Aktivera Supabase Cron enligt aktuell dokumentation och skapa unikt TTL-jobb. Exempel efter särskild behörighetskontroll (***kör inte automatiskt***):
-   ```sql
-   select cron.schedule(
-     'matte-os-together-live-expiry-v1',
-     '0 * * * *',
-     $$ select together_live.prune_expired(); $$
-   );
-   ```
-4. Kör server-RLS/advisors, separat konto- och rums-QA, publicera endast efter godkännande. Exponera aldrig service_role eller `study_profiles` i offentliga alias-listor.
+1. **Kontoskapande:** minst två individuella Study Cloud-konton ska senare skapas/kontrolleras med giltig SMTP/confirm email eller via Supabase Auth i användarens egen process. En lokal Joker-profil är inte ett konto.
+2. **Verklig fullständig live-session:** värd + deltagare på två faktiska enheter, båda inloggade, korrekta/ogiltiga inbjudningar, dold rättning tills alla svarat, avbrott och återanslutning, session slut, relogin, rate limits och utomstående nekas. Ingen verklig elev-/familjedata i testloggar.
+3. **Fysisk mobil/tillgänglighet:** Safari och installerad iPhone-PWA, Android, VoiceOver, dynamisk text, kontrast, touch, tangentbord, nätverksfel, bakgrundsflik, återkomst och offline→online. Syntetisk WebKit-emulering i CI är inte fysisk enhet.
+4. **Schemalagd retention:** efter nästa cron-tillfälle kontrollera en lyckad post i `cron.job_run_details`, samt att det inte finns någon oväntad Realtime-publicering, inga nya åtkomstgrants och inga försök att läsa gäst-/skoldatalagring.
+5. **Publicerad HTTPS:** efter merge verifiera `/matte-os/tillsammans/` och `/matte-os/tillsammans/live.html` direkt på GitHub Pages, inklusive mobilnavigering och att inloggning krävs för live. Kör säkerhetsadvisors och bedöm avsiktliga auth-RPC-varningar mot faktiska rollkontroller.
+6. **Rollback:** vid incident stoppa live-UI och återkalla endast `public.together_live_*` EXECUTE. Ändra eller radera aldrig `study_*`, `cup.*`, Auth eller lokal skolprogress. Separat explicit godkännande krävs för eventuell destruktiv sanering av Live-schemat.
 
-Källa för cron-beteende: [Supabase Cron](https://supabase.com/docs/guides/cron), [Install](https://supabase.com/docs/guides/cron/install). Specifik produktionskonfiguration har **inte** lästs/ändrats i detta arbete.
+Källa för cron: [Supabase Cron](https://supabase.com/docs/guides/cron). Installationens utfall är verifierat genom Supabase-migration receipts och readback av metadata; full liveanvändning kvarstår tills separata riktiga konton finns.
 
 ## 5. Rollback, dataskydd och felsökning
 
@@ -82,6 +76,6 @@ Källa för cron-beteende: [Supabase Cron](https://supabase.com/docs/guides/cron
 
 ## 6. Publiceringsbeslut
 
-**GO** endast om slut-SHA är grön, databasmigrering/RLS/TTL är säkerhetsgodkända och två separata verkliga telefoner har klarat användnings- och integritetskontrollen. **HOLD** om något av detta saknas. Den lokala delen i PR #35 kan bedömas separat; den ska inte blockeras av Live-komplexitet.
+**GO för publicering av statiskt gränssnitt och lokalt Tillsammans** när 5/5 CI är gröna och HTTPS-readback fungerar. **HOLD för påståendet 'Live fullt användbar/verifierad'** tills två riktiga konton, faktiska telefoner och schemalagd rensningslogg har testats. Ingen produktionsanvändare får bjudas in till en oprövad live-session.
 
 **Beviskrav:** länka commit, CI-körning, enhetstest/OS-version, separat driftad staging-RLS-testlogg, cron-jobbstatus samt production deploy/readback. Ett planerat steg eller en grön mock är aldrig bevis för verklig drift.
