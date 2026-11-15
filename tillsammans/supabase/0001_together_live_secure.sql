@@ -92,7 +92,7 @@ begin
    or jsonb_array_length(options) not between 2 and 8
    or jsonb_typeof(q->'prompt')<>'string'
    or char_length(q->>'prompt') not between 1 and 800
-   or jsonb_typeof(q->'correct')<>'number' or v_ans is null or v_ans !~ '^[0-7] or v_ans::int>=jsonb_array_length(options)
+   or jsonb_typeof(q->'correct')<>'number' or v_ans is null or v_ans !~ '^[0-7]$' or v_ans::int>=jsonb_array_length(options)
    or char_length(coalesce(q->>'why',''))>1500
    or char_length(coalesce(q->>'key',''))>120 then raise exception 'INVALID_QUESTION' using errcode='P0001'; end if;
    for option in select value from jsonb_array_elements(options) loop
