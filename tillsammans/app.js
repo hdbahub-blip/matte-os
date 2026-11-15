@@ -24,6 +24,9 @@
   } else if (entryParams.get('profiles')==='1') {
     ui.page='guests';
   }
+  if (entryParams.get('start')==='group' && ui.page==='home' && !startRef) {
+    ui.page='setup'; ui.topic='sv'; ui.ref=defaultRef(ui.topic);
+  }
   if (startRef && /^(sv|en):[a-zA-Z0-9_-]+:v[0-9]+$/.test(startRef)) {
     ui.page='read'; ui.ref=startRef;
   }
@@ -174,16 +177,23 @@
     }
   }
   function welcome() {
-    const existing=S.restoreSession();
-    return (ui.selectedGuest && member(ui.selectedGuest) ? '<div class="notice" role="status">Vald Joker: <strong>'+esc(member(ui.selectedGuest).name)+'</strong> · egna lokala framsteg</div>' : '')
-      +'<div class="hero"><p class="caps">MATTE OS · GEMENSAMT LÄRANDE</p><h1>En text. Flera tankar.</h1>'
-      +'<p class="lead">Läs, fundera, svara och jämför tillsammans — utan att blanda ihop era egna framsteg. Jokrarna kan delta utan årskurs, konto eller obligatoriska formler.</p>'
-      +'<div class="button-row"><button class="button" data-action="setup">Starta tillsammans</button>'
-      +'<button class="button secondary" data-action="guests">Hantera Jokrar</button></div></div>'
-      +(existing?'<div class="card"><h2>Ett pass är pausat</h2><p>Fortsätt från exakt den tur ni var på.</p><button class="button" data-action="resume">Fortsätt passet</button></div>':'')
-      +'<div class="grid"><div class="card action"><span class="badge-icon">◈</span><h3>Samma mobil</h3><p>1–10 deltagare. Dolda svar under varje tur, gemensamt facit efteråt, fungerar även utan nät efter att sidan laddats.</p><button class="button secondary" data-action="setup">Välj deltagare</button></div>'
-      +'<div class="card action"><span class="badge-icon">Aa</span><h3>Olika mobiler</h3><p>Dela en exakt lästext utan konto, eller skapa ett privat live-rum med era befintliga Study Cloud-konton.</p><button class="button secondary" data-action="share-setup">Dela en lästext</button><a class="button secondary" href="./live.html">Privat live-rum · kräver konto</a></div></div>'
-      +'<section class="section"><div class="section-title"><h2>Era gästprofiler</h2><button class="button small secondary" data-action="guests">Redigera</button></div>'+guestTiles(false)+'</section>';
+    const existing=S.restoreSession(), selected=ui.selectedGuest&&member(ui.selectedGuest)
+      || S.load().guests.find(g=>g.id===S.load().activeGuestId) || S.load().guests[0];
+    return '<section class="hero flow-welcome"><p class="caps">MATTE OS · ENKEL START</p>'
+      +'<h1>Vad vill ni göra?</h1>'
+      +'<p class="lead">En text. Flera tankar. Börja direkt eller välj vilka som ska vara med.</p>'
+      +(existing?'<div class="flow-resume"><strong>Ni har ett pausat pass</strong><button class="button" data-action="resume">Fortsätt där ni var</button></div>':'')
+      +'<div class="flow-choices" role="group" aria-label="Välj hur ni vill träna">'
+      +'<button class="flow-choice flow-choice-solo" data-action="quick-solo"><span class="flow-glyph" aria-hidden="true">✎</span><strong>Jag kör själv</strong><span>5 frågor · '+esc(selected?.name||'Joker')+'</span><b>Starta själv <span aria-hidden="true">›</span></b></button>'
+      +'<button class="flow-choice flow-choice-group" data-action="setup"><span class="flow-glyph" aria-hidden="true">♧</span><strong>Vi kör ihop</strong><span>Samma mobil · välj spelare</span><b>Välj deltagare <span aria-hidden="true">›</span></b></button>'
+      +'</div></section>'
+      +'<section class="flow-options"><h2>På varsin mobil?</h2>'
+      +'<p class="help">Cup fungerar utan konto. Privat Live och mentorpass kräver konto.</p>'
+      +'<div class="flow-option-links"><a class="button secondary" href="../#/cup">Spela Cup · utan konto</a>'
+      +'<a class="button secondary" href="./live.html">Privat Live · med konto</a>'
+      +'<button class="button tertiary" data-action="share-setup">Dela samma lästext</button></div></section>'
+      +'<section class="section flow-guests"><div class="section-title"><h2>Era Jokrar</h2><button class="button small secondary" data-action="guests">Hantera Jokrar</button></div>'
+      +'<details class="flow-guest-fold"><summary>Visa alla profiler och deras teman</summary>'+guestTiles(false)+'</details></section>';
   }
   function guestTiles(editable) {
     return '<div class="guest-grid">'+S.load().guests.map(g=>{
@@ -217,28 +227,33 @@
     const topics=shareOnly?['sv','en']:Object.keys(titles);
     if(!topics.includes(ui.topic))ui.topic=topics[0];
     const entries=currentEntries();
-    if(!entries.some(x=>x.ref===ui.ref)) ui.ref=entries[0]?.ref||'';
+    if(!entries.some(x=>x.ref===ui.ref))ui.ref=entries[0]?.ref||'';
     const selectedEntry=entries.find(x=>x.ref===ui.ref);
     const current=sourceText(ui.ref);
+    const players=allMembers();
+    const count=[...ui.members].filter(id=>member(id)).length;
     return '<button class="back button tertiary" data-action="home">‹ Tillbaka</button>'
-      +'<p class="kicker">'+(shareOnly?'DELAD LÄSLÄNK':'LOKALT GRUPPPASS')+'</p>'
-      +'<h1>'+(shareOnly?'Samma text på era mobiler':'Välj ert pass')+'</h1>'
-      +'<p class="lead">'+(shareOnly?'Alla kan öppna samma originaltext i Matte OS. En textlänk är inte ett live-rum och skickar inga individuella svar.':'Välj vilka som deltar. Eleverna kan vara med som Åk 8/Åk 9 utan att deras skolresultat berörs.')+'</p>'
-      +(!shareOnly?'<section class="section"><h2>1. Vem är med?</h2><div class="participants">'+allMembers().map(g=>{
-        const selected=ui.members.has(g.id);
-        return '<label class="selector" style="--gaccent:'+styleColor(g)+'"><input type="checkbox" data-role="participant" value="'+esc(g.id)+'" '+(selected?'checked':'')+'>'
-          +'<span class="bubble" aria-hidden="true">'+esc(initials(g.name))+'</span><span><b>'+esc(g.name)+'</b><small>'+(school[g.id]?'Befintlig skolprofil (endast deltagarnamn)':'Lokal gäst')+'</small></span></label>';
-      }).join('')+'</div><p class="help">Upp till tio personer. Inga privata elevsvar importeras till gruppen.</p></section>':'')
-      +'<section class="card section"><h2>'+(shareOnly?'Välj text':'2. Välj innehåll')+'</h2><div class="form-row"><div><label class="field" for="topic">Ämne</label>'
-      +'<select id="topic" data-role="topic">'+topics.map(t=>'<option value="'+t+'"'+(t===ui.topic?' selected':'')+'>'+esc(titles[t])+'</option>').join('')+'</select></div>'
-      +'<div><label class="field" for="source">Text eller övning</label><select id="source" data-role="source">'
-      +entries.map(x=>'<option value="'+esc(x.ref)+'"'+(x.ref===ui.ref?' selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select></div></div>'
-      +(selectedEntry?'<p class="help" style="margin-top:14px">'+(current?'Gemensam originaltext · '+current.paragraphs.length+' stycken · v'+current.version:'Frågor från Matte OS befintliga undervisningsbank')+'</p>':'')
-      +(current?'<details><summary>Förhandsläs texten · '+esc(current.title)+'</summary>'+textMarkup(current)+'</details>':'')
-      +'<div class="button-row"><button class="button" data-action="'+(shareOnly?'share-current':'start-session')+'" '+(!ui.ref?'disabled':'')+'>'
-      +(shareOnly?'Dela textlänk':'Börja tillsammans')+'</button>'
-      +(!shareOnly?'<button class="button secondary" data-action="share-setup">Olika mobiler · läslänk</button>':'')+'</div></section>'
-      +(shareOnly?'<div class="notice warning">Delade textlänkar innehåller ingen kod, identitet eller live-poäng. För synkroniserade flerrum behövs ett separat säkerhetsgranskat rum.</div>':'');
+      +'<p class="kicker">'+(shareOnly?'DELA EN TEXT':'SAMMA MOBIL · SNABBSTART')+'</p>'
+      +'<h1>'+(shareOnly?'Dela samma lästext':'Redo att köra ihop?')+'</h1>'
+      +'<p class="lead">'+(shareOnly?'Välj en text och skicka länken. Svaren delas inte automatiskt.':'Välj ämne och deltagare. Vi börjar med fem korta frågor.')+'</p>'
+      +'<section class="card section flow-setup"><label class="field" for="topic">Vad vill ni öva?</label>'
+      +'<select id="topic" data-role="topic">'+topics.map(t=>'<option value="'+t+'"'+(t===ui.topic?' selected':'')+'>'+esc(titles[t])+'</option>').join('')+'</select>'
+      +(!shareOnly?'<div class="flow-players-head"><h2>Vem är med?</h2><span>'+count+' valda · max '+S.MEMBER_LIMIT+'</span></div>'
+        +'<div class="participants flow-players">'+players.map(g=>{
+          const selected=ui.members.has(g.id);
+          return '<label class="selector" style="--gaccent:'+styleColor(g)+'"><input type="checkbox" data-role="participant" value="'+esc(g.id)+'" '+(selected?'checked':'')+'>'
+            +'<span class="bubble" aria-hidden="true">'+esc(initials(g.name))+'</span>'
+            +'<span><b>'+esc(g.name)+'</b><small>'+(school[g.id]?'Årskurs · ingen skolprogress påverkas':'Joker · lokal profil')+'</small></span></label>';
+        }).join('')+'</div>':'')
+      +'<div class="flow-launch"><button class="button block" data-action="'+(shareOnly?'share-current':'start-session')+'" '+(!ui.ref||(!shareOnly&&!count)?'disabled':'')+'>'
+      +(shareOnly?'Dela länken':'Starta 5 frågor · '+count+' '+(count===1?'person':'personer'))+'</button></div>'
+      +'<details class="flow-extra-content"><summary>'+(shareOnly?'Välj en annan text':'Byt text, kapitel eller övning')+'</summary>'
+      +'<label class="field" for="source">Material</label><select id="source" data-role="source">'
+      +entries.map(x=>'<option value="'+esc(x.ref)+'"'+(x.ref===ui.ref?' selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select>'
+      +(selectedEntry?'<p class="help">'+(current?'Originaltext · '+current.paragraphs.length+' stycken · version '+current.version:'Frågor från Matte OS egen undervisningsbank')+'</p>':'')
+      +(current?'<details><summary>Läs texten först · '+esc(current.title)+'</summary>'+textMarkup(current)+'</details>':'')
+      +'</details></section>'
+      +(shareOnly?'<p class="help">Länken innehåller ingen deltagarkod eller personliga svar.</p>':'<p class="help">Resultaten från det här passet ändrar inga skolprov eller skolprofiler.</p>');
   }
   function textMarkup(t) {
     return '<article class="reading"><h2>'+esc(t.title)+'</h2>'
@@ -266,7 +281,7 @@
     const s=S.restoreSession();
     if(!s){ui.page='home';return '<h1>Passet finns inte längre</h1><p>Välj deltagare och börja ett nytt pass.</p><button class="button" data-action="setup">Starta</button>';}
     const deck=questions(s.contentRef);
-    if(deck.length!==s.count)return '<div class="notice warning" role="alert">Innehållet har ändrats sedan passet skapades. Ingen poäng ändras. Avsluta passet och välj innehållet på nytt.</div><button class="button danger" data-action="finish-session">Avsluta pass</button>';
+    if(deck.length<s.count)return '<div class="notice warning" role="alert">Innehållet har ändrats sedan passet skapades. Ingen poäng ändras. Avsluta passet och välj innehållet på nytt.</div><button class="button danger" data-action="finish-session">Avsluta pass</button>';
     const q=deck[s.round],m=member(s.members[s.turn]);
     const status='<div class="status"><span>Fråga '+(s.round+1)+' av '+s.count+'</span><span>Deltagare '+(s.turn+1)+' av '+s.members.length+'</span>'
       +'<span>'+(s.members.length===1?'Egen träning':'Samma mobil')+'</span></div>';
@@ -346,6 +361,17 @@
     const a=el.dataset.action,id=el.dataset.id;
     if(a==='home'){page('home');return;}
     if(a==='guests'){page('guests');return;}
+    if(a==='quick-solo'){
+      const selected=ui.selectedGuest&&member(ui.selectedGuest)||S.load().guests.find(g=>g.id===S.load().activeGuestId)||S.load().guests[0];
+      if(!selected){note('Skapa en Joker-profil först.');return;}
+      const ref=defaultRef(ui.topic==='sv'||ui.topic==='en'||ui.topic==='math'||ui.topic==='table'||ui.topic==='study'?ui.topic:'sv');
+      const deck=questions(ref);
+      if(!deck.length){note('Inga övningar kunde startas. Välj ett annat ämne.');return;}
+      if(S.restoreSession()&&!window.confirm('Ersätta det pausade passet?'))return;
+      const session=S.startSession([selected.id],ref,Math.min(5,deck.length));
+      if(!session){note('Kunde inte spara det nya passet.');return;}
+      S.beginTurn(session);ui.answer=null;page('session');return;
+    }
     if(a==='setup'){page('setup');return;}
     if(a==='share-setup'){page('share');return;}
     if(a==='toggle-mode'){switchMode();return;}
@@ -386,11 +412,11 @@
       if(!deck.length){note('Välj en övning som har flervalsfrågor.');return;}
       const old=S.restoreSession();
       if(old&&!window.confirm('Ersätta ert pågående pass? Det tidigare gruppresultatet sparas inte.'))return;
-      const s=S.startSession(members,ui.ref,deck.length);
+      const s=S.startSession(members,ui.ref,Math.min(5,deck.length));
       if(!s){note('Kunde inte starta passet. Kontrollera enhetens lagring.');return;}
       ui.selectedGuest=null;page('session');return;
     }
-    if(a==='resume'){ui.selectedGuest=null;page('session');return;}
+    if(a==='resume'){const old=S.restoreSession();if(old?.members.length===1&&old.phase==='handoff')S.beginTurn(old);ui.selectedGuest=null;page('session');return;}
     const s=S.restoreSession();
     if(['begin-turn','submit-turn','next-round','choose','finish-session','new-session'].includes(a)){
       if(a==='finish-session') {
@@ -416,7 +442,7 @@
           ui.answer=null;render();window.scrollTo({top:0,behavior:'instant'});
         }return;
       }
-      if(a==='next-round'){if(S.nextRound(s)){ui.answer=null;render();window.scrollTo({top:0,behavior:'instant'});}return;}
+      if(a==='next-round'){if(S.nextRound(s)){if(s.members.length===1&&s.phase==='handoff')S.beginTurn(s);ui.answer=null;render();window.scrollTo({top:0,behavior:'instant'});}return;}
     }
   }
   app.addEventListener('click',e=>{
