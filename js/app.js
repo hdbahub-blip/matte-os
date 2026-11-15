@@ -135,7 +135,7 @@
       <a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>En tabell eller flera tillsammans</span></a>
       <a class="calm-choice learn-choice" href="lara/#/sv"><strong>Svenska</strong><span>Läsförståelse · ord · 3 nivåer</span></a>
       <a class="calm-choice learn-choice" href="lara/#/en"><strong>Engelska</strong><span>Reading · vocabulary · 3 nivåer</span></a>
-      </div><a class="tap guest-home-shortcut" href="tillsammans/"><span class="ic">◈</span><div><div class="t">Gäster &amp; Tillsammans</div><div class="s">Jokrar · svenska · engelska · matte</div></div><span class="chev">${I.chev}</span></a><a class="calm-choice game-shortcut" href="#/cup"><strong>Spela tillsammans</strong><span>Matte OS Cup · spela på varsin mobil</span></a><details class="fold"><summary>Prov och planering (fler val)</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details></div></details>`, 'home');
+      </div><a class="tap guest-home-shortcut" href="tillsammans/"><span class="ic">◈</span><div><div class="t">Hantera Jokrar</div><div class="s">Namn · färger · lokala profiler</div></div><span class="chev">${I.chev}</span></a><a class="calm-choice game-shortcut" href="#/cup"><strong>Cup · varsin mobil</strong><span>Skapa eller gå med utan konto</span></a><details class="fold"><summary>Prov och planering (fler val)</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details></div></details>`, 'home');
   }
 
 function boostCard() {
@@ -781,6 +781,14 @@ function boostCard() {
   E.load();
   E.migrateV4().then(n => { if (n) { toast(`Tidigare framsteg flyttades över (${n} svar).`); render(); } });
   render();
+  // A single consistent profile chooser across Maths and Lärande.
+  if (pid() && new URLSearchParams(location.search).get('profiles') === '1') {
+    openSheet({ type: 'profile' });
+    try {
+      const url = new URL(location.href); url.searchParams.delete('profiles');
+      history.replaceState(null, '', url.pathname + url.search + url.hash);
+    } catch (_) { /* choice still works with the query kept */ }
+  }
 
   // Service worker: ny version tas i bruk direkt, men laddar bara om när eleven inte är mitt i en uppgift.
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
