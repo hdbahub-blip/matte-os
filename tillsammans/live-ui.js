@@ -175,7 +175,7 @@ async function join(code,alias){
  ui.alias=alias.trim();ui.pendingInvite=null;pendingClear();ui.invite=null;await openRoom(result.room_id);
 }
 app.addEventListener('change',e=>{
- if(e.target.id==='live-topic'){ui.topic=e.target.value;ui.ref=B.sources(ui.topic)[0]?.ref||'';render();}
+ if(e.target.id==='live-topic'){ui.alias=document.getElementById('live-alias')?.value||ui.alias;ui.topic=e.target.value;ui.ref=B.sources(ui.topic)[0]?.ref||'';render();}
  if(e.target.id==='live-ref')ui.ref=e.target.value;
 });
 app.addEventListener('click',async e=>{
