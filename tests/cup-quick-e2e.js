@@ -16,6 +16,7 @@ const url=(hash='')=>APP+'?cupserver='+encodeURIComponent(API)+'#/cup'+hash;
   const h=await open(devices['iPhone 13']);
   await h.locator('#cup >> css=[data-v=host]').click();
   assert.equal(await h.locator('#cup >> css=[data-act=cmode][data-v=quick]').getAttribute('aria-pressed'),'true');
+  await h.locator('#cup >> css=details.cup-customize summary').click();
   await h.locator('#cup >> css=[data-act=ct69]').click();
   await h.locator('#cup >> css=[data-act=ctab][data-v="6"]').click();
   await h.locator('#cup >> css=[data-act=ctab][data-v="9"]').click();
