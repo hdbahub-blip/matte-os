@@ -23,6 +23,8 @@ jobs:
       - name: JavaScript syntax
         run: |
           node --check js/app.js
+          node --check js/profile-chooser.js
+          node --check tests/profile-chooser-e2e.js
           node --check js/content9.js
           node --check js/core.js
           node --check js/teach-simple.js
@@ -119,6 +121,7 @@ jobs:
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ chromium
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ chromium
           node tests/together-e2e.js http://127.0.0.1:8765/
+          node tests/profile-chooser-e2e.js http://127.0.0.1:8765/ chromium
           node tests/together-live-e2e.js http://127.0.0.1:8765/ chromium
       - name: Same-origin upgrade from production 5.5.0 with synthetic progress
         run: |
@@ -166,6 +169,7 @@ jobs:
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ webkit
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ firefox
           node tests/together-e2e.js http://127.0.0.1:8765/ webkit
+          node tests/profile-chooser-e2e.js http://127.0.0.1:8765/ webkit
           node tests/together-live-e2e.js http://127.0.0.1:8765/ webkit
 
   cup-backend:

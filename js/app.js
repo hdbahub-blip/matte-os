@@ -269,15 +269,11 @@ function boostCard() {
 
   /* ================= FÖRSTA START ================= */
   function viewOnboarding() {
-    return `<main id="main" style="padding-top:calc(48px + var(--safe-t))"><div class="center"><span class="brand-m" style="width:56px;height:56px;font-size:28px;border-radius:16px;margin:0 auto 14px">M</span>
-      <h1>Matte OS</h1><p class="mut">Din matte – en sak i taget. Välj årskurs.</p></div>
-      <div style="height:16px"></div>
-      ${Object.values(CORE.profiles).map(p => `<button class="tap" data-a="pickprofile" data-p="${p.id}" style="min-height:76px"><span class="chip-btn" style="border:0;padding:0;height:auto" data-theme="${p.theme}"><span class="av" style="width:44px;height:44px;font-size:16px;border-radius:12px;background:${p.theme === 'navy' ? '#1d3557' : '#7a1f35'}">${p.short}</span></span><div><div class="t">${p.label}</div><div class="s">${p.chapters.map(c => c.name).join(' · ')}</div></div><span class="chev">${I.chev}</span></button>`).join('')}
-      <a class="tap" href="tillsammans/"><span class="ic">◈</span><div><div class="t">Gäster · Joker One, Two, Three</div><div class="s">Egen profil · svenska · engelska · matte · träna tillsammans</div></div><span class="chev">${I.chev}</span></a>
-      <a class="tap" href="study/" aria-label="Konto och säker synk"><span class="ic">☁</span><div><div class="t">Konto & synk</div><div class="s">Skyddat konto · spara svar · dela med mentor</div></div><span class="chev">${I.chev}</span></a>
-      <a class="tap" href="studera/" aria-label="Studera tillsammans"><span class="ic">◈</span><div><div class="t">Studera tillsammans</div><div class="s">Gemensamma övningar på varsin mobil</div></div><span class="chev">${I.chev}</span></a>
-      <a class="tap parent-profile-card" href="foralder/" aria-label="Öppna min föräldraöversikt" style="min-height:78px"><span class="parent-av" aria-hidden="true">M</span><div><div class="t">Min översikt</div><div class="s">Marble Green · Följ båda årskurserna · skrivskyddat</div></div><span class="chev">${I.chev}</span></a>
-      <p class="mut small center" style="margin-top:18px">Matteframsteg sparas lokalt. Med inloggat elevkonto synkroniseras inlämnade svar och framsteg till den skyddade studieprofilen. Cup skickar tillfälliga speluppgifter till spelservern.</p></main>`;
+    return `<main id="main" class="pc-onboarding">
+      <div class="pc-onboarding-brand"><span aria-hidden="true">M</span> MATTE OS</div>
+      ${window.MOProfileChooser.render({active:pid(),closable:false})}
+      <p class="pc-onboard-privacy">Matteframsteg sparas på den här enheten. Med inloggat elevkonto kan svar synkroniseras till den skyddade studieprofilen. Cup skickar tillfälliga speluppgifter till en separat spelserver.</p>
+      </main>`;
   }
 
   /* ================= UPPGIFTSKOMPONENT ================= */
@@ -569,16 +565,12 @@ function boostCard() {
       const sk = E.SKILLS[s.sid];
       inner = `<div class="sheet-head"><div><p class="eyebrow">Formelkort</p><h2 style="margin:0">${esc(sk.f.name)}</h2></div><button class="icon-btn" data-a="closesheet" aria-label="Stäng">${I.close}</button></div>
         ${formulaBody(sk, { noLink: !!s.inLesson })}`;
-    } else if (s.type === 'profile') {
-      inner = `<div class="sheet-head"><h2 style="margin:0">Vem pluggar?</h2><button class="icon-btn" data-a="closesheet" aria-label="Stäng">${I.close}</button></div>
-        ${Object.values(CORE.profiles).map(p => `<button class="tap" data-a="pickprofile" data-p="${p.id}" ${p.id === pid() ? 'aria-current="true" style="border-color:var(--acc)"' : ''}><span class="chip-btn" style="border:0;padding:0;height:auto"><span class="av" style="background:${p.theme === 'navy' ? '#1d3557' : '#7a1f35'}">${p.short}</span></span><div><div class="t">${esc(displayName(p.id))}</div><div class="s">${p.label} · ${p.chapters.map(c => c.name).join(', ')}</div></div>${p.id === pid() ? `<span class="chev" style="color:var(--acc)">${I.check.replace('<svg', '<svg width="20" height="20"')}</span>` : ''}</button>`).join('')}
-        <a class="tap" href="study/"><span class="ic">☁</span><div><div class="t">Konto och synk</div><div class="s">Logga in · spara dina svar · kontrollera mentorskoppling</div></div><span class="chev">${I.chev}</span></a>
-        <a class="tap" href="tillsammans/"><span class="ic">◈</span><div><div class="t">Gäster och grupppass</div><div class="s">Jokrar · 1–10 personer · egna teman</div></div><span class="chev">${I.chev}</span></a>
-        <a class="tap" href="studera/"><span class="ic">◈</span><div><div class="t">Studera tillsammans</div><div class="s">Öppna dina gemensamma studiepass</div></div><span class="chev">${I.chev}</span></a>
-        <a class="tap parent-profile-card" href="foralder/" aria-label="Öppna din föräldraöversikt"><span class="parent-av" aria-hidden="true">M</span><div><div class="t">Min översikt</div><div class="s">Marble Green · Åk 8 och 9 · inget elevresultat ändras</div></div><span class="chev">${I.chev}</span></a>
-        <button class="tap" data-a="nav" data-h="#/installningar">${I.gear.replace('<svg', '<svg width="20" height="20"')}<div><div class="t">Inställningar och säkerhetskopia</div><div class="s">Namn, restprovsdatum, spara/återställ</div></div><span class="chev">${I.chev}</span></button>`;
+     } else if (s.type === 'profile') {
+      inner = window.MOProfileChooser.render({active:pid(),closable:true});
+    } else if (s.type === 'profile-manage') {
+      inner = window.MOProfileChooser.manage();
     }
-    sheetRoot.innerHTML = `<div class="scrim" data-a="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${inner}</div></div>`;
+    sheetRoot.innerHTML = `<div class="scrim${s.type.startsWith("profile") ? " pc-scrim" : ""}" data-a="scrim"><div class="sheet${s.type.startsWith("profile") ? " pc-sheet" : ""}" role="dialog" aria-modal="true"${s.type.startsWith("profile") ? " aria-labelledby=\"pc-title\"" : ""}><div class="grab"></div>${inner}</div></div>`;
     const f = sheetRoot.querySelector('#sq') || sheetRoot.querySelector('.sheet [data-a=closesheet]'); if (f) { f.focus(); if(f.id==='sq'){ const v = f.value; f.value = ''; f.value = v; } }
   }
   function searchResults(res, q) {
@@ -657,6 +649,30 @@ function boostCard() {
     closesheet: () => closeSheet(),
     scrim: (b, e) => { if (e.target === b) closeSheet(); },
     pickprofile: b => { E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go(/^#\/cup(\/|$)/.test(location.hash) ? location.hash : '#/'); render(); },
+    profilemanage: () => { if (!UI.sheet) openSheet({type:'profile-manage'}); else {UI.sheet={type:'profile-manage'};renderSheet();} },
+    profileback: () => {UI.sheet={type:'profile'};renderSheet();},
+    profilenew: () => {
+      const guests = window.MOTogether;
+      if (!guests || !guests.status().storageOk) {toast('Gästprofilen kan inte sparas på den här enheten.');return;}
+      const g = guests.addGuest('Joker ' + (guests.load().guests.length + 1));
+      if (!g) {toast('Maximalt antal lokala gästprofiler är nått.');return;}
+      window.location.assign('tillsammans/?guest=' + encodeURIComponent(g.id) + '&edit=1');
+    },
+    profilenamesave: b => {
+      const id = b.dataset.p;
+      if (id !== 'grade8' && id !== 'grade9') return;
+      const f = document.getElementById('pc-name-' + id);
+      if (!f) return;
+      E.prof(id).name = f.value.trim().slice(0, 30);
+      E.save();
+      render();
+      renderSheet();
+      const updated = document.getElementById('pc-name-' + id);
+      if (updated) updated.setAttribute('aria-label', 'Namn sparat för ' + CORE.profiles[id].label);
+      toast('Namnet är sparat, skolresultaten är kvar.');
+    },
+    ['profile-settings']: () => { if (!pid()) {toast('Välj Åk 8 eller Åk 9 först.');return;} closeSheet();go('#/installningar'); },
+
     formula: b => openSheet({ type: 'formula', sid: b.dataset.sid, inLesson: /^#\/(l|run|prov)\//.test(location.hash + '/') }),
     ftoggle: b => { const id = b.dataset.sid; UI.fopen.has(id) ? UI.fopen.delete(id) : UI.fopen.add(id); rerenderKeepScroll(); },
     fch: b => { UI.fch = b.dataset.ch; UI.fopen.clear(); render(); },
@@ -690,6 +706,9 @@ function boostCard() {
 
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-a]'); if (!b) return;
+    // The backdrop surrounds ordinary <a> links in the sheet. Do NOT cancel their navigation.
+    // Only a direct backdrop click should close the sheet.
+    if (b.dataset.a === 'scrim' && e.target !== b) return;
     const a = actions[b.dataset.a]; if (!a) return;
     if (b.tagName === 'INPUT') return;
     e.preventDefault(); a(b, e);

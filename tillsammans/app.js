@@ -11,9 +11,19 @@
   const titles = { sv:'Svenska',en:'Engelska',study:'Studieteknik',math:'Matematik',table:'Multiplikation' };
   const ui = { page: 'home', notice:'', edit:null, topic:'sv', ref:'', members:new Set(),
     answer:null, selectedGuest:null, groupAppearance:'system', revealReading:false };
-  const startRef = new URLSearchParams(location.search).get('text');
+  const entryParams = new URLSearchParams(location.search);
+  const startRef = entryParams.get('text');
   const rawGuest = S.load().guests;
   rawGuest.slice(0,3).forEach(g=>ui.members.add(g.id));
+  // Deep-link from the main Netflix-style profile chooser. Never change school profiles.
+  const entryGuest = entryParams.get('guest');
+  if (entryGuest && rawGuest.some(g=>g.id===entryGuest)) {
+    ui.selectedGuest = entryGuest;
+    S.activate(entryGuest);
+    if (entryParams.get('edit')==='1') {ui.page='guests';ui.edit=entryGuest;}
+  } else if (entryParams.get('profiles')==='1') {
+    ui.page='guests';
+  }
   if (startRef && /^(sv|en):[a-zA-Z0-9_-]+:v[0-9]+$/.test(startRef)) {
     ui.page='read'; ui.ref=startRef;
   }
@@ -165,7 +175,8 @@
   }
   function welcome() {
     const existing=S.restoreSession();
-    return '<div class="hero"><p class="caps">MATTE OS · GEMENSAMT LÄRANDE</p><h1>En text. Flera tankar.</h1>'
+    return (ui.selectedGuest && member(ui.selectedGuest) ? '<div class="notice" role="status">Vald Joker: <strong>'+esc(member(ui.selectedGuest).name)+'</strong> · egna lokala framsteg</div>' : '')
+      +'<div class="hero"><p class="caps">MATTE OS · GEMENSAMT LÄRANDE</p><h1>En text. Flera tankar.</h1>'
       +'<p class="lead">Läs, fundera, svara och jämför tillsammans — utan att blanda ihop era egna framsteg. Jokrarna kan delta utan årskurs, konto eller obligatoriska formler.</p>'
       +'<div class="button-row"><button class="button" data-action="setup">Starta tillsammans</button>'
       +'<button class="button secondary" data-action="guests">Hantera Jokrar</button></div></div>'
