@@ -58,12 +58,19 @@ const url=process.argv[2]||'http://127.0.0.1:8765/';
     const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth);
     assert.ok(overflow<=2,'No horizontal mobile overflow; actual extra '+overflow+'px');
     await page.waitForFunction(() => !!navigator.serviceWorker?.controller,{timeout:15000});
-    await context.setOffline(true);
-    await page.reload({waitUntil:'load'});
-    assert.match(await page.locator('main').innerText(),/Bussen 07\.42/,'Offline exact reading link must work');
-    await context.setOffline(false);
+    if(engine==='chromium') {
+      await context.setOffline(true);
+      await page.reload({waitUntil:'load'});
+      assert.match(await page.locator('main').innerText(),/Bussen 07\.42/,'Offline exact reading link must work');
+      await context.setOffline(false);
+    } else {
+      // Playwright WebKit's context-offline reload throws an internal engine error.
+      // Check precache here; physical Safari offline navigation remains a RELEASE GATE.
+      const hasCachedHtml=await page.evaluate(async()=>!!(await caches.match(new URL('./index.html',location.href).href)));
+      assert.ok(hasCachedHtml,'WebKit should precache the exact Together HTML document');
+    }
     assert.deepEqual(errors,[],'No page JavaScript errors');
-    console.log('Matte OS Together '+engine+' mobile: profiles, themes, 3-person hidden answers, resume, offline share source and school isolation PASS');
+    console.log('Matte OS Together '+engine+' mobile: profiles, themes, 3-person hidden answers, resume, offline cache + school isolation PASS'+(engine==='webkit'?' (physical Safari offline reload unverified)':''));
     await context.close();
   } finally{await browser.close();}
 })().catch(err=>{console.error(err);process.exit(1)});
