@@ -44,6 +44,11 @@ jobs:
           node tests/hint-mapping.js
       - name: Math and content verification
         run: node tests/qa.js
+      - name: Together guest and local session contract
+        run: |
+          node --check tillsammans/model.js
+          node --check tillsammans/app.js
+          node tests/together-qa.js
       - name: Figure, unit and geometry checks
         run: node tests/figure-consistency.js
       - name: Table arena and progress integration
