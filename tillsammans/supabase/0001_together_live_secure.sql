@@ -184,6 +184,7 @@ begin
  'phase',r.phase,'round',r.idx,'total',jsonb_array_length(r.deck),
  'revision',r.revision,'members',v_members,'question',v_q,
  'answer_count',(select count(*) from together_live.answers a where a.room_id=r.id and a.round=r.idx),
+ 'my_answered',exists(select 1 from together_live.answers a where a.room_id=r.id and a.round=r.idx and a.user_id=v_user),
  'answers',v_answers,'expires_at',r.expires_at,'content_ref',r.content_ref);
 end $$;
 
