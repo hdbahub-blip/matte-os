@@ -45,7 +45,6 @@ const engine=process.argv[3]==='webkit'?'webkit':'chromium';
     assert(ids.includes('grade8')&&ids.includes('grade9'));checks++;
     const checked=await participants.evaluateAll(xs=>xs.filter(x=>x.checked).map(x=>x.value));
     assert.equal(checked.length,3);checks++;
-    await participants.filter({has:page.locator(':checked')}).count().catch(()=>{}); // no-op: DOM labels determine visibility
     await page.locator('input[data-role=participant][value="'+checked[0]+'"]').uncheck();
     await page.locator('input[data-role=participant][value="'+checked[1]+'"]').uncheck();
     await page.locator('input[data-role=participant][value="grade8"]').check();
@@ -75,6 +74,10 @@ const engine=process.argv[3]==='webkit'?'webkit':'chromium';
     assert.match(await page.locator('main').innerText(),/Fråga 2 av 5/);checks++;
     await page.reload({waitUntil:'load'});
     assert.equal(await page.locator('[data-action=resume]').count(),1,'paused group is resumable, deep-link consumed');checks++;
+    await page.locator('header a.logo').click();
+    await page.locator('.flow-home-together').click();
+    await page.locator('[data-action=resume]').waitFor();
+    assert.equal(await page.locator('h1').filter({hasText:'Redo att köra ihop?'}).count(),0,'return shortcut honors paused group');checks++;
     await page.locator('header a.logo').click();
     await page.locator('.top-in [data-a=profile]').click();
     const jokerHref=await page.locator('.pc-sheet .pc-guest').first().getAttribute('href');
