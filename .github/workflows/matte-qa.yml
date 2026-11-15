@@ -271,7 +271,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install pinned SQL test dependencies
-        run: npm ci --no-audit --no-fund
+        run: npm install --no-audit --no-fund
       - name: Set up throwaway auth identities and load ONLY Together Live SQL
         run: |
           psql -d postgres -v ON_ERROR_STOP=1 -c 'create database togethertest'
