@@ -66,6 +66,9 @@ const fail=async(call,msg)=>{await assert.rejects(call,undefined,msg);};
   assert.equal(await rpc(people[0],'together_live_answer',[room,0,1]),true);
   const mid=await rpc(people[1],'together_live_state',[room]);
   assert.equal(mid.answer_count,1);assert.equal(mid.phase,'answering');
+  assert.equal(mid.my_answered,false,'Other participant may see own status, never whom else answered');
+  assert.equal((await rpc(people[0],'together_live_state',[room])).my_answered,true,
+    'Own answered state survives rejoin without revealing any other choice');
   assert.deepEqual(mid.answers,[],'Private submissions not disclosed');
   assert.ok(mid.members.every(m=>m.score===0),'No correctness leaks through live scoreboard');
   assert.equal(await rpc(people[0],'together_live_answer',[room,0,1]),true,'Idempotent retry is safe');
