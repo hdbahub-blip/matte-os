@@ -127,8 +127,9 @@
           <a href="#/formler">Förstå matte</a><a href="lara/#/sv">Svenska</a><a href="lara/#/en">Engelska</a>
         </div>
       </section>
+      ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">Svara först, titta sedan. Tar en minut.</div></div><span class="chev">${I.chev}</span></a>` : ''}
       <details class="flow-explore"><summary>Välj annat ämne eller aktivitet</summary><div class="flow-explore-body">
-      ${hero}${KNEP && KNEP.dueCount() ? `<a class="tap knep-home" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">Svara först, titta sedan. Tar en minut.</div></div><span class="chev">${I.chev}</span></a>` : ''}<h2 class="home-choice-heading">Eller välj själv</h2>
+      ${hero}<h2 class="home-choice-heading">Eller välj själv</h2>
       <div class="calm-choices learn-grid" aria-label="Välj vad du vill göra">
       <a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Lär dig med enkla exempel</span></a>
       <a class="calm-choice" href="#/trana"><strong>Träna matte</strong><span>Räkna egna uppgifter</span></a>
