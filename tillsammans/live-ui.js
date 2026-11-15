@@ -213,6 +213,17 @@ app.addEventListener('click',async e=>{
  });
 });
 window.addEventListener('online',()=>fetchRoom());
+window.addEventListener('hashchange',()=>{
+  // Opening a private invite while ALREADY on live.html is a same-document
+  // navigation: the module is not re-executed. Process it explicitly.
+  const code=location.hash.match(/^#join=([0-9a-fA-F]{32})$/)?.[1];
+  if(!code)return;
+  pendingSave(code);
+  try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
+  ui.pendingInvite=code;ui.room=null;ui.state=null;ui.invite=null;
+  ui.error='';ui.notice='';ui.phase=ui.user?'invite':'login';
+  render();
+});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')fetchRoom();});
 setInterval(()=>{if(ui.phase==='room')fetchRoom();},2500);
 bootstrap();
