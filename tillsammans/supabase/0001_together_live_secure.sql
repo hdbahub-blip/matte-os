@@ -92,7 +92,172 @@ begin
    or jsonb_array_length(options) not between 2 and 8
    or jsonb_typeof(q->'prompt')<>'string'
    or char_length(q->>'prompt') not between 1 and 800
-   or v_ans is null or v_ans !~ '^[0-7]$' or v_ans::int>=jsonb_array_length(options)
+   or jsonb_typeof(q->'correct')<>'number' or v_ans is null or v_ans !~ '^[0-7] or v_ans::int>=jsonb_array_length(options)
+   or char_length(coalesce(q->>'why',''))>1500
+   or char_length(coalesce(q->>'key',''))>120 then raise exception 'INVALID_QUESTION' using errcode='P0001'; end if;
+   for option in select value from jsonb_array_elements(options) loop
+     if jsonb_typeof(option)<>'string' or char_length(option#>>'{}') not between 1 and 400
+     then raise exception 'INVALID_OPTION' using errcode='P0001'; end if;
+   end loop;
+ end loop;
+end $$;
+
+create function public.together_live_create(p_ref text,p_deck jsonb,p_alias text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v_user uuid; v_code text; v_room uuid; v_hash text;
+begin
+ v_user:=together_live.identity();
+ perform together_live.rate(v_user,'create',3,60);
+ if p_ref is null or p_ref !~ '^(sv|en|study|math|table):[a-zA-Z0-9_-]{1,64}(:v[0-9]{1,3})?$'
+ then raise exception 'INVALID_SOURCE' using errcode='P0001'; end if;
+ perform together_live.validate_deck(p_deck);
+ perform together_live.check_alias(p_alias);
+ -- Opportunistic cleanup; a scheduled cleanup remains a production prerequisite.
+ delete from together_live.rooms where expires_at<=now();
+ if (select count(*) from together_live.rooms where owner_id=v_user and expires_at>now())>=3
+ then raise exception 'ROOM_LIMIT' using errcode='P0001'; end if;
+ v_code:=encode(extensions.gen_random_bytes(16),'hex');
+ v_hash:=encode(extensions.digest(p_deck::text,'sha256'),'hex');
+ insert into together_live.rooms(owner_id,join_hash,content_ref,content_hash,deck)
+ values(v_user,encode(extensions.digest(v_code,'sha256'),'hex'),p_ref,v_hash,p_deck) returning id into v_room;
+ insert into together_live.members(room_id,user_id,alias) values(v_room,v_user,btrim(p_alias));
+ return jsonb_build_object('room_id',v_room,'invite',v_code,'expires_in_minutes',240);
+end $$;
+
+create function public.together_live_join(p_invite text,p_alias text)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v_user uuid; r together_live.rooms%rowtype; v_n integer;
+begin
+ v_user:=together_live.identity();
+ perform together_live.rate(v_user,'join',15,60);
+ if p_invite is null or p_invite !~ '^[0-9a-fA-F]{32}$' then
+ raise exception 'INVALID_INVITE' using errcode='P0001'; end if;
+ perform together_live.check_alias(p_alias);
+ select * into r from together_live.rooms
+ where join_hash=encode(extensions.digest(lower(p_invite),'sha256'),'hex') and expires_at>now()
+ for update;
+ if not found or r.phase<>'lobby' then raise exception 'INVALID_INVITE' using errcode='P0001'; end if;
+ if not exists(select 1 from together_live.members where room_id=r.id and user_id=v_user) then
+   select count(*) into v_n from together_live.members where room_id=r.id;
+   if v_n>=10 then raise exception 'ROOM_FULL' using errcode='P0001'; end if;
+   insert into together_live.members(room_id,user_id,alias) values(r.id,v_user,btrim(p_alias));
+   update together_live.rooms set revision=revision+1 where id=r.id;
+ end if;
+ return jsonb_build_object('room_id',r.id);
+end $$;
+
+create function public.together_live_state(p_room uuid)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare v_user uuid; r together_live.rooms%rowtype; v_members jsonb; v_q jsonb; v_answers jsonb := '[]'::jsonb;
+begin
+ v_user:=together_live.identity();
+ select * into r from together_live.rooms where id=p_room and expires_at>now();
+ if not found or not exists(select 1 from together_live.members where room_id=p_room and user_id=v_user)
+ then raise exception 'NOT_FOUND' using errcode='P0001'; end if;
+ select coalesce(jsonb_agg(jsonb_build_object(
+ 'id',m.user_id,'name',m.alias,
+ 'score',(select count(*)::int from together_live.answers a
+           where a.room_id=m.room_id and a.user_id=m.user_id
+           and (a.round<r.idx or r.phase in ('reveal','done')) and a.choice=(r.deck->a.round->>'correct')::int)
+ ) order by m.joined_at,m.user_id),'[]'::jsonb) into v_members
+ from together_live.members m where m.room_id=p_room;
+ v_q:=r.deck->r.idx;
+ if r.phase in ('lobby','answering') then
+   v_q:=v_q-'correct'-'why';
+ else
+   select coalesce(jsonb_agg(jsonb_build_object('id',a.user_id,'choice',a.choice)
+                       order by a.answered_at,a.user_id),'[]'::jsonb)
+   into v_answers from together_live.answers a where a.room_id=p_room and a.round=r.idx;
+ end if;
+ return jsonb_build_object('room_id',r.id,'owner_id',r.owner_id,'me',v_user,
+ 'phase',r.phase,'round',r.idx,'total',jsonb_array_length(r.deck),
+ 'revision',r.revision,'members',v_members,'question',v_q,
+ 'answer_count',(select count(*) from together_live.answers a where a.room_id=r.id and a.round=r.idx),
+ 'answers',v_answers,'expires_at',r.expires_at,'content_ref',r.content_ref,'content_hash',r.content_hash);
+end $$;
+
+create function public.together_live_start(p_room uuid)
+returns boolean language plpgsql security definer set search_path='' as $$
+declare v_user uuid; r together_live.rooms%rowtype;
+begin
+ v_user:=together_live.identity();
+ select * into r from together_live.rooms where id=p_room and expires_at>now() for update;
+ if not found or r.owner_id<>v_user or r.phase<>'lobby' then return false; end if;
+ update together_live.rooms set phase='answering',revision=revision+1 where id=p_room;
+ return true;
+end $$;
+
+create function public.together_live_answer(p_room uuid,p_round integer,p_choice integer)
+returns boolean language plpgsql security definer set search_path='' as $$
+declare v_user uuid; r together_live.rooms%rowtype; v_previous integer; v_members integer; v_answered integer;
+begin
+ v_user:=together_live.identity();
+ perform together_live.rate(v_user,'answer',60,60);
+ select * into r from together_live.rooms where id=p_room and expires_at>now() for update;
+ if not found or r.phase<>'answering' or p_round is distinct from r.idx
+ or not exists(select 1 from together_live.members where room_id=p_room and user_id=v_user)
+ or p_choice is null or p_choice<0 or p_choice>=jsonb_array_length(r.deck->r.idx->'options')
+ then return false; end if;
+ select choice into v_previous from together_live.answers where room_id=p_room and round=p_round and user_id=v_user;
+ if found then return v_previous=p_choice; end if; -- idempotent only for identical retry
+ insert into together_live.answers(room_id,user_id,round,choice) values(p_room,v_user,r.idx,p_choice);
+ select count(*) into v_members from together_live.members where room_id=p_room;
+ select count(*) into v_answered from together_live.answers where room_id=p_room and round=r.idx;
+ update together_live.rooms set phase=case when v_members=v_answered then 'reveal' else phase end,revision=revision+1 where id=p_room;
+ return true;
+end $$;
+
+create function public.together_live_next(p_room uuid,p_expected_round integer)
+returns boolean language plpgsql security definer set search_path='' as $$
+declare v_user uuid; r together_live.rooms%rowtype;
+begin
+ v_user:=together_live.identity();
+ select * into r from together_live.rooms where id=p_room and expires_at>now() for update;
+ if not found or r.owner_id<>v_user or r.phase<>'reveal' or p_expected_round is distinct from r.idx
+ then return false; end if;
+ if r.idx+1>=jsonb_array_length(r.deck) then
+   update together_live.rooms set phase='done',revision=revision+1 where id=p_room;
+ else
+   update together_live.rooms set phase='answering',idx=idx+1,revision=revision+1 where id=p_room;
+ end if;
+ return true;
+end $$;
+
+create function public.together_live_leave(p_room uuid)
+returns boolean language plpgsql security definer set search_path='' as $$
+declare v_user uuid; r together_live.rooms%rowtype;
+begin
+ v_user:=together_live.identity();
+ select * into r from together_live.rooms where id=p_room and expires_at>now() for update;
+ if not found then return false; end if;
+ if r.owner_id=v_user then delete from together_live.rooms where id=p_room; return true; end if;
+ if not exists(select 1 from together_live.members where room_id=p_room and user_id=v_user) then return false; end if;
+ delete from together_live.members where room_id=p_room and user_id=v_user;
+ if r.phase='answering' and (select count(*) from together_live.members where room_id=p_room)>0
+   and (select count(*) from together_live.answers where room_id=p_room and round=r.idx)
+    =(select count(*) from together_live.members where room_id=p_room)
+ then update together_live.rooms set phase='reveal',revision=revision+1 where id=p_room;
+ else update together_live.rooms set revision=revision+1 where id=p_room; end if;
+ return true;
+end $$;
+-- No default EXECUTE. No anonymous access, including function overloads.
+revoke all on function public.together_live_create(text,jsonb,text) from public,anon,authenticated;
+revoke all on function public.together_live_join(text,text) from public,anon,authenticated;
+revoke all on function public.together_live_state(uuid) from public,anon,authenticated;
+revoke all on function public.together_live_start(uuid) from public,anon,authenticated;
+revoke all on function public.together_live_answer(uuid,integer,integer) from public,anon,authenticated;
+revoke all on function public.together_live_next(uuid,integer) from public,anon,authenticated;
+revoke all on function public.together_live_leave(uuid) from public,anon,authenticated;
+grant execute on function public.together_live_create(text,jsonb,text) to authenticated;
+grant execute on function public.together_live_join(text,text) to authenticated;
+grant execute on function public.together_live_state(uuid) to authenticated;
+grant execute on function public.together_live_start(uuid) to authenticated;
+grant execute on function public.together_live_answer(uuid,integer,integer) to authenticated;
+grant execute on function public.together_live_next(uuid,integer) to authenticated;
+grant execute on function public.together_live_leave(uuid) to authenticated;
+revoke all on all functions in schema together_live from public,anon,authenticated;
+-- Purely local SQL staging: no writes to real Supabase in this migration file.
+ or v_ans::int>=jsonb_array_length(options)
    or char_length(coalesce(q->>'why',''))>1500
    or char_length(coalesce(q->>'key',''))>120 then raise exception 'INVALID_QUESTION' using errcode='P0001'; end if;
    for option in select value from jsonb_array_elements(options) loop
