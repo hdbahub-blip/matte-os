@@ -184,8 +184,8 @@
       +'<p class="lead">En text. Flera tankar. Börja direkt eller välj vilka som ska vara med.</p>'
       +(existing?'<div class="flow-resume"><strong>Ni har ett pausat pass</strong><button class="button" data-action="resume">Fortsätt där ni var</button></div>':'')
       +'<div class="flow-choices" role="group" aria-label="Välj hur ni vill träna">'
-      +'<button class="flow-choice flow-choice-solo" data-action="quick-solo"><span class="flow-glyph" aria-hidden="true">✎</span><strong>Jag kör själv</strong><span>5 frågor · '+esc(selected?.name||'Joker')+'</span><b>Starta själv <span aria-hidden="true">›</span></b></button>'
-      +'<button class="flow-choice flow-choice-group" data-action="setup"><span class="flow-glyph" aria-hidden="true">♧</span><strong>Vi kör ihop</strong><span>Samma mobil · välj spelare</span><b>Välj deltagare <span aria-hidden="true">›</span></b></button>'
+      +'<button class="flow-choice flow-choice-solo" data-action="quick-solo"><span class="flow-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4-.8L20 7.4a2.1 2.1 0 0 0-3-3L5 16z"/><path d="m14.5 6.5 3 3M4 20h16"/></svg></span><strong>Jag kör själv</strong><span>5 frågor · '+esc(selected?.name||'Joker')+'</span><b>Starta själv <span aria-hidden="true">›</span></b></button>'
+      +'<button class="flow-choice flow-choice-group" data-action="setup"><span class="flow-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5.5a3 3 0 0 1 0 5.5M20.5 20v-2a5.4 5.4 0 0 0-4-5.2"/></svg></span><strong>Vi kör ihop</strong><span>Samma mobil · välj spelare</span><b>Välj deltagare <span aria-hidden="true">›</span></b></button>'
       +'</div></section>'
       +'<section class="flow-options"><h2>På varsin mobil?</h2>'
       +'<p class="help">Cup fungerar utan konto. Privat Live och mentorpass kräver konto.</p>'
