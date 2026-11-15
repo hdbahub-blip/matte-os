@@ -2,7 +2,7 @@
    - Allt appinnehåll förcachas vid installation → fungerar offline.
    - Nätverk först för allt (färsk version när nätet finns), cache som reserv.
    - Ny version: CACHE-namnet byts → gamla cachar raderas vid aktivering. */
-const VERSION = '6.4.0-20261115-guests-rc1';
+const VERSION = '6.4.0-20261115-live-rc2';
 const CACHE = 'matte-os-' + VERSION;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-512.png',
   './css/app.css?v=5.5.9-fullspec', './css/atelier.css?v=6.2.0-parent', './css/color-system.css?v=6.1.0', './js/color-runtime.js?v=6.1.0', './js/math.js?v=5.5.6', './js/visuals.js?v=5.5.6', './js/core.js?v=5.5.6',

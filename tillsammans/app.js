@@ -171,7 +171,7 @@
       +'<button class="button secondary" data-action="guests">Hantera Jokrar</button></div></div>'
       +(existing?'<div class="card"><h2>Ett pass är pausat</h2><p>Fortsätt från exakt den tur ni var på.</p><button class="button" data-action="resume">Fortsätt passet</button></div>':'')
       +'<div class="grid"><div class="card action"><span class="badge-icon">◈</span><h3>Samma mobil</h3><p>1–10 deltagare. Dolda svar under varje tur, gemensamt facit efteråt, fungerar även utan nät efter att sidan laddats.</p><button class="button secondary" data-action="setup">Välj deltagare</button></div>'
-      +'<div class="card action"><span class="badge-icon">Aa</span><h3>Olika mobiler</h3><p>Dela en exakt textlänk så att alla läser samma version. Poäng och turer synkas ännu inte mellan telefoner.</p><button class="button secondary" data-action="share-setup">Välj en text</button></div></div>'
+      +'<div class="card action"><span class="badge-icon">Aa</span><h3>Olika mobiler</h3><p>Dela en exakt lästext utan konto, eller skapa ett privat live-rum med era befintliga Study Cloud-konton.</p><button class="button secondary" data-action="share-setup">Dela en lästext</button><a class="button secondary" href="./live.html">Privat live-rum · kräver konto</a></div></div>'
       +'<section class="section"><div class="section-title"><h2>Era gästprofiler</h2><button class="button small secondary" data-action="guests">Redigera</button></div>'+guestTiles(false)+'</section>';
   }
   function guestTiles(editable) {
