@@ -21,7 +21,9 @@ const rpc=async(user,func,args=[],role='authenticated')=>{
   const placeholders=vals.map((_,i)=>'$'+(i+1)+'::'+types[func][i]);
   const out=await c.query('select public.'+func+'('+placeholders.join(',')+') as result',vals);
   await c.query('commit');
-  return out.rows[0].result;
+  const data=out.rows[0].result;
+  if(data && typeof data==='object' && typeof data.error==='string')throw Error(data.error);
+  return data;
  }catch(e){await c.query('rollback').catch(()=>{});throw e;}finally{c.release();}
 };
 const fail=async(call,msg)=>{await assert.rejects(call,undefined,msg);};
@@ -97,6 +99,15 @@ const fail=async(call,msg)=>{await assert.rejects(call,undefined,msg);};
   const expired=await rpc(people[2],'together_live_create',['sv:buss:v1',deck,'Expired']);
   await db.query("update together_live.rooms set expires_at=now()-interval '1 minute' where id=$1",[expired.room_id]);
   await fail(rpc(people[2],'together_live_state',[expired.room_id]),'Expired room denied');
-  console.log('Together Live Postgres: private schema, auth-only RPC, 2 devices, invite, hidden answers/scores, no replay, expiring room, revoke/close PASS');
+  const throttleBefore=(await db.query("select attempts from together_live.throttle where user_id=$1 and action='join'",[people[1]])).rows[0].attempts;
+  assert.equal(throttleBefore,3,'Failed plus successful joins counted');
+  for(let n=throttleBefore;n<15;n++){
+    await assert.rejects(rpc(people[1],'together_live_join',['f'.repeat(32),'No Access']),/INVALID_INVITE/);
+  }
+  assert.equal((await db.query("select attempts from together_live.throttle where user_id=$1 and action='join'",[people[1]])).rows[0].attempts,15,
+    'Rejected invites MUST increment durable throttle row');
+  await assert.rejects(rpc(people[1],'together_live_join',['f'.repeat(32),'No Access']),/RATE_LIMIT/,
+    '16th join attempt denied by actual database limiter');
+  console.log('Together Live Postgres: RLS/private schema, auth, 2 devices, invites, hidden answers/scores/hash, no replay, expiry, delete, durable brute-force limiter PASS');
  }finally{await db.end();}
 })().catch(e=>{console.error(e);process.exit(1)});
