@@ -24,6 +24,7 @@ const byUser=(uid,fn,p)=>{
   const q=room.deck[room.round],visible=room.phase!=='lobby'&&room.phase!=='answering';
   return {room_id:rid,owner_id:hostId,me:uid,phase:room.phase,round:room.round,total:room.deck.length,
    revision:room.rev,content_ref:room.ref,answer_count:Object.keys(room.answers[room.round]).length,
+   my_answered:room.answers[room.round][uid]!==undefined,
    members:room.members.map(m=>({id:m.id,name:m.name,score:room.answers.reduce((n,round,i)=>n+((i<room.round||visible)&&round[m.id]===room.deck[i].correct?1:0),0)})),
    question:visible?q:((({correct,why,...safe})=>safe)(q)),
    answers:visible?Object.entries(room.answers[room.round]).map(([id,choice])=>({id,choice})):[]};
@@ -97,6 +98,11 @@ const byUser=(uid,fn,p)=>{
   assert.equal(await guest.page.locator('main').getByText('Rätt svar:').count(),0,'Hidden until ALL answer');
   await guest.page.locator('.choice').first().click();
   await guest.page.locator('[data-action=answer]').click();
+  await guest.page.reload({waitUntil:'load'});
+  await guest.page.locator('.live-answer-note').first().waitFor();
+  assert.match(await guest.page.locator('main').innerText(),/Ditt svar är inskickat/,
+    'Guest reconnect must not offer a second choice or reveal facit early');
+  assert.equal(await guest.page.locator('[data-action=answer]').count(),0);
   await host.page.locator('[data-action=refresh]').click();
   assert.match(await host.page.locator('main').innerText(),/Rätt svar:/);
   assert.match(await guest.page.locator('main').innerText(),/Rätt svar:/);
