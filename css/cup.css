@@ -63,3 +63,31 @@ li.me{border-color:var(--accent);background:var(--soft)}.pn{flex:1;font-weight:6
 /* Explicit numeric timer for Cup rounds; existing round-wide deadline unchanged. */
 .cup-countdown{margin:12px 0;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--accent);display:flex;justify-content:center;align-items:center;gap:9px;padding:8px 12px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
 .cup-countdown span{font-size:.79rem;font-weight:750}.cup-countdown strong{font-size:2.1rem;line-height:1;font-weight:900}.cup-countdown small{font-size:.79rem;font-weight:700}.cup-countdown[data-low="true"] strong{color:var(--red)}
+
+
+/* Simplified Cup entry: two unambiguous choices, optional warm-up. */
+.cup-start-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:19px 0 11px;}
+.cup .cup-start-card{
+ --cup-start-ink:#153b59;
+ --cup-start-bg:#e5eff7;
+ --cup-start-border:#a3bed3;
+ display:flex;flex-direction:column;align-items:flex-start;gap:7px;
+ min-width:0;min-height:184px;padding:17px 13px 14px;margin:0;
+ border:1.5px solid var(--cup-start-border);border-radius:20px;
+ background:var(--cup-start-bg);color:var(--cup-start-ink);
+ box-shadow:inset 0 1px 0 #fff9,0 9px 22px #162c4012;
+ transition:transform .15s ease;
+}
+.cup .cup-start-host{--cup-start-ink:#153b59;--cup-start-bg:#e5eff7;--cup-start-border:#a3bed3}
+.cup .cup-start-join{--cup-start-ink:#285038;--cup-start-bg:#e8f4e9;--cup-start-border:#a3cdb0}
+.cup .cup-start-card b{font-size:clamp(17px,4vw,21px);color:var(--cup-start-ink);line-height:1.2}
+.cup .cup-start-card span{color:var(--cup-start-ink);font-size:13px}
+.cup .cup-start-card strong{color:var(--cup-start-ink);font-size:13px;margin-top:auto;}
+.cup-start-icon{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:#fff9;margin-bottom:3px;}
+.cup-start-icon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.cup .cup-start-card:hover{transform:translateY(-2px)}
+.cup .cup-start-card:active{transform:scale(.985)}
+.cup-training-link{padding:7px 0 15px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.cup-training-link .link{font-weight:720;color:var(--accent);}
+@media(max-width:360px){.cup-start-grid{gap:7px}.cup .cup-start-card{padding:12px 9px;min-height:173px;border-radius:15px}}
+@media(prefers-reduced-motion:reduce){.cup .cup-start-card{transition:none}.cup .cup-start-card:hover{transform:none}}
