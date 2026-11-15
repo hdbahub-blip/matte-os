@@ -12,11 +12,13 @@
  const del=(key)=>{try{root.localStorage?.removeItem(key);}catch(_){}};
  function apiError(error){if(error)throw Error(String(error.message||error).slice(0,180));}
  async function init(){
-  if(db)return person;
-  const cfg=root.MO_CUP_CONFIG;
-  if(!root.supabase?.createClient||!cfg?.url||!cfg?.anonKey)throw Error('Live-läget kräver internet och synkklienten.');
-  db=root.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true,
-   detectSessionInUrl:false,storageKey:'matteos-study-auth-v1'}});
+  if(!db){
+   const cfg=root.MO_CUP_CONFIG;
+   if(!root.supabase?.createClient||!cfg?.url||!cfg?.anonKey)throw Error('Live-läget kräver internet och synkklienten.');
+   db=root.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true,
+    detectSessionInUrl:false,storageKey:'matteos-study-auth-v1'}});
+  }
+  // Retry auth after sign-in on another tab; a cached null must not block login forever.
   const {data,error}=await db.auth.getUser();
   if(error||!data?.user){person=null;return null;}
   const {data:profile,error:profileError}=await db.from('study_profiles')
