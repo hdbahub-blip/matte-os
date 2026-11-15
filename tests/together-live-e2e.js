@@ -82,6 +82,9 @@ const byUser=(uid,fn,p)=>{
   await guest.page.goto(invite,{waitUntil:'load'});
   await guest.page.locator('#invited-alias').waitFor();
   assert.equal(new URL(guest.page.url()).hash,'','Immediately clear secret from address bar');
+  await guest.page.reload({waitUntil:'load'});
+  await guest.page.locator('#invited-alias').waitFor();
+  assert.equal(new URL(guest.page.url()).hash,'','Pending invite survives reload only in sessionStorage');
   await guest.page.locator('#invited-alias').fill('Joker Two');
   await guest.page.locator('[data-action=accept-invite]').click();
   await guest.page.getByText('Joker Two').first().waitFor();
