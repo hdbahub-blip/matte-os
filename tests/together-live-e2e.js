@@ -94,15 +94,15 @@ const byUser=(uid,fn,p)=>{
   assert.equal(await guest.page.locator('main').getByText('Rätt svar:').count(),0);
   await host.page.locator('.choice').first().click();
   await host.page.locator('[data-action=answer]').click();
+  await host.page.reload({waitUntil:'load'});
+  await host.page.locator('.live-answer-note').first().waitFor();
+  assert.match(await host.page.locator('main').innerText(),/Ditt svar är inskickat/,
+    'Host reconnect must retain submitted state while guest has not answered');
+  assert.equal(await host.page.locator('[data-action=answer]').count(),0);
   await guest.page.locator('[data-action=refresh]').click();
   assert.equal(await guest.page.locator('main').getByText('Rätt svar:').count(),0,'Hidden until ALL answer');
   await guest.page.locator('.choice').first().click();
   await guest.page.locator('[data-action=answer]').click();
-  await guest.page.reload({waitUntil:'load'});
-  await guest.page.locator('.live-answer-note').first().waitFor();
-  assert.match(await guest.page.locator('main').innerText(),/Ditt svar är inskickat/,
-    'Guest reconnect must not offer a second choice or reveal facit early');
-  assert.equal(await guest.page.locator('[data-action=answer]').count(),0);
   await host.page.locator('[data-action=refresh]').click();
   assert.match(await host.page.locator('main').innerText(),/Rätt svar:/);
   assert.match(await guest.page.locator('main').innerText(),/Rätt svar:/);
