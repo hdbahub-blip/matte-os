@@ -44,6 +44,7 @@
   background: radial-gradient(circle at 12% 0%, #382335 0%, transparent 36%), linear-gradient(155deg, #16151c, #0e1118);
   color: #fff7ff;
 }
+.pc-onboard-privacy {width:min(100%,650px);margin:16px auto 0;padding:0 10px;text-align:center;color:#cfbfcb;font-size:11px;line-height:1.55;}
 .pc-onboarding-brand {
   width: min(100%, 670px);
   margin: 0 auto 18px;
