@@ -204,7 +204,8 @@
   function welcome() {
     const existing=S.restoreSession(), selected=ui.selectedGuest&&member(ui.selectedGuest)
       || S.load().guests.find(g=>g.id===S.load().activeGuestId) || S.load().guests[0];
-    return '<section class="hero flow-welcome"><p class="caps">MATTE OS · ENKEL START</p>'
+    return (ui.selectedGuest&&selected?'<div class="flow-selected-guest" role="status">Vald Joker: <strong>'+esc(selected.name)+'</strong></div>':'')
+      +'<section class="hero flow-welcome"><p class="caps">MATTE OS · ENKEL START</p>'
       +'<h1>Vad vill ni göra?</h1>'
       +'<p class="lead">En text. Flera tankar. Börja direkt eller välj vilka som ska vara med.</p>'
       +(existing?'<div class="flow-resume"><strong>Ni har ett pausat pass</strong><button class="button" data-action="resume">Fortsätt där ni var</button></div>':'')
