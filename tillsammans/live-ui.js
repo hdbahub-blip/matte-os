@@ -82,7 +82,7 @@ function viewRoom(){
   +memberList(s)+shareSection()
   +(owner?'<button class="button block" data-action="start"'+(ui.busy?' disabled':'')+'>Starta rundorna</button>':'<p class="live-answer-note">Värden startar snart. Din telefon följer automatiskt.</p>')
   +exit+'</div>';
- const q=s.question||{},selected=ui.selected,submitted=ui.submittedKey===s.room_id+':'+s.round;
+ const q=s.question||{},selected=ui.selected,submitted=!!s.my_answered||ui.submittedKey===s.room_id+':'+s.round;
  if(s.phase==='answering'){
   const options=(q.options||[]).map((x,i)=>'<button class="choice'+(selected===i?' selected':'')+'" type="button" data-action="select" data-index="'+i+'" aria-pressed="'+(selected===i)+'"'+(submitted||ui.busy?' disabled':'')+'>'+esc(x)+'</button>').join('');
   return intro+reading(s.content_ref)+'<section class="turncard"><h2>Fundera och välj ditt svar</h2><p class="question">'+esc(q.prompt||'')+'</p>'
