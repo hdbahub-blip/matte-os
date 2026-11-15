@@ -111,8 +111,8 @@ function render(){
  else if(ui.phase==='room')shell(viewRoom());
  else shell(viewHome());
 }
-async function fetchRoom(){
- if(!ui.room||fetching||ui.busy||document.visibilityState==='hidden')return;
+async function fetchRoom(force=false){
+ if(!ui.room||fetching||(!force&&(ui.busy||document.visibilityState==='hidden')))return;
  fetching=true;
  try{const fresh=await A.call('together_live_state',{p_room:ui.room});
   if(ui.state&&fresh.round!==ui.state.round){ui.selected=null;ui.submittedKey='';}
@@ -125,14 +125,14 @@ async function fetchRoom(){
 }
 async function action(fn){
  if(ui.busy)return;
- ui.busy=true;ui.error='';ui.notice='';render();
+ ui.busy=true;ui.error='';ui.notice='';
  try{await fn();}
  catch(e){ui.error=e.message||'Något gick fel.';}
  finally{ui.busy=false;render();}
 }
 async function openRoom(room){
  ui.room=room;ui.phase='room';ui.selected=null;ui.submittedKey='';A.remember(room);
- await fetchRoom();
+ await fetchRoom(true);
 }
 async function bootstrap(){
  render();
@@ -182,15 +182,15 @@ app.addEventListener('click',async e=>{
   if(key==='create')await make();
   else if(key==='join')await join(document.getElementById('join-code')?.value.trim(),document.getElementById('join-alias')?.value.trim());
   else if(key==='accept-invite')await join(ui.pendingInvite,document.getElementById('invited-alias')?.value.trim());
-  else if(key==='start'){const ok=await A.call('together_live_start',{p_room:ui.room});if(!ok)throw Error('Rummet kan inte startas.');await fetchRoom();}
+  else if(key==='start'){const ok=await A.call('together_live_start',{p_room:ui.room});if(!ok)throw Error('Rummet kan inte startas.');await fetchRoom(true);}
   else if(key==='answer'){
    if(ui.selected===null)throw Error('Välj ett svar först.');
    const round=ui.state.round;const yes=await A.call('together_live_answer',{p_room:ui.room,p_round:round,p_choice:ui.selected});
    if(!yes)throw Error('Svaret kunde inte lämnas in eller har redan registrerats annorlunda.');
-   ui.submittedKey=ui.room+':'+round;await fetchRoom();
+   ui.submittedKey=ui.room+':'+round;await fetchRoom(true);
   }
   else if(key==='next'){const ok=await A.call('together_live_next',{p_room:ui.room,p_expected_round:ui.state.round});
-   if(!ok)throw Error('Rundan kan inte flyttas fram.');ui.selected=null;await fetchRoom();}
+   if(!ok)throw Error('Rundan kan inte flyttas fram.');ui.selected=null;await fetchRoom(true);}
   else if(key==='leave'){
    if(!confirm(ui.state?.owner_id===ui.state?.me?'Stäng rummet och radera dess svar?':'Lämna rummet?'))return;
    const ok=await A.call('together_live_leave',{p_room:ui.room});
