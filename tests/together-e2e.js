@@ -49,9 +49,8 @@ const url=process.argv[2]||'http://127.0.0.1:8765/';
     assert.match(await page.locator('main').innerText(),/Fråga 2/);
     assert.equal(await page.evaluate(()=>localStorage.getItem('matteos.v5')),'{"grade8":"must preserve"}');
     assert.equal(await page.evaluate(()=>localStorage.getItem('matteos.larande.v1')),'{"grade9":"must preserve"}');
-    await page.locator('button[data-action=finish-session]').first().click();
     page.once('dialog',dialog=>dialog.accept());
-    // The click above already ran; its confirm must be registered before clicking in Playwright.
+    await page.locator('button[data-action=finish-session]').first().click();
     await page.goto(new URL('tillsammans/?text=sv:buss:v1',url).href,{waitUntil:'load'});
     await page.locator('h1').first().waitFor();
     assert.match(await page.locator('main').innerText(),/Bussen 07\.42/);
