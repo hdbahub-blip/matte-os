@@ -44,6 +44,11 @@ jobs:
           node tests/hint-mapping.js
       - name: Math and content verification
         run: node tests/qa.js
+      - name: Together guest and local session contract
+        run: |
+          node --check tillsammans/model.js
+          node --check tillsammans/app.js
+          node tests/together-qa.js
       - name: Figure, unit and geometry checks
         run: node tests/figure-consistency.js
       - name: Table arena and progress integration
@@ -108,6 +113,7 @@ jobs:
           node tests/knep-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ chromium
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ chromium
+          node tests/together-e2e.js http://127.0.0.1:8765/
       - name: Same-origin upgrade from production 5.5.0 with synthetic progress
         run: |
           git fetch --depth 1 origin 7f87feeac11fc4800b05cbee0cfded415b1052ff
@@ -153,6 +159,7 @@ jobs:
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ firefox
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ webkit
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ firefox
+          node tests/together-e2e.js http://127.0.0.1:8765/ webkit
 
   cup-backend:
     runs-on: ubuntu-24.04
