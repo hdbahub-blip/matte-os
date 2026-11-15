@@ -43,7 +43,9 @@
     ui.page='guests';
   }
   if (entryParams.get('start')==='group' && ui.page==='home' && !startRef) {
-    ui.page='setup'; ui.ref=entryList(ui.topic).some(x=>x.ref===ui.ref)?ui.ref:defaultRef(ui.topic);
+    if(!S.restoreSession()){
+      ui.page='setup'; ui.ref=entryList(ui.topic).some(x=>x.ref===ui.ref)?ui.ref:defaultRef(ui.topic);
+    }
     // The launch instruction is one-time. Reload must not restart navigation or lose paused-session recovery.
     try {
       const next=new URL(location.href);next.searchParams.delete('start');
