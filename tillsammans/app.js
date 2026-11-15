@@ -5,7 +5,7 @@
   const S = window.MOTogether, D = window.MOL_CONTENT || { lessons: [] };
   const app = document.getElementById('app'), BANK = window.MO_BANK3 || [];
   if (!S || !app) return;
-  const esc = x => String(x == null ? '' : x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;',"'":'&#39;'}[c]));
+  const esc = x => String(x == null ? '' : x).replace(/[&<>"']/g, c => c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&#39;');
   const school = { grade8: { id:'grade8',name:'Åk 8',theme:'navy',accent:'#1d3557' },
     grade9: { id:'grade9',name:'Åk 9',theme:'burgundy',accent:'#7a1f35' } };
   const titles = { sv:'Svenska',en:'Engelska',study:'Studieteknik',math:'Matematik',table:'Multiplikation' };
