@@ -4,12 +4,26 @@
 const A=window.MO_LIVE_API,B=window.MO_LIVE_SOURCES,S=window.MOTogether,app=document.getElementById('app');
 if(!A||!B||!app)return;
 const esc=x=>String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const PENDING_KEY='matteos.together.live.pending.invite.v1';
+function pendingSave(code){try{sessionStorage.setItem(PENDING_KEY,JSON.stringify({code,at:Date.now()}));}catch(_){}}
+function pendingClear(){try{sessionStorage.removeItem(PENDING_KEY);}catch(_){}}
+function pendingRead(){
+ try{
+  const v=JSON.parse(sessionStorage.getItem(PENDING_KEY)||'null');
+  if(v && /^[0-9a-fA-F]{32}$/.test(v.code||'') && Number.isFinite(v.at)
+     && v.at<=Date.now() && Date.now()-v.at<600000)return v.code;
+ }catch(_){}
+ pendingClear();return null;
+}
 const rawInvite=location.hash.match(/^#join=([0-9a-fA-F]{32})$/)?.[1]||null;
-if(rawInvite){try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}}
+if(rawInvite){
+ pendingSave(rawInvite);
+ try{history.replaceState(null,'',location.pathname+location.search);}catch(_){}
+}
 const defaults=S?.load()?.guests||[];
 const active=defaults.find(g=>g.id===S?.load()?.activeGuestId);
 const firstText=(B.sources('sv').find(x=>x.ref!=='sv:micro:v1')||B.sources('sv')[0]);
-const ui={phase:'loading',user:null,room:null,state:null,invite:null,pendingInvite:rawInvite,
+const ui={phase:'loading',user:null,room:null,state:null,invite:null,pendingInvite:rawInvite||pendingRead(),
  error:'',notice:'',busy:false,alias:active?.name||defaults[0]?.name||'Gäst',
  topic:'sv',ref:firstText?.ref||'',selected:null,submittedKey:'',lastRevision:-1,offline:false};
 let fetching=false;
@@ -158,7 +172,7 @@ async function join(code,alias){
  if(!/^[0-9a-fA-F]{32}$/.test(code||''))throw Error('Koden behöver ha 32 tecken.');
  if(!alias?.trim())throw Error('Välj ett visningsnamn.');
  const result=await A.call('together_live_join',{p_invite:code,p_alias:alias.trim()});
- ui.alias=alias.trim();ui.pendingInvite=null;ui.invite=null;await openRoom(result.room_id);
+ ui.alias=alias.trim();ui.pendingInvite=null;pendingClear();ui.invite=null;await openRoom(result.room_id);
 }
 app.addEventListener('change',e=>{
  if(e.target.id==='live-topic'){ui.topic=e.target.value;ui.ref=B.sources(ui.topic)[0]?.ref||'';render();}
@@ -168,7 +182,7 @@ app.addEventListener('click',async e=>{
  const btn=e.target.closest('[data-action]');if(!btn||ui.busy)return;
  const key=btn.dataset.action;
  if(key==='retry-login'){ui.phase='loading';await bootstrap();return;}
- if(key==='cancel-invite'){ui.pendingInvite=null;ui.phase='home';render();return;}
+ if(key==='cancel-invite'){ui.pendingInvite=null;pendingClear();ui.phase='home';render();return;}
  if(key==='select'){ui.selected=Number(btn.dataset.index);render();return;}
  if(key==='copy-invite'||key==='share-invite'){
   const link=document.getElementById('live-link')?.value;if(!link)return;
