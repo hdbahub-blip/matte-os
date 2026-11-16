@@ -21,7 +21,7 @@ ok(tabcss.includes('--accent2:#6b4b99')&&tabcss.includes('--accent2:#d2baff'),'T
 ok(prov.includes('data-mode-toggle')&&prov.includes('matteos.appearance.v1')&&provcss.includes('html[data-mode="dark"]'),'Prov follows day and night preference');
 ok(prov.includes('filter(a=>a.grade===store.grade)'),'Exam history isolated by grade');
 ok(provhtml.includes('1.2.5')&&provsw.includes('1.2.5')&&provhtml.includes('5.5.6')&&provsw.includes('5.5.6'),'Exam build uses current shared math resources');
-ok(file('lara/sprak.js').includes('SPRÅKVERKSTAD 3.1'),'Language heading tracks content release');
+ok(file('lara/sprak.js').includes('SPRÅKVERKSTAD 3.3'),'Language heading tracks content release');
 ok(file('index.html').includes('5.5.9')&&sw.includes('5.5.9'),'UI assets get fresh service worker version');
 ok(file('index.html').includes('<meta name="matte-os-build" content="6.7.0-room">')&&file('lara/index.html').includes('<meta name="matte-larande-build" content="4.4.0-room">'),'Both release metadata attributes are valid and closed');
 console.log('FULLSPEC static regressions: '+n+'/'+n+' PASS');
