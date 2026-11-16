@@ -64,7 +64,20 @@ let n = 0; const ok = (c, m) => { assert(c, m); n++; };
     ok(JSON.stringify(A5.profiles.grade9.lessons) === JSON.stringify(B5.profiles.grade9.lessons), 'Lesson progress changed by upgrade');
     ok(JSON.stringify(A5.profiles.grade9.tables) === JSON.stringify(B5.profiles.grade9.tables), 'Table progress changed by upgrade');
     ok(after.cup === before.cup && after.prov === before.prov, 'Cup or Prov storage changed by upgrade');
-    ok(/Fortsätt · steg 2 av 3/.test(await page.locator('.hero .btn').innerText()), 'Home does not resume the saved lesson step');
+    const resumedText=await page.locator('.hero .btn').innerText();
+    if(!/Fortsätt · steg 2 av 3/.test(resumedText)){
+      const debug=await page.evaluate(()=>({
+        active:window.MOEngine?.state?.()?.active,
+        recKind:window.MOEngine?.recommend?.(window.MOEngine.state().active)?.kind,
+        heroText:[...document.querySelectorAll('.hero')].map(x=>x.innerText.slice(0,250)),
+        heroCount:document.querySelectorAll('.hero').length,
+        hidden:[...document.querySelectorAll('.hero .btn')].map(x=>({text:x.textContent,rect:x.getBoundingClientRect().height})),
+        sw:navigator.serviceWorker?.controller?.scriptURL||'none',
+        build:document.querySelector('meta[name="matte-os-build"]')?.content
+      }));
+      console.error('UPGRADE RESUME DIAGNOSTIC (synthetic only)',JSON.stringify(debug));
+    }
+    ok(/Fortsätt · steg 2 av 3/.test(resumedText), 'Home does not resume the saved lesson step');
     let keys = [];
     for (let i = 0; i < 30; i++) { keys = await page.evaluate(() => caches.keys()); if (keys.includes(expectedCache) && !keys.some(k => k.includes('5.5.0'))) break; await page.waitForTimeout(500); }
     ok(keys.includes(expectedCache) && !keys.some(k => k.includes('5.5.0')), 'Service-worker cache not switched to '+expectedCache+': ' + keys);
