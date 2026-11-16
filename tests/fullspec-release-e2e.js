@@ -22,7 +22,7 @@ const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/?$/,'/');
       await page.locator('html[data-mode="dark"]').waitFor({timeout:12000});
       assert.equal(await page.locator('html').getAttribute('data-mode'),'dark');checks++;
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));checks++;
-      await page.locator('nav.nav a[href="lara/"]').click();
+      await page.locator('nav.nav a[href="lara/#/sv"]').click();
       await page.locator('nav.bottom').waitFor();
       await page.locator('html[data-mode="dark"][data-profile="'+grade+'"]').waitFor({timeout:12000});
       assert.equal(await page.locator('html').getAttribute('data-mode'),'dark');checks++;
