@@ -109,7 +109,7 @@
     const nm = E.prof(p).name;
     // A school-week change must never bury a paused lesson. Recommendation for the
     // current syllabus can still be accessed under optional activities.
-    const paused=Object.entries(pr.lessons||{})
+    const paused=Object.entries(E.prof(p).lessons||{})
       .filter(([sid,ls])=>E.SKILLS[sid]?.profile===p && ls && Number(ls.step)>0
          && !ls.done && E.level(p,sid)<3)
       .sort((a,b)=>(Number(b[1].t)||0)-(Number(a[1].t)||0))[0];
