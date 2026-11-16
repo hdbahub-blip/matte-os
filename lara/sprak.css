@@ -66,3 +66,8 @@ html[data-mode="dark"] .wk-option.on b{color:#152332}
 html[data-mode="dark"] .wk-reading p.wk-hl{box-shadow:0 0 0 5px #32496a}
 html[data-mode="dark"] .wk-feedback blockquote{background:var(--paper2);color:var(--ink)}
 html[data-mode="dark"] .wk-challenge{background:var(--accent-soft);color:var(--accent-dark)}
+
+/* Latest original stories are surfaced first, without changing prior progress. */
+.wk-newtag{display:inline-block;vertical-align:middle;margin-inline-start:7px;padding:3px 7px;border:1px solid var(--border);border-radius:6px;background:var(--accent-soft);color:var(--accent-dark);font-family:system-ui,sans-serif;font-size:10px;font-weight:800;letter-spacing:.06em}
+.wk-book:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.wk-newtag{transition:none}}

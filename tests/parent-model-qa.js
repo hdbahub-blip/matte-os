@@ -10,7 +10,7 @@ const meta=MODEL.metaFrom(globalThis),now=Date.now();
 let n=0;const ok=(x,s)=>{assert.ok(x,s);n++};
 const file=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
 ok(meta.skills.grade8.length>15&&meta.skills.grade9.length>15,'grade-specific skill metadata');
-ok(meta.books.length===22,'all reading texts indexed');
+ok(meta.books.length===33,'all reading texts indexed');
 ok(meta.words.length===122,'all vocabulary terms indexed');
 ok(meta.miniLessons.length===30,'short language lessons indexed');
 ok(meta.kneps.length===10,'memory curriculum indexed');
@@ -48,7 +48,7 @@ ok(a.language.started===1&&b.language.started===0,'language short lessons isolat
 ok(a.memory.remembered===1&&b.memory.remembered===0,'memory after delay counted');
 ok(a.exams.attempts===1&&b.exams.attempts===0&&a.exams.mean===80,'exam grade filter and mean');
 ok(a.math.chapters.reduce((s,x)=>s+x.total,0)===a.math.total,'math skill completeness');
-ok(a.reading.forLang.reduce((s,x)=>s+x.total,0)===22,'reading levels complete');
+ok(a.reading.forLang.reduce((s,x)=>s+x.total,0)===33,'reading levels complete');
 ok(a.activity14.some(x=>x.count>0),'activity histogram counts known events');
 const compact=MODEL.minimalReport('grade8',storage);
 ok(compact.app==='matte-os-parent-report'&&compact.grade==='grade8','portable grade-scoped report');
@@ -83,5 +83,5 @@ ok(rootSW.includes("'./foralder/index.html'")&&rootSW.includes('parentNav'),'roo
 ok(rootUI.includes('MOProfileChooser.render')&&file('js/profile-chooser.js').includes('Min översikt')&&lerUI.includes('Min översikt'),'discoverable third profile from both learning apps');
 ok(file('prov/js/app.js').includes('Dela resultatrapport'),'exam can enter report sharing flow');
 ok(file('foralder/style.css').includes('Marble green')&&file('foralder/style.css').includes('html[data-mode="dark"]'),'marble green both modes');
-ok(file('lara/index.html').includes('name="matte-larande-build" content="4.4.0-room"'),'Learning public metadata matches current study-room release');
+ok(file('lara/index.html').includes('name="matte-larande-build" content="4.5.0-reading"'),'Learning public metadata matches current study-room release');
 console.log('Parent Insights QA '+n+'/'+n+' PASS — sources, privacy, backups, PIN, 6 dimensions, all grades');

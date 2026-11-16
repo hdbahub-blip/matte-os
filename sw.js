@@ -2,7 +2,7 @@
    - Allt appinnehåll förcachas vid installation → fungerar offline.
    - Nätverk först för allt (färsk version när nätet finns), cache som reserv.
    - Ny version: CACHE-namnet byts → gamla cachar raderas vid aktivering. */
-const VERSION = '6.7.0-20261116-study-room';
+const VERSION = '6.7.1-20261116-immersive';
 const CACHE = 'matte-os-' + VERSION;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-512.png',
   './css/app.css?v=5.5.9-fullspec', './css/atelier.css?v=6.2.0-parent', './css/color-system.css?v=6.1.0', './css/profile-chooser.css?v=1.0.0', './css/flow-home.css?v=1.0.0', './css/study-room-v2.css?v=1.0.0', './js/color-runtime.js?v=6.1.0', './js/math.js?v=5.5.6', './js/visuals.js?v=5.5.6', './js/core.js?v=5.5.6',
@@ -10,7 +10,7 @@ const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './i
   './tillsammans/', './tillsammans/index.html', './tillsammans/style.css?v=1.0.0', './tillsammans/flow.css?v=1.0.0', './tillsammans/model.js?v=2.0.0-dropin', './tillsammans/app.js?v=2.0.0-dropin',
   './study/', './study/index.html', './study/style.css?v=1.0.0', './study/setup.js?v=1.0.1',
   './studera/', './studera/index.html', './studera/app.js?v=1.0.2', './studera/style.css?v=1.0.1',
-  './foralder/', './foralder/index.html', './foralder/style.css?v=1.0.0', './foralder/model.js?v=1.0.0', './foralder/app.js?v=1.1.0-cloud', './foralder/cloud-parent.js?v=1.0.1', './lara/content.js?v=1.1.0', './lara/texts-extra-sv.js?v=4.0.1', './lara/texts-sv.js?v=4.0.1', './lara/texts-extra-en.js?v=4.0.1', './lara/texts-en.js?v=4.0.1', './lara/words-extra.js?v=1.1.0', './lara/ordlek.js?v=1.1.0', './affischer/', './affischer/index.html', './affischer/posters.css?v=1.1.0', './affischer/posters.js?v=1.1.0'];
+  './foralder/', './foralder/index.html', './foralder/style.css?v=1.0.0', './foralder/model.js?v=1.0.0', './foralder/app.js?v=1.1.0-cloud', './foralder/cloud-parent.js?v=1.0.1', './lara/content.js?v=1.1.0', './lara/texts-immersive-20261116.js?v=1.0.0', './lara/texts-extra-sv.js?v=4.0.1', './lara/texts-sv.js?v=4.0.2-immersive', './lara/texts-extra-en.js?v=4.0.1', './lara/texts-en.js?v=4.0.2-immersive', './lara/words-extra.js?v=1.1.0', './lara/ordlek.js?v=1.1.0', './affischer/', './affischer/index.html', './affischer/posters.css?v=1.1.0', './affischer/posters.js?v=1.1.0'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });
