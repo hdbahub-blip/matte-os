@@ -107,6 +107,22 @@
     const planHtml = `<details class="fold"><summary>${I.cal.replace('<svg', '<svg width="20" height="20"')} Veckoplanen</summary><div class="in plan">${pr.plan.map(x => `<div class="${x.w === sw.week ? 'cur' : ''} ${x.exam ? 'exam' : ''}"><span class="w">v.${x.w}</span><span><span class="a">${esc(x.a)}</span><br><span class="d">${esc(x.d)}</span></span></div>`).join('')}</div></details>`;
     const hi = (() => { const h = E.now().getHours(); return h < 10 ? 'God morgon' : h < 17 ? 'Hej' : 'God kväll'; })();
     const nm = E.prof(p).name;
+    // A school-week change must never bury a paused lesson. Recommendation for the
+    // current syllabus can still be accessed under optional activities.
+    const paused=Object.entries(pr.lessons||{})
+      .filter(([sid,ls])=>E.SKILLS[sid]?.profile===p && ls && Number(ls.step)>0
+         && !ls.done && E.level(p,sid)<3)
+      .sort((a,b)=>(Number(b[1].t)||0)-(Number(a[1].t)||0))[0];
+    const pausedSkill=paused&&E.SKILLS[paused[0]];
+    const pausedStep=paused?Math.max(1,Math.min(3,Number(paused[1].step)||1)):0;
+    const resumeOutside=rec.kind!=='continue'&&pausedSkill
+      ? `<div class="card hero"><div class="hero-body"><p class="eyebrow">Fortsätt där du var</p>
+          <h2>${esc(pausedSkill.title)}</h2>
+          <p class="mut small">Den påbörjade lektionen finns kvar även när skolans vecka ändras.</p>
+          <button class="btn block" data-a="nav" data-h="#/l/${pausedSkill.id}/${pausedStep}">Fortsätt · steg ${pausedStep} av 3</button>
+        </div></div>`
+      : '';
+    const recommendedHero=resumeOutside?hero.replace('class="card hero"','class="card suggested"'):hero;
     return shell(`<div class="ctx">${ctx}</div>
       <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'Vad vill du göra idag?')}</h1>
       <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Välj det som passar dig. Du kan alltid komma tillbaka.</p>
@@ -128,9 +144,9 @@
         </div>
       </section>
       ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">Svara först, titta sedan. Tar en minut.</div></div><span class="chev">${I.chev}</span></a>` : ''}
-      ${rec.kind === 'continue' ? hero : ''}
+      ${rec.kind === 'continue' ? hero : resumeOutside}
       <details class="flow-explore"><summary>Välj annat ämne eller aktivitet</summary><div class="flow-explore-body">
-      ${rec.kind === 'continue' ? '' : hero}<h2 class="home-choice-heading">Eller välj själv</h2>
+      ${rec.kind === 'continue' ? '' : recommendedHero}<h2 class="home-choice-heading">Eller välj själv</h2>
       <div class="calm-choices learn-grid" aria-label="Välj vad du vill göra">
       <a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Lär dig med enkla exempel</span></a>
       <a class="calm-choice" href="#/trana"><strong>Träna matte</strong><span>Räkna egna uppgifter</span></a>
