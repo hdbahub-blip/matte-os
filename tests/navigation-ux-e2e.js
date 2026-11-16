@@ -16,17 +16,17 @@ const engine=process.argv[3]||'chromium';
    await p.goto(BASE+'/',{waitUntil:'domcontentloaded'});
    await p.locator('[data-p="'+grade+'"]').click();
    await p.locator('nav.nav').waitFor();
-   assert.equal(await p.locator('nav.nav [data-h="#/tabell/home"]').count(),1);checks++;
-   assert.equal(await p.locator('nav.nav a[href="lara/"]').count(),1);checks++;
-   const cards=p.locator('.calm-choices.learn-grid .calm-choice');
-   assert.equal(await cards.count(),5);checks++;
-   for(const href of ['#/formler','#/trana','#/tabell/home','lara/#/sv','lara/#/en']){
-    assert.equal(await p.locator('.calm-choices.learn-grid .calm-choice[href="'+href+'"]').count(),1,'home choice '+href);checks++;
+   assert.equal(await p.locator('nav.nav [data-h="#/trana"]').count(),1);checks++;
+   assert.equal(await p.locator('nav.nav a[href="lara/#/sv"]').count(),1);checks++;
+   const cards=p.locator('.ux-tiles .ux-tile');
+   assert.equal(await cards.count(),4);checks++;
+   for(const href of ['lara/#/sv','lara/#/en','tillsammans/?start=group&grade='+grade]){
+    assert.equal(await p.locator('.ux-tiles .ux-tile[href="'+href+'"]').count(),1,'home choice '+href);checks++;
    }
-   assert.equal(await p.locator('.calm-choices [href="#/cup"]').count(),0);checks++;
-   await p.locator('nav.nav [data-h="#/tabell/home"]').click();
+   assert.equal(await p.locator('.ux-more').getAttribute('open'),null);checks++;
+   await p.goto(BASE+'/#/tabell/home');
    await p.locator('#arena .selected-front a[href="#/tabell/selftest"]').waitFor();
-   assert.equal(await p.locator('nav.nav [data-h="#/tabell/home"][aria-current="page"]').count(),1);checks++;
+   assert.equal(await p.locator('nav.nav [data-h="#/trana"][aria-current="page"]').count(),1);checks++;
    await p.locator('#arena .selected-front a[href="#/tabell/selftest"]').click();
    await p.locator('#arena [data-act="selectedTable"][data-value="3"]').waitFor();checks++;
    await p.goto(BASE+'/#/l/'+(grade==='grade8'?'f8-area':'s9-powers')+'/0');
@@ -40,7 +40,7 @@ const engine=process.argv[3]||'chromium';
    await p.goto(BASE+'/lara/',{waitUntil:'domcontentloaded'});
    await p.locator('.homegrid').waitFor();checks++;
    assert.equal(await p.locator('nav.bottom a[href="../"]').count(),1);checks++;
-   assert.equal(await p.locator('.homegrid .subjectCard').count(),3);checks++;
+   assert.equal(await p.locator('.homegrid .subjectCard').count(),2);checks++;
    assert.equal(await p.locator('.learning-extra').count(),1);checks++;
    await p.locator('nav.bottom a[href="../"]').click();
    await p.locator('nav.nav').waitFor();checks++;
