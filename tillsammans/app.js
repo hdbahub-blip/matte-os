@@ -32,7 +32,9 @@
   const startRef = entryParams.get('text');
   const rawGuest = S.load().guests;
   const rememberedMembers=[...new Set((prefs?.members||[]).filter(id=>school[id]||rawGuest.some(g=>g.id===id)))];
-  (rememberedMembers.length?rememberedMembers:rawGuest.slice(0,2).map(g=>g.id)).forEach(id=>ui.members.add(id));
+  const gradeEntry=entryParams.get('grade');
+  const suggested=school[gradeEntry]?[gradeEntry,rawGuest[0]?.id].filter(Boolean):rawGuest.slice(0,2).map(g=>g.id);
+  (rememberedMembers.length?rememberedMembers:suggested).forEach(id=>ui.members.add(id));
   // Deep-link from the main Netflix-style profile chooser. Never change school profiles.
   const entryGuest = entryParams.get('guest');
   if (entryGuest && rawGuest.some(g=>g.id===entryGuest)) {
@@ -52,7 +54,7 @@
     }
     // The launch instruction is one-time. Reload must not restart navigation or lose paused-session recovery.
     try {
-      const next=new URL(location.href);next.searchParams.delete('start');
+      const next=new URL(location.href);next.searchParams.delete('start');next.searchParams.delete('grade');
       history.replaceState(null,'',next.pathname+next.search+next.hash);
     } catch(_) { /* Launch works even when history is unavailable. */ }
   }
