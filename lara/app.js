@@ -132,7 +132,7 @@ const actions={
  'jump-level':b=>{const n=Number(b.dataset.level);if(![1,2,3].includes(n))return;const h=document.getElementById('wk-level-'+n);if(h){h.scrollIntoView({block:'start',behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});h.focus({preventScroll:true});}},
  appearance:toggleMode,
  dismiss:()=>{ui.notice='';render();},'baseline-next':b=>{const v=document.querySelector('input[name=baselineAnswer]:checked')?.value;if(v==null){toast('Välj ett alternativ först.');return;}const question=D.baseline.find(x=>x.id===b.dataset.id);if(!question)return;M.recordBaseline(state,active(),question.id,M.checkChoice(question.q,v),D.baseline);save();render();},profile:()=>{ui.pickProfile=!ui.pickProfile;render();},
- 'choose-profile':b=>{const p=b.dataset.p;if(!['grade8','grade9'].includes(p))return;if(/\/(verkstad|lektion|duell|samarbeta)\//.test(route())&&!window.confirm('Du har en pågående övning. Vill du byta profil och lämna den?'))return;state.active=p;save();syncRootProfile(p);ui.pickProfile=false;render();},
+ 'choose-profile':b=>{const p=b.dataset.p;if(!['grade8','grade9'].includes(p))return;if(/\/verkstad\//.test(route())&&!window.confirm('Du har en pågående lästext. Vill du byta profil och lämna den?'))return;state.active=p;save();syncRootProfile(p);ui.pickProfile=false;render();},
  'go-guided':()=>nextPhase(1),'go-solo':()=>nextPhase(2),'go-partner':()=>nextPhase(3),
  'back-phase':()=>nextPhase(Math.max(0,ui.phase-1)),hint:()=>{ui.assist=true;render();},
  transcript:()=>{ui.assist=true;render();},listen:()=>{const l=D.lessons.find(x=>route()==='/lektion/'+x.id);const a=ui.phase===2?l?.solo:l?.guided;if(a?.type==='listen')speak(a);},
