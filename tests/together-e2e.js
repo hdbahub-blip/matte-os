@@ -28,6 +28,8 @@ const url=process.argv[2]||'http://127.0.0.1:8765/';
     assert.equal(await page.locator('html').getAttribute('data-mode'),'dark');
     await page.locator('button[data-action=home]').first().click();
     await page.locator('button[data-action=setup]').first().click();
+    // Two suggested participants by default; explicitly opt in a third to test private turn handoffs.
+    await page.locator('input[data-role=participant]').nth(2).check();
     assert.equal(await page.locator('input[data-role=participant]:checked').count(),3);
     await page.locator('select[data-role=topic]').selectOption('sv');
     const chosen=await page.locator('select[data-role=source]').inputValue();
