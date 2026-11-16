@@ -51,7 +51,7 @@ const engine=process.argv[3]==='webkit'?'webkit':'chromium';
    assert.equal(await p.evaluate(()=>window.MOL_ACTIVE()),'grade9');checks++;
    await p.locator('nav.bottom a[href="../tillsammans/"]').click();
    await p.locator('.ux-together-home').waitFor();checks++;
-   assert.equal(await p.locator('.ux-topics .ux-topic').count(),3);checks++;
+   assert.equal(await p.locator('.ux-together-home > .ux-topics .ux-topic:visible').count(),3);checks++;
    assert.equal(await p.locator('nav.bottom a').count(),5);checks++;
    await p.locator('[data-action=choose-topic][data-topic=en]').click();
    assert.match(await p.locator('.ux-selected-topic').innerText(),/Engelska/);checks++;
