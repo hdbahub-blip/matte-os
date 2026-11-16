@@ -265,9 +265,9 @@
     const players=allMembers();
     const count=[...ui.members].filter(id=>member(id)).length;
     return '<button class="back button tertiary" data-action="home">‹ Tillbaka</button>'
-      +'<p class="kicker">'+(shareOnly?'DELA EN TEXT':'SAMMA MOBIL · SNABBSTART')+'</p>'
-      +'<h1>'+(shareOnly?'Dela samma lästext':'Redo att köra ihop?')+'</h1>'
-      +'<p class="lead">'+(shareOnly?'Välj en text och skicka länken. Svaren delas inte automatiskt.':'Välj ämne och deltagare. Vi börjar med fem korta frågor.')+'</p>'
+      +'<p class="kicker">'+(shareOnly?'SAMMA FRÅGOR PÅ OLIKA MOBILER':'SAMMA MOBIL · SNABBSTART')+'</p>'
+      +'<h1>'+(shareOnly?'Dela ett gemensamt läspass':'Redo att köra ihop?')+'</h1>'
+      +'<p class="lead">'+(shareOnly?'Välj en text. Den andra mobilen får samma frågor utan konto eller sparade gästsvar. Jämför svaren själva.':'Välj ämne och deltagare. Vi börjar med fem korta frågor.')+'</p>'
       +'<section class="card section flow-setup"><label class="field" for="topic">Vad vill ni öva?</label>'
       +'<select id="topic" data-role="topic">'+topics.map(t=>'<option value="'+t+'"'+(t===ui.topic?' selected':'')+'>'+esc(titles[t])+'</option>').join('')+'</select>'
       +(!shareOnly?'<div class="flow-players-head"><h2>Vem är med?</h2><span>'+count+' valda · max '+S.MEMBER_LIMIT+'</span></div>'
@@ -280,15 +280,15 @@
         +'<div class="flow-dropin"><div><strong>Kompis utan profil?</strong><small>Lägg till en Joker för bara det här passet. Namn och svar sparas inte som skolresultat.</small></div>'
         +'<div class="flow-dropin-fields"><input id="flow-dropin-name" type="text" maxlength="24" autocomplete="off" placeholder="Valfritt smeknamn" aria-label="Namn på tillfällig Joker">'
         +'<button class="button secondary" type="button" data-action="add-dropin">+ Lägg till</button></div></div>':'')
-      +'<div class="flow-launch"><button class="button block" data-action="'+(shareOnly?'share-current':'start-session')+'" '+(!ui.ref||(!shareOnly&&!count)?'disabled':'')+'>'
-      +(shareOnly?'Dela länken':'Starta 5 frågor · '+count+' '+(count===1?'person':'personer'))+'</button></div>'
+      +'<div class="flow-launch"><button class="button block" data-action="'+(shareOnly?'share-guest-reading':'start-session')+'" '+(!ui.ref||(!shareOnly&&!count)?'disabled':'')+'>'
+      +(shareOnly?'Dela frågor till varsin mobil':'Starta 5 frågor · '+count+' '+(count===1?'person':'personer'))+'</button></div>'
       +'<details class="flow-extra-content"><summary>'+(shareOnly?'Välj en annan text':'Byt text, kapitel eller övning')+'</summary>'
       +'<label class="field" for="source">Material</label><select id="source" data-role="source">'
       +entries.map(x=>'<option value="'+esc(x.ref)+'"'+(x.ref===ui.ref?' selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select>'
       +(selectedEntry?'<p class="help">'+(current?'Originaltext · '+current.paragraphs.length+' stycken · version '+current.version:'Frågor från Matte OS egen undervisningsbank')+'</p>':'')
       +(current?'<details><summary>Läs texten först · '+esc(current.title)+'</summary>'+textMarkup(current)+'</details>':'')
       +'</details></section>'
-      +(shareOnly?'<p class="help">Länken innehåller ingen deltagarkod eller personliga svar.</p>':'<p class="help">Resultaten från det här passet ändrar inga skolprov eller skolprofiler.</p>');
+      +(shareOnly?'<p class="help">Gästlänken innehåller bara en publik textreferens. Vill ni enbart dela texten? <button class="button tertiary small" data-action="share-current">Dela bara text</button></p>':'<p class="help">Resultaten från det här passet ändrar inga skolprov eller skolprofiler.</p>');
   }
   function textMarkup(t) {
     return '<article class="reading"><h2>'+esc(t.title)+'</h2>'
