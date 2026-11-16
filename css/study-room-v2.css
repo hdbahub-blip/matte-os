@@ -1,0 +1,99 @@
+/* Matte OS · Studierummet v2 — visual system across Math, Lärande and Tillsammans.
+   Engaging but calm: interaction hierarchy, generous space, reduced motion, no coercive streaks. */
+:root{
+ --room-ink:#202537;--room-indigo:#4857b6;--room-mint:#b9ecdb;--room-rose:#f2bbd8;
+ --room-gold:#f4d3a3;--room-purple:#d4b8f7;--room-line:rgba(86,83,118,.22);
+ --room-radius:24px;--room-shadow:0 12px 40px rgba(31,28,52,.09);
+}
+.flow-entry{
+ position:relative;isolation:isolate;
+ border-radius:28px;
+ box-shadow:var(--room-shadow),inset 0 1px 0 rgba(255,255,255,.54);
+ overflow:hidden;
+}
+.flow-entry::after{
+ position:absolute;z-index:-1;pointer-events:none;content:"";
+ width:230px;height:230px;right:-125px;top:-125px;border-radius:50%;
+ background:radial-gradient(circle,rgba(204,142,214,.20),transparent 72%);
+}
+.flow-home-choice,.flow-choice{
+ border-radius:22px;
+ transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+}
+.flow-home-choice strong,.flow-choice strong{
+ font-weight:850;letter-spacing:-.035em;
+}
+.flow-home-choice:focus-visible,.flow-choice:focus-visible,
+.pc-dropin:focus-visible,.wk-guest-invite button:focus-visible,
+.flow-dropin input:focus-visible,.flow-dropin button:focus-visible{
+ outline:3px solid #bd7c28;outline-offset:3px;
+}
+.flow-home-choice:active,.flow-choice:active{transform:translateY(1px) scale(.99);}
+.pc-dropin{
+ display:flex;align-items:center;gap:12px;
+ padding:13px 16px;margin:13px 0 0;
+ border:1px solid rgba(192,139,213,.73);
+ border-radius:17px;text-decoration:none!important;
+ background:linear-gradient(115deg,#50355f,#293b60);
+ color:#fff4ff!important;box-shadow:0 7px 22px rgba(17,16,30,.26);
+ min-height:65px;
+}
+.pc-dropin strong,.pc-dropin small{display:block;}
+.pc-dropin strong{font-size:15px;letter-spacing:-.012em;}
+.pc-dropin small{color:#e8d6ef;font-size:12px;line-height:1.5;margin-top:2px;}
+.pc-dropin>span:nth-child(2){flex:1;}
+.pc-dropin>span:last-child{font-size:28px;font-weight:500;}
+.pc-dropin-spark{
+ display:grid;place-items:center;flex:none;
+ width:39px;height:39px;border-radius:13px;
+ color:#403558;background:#e4c4f0;font-size:24px;
+}
+.pc-dropin:active{transform:scale(.987);}
+.flow-dropin{
+ margin:16px 0 3px;padding:14px;
+ border-radius:18px;border:1px dashed color-mix(in srgb,var(--accent) 42%,var(--line));
+ background:color-mix(in srgb,var(--accent) 5%,var(--surface));
+}
+.flow-dropin strong,.flow-dropin small{display:block;}
+.flow-dropin strong{font-size:15px;line-height:1.25;}
+.flow-dropin small{font-size:12px;line-height:1.5;color:var(--muted);margin-top:4px;}
+.flow-dropin-fields{display:flex;align-items:stretch;gap:9px;margin-top:12px;}
+.flow-dropin-fields input{
+ flex:1;min-width:0;width:100%;
+ min-height:48px;border-radius:12px;border:1px solid var(--line);
+ background:var(--surface);color:var(--ink);font:inherit;font-size:16px;
+ padding:10px 12px;
+}
+.flow-dropin-fields .button{min-height:48px;padding:8px 13px;border-radius:12px;white-space:nowrap;}
+.wk-guest-invite{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:15px;margin:17px 0 19px;border-radius:17px;
+ border:1px solid color-mix(in srgb,var(--accent) 26%,var(--line));
+ background:color-mix(in srgb,var(--accent) 6%,var(--paper));
+}
+.wk-guest-invite strong,.wk-guest-invite small{display:block;}
+.wk-guest-invite strong{font-size:15px;}
+.wk-guest-invite small{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.55;}
+.wk-guest-invite .wk-link{flex:none;min-height:46px;border:1px solid var(--accent);border-radius:11px;padding:9px 12px;font-weight:750;text-decoration:none;}
+.wk-guest-mode{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--paper));}
+.wk-guest-mode strong::before{content:"✦";display:inline-block;margin-right:7px;color:var(--accent);}
+.wk-guest-mode span{line-height:1.5;}
+[data-mode=dark] .pc-dropin{border-color:#b38cc1;}
+[data-mode=dark] .wk-guest-invite{background:color-mix(in srgb,var(--accent) 12%,var(--paper));}
+.flow-selected-guest{font-size:13px;line-height:1.5;}
+@media(max-width:420px){
+ .wk-guest-invite{align-items:stretch;flex-direction:column;}
+ .wk-guest-invite .wk-link{width:100%;text-align:center;}
+ .flow-dropin-fields{flex-wrap:wrap;}
+ .flow-dropin-fields .button{flex:1;min-width:112px;}
+ .flow-dropin-fields input{flex:2;min-width:142px;}
+ .pc-dropin{padding:11px 12px;}
+}
+@media(prefers-reduced-motion:reduce){
+ .flow-home-choice,.flow-choice,.pc-dropin{animation:none!important;transition:none!important;}
+ .flow-home-choice:hover,.flow-choice:hover{transform:none;}
+}
+@media(prefers-contrast:more){
+ .flow-dropin,.wk-guest-invite,.pc-dropin{border-width:2px;}
+ .flow-dropin small,.wk-guest-invite small{color:inherit;}
+}
