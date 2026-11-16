@@ -10,7 +10,7 @@ const meta=MODEL.metaFrom(globalThis),now=Date.now();
 let n=0;const ok=(x,s)=>{assert.ok(x,s);n++};
 const file=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
 ok(meta.skills.grade8.length>15&&meta.skills.grade9.length>15,'grade-specific skill metadata');
-ok(meta.books.length===22,'all reading texts indexed');
+ok(meta.books.length===33,'all reading texts indexed');
 ok(meta.words.length===122,'all vocabulary terms indexed');
 ok(meta.miniLessons.length===30,'short language lessons indexed');
 ok(meta.kneps.length===10,'memory curriculum indexed');
