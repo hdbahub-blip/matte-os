@@ -1096,7 +1096,7 @@
      "skill": "tolka",
      "ask": "What does the tiny writing at the end suggest?",
      "options": [
-      "The button belonged to school staff",
+      "The button may be for school staff",
       "The corridor leads to a secret planet",
       "Grace invented the entire event",
       "Ben has learned to repair lifts"
