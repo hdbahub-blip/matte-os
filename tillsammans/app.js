@@ -355,7 +355,8 @@
           const r=record[id],correct=r===q.correct,p=member(id);
           return '<div class="score"><strong>'+esc(p?.name||'Deltagare')+'</strong><div class="'+(correct?'good':'bad')+'">'+(correct?'Rätt · +1':'Vi övar vidare')+'</div><small>'+fmt(q.options[r]||'Inget svar',q.topic==='math')+'</small></div>';
         }).join('')+'</div><h3>Poäng hittills</h3>'+scoreGrid(s)
-        +'<button class="button block" data-action="next-round">'+(s.round+1===s.count?'Se slutresultat':'Nästa fråga')+'</button></div>';
+        +'<button class="button block" data-action="next-round">'+(s.round+1===s.count?'Se slutresultat':'Nästa fråga')+'</button>'
+        +'<button class="button tertiary block" data-action="finish-session">Avsluta passet</button></div>';
     }
     return '<h1>Något gick fel</h1>';
   }
