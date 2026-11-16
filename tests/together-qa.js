@@ -111,7 +111,7 @@ assert.equal(S.recordSolo(fleeting.id,'sv',true),true,'Drop-in answers only in a
 assert.equal(mock.get(S.KEY),permanentGuestBefore,'No guest history written');
 const temp=S.startSession([fleeting.id,'grade8'],'table:7:v1',2);
 assert.ok(temp,'Temporary Joker can join same-phone sessions with school grades');
-assert.equal(mock.get(S.SESSION_KEY),null,'Temporary session must not enter persistent localStorage');
+assert.equal(mock.has(S.SESSION_KEY),false,'Temporary session must not enter persistent localStorage');
 assert.ok(tab.has(S.SESSION_KEY),'Session scoped only to this browser tab');
 assert.equal(S.restoreSession().id,temp.id);
 assert.equal(S.beginTurn(temp),true);
