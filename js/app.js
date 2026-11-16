@@ -133,6 +133,7 @@
         <a class="ux-tile ux-english" href="lara/#/en"><span class="ux-tile-mark" aria-hidden="true">E</span><strong>Engelska</strong><small>Reading · words · stories</small><b>Välj text ›</b></a>
         <a class="ux-tile ux-play" href="tillsammans/?start=group&grade=${p}"><span class="ux-tile-mark" aria-hidden="true">◈</span><strong>Spela ihop</strong><small>Ensam, två eller flera</small><b>Välj spel ›</b></a>
       </div>
+      ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home ux-memory-nudge" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">En kort minnesfråga väntar.</div></div><span class="chev">${I.chev}</span></a>` : ''}
       ${rec.kind==="continue" ? hero : resumeOutside}
     </section>
     <details class="ux-more"><summary>Fler matteövningar och verktyg <span aria-hidden="true">＋</span></summary>
