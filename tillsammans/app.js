@@ -30,6 +30,10 @@
   if(prefs){ui.topic=prefs.topic;ui.ref=prefs.ref;}
   const entryParams = new URLSearchParams(location.search);
   const startRef = entryParams.get('text');
+  const challengeTopic=entryParams.get('topic'), challengeRef=entryParams.get('ref');
+  if(Object.prototype.hasOwnProperty.call(titles,challengeTopic) && entryList(challengeTopic).some(e=>e.ref===challengeRef)){
+    ui.topic=challengeTopic;ui.ref=challengeRef;
+  }
   const rawGuest = S.load().guests;
   const rememberedMembers=[...new Set((prefs?.members||[]).filter(id=>school[id]||rawGuest.some(g=>g.id===id)))];
   const gradeEntry=entryParams.get('grade');
@@ -42,9 +46,10 @@
     S.activate(entryGuest);
     if (entryParams.get('edit')==='1') {ui.page='guests';ui.edit=entryGuest;}
   } else if (entryParams.get('dropin')==='1') {
-    const drop=S.addDropIn('Joker');
+    const drop=S.dropIns()[0]||S.addDropIn('Joker');
     if(drop){ui.selectedGuest=drop.id;ui.members=new Set([drop.id]);}
-    try{const next=new URL(location.href);next.searchParams.delete('dropin');history.replaceState(null,'',next.pathname+next.search+next.hash);}catch(_){}
+    // Keep ?dropin=1 so reload stays in transient guest mode (no names or secrets in URL).
+
   } else if (entryParams.get('profiles')==='1') {
     ui.page='guests';
   }
@@ -256,7 +261,7 @@
       +'<label class="button secondary" for="guest-backup">Återställ gästbackup</label><input class="sr" id="guest-backup" type="file" accept=".json,application/json"></div></section>';
   }
   function setupPage(shareOnly) {
-    const topics=shareOnly?['sv','en']:Object.keys(titles);
+    const topics=Object.keys(titles);
     if(!topics.includes(ui.topic))ui.topic=topics[0];
     const entries=currentEntries();
     if(!entries.some(x=>x.ref===ui.ref))ui.ref=entries[0]?.ref||'';
@@ -266,8 +271,8 @@
     const count=[...ui.members].filter(id=>member(id)).length;
     return '<button class="back button tertiary" data-action="home">‹ Tillbaka</button>'
       +'<p class="kicker">'+(shareOnly?'SAMMA FRÅGOR PÅ OLIKA MOBILER':'SAMMA MOBIL · SNABBSTART')+'</p>'
-      +'<h1>'+(shareOnly?'Dela ett gemensamt läspass':'Redo att köra ihop?')+'</h1>'
-      +'<p class="lead">'+(shareOnly?'Välj en text. Den andra mobilen får samma frågor utan konto eller sparade gästsvar. Jämför svaren själva.':'Välj ämne och deltagare. Vi börjar med fem korta frågor.')+'</p>'
+      +'<h1>'+(shareOnly?'Dela samma övning':'Redo att köra ihop?')+'</h1>'
+      +'<p class="lead">'+(shareOnly?'Välj ämne och uppgifter. Den andra mobilen får samma frågor utan konto eller sparade gästsvar. Jämför svaren själva.':'Välj ämne och deltagare. Vi börjar med fem korta frågor.')+'</p>'
       +'<section class="card section flow-setup"><label class="field" for="topic">Vad vill ni öva?</label>'
       +'<select id="topic" data-role="topic">'+topics.map(t=>'<option value="'+t+'"'+(t===ui.topic?' selected':'')+'>'+esc(titles[t])+'</option>').join('')+'</select>'
       +(!shareOnly?'<div class="flow-players-head"><h2>Vem är med?</h2><span>'+count+' valda · max '+S.MEMBER_LIMIT+'</span></div>'
@@ -280,15 +285,15 @@
         +'<div class="flow-dropin"><div><strong>Kompis utan profil?</strong><small>Lägg till en Joker för bara det här passet. Namn och svar sparas inte som skolresultat.</small></div>'
         +'<div class="flow-dropin-fields"><input id="flow-dropin-name" type="text" maxlength="24" autocomplete="off" placeholder="Valfritt smeknamn" aria-label="Namn på tillfällig Joker">'
         +'<button class="button secondary" type="button" data-action="add-dropin">+ Lägg till</button></div></div>':'')
-      +'<div class="flow-launch"><button class="button block" data-action="'+(shareOnly?'share-guest-reading':'start-session')+'" '+(!ui.ref||(!shareOnly&&!count)?'disabled':'')+'>'
+      +'<div class="flow-launch"><button class="button block" data-action="'+(shareOnly?'share-challenge':'start-session')+'" '+(!ui.ref||(!shareOnly&&!count)?'disabled':'')+'>'
       +(shareOnly?'Dela frågor till varsin mobil':'Starta 5 frågor · '+count+' '+(count===1?'person':'personer'))+'</button></div>'
-      +'<details class="flow-extra-content"><summary>'+(shareOnly?'Välj en annan text':'Byt text, kapitel eller övning')+'</summary>'
+      +'<details class="flow-extra-content"><summary>'+(shareOnly?'Välj andra frågor':'Byt text, kapitel eller övning')+'</summary>'
       +'<label class="field" for="source">Material</label><select id="source" data-role="source">'
       +entries.map(x=>'<option value="'+esc(x.ref)+'"'+(x.ref===ui.ref?' selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select>'
       +(selectedEntry?'<p class="help">'+(current?'Originaltext · '+current.paragraphs.length+' stycken · version '+current.version:'Frågor från Matte OS egen undervisningsbank')+'</p>':'')
       +(current?'<details><summary>Läs texten först · '+esc(current.title)+'</summary>'+textMarkup(current)+'</details>':'')
       +'</details></section>'
-      +(shareOnly?'<p class="help">Gästlänken innehåller bara en publik textreferens. Vill ni enbart dela texten? <button class="button tertiary small" data-action="share-current">Dela bara text</button></p>':'<p class="help">Resultaten från det här passet ändrar inga skolprov eller skolprofiler.</p>');
+      +(shareOnly?'<p class="help">Gästlänken innehåller bara en publik referens till frågorna. Svaren synkas inte live. Vill ni enbart dela texten? <button class="button tertiary small" data-action="share-current">Dela bara text</button></p>':'<p class="help">Resultaten från det här passet ändrar inga skolprov eller skolprofiler.</p>');
   }
   function textMarkup(t) {
     return '<article class="reading"><h2>'+esc(t.title)+'</h2>'
@@ -398,6 +403,20 @@
     if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(link);note('Gästlänken kopierades. Båda får samma frågor utan sparade gästsvar.');return;}catch(_){}}
     window.prompt('Kopiera gästlänken',link);
   }
+  async function shareChallenge() {
+    if(!questions(ui.ref).length){note('De här frågorna går inte att dela. Välj en annan övning.');return;}
+    if(sourceText(ui.ref)){shareGuestReading();return;}
+    const url=new URL('./',location.href);
+    url.searchParams.set('dropin','1');
+    url.searchParams.set('topic',ui.topic);
+    url.searchParams.set('ref',ui.ref);
+    url.hash='';
+    const link=url.toString();
+    if(navigator.share){try{await navigator.share({title:'Matte OS · samma frågor',text:'Jokerläge, inga sparade gästsvar',url:link});return;}
+      catch(e){if(e.name==='AbortError')return;}}
+    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(link);note('Samma övning har kopierats. Ingen inloggning krävs och inga gästsvar sparas.');return;}catch(_){}}
+    window.prompt('Kopiera samma övning',link);
+  }
   function switchMode() {
     const cur=appearance();
     if(ui.selectedGuest && ui.page!=='session')S.updateGuest(ui.selectedGuest,{appearance:cur==='dark'?'light':'dark'});
@@ -462,6 +481,7 @@
     }
     if(a==='share-current'){shareCurrent();return;}
     if(a==='share-guest-reading'){shareGuestReading();return;}
+    if(a==='share-challenge'){shareChallenge();return;}
     if(a==='start-session'){
       const members=[...ui.members].filter(m=>member(m));
       if(!members.length){note('Välj minst en deltagare.');return;}
