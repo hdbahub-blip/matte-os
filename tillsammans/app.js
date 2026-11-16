@@ -9,7 +9,7 @@
   const school = { grade8: { id:'grade8',name:'Åk 8',theme:'navy',accent:'#1d3557' },
     grade9: { id:'grade9',name:'Åk 9',theme:'burgundy',accent:'#7a1f35' } };
   const titles = { sv:'Svenska',en:'Engelska',study:'Studieteknik',math:'Matematik',table:'Multiplikation' };
-  const ui = { page: 'home', notice:'', edit:null, topic:'sv', ref:'', members:new Set(),
+  const ui = { page: 'home', notice:'', edit:null, topic:'sv', ref:'', pickProfiles:false, members:new Set(),
     answer:null, selectedGuest:null, groupAppearance:'system', revealReading:false };
   const PREF_KEY='matteos.together.flow.v1';
   function loadPrefs() {
@@ -196,17 +196,32 @@
   function fmt(str,math) {
     return math && window.MOMath?.rich ? window.MOMath.rich(str) : esc(str);
   }
+  function profileOverlay() {
+    const saved=S.load(),gs=saved.guests||[],all=gs.concat(S.dropIns());
+    let schoolActive='grade9',names={grade8:'Åk 8',grade9:'Åk 9'};
+    try {const v=JSON.parse(localStorage.getItem('matteos.v5')||'null');if(v?.v===5){schoolActive=v.active||schoolActive;for(const k of ['grade8','grade9'])names[k]=v.profiles?.[k]?.name||names[k];}} catch(_){}
+    const schools=['grade9','grade8'].map(k=>'<button type="button" class="ux-identity '+(schoolActive===k?'current':'')+'" data-action="select-school" data-id="'+k+'"><span class="ux-avatar">'+(k==='grade9'?'Å9':'Å8')+'</span><strong>'+esc(names[k])+'</strong><small>Skolprofil · eget resultat</small></button>').join('');
+    const guests=all.map(g=>'<button type="button" class="ux-identity '+(ui.selectedGuest===g.id?'current':'')+'" data-action="pick-guest" data-id="'+esc(g.id)+'"><span class="ux-avatar">'+esc(initials(g.name))+'</span><strong>'+esc(g.name)+'</strong><small>Joker · eget läge</small></button>').join('');
+    return '<div class="ux-profile-layer"><button class="ux-profile-backdrop" type="button" data-action="profiles-close" aria-label="Stäng profilväljaren"></button><section role="dialog" aria-modal="true" aria-labelledby="ux-profile-title" class="ux-profile-dialog">'
+      +'<div class="ux-profile-heading"><div><p class="kicker">MATTE OS · PROFILER</p><h2 id="ux-profile-title">Vem pluggar?</h2></div><button class="icon-button" data-action="profiles-close" aria-label="Stäng profilvalet">×</button></div>'
+      +'<div class="ux-profile-grid">'+schools+guests+'</div>'
+      +'<div class="ux-profile-links"><a href="./?dropin=1">Engångs-Joker ›</a><button data-action="guests">Hantera profiler ›</button></div>'
+      +'<p class="help">Skolresultat och Jokersvar blandas aldrig.</p></section></div>';
+  }
   function shell(body) {
     theme();
     const modes=ui.page==='home'?'page':'';
     app.innerHTML='<header><div class="topline"><a class="logo" href="../" aria-label="Matte OS · matematik">'
       +'<span class="mark" aria-hidden="true">M</span><span class="brand">MATTE OS<small>TILLSAMMANS</small></span></a>'
       +'<div class="top-actions"><button class="icon-button" type="button" data-action="toggle-mode" aria-label="Byt ljust och mörkt läge" title="Byt visning">'+(document.documentElement.dataset.mode==='dark'?'☀':'☾')+'</button>'
-      +'<button class="icon-button" type="button" data-action="home" aria-label="Till Tillsammans startsida">⌂</button></div></div></header>'
+      +'<button class="icon-button" type="button" data-action="home" aria-label="Till Tillsammans startsida">⌂</button>'
+      +'<button class="icon-button ux-profile-button" type="button" data-action="profiles" aria-expanded="'+!!ui.pickProfiles+'" aria-label="Byt profil" title="Byt profil"><span aria-hidden="true">👤</span></button></div></div></header>'
       +'<main id="main" tabindex="-1">'+(ui.notice?'<div class="notice" role="status">'+esc(ui.notice)+'</div>':'')+body
       +'<footer>Gästprofilernas framsteg sparas bara på den här enheten. Gruppresultat räknas inte som skolprov. Ingen automatisk molnöverföring.</footer>'
-      +'</main><nav class="bottom" aria-label="Moduler"><a href="../"><span aria-hidden="true">∑</span>Matte</a><a href="../lara/"><span aria-hidden="true">Aa</span>Lärande</a>'
-      +'<a href="./" aria-current="page"><span aria-hidden="true">◈</span>Tillsammans</a></nav>';
+      +'</main><nav class="bottom" aria-label="Välj ämne eller spel">'
+      +'<a href="../"><span aria-hidden="true">⌂</span>Start</a><a href="../#/trana"><span aria-hidden="true">∑</span>Matte</a>'
+      +'<a href="../lara/#/sv"><span aria-hidden="true">S</span>Svenska</a><a href="../lara/#/en"><span aria-hidden="true">E</span>Engelska</a>'
+      +'<a href="./" aria-current="page"><span aria-hidden="true">◈</span>Spela</a></nav>'+(ui.pickProfiles?profileOverlay():'');
     document.title='Matte OS · Tillsammans';
     if(!S.status().storageOk){
       const w=document.createElement('div');w.className='notice warning';w.role='alert';
@@ -216,24 +231,26 @@
   }
   function welcome() {
     const existing=S.restoreSession(), selected=ui.selectedGuest&&member(ui.selectedGuest)
-      || S.load().guests.find(g=>g.id===S.load().activeGuestId) || S.load().guests[0];
-    return (ui.selectedGuest&&selected?'<div class="flow-selected-guest" role="status">Vald Joker: <strong>'+esc(selected.name)+'</strong></div>':'')
-      +'<section class="hero flow-welcome"><p class="caps">MATTE OS · ENKEL START</p>'
-      +'<h1>Vad vill ni göra?</h1>'
-      +'<p class="lead">En text. Flera tankar. Börja direkt eller välj vilka som ska vara med.</p>'
-      +(ui.dropInRequested&&!ui.selectedGuest?'<div class="notice warning" role="alert">Tillfälligt Jokerläge kan inte köras eftersom sessionslagring saknas. Ingen permanent profil skapas.</div>':'')
-      +(existing?'<div class="flow-resume"><strong>Ni har ett pausat pass</strong><button class="button" data-action="resume">Fortsätt där ni var</button></div>':'')
-      +'<div class="flow-choices" role="group" aria-label="Välj hur ni vill träna">'
-      +'<button class="flow-choice flow-choice-solo" data-action="quick-solo"><span class="flow-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4-.8L20 7.4a2.1 2.1 0 0 0-3-3L5 16z"/><path d="m14.5 6.5 3 3M4 20h16"/></svg></span><strong>Jag kör själv</strong><span>5 frågor · '+esc(selected?.name||'Joker')+'</span><b>Starta själv <span aria-hidden="true">›</span></b></button>'
-      +'<button class="flow-choice flow-choice-group" data-action="setup"><span class="flow-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5.5a3 3 0 0 1 0 5.5M20.5 20v-2a5.4 5.4 0 0 0-4-5.2"/></svg></span><strong>Vi kör ihop</strong><span>Samma mobil · välj spelare</span><b>Välj deltagare <span aria-hidden="true">›</span></b></button>'
+      || S.load().guests.find(g=>g.id===S.load().activeGuestId) || S.load().guests[0]
+      || school[gradeEntry] || school.grade9;
+    const mainTopics=['sv','en','math'];
+    const pickTopic=t=>'<button class="ux-topic'+(ui.topic===t?' chosen':'')+'" type="button" data-action="choose-topic" data-topic="'+t+'" aria-pressed="'+(ui.topic===t)+'"><span aria-hidden="true">'+(t==='sv'?'S':t==='en'?'E':'∑')+'</span><strong>'+esc(titles[t])+'</strong></button>';
+    return '<section class="hero flow-welcome ux-together-home"><p class="caps">MATTE OS · SPELA OCH LÄR</p>'
+      +'<h1>Vad vill ni öva?</h1><p class="lead">Välj ämne. Spela sedan själv eller tillsammans.</p>'
+      +(existing?'<div class="flow-resume"><strong>Ni har ett pausat pass</strong><button class="button" data-action="resume">Fortsätt passet ›</button></div>':'')
+      +'<div class="ux-topics" role="group" aria-label="Välj ämne">'+mainTopics.map(pickTopic).join('')+'</div>'
+      +'<details class="ux-topic-extra"><summary>Tabeller eller studieteknik</summary><div class="ux-topics">'+['table','study'].map(pickTopic).join('')+'</div></details>'
+      +'<p class="ux-selected-topic" role="status">Valt: <strong>'+esc(titles[ui.topic])+'</strong></p>'
+      +'<div class="flow-choices" role="group" aria-label="Välj hur ni vill spela">'
+      +'<button class="flow-choice flow-choice-solo" data-action="quick-solo"><span class="flow-glyph" aria-hidden="true">✎</span><strong>Jag kör själv</strong><span>5 frågor · '+esc(selected.name)+'</span><b>Starta ›</b></button>'
+      +'<button class="flow-choice flow-choice-group" data-action="setup"><span class="flow-glyph" aria-hidden="true">◈</span><strong>Vi kör ihop</strong><span>Välj deltagare · 5 frågor</span><b>Välj spelare ›</b></button>'
       +'</div></section>'
-      +'<section class="flow-options"><h2>På varsin mobil?</h2>'
-      +'<p class="help">Cup fungerar utan konto. Privat Live och mentorpass kräver konto.</p>'
-      +'<div class="flow-option-links"><a class="button secondary" href="../#/cup">Spela Cup · utan konto</a>'
-      +'<a class="button secondary" href="./live.html">Privat Live · med konto</a>'
-      +'<button class="button tertiary" data-action="share-setup">Dela samma lästext</button></div></section>'
-      +'<section class="section flow-guests"><div class="section-title"><h2>Era Jokrar</h2><button class="button small secondary" data-action="guests">Hantera Jokrar</button></div>'
-      +'<details class="flow-guest-fold"><summary>Visa alla profiler och deras teman</summary>'+guestTiles(false)+'</details></section>';
+      +'<details class="ux-more-games"><summary>Fler spel och profiler</summary><div class="ux-more-games-in">'
+      +'<h2>På varsin mobil?</h2><p class="help">Cup fungerar utan konto. Privat Live kräver konto.</p>'
+      +'<div class="flow-option-links"><a class="button secondary" href="../#/cup">Spela Cup</a><a class="button secondary" href="./live.html">Privat Live</a><button class="button secondary" data-action="share-setup">Dela lästext</button></div>'
+      +'<h2>Jokrar</h2><button class="button secondary" data-action="guests">Hantera Jokerprofiler</button>'
+      +'<details class="flow-guest-fold"><summary>Visa Jokrar</summary>'+guestTiles(false)+'</details>'
+      +'</div></details>';
   }
   function guestTiles(editable) {
     return '<div class="guest-grid">'+S.load().guests.map(g=>{
@@ -288,11 +305,11 @@
         +'<div class="flow-dropin"><div><strong>Kompis utan profil?</strong><small>Lägg till en Joker för bara det här passet. Namn och svar sparas inte som skolresultat.</small></div>'
         +'<div class="flow-dropin-fields"><input id="flow-dropin-name" type="text" maxlength="24" autocomplete="off" placeholder="Valfritt smeknamn" aria-label="Namn på tillfällig Joker">'
         +'<button class="button secondary" type="button" data-action="add-dropin">+ Lägg till</button></div></div>':'')
+      +'<label class="field" for="source">Välj text eller uppgift</label><select id="source" data-role="source">'+entries.map(x=>'<option value="'+esc(x.ref)+'"'+(x.ref===ui.ref?' selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select>'
       +'<div class="flow-launch"><button class="button block" data-action="'+(shareOnly?'share-challenge':'start-session')+'" '+(!ui.ref||(!shareOnly&&!count)?'disabled':'')+'>'
       +(shareOnly?'Dela frågor till varsin mobil':'Starta 5 frågor · '+count+' '+(count===1?'person':'personer'))+'</button></div>'
       +'<details class="flow-extra-content"><summary>'+(shareOnly?'Välj andra frågor':'Byt text, kapitel eller övning')+'</summary>'
-      +'<label class="field" for="source">Material</label><select id="source" data-role="source">'
-      +entries.map(x=>'<option value="'+esc(x.ref)+'"'+(x.ref===ui.ref?' selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select>'
+      +'<p class="help">Välj material ovan. Öppna texten här för att läsa före frågorna.</p>'
       +(selectedEntry?'<p class="help">'+(current?'Originaltext · '+current.paragraphs.length+' stycken · version '+current.version:'Frågor från Matte OS egen undervisningsbank')+'</p>':'')
       +(current?'<details><summary>Läs texten först · '+esc(current.title)+'</summary>'+textMarkup(current)+'</details>':'')
       +'</details></section>'
@@ -430,13 +447,20 @@
   }
   function action(el) {
     const a=el.dataset.action,id=el.dataset.id;
-    if(a==='home'){page('home');return;}
+    if(a==='profiles'){ui.pickProfiles=!ui.pickProfiles;render();if(ui.pickProfiles)app.querySelector('[data-action="profiles-close"]')?.focus();return;}
+    if(a==='profiles-close'){ui.pickProfiles=false;render();return;}
+    if(a==='select-school'){if(!['grade8','grade9'].includes(id))return;if(S.restoreSession()&&!window.confirm('Ett gemensamt pass är pausat. Byta till skolprofilen?'))return;
+      try{const key='matteos.v5',v=JSON.parse(localStorage.getItem(key)||'null');if(v?.v===5&&v.profiles?.grade8&&v.profiles?.grade9){v.active=id;localStorage.setItem(key,JSON.stringify(v));}}
+      catch(_){note('Det gick inte att byta skolprofil på den här enheten.');return;}
+      window.location.assign('../');return;}
+    if(a==='choose-topic'){const t=el.dataset.topic;if(!Object.prototype.hasOwnProperty.call(titles,t))return;ui.topic=t;ui.ref=defaultRef(t);savePrefs();render();return;}
+    if(a==='home'){ui.pickProfiles=false;page('home');return;}
     if(a==='guests'){page('guests');return;}
     if(a==='quick-solo'){
       if(ui.dropInRequested&&(!ui.selectedGuest||!S.dropIns().some(g=>g.id===ui.selectedGuest))){
         note('Gästläget kräver fungerande sessionslagring. Inga svar sparades.');return;
       }
-      const selected=ui.selectedGuest&&member(ui.selectedGuest)||S.load().guests.find(g=>g.id===S.load().activeGuestId)||S.load().guests[0];
+      const selected=ui.selectedGuest&&member(ui.selectedGuest)||S.load().guests.find(g=>g.id===S.load().activeGuestId)||S.load().guests[0]||school[gradeEntry]||school.grade9;
       if(!selected){note('Skapa en Joker-profil först.');return;}
       const ref=entryList(ui.topic).some(x=>x.ref===ui.ref)?ui.ref:defaultRef(ui.topic);
       const deck=questions(ref);
@@ -460,7 +484,10 @@
     if(a==='share-setup'){page('share');return;}
     if(a==='toggle-mode'){switchMode();return;}
     if(a==='pick-guest'||a==='activate'){
-      ui.selectedGuest=id;S.activate(id);note('Profilen '+(member(id)?.name||'')+' är vald. Gästtema visas här, skolprofiler påverkas inte.');return;
+      if(ui.page==='session'&&S.restoreSession()&&!window.confirm('Ett gemensamt pass pågår. Byta till en annan profil?'))return;
+      ui.selectedGuest=id;ui.pickProfiles=false;S.activate(id);
+      try{const u=new URL(location.href);u.searchParams.set('guest',id);u.searchParams.delete('dropin');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(_){}
+      note('Profilen '+(member(id)?.name||'')+' är vald. Gästtema visas här, skolprofiler påverkas inte.');return;
     }
     if(a==='edit'){ui.edit=id;ui.selectedGuest=id;render();return;}
     if(a==='cancel-edit'){ui.edit=null;render();return;}
@@ -532,6 +559,7 @@
       if(a==='next-round'){if(S.nextRound(s)){if(s.members.length===1&&s.phase==='handoff')S.beginTurn(s);ui.answer=null;render();window.scrollTo({top:0,behavior:'instant'});}return;}
     }
   }
+  app.addEventListener('keydown',e=>{if(e.key==='Escape'&&ui.pickProfiles){e.preventDefault();ui.pickProfiles=false;render();}});
   app.addEventListener('click',e=>{
     const el=e.target.closest('[data-action]');if(!el)return;
     e.preventDefault();action(el);
