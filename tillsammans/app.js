@@ -9,7 +9,7 @@
   const school = { grade8: { id:'grade8',name:'Åk 8',theme:'navy',accent:'#1d3557' },
     grade9: { id:'grade9',name:'Åk 9',theme:'burgundy',accent:'#7a1f35' } };
   const titles = { sv:'Svenska',en:'Engelska',study:'Studieteknik',math:'Matematik',table:'Multiplikation' };
-  const ui = { page: 'home', notice:'', edit:null, topic:'sv', ref:'', pickProfiles:false, members:new Set(),
+  const ui = { page: 'home', notice:'', edit:null, topic:'sv', ref:'', pickProfiles:false, selectedSchool:null, members:new Set(),
     answer:null, selectedGuest:null, groupAppearance:'system', revealReading:false };
   const PREF_KEY='matteos.together.flow.v1';
   function loadPrefs() {
@@ -37,6 +37,7 @@
   const rawGuest = S.load().guests;
   const rememberedMembers=[...new Set((prefs?.members||[]).filter(id=>school[id]||rawGuest.some(g=>g.id===id)))];
   const gradeEntry=entryParams.get('grade');
+   if(school[gradeEntry])ui.selectedSchool=gradeEntry;
   const suggested=school[gradeEntry]?[gradeEntry,rawGuest[0]?.id].filter(Boolean):rawGuest.slice(0,2).map(g=>g.id);
   (rememberedMembers.length?rememberedMembers:suggested).forEach(id=>ui.members.add(id));
   // Deep-link from the main Netflix-style profile chooser. Never change school profiles.
@@ -200,7 +201,7 @@
     const saved=S.load(),gs=saved.guests||[],all=gs.concat(S.dropIns());
     let schoolActive='grade9',names={grade8:'Åk 8',grade9:'Åk 9'};
     try {const v=JSON.parse(localStorage.getItem('matteos.v5')||'null');if(v?.v===5){schoolActive=v.active||schoolActive;for(const k of ['grade8','grade9'])names[k]=v.profiles?.[k]?.name||names[k];}} catch(_){}
-    const schools=['grade9','grade8'].map(k=>'<button type="button" class="ux-identity '+(schoolActive===k?'current':'')+'" data-action="select-school" data-id="'+k+'"><span class="ux-avatar">'+(k==='grade9'?'Å9':'Å8')+'</span><strong>'+esc(names[k])+'</strong><small>Skolprofil · eget resultat</small></button>').join('');
+    const schools=['grade9','grade8'].map(k=>'<button type="button" class="ux-identity '+((ui.selectedSchool||schoolActive)===k?'current':'')+'" data-action="select-school" data-id="'+k+'"><span class="ux-avatar">'+(k==='grade9'?'Å9':'Å8')+'</span><strong>'+esc(names[k])+'</strong><small>Skolprofil · eget resultat</small></button>').join('');
     const guests=all.map(g=>'<button type="button" class="ux-identity '+(ui.selectedGuest===g.id?'current':'')+'" data-action="pick-guest" data-id="'+esc(g.id)+'"><span class="ux-avatar">'+esc(initials(g.name))+'</span><strong>'+esc(g.name)+'</strong><small>Joker · eget läge</small></button>').join('');
     return '<div class="ux-profile-layer"><button class="ux-profile-backdrop" type="button" data-action="profiles-close" aria-label="Stäng profilväljaren"></button><section role="dialog" aria-modal="true" aria-labelledby="ux-profile-title" class="ux-profile-dialog">'
       +'<div class="ux-profile-heading"><div><p class="kicker">MATTE OS · PROFILER</p><h2 id="ux-profile-title">Vem pluggar?</h2></div><button class="icon-button" data-action="profiles-close" aria-label="Stäng profilvalet">×</button></div>'
@@ -215,7 +216,7 @@
       +'<span class="mark" aria-hidden="true">M</span><span class="brand">MATTE OS<small>TILLSAMMANS</small></span></a>'
       +'<div class="top-actions"><button class="icon-button" type="button" data-action="toggle-mode" aria-label="Byt ljust och mörkt läge" title="Byt visning">'+(document.documentElement.dataset.mode==='dark'?'☀':'☾')+'</button>'
       +'<button class="icon-button" type="button" data-action="home" aria-label="Till Tillsammans startsida">⌂</button>'
-      +'<button class="icon-button ux-profile-button" type="button" data-action="profiles" aria-expanded="'+!!ui.pickProfiles+'" aria-label="Byt profil" title="Byt profil"><span aria-hidden="true">👤</span></button></div></div></header>'
+      +'<button class="icon-button ux-profile-button" type="button" data-action="profiles" aria-expanded="'+!!ui.pickProfiles+'" aria-label="Byt profil, vald '+esc(ui.selectedGuest?member(ui.selectedGuest)?.name||'Joker':ui.selectedSchool?school[ui.selectedSchool].name:'Joker')+'" title="Byt profil"><span class="ux-active-avatar" aria-hidden="true">'+esc(ui.selectedGuest?initials(member(ui.selectedGuest)?.name||'Joker'):ui.selectedSchool?(ui.selectedSchool==='grade9'?'Å9':'Å8'):'J')+'</span></button></div></div></header>'
       +'<main id="main" tabindex="-1">'+(ui.notice?'<div class="notice" role="status">'+esc(ui.notice)+'</div>':'')+body
       +'<footer>Gästprofilernas framsteg sparas bara på den här enheten. Gruppresultat räknas inte som skolprov. Ingen automatisk molnöverföring.</footer>'
       +'</main><nav class="bottom" aria-label="Välj ämne eller spel">'
@@ -231,8 +232,8 @@
   }
   function welcome() {
     const existing=S.restoreSession(), selected=ui.selectedGuest&&member(ui.selectedGuest)
-      || S.load().guests.find(g=>g.id===S.load().activeGuestId) || S.load().guests[0]
-      || school[gradeEntry] || school.grade9;
+      || (ui.selectedSchool&&school[ui.selectedSchool])
+      || S.load().guests.find(g=>g.id===S.load().activeGuestId) || S.load().guests[0] || school.grade9;
     const mainTopics=['sv','en','math'];
     const pickTopic=t=>'<button class="ux-topic'+(ui.topic===t?' chosen':'')+'" type="button" data-action="choose-topic" data-topic="'+t+'" aria-pressed="'+(ui.topic===t)+'"><span aria-hidden="true">'+(t==='sv'?'S':t==='en'?'E':'∑')+'</span><strong>'+esc(titles[t])+'</strong></button>';
     return '<section class="hero flow-welcome ux-together-home"><p class="caps">MATTE OS · SPELA OCH LÄR</p>'
@@ -449,10 +450,10 @@
     const a=el.dataset.action,id=el.dataset.id;
     if(a==='profiles'){ui.pickProfiles=!ui.pickProfiles;render();if(ui.pickProfiles)app.querySelector('.ux-profile-heading [data-action="profiles-close"]')?.focus();return;}
     if(a==='profiles-close'){ui.pickProfiles=false;render();return;}
-    if(a==='select-school'){if(!['grade8','grade9'].includes(id))return;if(S.restoreSession()&&!window.confirm('Ett gemensamt pass är pausat. Byta till skolprofilen?'))return;
+    if(a==='select-school'){if(!['grade8','grade9'].includes(id))return;if(ui.page==='session'&&S.restoreSession()&&!window.confirm('Det pågående passet pausas när du byter profil. Vill du fortsätta?'))return;
       try{const key='matteos.v5',v=JSON.parse(localStorage.getItem(key)||'null');if(v?.v===5&&v.profiles?.grade8&&v.profiles?.grade9){v.active=id;localStorage.setItem(key,JSON.stringify(v));}}
-      catch(_){note('Det gick inte att byta skolprofil på den här enheten.');return;}
-      window.location.assign('../');return;}
+      catch(_){note('Det gick inte att spara aktiv skolprofil på den här enheten.');return;}
+      ui.selectedSchool=id;ui.selectedGuest=null;ui.pickProfiles=false;ui.members.add(id);savePrefs();page('home');return;}
     if(a==='choose-topic'){const t=el.dataset.topic;if(!Object.prototype.hasOwnProperty.call(titles,t))return;ui.topic=t;ui.ref=defaultRef(t);savePrefs();render();return;}
     if(a==='home'){ui.pickProfiles=false;page('home');return;}
     if(a==='guests'){page('guests');return;}
@@ -460,7 +461,7 @@
       if(ui.dropInRequested&&(!ui.selectedGuest||!S.dropIns().some(g=>g.id===ui.selectedGuest))){
         note('Gästläget kräver fungerande sessionslagring. Inga svar sparades.');return;
       }
-      const selected=ui.selectedGuest&&member(ui.selectedGuest)||S.load().guests.find(g=>g.id===S.load().activeGuestId)||S.load().guests[0]||school[gradeEntry]||school.grade9;
+      const selected=ui.selectedGuest&&member(ui.selectedGuest)||(ui.selectedSchool&&school[ui.selectedSchool])||S.load().guests.find(g=>g.id===S.load().activeGuestId)||S.load().guests[0]||school.grade9;
       if(!selected){note('Skapa en Joker-profil först.');return;}
       const ref=entryList(ui.topic).some(x=>x.ref===ui.ref)?ui.ref:defaultRef(ui.topic);
       const deck=questions(ref);
@@ -485,7 +486,7 @@
     if(a==='toggle-mode'){switchMode();return;}
     if(a==='pick-guest'||a==='activate'){
       if(ui.page==='session'&&S.restoreSession()&&!window.confirm('Ett gemensamt pass pågår. Byta till en annan profil?'))return;
-      ui.selectedGuest=id;ui.pickProfiles=false;S.activate(id);if(ui.page==='session')ui.page='home';
+      ui.selectedGuest=id;ui.selectedSchool=null;ui.pickProfiles=false;S.activate(id);if(ui.page==='session')ui.page='home';
       try{const u=new URL(location.href);u.searchParams.set('guest',id);u.searchParams.delete('dropin');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(_){}
       note('Profilen '+(member(id)?.name||'')+' är vald. Gästtema visas här, skolprofiler påverkas inte.');return;
     }
