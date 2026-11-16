@@ -447,7 +447,7 @@
   }
   function action(el) {
     const a=el.dataset.action,id=el.dataset.id;
-    if(a==='profiles'){ui.pickProfiles=!ui.pickProfiles;render();if(ui.pickProfiles)app.querySelector('[data-action="profiles-close"]')?.focus();return;}
+    if(a==='profiles'){ui.pickProfiles=!ui.pickProfiles;render();if(ui.pickProfiles)app.querySelector('.ux-profile-heading [data-action="profiles-close"]')?.focus();return;}
     if(a==='profiles-close'){ui.pickProfiles=false;render();return;}
     if(a==='select-school'){if(!['grade8','grade9'].includes(id))return;if(S.restoreSession()&&!window.confirm('Ett gemensamt pass är pausat. Byta till skolprofilen?'))return;
       try{const key='matteos.v5',v=JSON.parse(localStorage.getItem(key)||'null');if(v?.v===5&&v.profiles?.grade8&&v.profiles?.grade9){v.active=id;localStorage.setItem(key,JSON.stringify(v));}}
@@ -485,7 +485,7 @@
     if(a==='toggle-mode'){switchMode();return;}
     if(a==='pick-guest'||a==='activate'){
       if(ui.page==='session'&&S.restoreSession()&&!window.confirm('Ett gemensamt pass pågår. Byta till en annan profil?'))return;
-      ui.selectedGuest=id;ui.pickProfiles=false;S.activate(id);
+      ui.selectedGuest=id;ui.pickProfiles=false;S.activate(id);if(ui.page==='session')ui.page='home';
       try{const u=new URL(location.href);u.searchParams.set('guest',id);u.searchParams.delete('dropin');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(_){}
       note('Profilen '+(member(id)?.name||'')+' är vald. Gästtema visas här, skolprofiler påverkas inte.');return;
     }
