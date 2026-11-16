@@ -47,7 +47,12 @@ function header(){
    +'<button class="profile" data-a="profile" aria-expanded="'+ui.pickProfile+'" aria-label="Välj bland alla profiler"><span class="avatar">'+(active()==='grade8'?'8':'9')+'</span> '+short[active()]+' <span aria-hidden="true">⌄</span></button></div></header>'
    +(ui.pickProfile?chooser:'');
 }
-function bottom(){return `<nav class="bottom" aria-label="Huvudmeny"><a href="../" aria-label="Till matematiken"><span aria-hidden="true">×</span> Matte</a><a href="#/" ${activeNav()==='home'?'aria-current="page"':''}><span aria-hidden="true">⌂</span> Hem</a><a href="#/sv" ${activeNav()==='sv'?'aria-current="page"':''}>Svenska</a><a href="#/en" ${activeNav()==='en'?'aria-current="page"':''}>Engelska</a><a href="#/study" ${activeNav()==='study'?'aria-current="page"':''}>Studieteknik</a></nav>`;}
+function bottom(){return `<nav class="bottom" aria-label="Välj ämne eller spel">
+ <a href="../" aria-label="Matte OS start"><span aria-hidden="true">⌂</span>Start</a>
+ <a href="../#/trana"><span aria-hidden="true">∑</span>Matte</a>
+ <a href="#/sv" ${activeNav()==='sv'?'aria-current="page"':''}><span aria-hidden="true">S</span>Svenska</a>
+ <a href="#/en" ${activeNav()==='en'?'aria-current="page"':''}><span aria-hidden="true">E</span>Engelska</a>
+ <a href="../tillsammans/"><span aria-hidden="true">◈</span>Spela</a></nav>`;}
 function shell(body){app.innerHTML=header()+banner()+`<main id="main" tabindex="-1">${body}</main>`+bottom();document.title='Matte OS · Lärande';}
 function route(){return decodeURIComponent(location.hash.replace(/^#/,''))||'/';}
 function activeNav(){
@@ -60,12 +65,12 @@ function activeNav(){
 }
 function progress(l){const v=M.level(state,active(),l.id);return{level:v,label:M.LABEL[v]};}
 const btn=(title,to,secondary=false)=>`<a class="btn ${secondary?'ghost':''}" href="${esc(to)}">${esc(title)}</a>`;
-function home(){const s=['sv','en','study'];const recs=s.map(a=>M.recommend(state,active(),D.lessons,a,Date.now(),D.baseline));
- return `<div class="eyebrow">EN SAK I TAGET · ${short[active()]}</div><h1>Vad vill du öva idag?</h1><p class="mut lead">Välj svenska, engelska eller studieteknik. Du kan också träna tillsammans.</p>
+function home(){const s=['sv','en'];const recs=s.map(a=>M.recommend(state,active(),D.lessons,a,Date.now(),D.baseline));
+ return `<div class="eyebrow">EN SAK I TAGET · ${short[active()]}</div><h1>Vad vill du lära dig?</h1><p class="mut lead">Välj ett språk. Börja läsa på ett tryck.</p>
  <div class="homegrid">
  ${s.map(x=>{const t=M.total(state,active(),D.lessons,x);return `<a class="subjectCard" href="#/${x}"><span class="symbol">${x==='sv'?'S':x==='en'?'E':'L'}</span><span><strong>${cats[x]}</strong><small>${x==='sv'?'Ord · Läsa · Lyssna · Tala · Skriva':x==='en'?'Vocabulary · Reading · Listening · Speaking':'Förstå frågor · Kom igång · Minnas'}</small><small>${x==='study'?t.independent+' av '+t.total+' kortövningar gjorda':'Samma texter · 3 nivåer · belägg, ord och samtal'}</small></span><span class="arrow" aria-hidden="true">›</span></a>`;}).join('')}
  </div><a class="teamCard" href="../tillsammans/?start=group&grade=${active()}"><span class="symbol team" aria-hidden="true">♧</span><span><strong>Kör tillsammans</strong><small>Välj Jokrar och ämne på samma mobil. Fem frågor för att komma igång.</small></span><span class="arrow" aria-hidden="true">›</span></a>
- <details class="learning-extra"><summary>Fler sätt att öva</summary><div class="learning-extra-in"><a class="teamCard" href="#/tillsammans"><span class="symbol team" aria-hidden="true">2</span><span><strong>Ordduell eller förklara</strong><small>Extra samtalsövningar för två på samma mobil.</small></span><span class="arrow" aria-hidden="true">›</span></a><a class="baselineLink" href="#/startkoll"><span class="baselineTitle">Frivillig startkoll · 8 frågor</span><span>Få förslag på vad du behöver öva.</span><strong>Öppna startkollen ›</strong></a><p class="mut small">Språkverkstaden finns under Svenska och Engelska. Där finns texter på tre nivåer, läsning och samtal.</p></div></details>
+ <details class="learning-extra"><summary>Fler val och studieteknik</summary><div class="learning-extra-in"><a class="teamCard" href="#/study"><span class="symbol">L</span><span><strong>Studieteknik</strong><small>Kom igång · planera · minnas</small></span><span class="arrow" aria-hidden="true">›</span></a><a class="teamCard" href="#/tillsammans"><span class="symbol team" aria-hidden="true">2</span><span><strong>Ordduell eller förklara</strong><small>Extra samtalsövningar för två på samma mobil.</small></span><span class="arrow" aria-hidden="true">›</span></a><a class="baselineLink" href="#/startkoll"><span class="baselineTitle">Frivillig startkoll · 8 frågor</span><span>Få förslag på vad du behöver öva.</span><strong>Öppna startkollen ›</strong></a><p class="mut small">Språkverkstaden finns under Svenska och Engelska. Där finns texter på tre nivåer, läsning och samtal.</p></div></details>
  <div class="footlinks"><a href="../">Till matematiken</a><a href="#/installningar">Säkerhetskopia och inställningar</a></div>`;}
 function subject(s){const ls=subjectLessons(s),tot=M.total(state,active(),D.lessons,s),rec=M.recommend(state,active(),D.lessons,s,Date.now(),D.baseline),categories=[...new Set(ls.map(x=>x.category))];
  return `<a class="back" href="#/">‹ Alla ämnen</a><div class="eyebrow">${short[active()]} · ${ls.length} korta lektioner</div><h1>${cats[s]}</h1><p class="mut">Samma lektioner för båda, men du sparar dina egna framsteg. Öva själv först, prata sedan tillsammans.</p>
@@ -127,7 +132,7 @@ const actions={
  'jump-level':b=>{const n=Number(b.dataset.level);if(![1,2,3].includes(n))return;const h=document.getElementById('wk-level-'+n);if(h){h.scrollIntoView({block:'start',behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});h.focus({preventScroll:true});}},
  appearance:toggleMode,
  dismiss:()=>{ui.notice='';render();},'baseline-next':b=>{const v=document.querySelector('input[name=baselineAnswer]:checked')?.value;if(v==null){toast('Välj ett alternativ först.');return;}const question=D.baseline.find(x=>x.id===b.dataset.id);if(!question)return;M.recordBaseline(state,active(),question.id,M.checkChoice(question.q,v),D.baseline);save();render();},profile:()=>{ui.pickProfile=!ui.pickProfile;render();},
- 'choose-profile':b=>{const p=b.dataset.p;if(!['grade8','grade9'].includes(p))return;state.active=p;save();syncRootProfile(p);ui.pickProfile=false;render();},
+ 'choose-profile':b=>{const p=b.dataset.p;if(!['grade8','grade9'].includes(p))return;if(/\/verkstad\//.test(route())&&window.MO_WORKSHOP?._debug?.().ui?.view==='task'&&!window.confirm('Du har ett obesvarat steg. Byt profil och lämna det?'))return;state.active=p;save();syncRootProfile(p);ui.pickProfile=false;render();},
  'go-guided':()=>nextPhase(1),'go-solo':()=>nextPhase(2),'go-partner':()=>nextPhase(3),
  'back-phase':()=>nextPhase(Math.max(0,ui.phase-1)),hint:()=>{ui.assist=true;render();},
  transcript:()=>{ui.assist=true;render();},listen:()=>{const l=D.lessons.find(x=>route()==='/lektion/'+x.id);const a=ui.phase===2?l?.solo:l?.guided;if(a?.type==='listen')speak(a);},

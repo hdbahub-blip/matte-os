@@ -47,16 +47,15 @@
     return `<header class="top"><div class="top-in">
       <button class="brand" data-a="nav" data-h="#/" aria-label="Matte OS – start"><span class="brand-m">M</span><span class="brand-t">MATTE OS</span></button>
       <button class="icon-btn" data-a="appearance" title="Växla nattläge" aria-label="${mode()==="dark"?"Ljust läge":"Nattläge"}" aria-pressed="${mode()==="dark"}"><span aria-hidden="true">${mode()==="dark"?"☀":"☾"}</span></button>
-      <button class="icon-btn" data-a="search" aria-label="Sök">${I.search}</button>
       <button class="chip-btn" data-a="profile" aria-label="Byt profil, nu ${esc(displayName(p))}"><span class="av">${esc(CORE.profiles[p].short)}</span>${E.prof(p).name ? `<span class="n">${esc(E.prof(p).name)}</span>` : ''}</button>
     </div></header>
     <main id="main">${content}</main>
-    <nav class="nav" aria-label="Huvudmeny"><div class="nav-in">
-      <button data-a="nav" data-h="#/" ${tab === 'home' ? 'aria-current="page"' : ''}>${I.home}<span>Hem</span></button>
-      <button data-a="nav" data-h="#/formler" ${tab === 'formler' ? 'aria-current="page"' : ''}>${I.book}<span>Förstå</span></button>
-      <button data-a="nav" data-h="#/trana" ${tab === 'trana' ? 'aria-current="page"' : ''}>${I.pen}<span>Träna</span></button>
-      <button data-a="nav" data-h="#/tabell/home" ${tab === 'tabell' ? 'aria-current="page"' : ''}>${I.grid}<span>Tabeller</span></button>
-      <a href="lara/" aria-label="Öppna svenska, engelska och studieteknik">${I.book}<span>Språk</span></a>
+    <nav class="nav" aria-label="Välj ämne eller spel"><div class="nav-in ux-dock">
+      <button data-a="nav" data-h="#/" ${tab==='home'?'aria-current="page"':''}><span class="ux-nav-icon">⌂</span><span>Start</span></button>
+      <button data-a="nav" data-h="#/trana" ${tab!=='home'?'aria-current="page"':''}><span class="ux-nav-icon">∑</span><span>Matte</span></button>
+      <a href="lara/#/sv"><span class="ux-nav-icon">S</span><span>Svenska</span></a>
+      <a href="lara/#/en"><span class="ux-nav-icon">E</span><span>Engelska</span></a>
+      <a href="tillsammans/"><span class="ux-nav-icon">◈</span><span>Spela</span></a>
     </div></nav>`;
   }
   function focusShell(content, { title, sub, steps, cur, exit = '#/', formula }) {
@@ -65,6 +64,7 @@
       <button class="focus-back" data-a="exit" data-h="${exit}" aria-label="Avsluta och gå tillbaka">${I.back}<span>Tillbaka</span></button>
       <div class="ttl"><small>${esc(sub || '')}</small><b>${esc(title || '')}</b>${bar}</div>
       ${formula ? `<button class="icon-btn" data-a="formula" data-sid="${formula}" aria-label="Visa formelkort">${I.f}</button>` : ''}
+      <button class="chip-btn ux-focus-profile" data-a="profile" aria-label="Byt profil, nu ${esc(displayName(pid()))}"><span class="av">${esc(CORE.profiles[pid()].short)}</span></button>
     </div></header><main id="main" class="focus">${content}</main>`;
   }
 
@@ -123,37 +123,30 @@
         </div></div>`
       : '';
     const recommendedHero=resumeOutside?hero.replace('class="card hero"','class="card suggested"'):hero;
-    return shell(`<div class="ctx">${ctx}</div>
-      <h1 class="home-h">${esc(nm ? `${hi}, ${nm}.` : 'Vad vill du göra idag?')}</h1>
-      <p class="mut home-sub" style="margin-bottom:16px">${nm ? 'En sak i taget. ' : ''}Välj det som passar dig. Du kan alltid komma tillbaka.</p>
-      <section class="flow-entry" aria-label="Börja öva">
-        <p class="flow-eyebrow">Börja här</p>
-        <h2>Hur vill du plugga?</h2>
-        <div class="flow-home-choices">
-          <button class="flow-home-choice flow-home-alone" data-a="startTrain" data-ch="${rec.chapter}">
-            <span class="flow-home-icon">${I.pen}</span><strong>Kör själv</strong>
-            <span>5 korta mattefrågor</span><b>Starta direkt <span aria-hidden="true">›</span></b>
-          </button>
-          <a class="flow-home-choice flow-home-together" href="tillsammans/?start=group&grade=${p}">
-            <span class="flow-home-icon">${I.people}</span><strong>Kör tillsammans</strong>
-            <span>Samma mobil · välj spelare</span><b>Kom igång <span aria-hidden="true">›</span></b>
-          </a>
-        </div>
-        <div class="flow-home-topics" aria-label="Snabbval av ämne">
-          <a href="#/formler">Förstå matte</a><a href="lara/#/sv">Svenska</a><a href="lara/#/en">Engelska</a>
-        </div>
-      </section>
-      ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">Svara först, titta sedan. Tar en minut.</div></div><span class="chev">${I.chev}</span></a>` : ''}
-      ${rec.kind === 'continue' ? hero : resumeOutside}
-      <details class="flow-explore"><summary>Välj annat ämne eller aktivitet</summary><div class="flow-explore-body">
-      ${rec.kind === 'continue' ? '' : recommendedHero}<h2 class="home-choice-heading">Eller välj själv</h2>
-      <div class="calm-choices learn-grid" aria-label="Välj vad du vill göra">
-      <a class="calm-choice" href="#/formler"><strong>Förstå matte</strong><span>Lär dig med enkla exempel</span></a>
-      <a class="calm-choice" href="#/trana"><strong>Träna matte</strong><span>Räkna egna uppgifter</span></a>
-      <a class="calm-choice" href="#/tabell/home"><strong>Öva multiplikation</strong><span>En tabell eller flera tillsammans</span></a>
-      <a class="calm-choice learn-choice" href="lara/#/sv"><strong>Svenska</strong><span>Läsförståelse · ord · 3 nivåer</span></a>
-      <a class="calm-choice learn-choice" href="lara/#/en"><strong>Engelska</strong><span>Reading · vocabulary · 3 nivåer</span></a>
-      </div><a class="tap guest-home-shortcut" href="tillsammans/"><span class="ic">◈</span><div><div class="t">Hantera Jokrar</div><div class="s">Namn · färger · lokala profiler</div></div><span class="chev">${I.chev}</span></a><a class="calm-choice game-shortcut" href="#/cup"><strong>Cup · varsin mobil</strong><span>Skapa eller gå med utan konto</span></a><details class="fold"><summary>Prov och planering (fler val)</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details></div></details>`, 'home');
+    return shell(`<section class="ux-landing" aria-label="Välj vad du vill studera">
+      <p class="ux-kicker">MATTE OS · ${esc(displayName(p))}</p>
+      <h1>${nm ? `Hej, ${esc(nm)}!` : "Vad vill du studera?"}</h1>
+      <p class="ux-intro">Välj en sak. Tryck och börja.</p>
+      <div class="ux-tiles">
+        <button class="ux-tile ux-math" data-a="startTrain" data-ch="${rec.chapter}"><span class="ux-tile-mark" aria-hidden="true">∑</span><strong>Matte</strong><small>Starta 5 frågor direkt</small><b>Starta ›</b></button>
+        <a class="ux-tile ux-swedish" href="lara/#/sv"><span class="ux-tile-mark" aria-hidden="true">S</span><strong>Svenska</strong><small>Läsa · förstå · ord</small><b>Välj text ›</b></a>
+        <a class="ux-tile ux-english" href="lara/#/en"><span class="ux-tile-mark" aria-hidden="true">E</span><strong>Engelska</strong><small>Reading · words · stories</small><b>Välj text ›</b></a>
+        <a class="ux-tile ux-play" href="tillsammans/?start=group&grade=${p}"><span class="ux-tile-mark" aria-hidden="true">◈</span><strong>Spela ihop</strong><small>Ensam, två eller flera</small><b>Välj spel ›</b></a>
+      </div>
+      ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home ux-memory-nudge" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">En kort minnesfråga väntar.</div></div><span class="chev">${I.chev}</span></a>` : ''}
+      ${rec.kind==="continue" ? hero : resumeOutside}
+    </section>
+    <details class="ux-more"><summary>Fler matteövningar och verktyg <span aria-hidden="true">＋</span></summary>
+      <div class="ux-more-grid">
+        <a href="#/formler"><strong>Lär dig matte</strong><small>Förklaringar och exempel</small></a>
+        <a href="#/trana"><strong>Välj matteuppgift</strong><small>Kapitel och träning</small></a>
+        <a href="#/tabell/home"><strong>Tabellarenan</strong><small>Multiplikation och dueller</small></a>
+        <a href="#/cup"><strong>Cup</strong><small>Spela på olika mobiler</small></a>
+        <a href="#/knep"><strong>Minnesknep</strong><small>Träna minnet</small></a>
+        <button data-a="search"><strong>Sök i matten</strong><small>Hitta en regel eller formel</small></button>
+      </div><details class="fold"><summary>Planering och prov</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>
+      <a class="ux-settings-link" href="#/installningar">Inställningar och säkerhetskopia</a>
+    </details>`, 'home');
   }
 
 function boostCard() {
@@ -698,7 +691,7 @@ function boostCard() {
     profile: () => openSheet({ type: 'profile' }),
     closesheet: () => closeSheet(),
     scrim: (b, e) => { if (e.target === b) closeSheet(); },
-    pickprofile: b => { E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go(/^#\/cup(\/|$)/.test(location.hash) ? location.hash : '#/'); render(); },
+    pickprofile: b => { if (UI.run && UI.ex && !window.confirm("Du har en pågående uppgift. Byta profil och lämna den?")) return; E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go(/^#\/cup(\/|$)/.test(location.hash) ? location.hash : '#/'); render(); },
     profilemanage: () => { if (!UI.sheet) openSheet({type:'profile-manage'}); else {UI.sheet={type:'profile-manage'};renderSheet();} },
     profileback: () => {UI.sheet={type:'profile'};renderSheet();},
     profilenew: () => {

@@ -58,7 +58,8 @@ fs.mkdirSync(OUT,{recursive:true});
       assert.equal(await page.locator('a[href="../#/tabell/home"]').count(),1);checks++;
       await page.goto(BASE,{waitUntil:'networkidle'});
       await page.click('[data-p=grade9]');await page.waitForSelector('h1');
-      await page.click('.nav [data-h="#/formler"]');await page.waitForSelector('h1:has-text("Förstå matte")');
+      await page.locator('.ux-more > summary').click();
+      await page.locator('.ux-more-grid a[href="#/formler"]').click();await page.waitForSelector('h1:has-text("Förstå matte")');
       assert.equal(await page.locator('a[href="affischer/?visa=formler&ak=9"]').count(),1,'Formulas CTA missing');checks++;
       // 5.5.6 (issue #21): poster is an optional link below Minnesknep, not a fold that must be opened.
        await page.click('a[href="affischer/?visa=formler&ak=9"]');

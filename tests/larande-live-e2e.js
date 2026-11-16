@@ -21,7 +21,7 @@ const {chromium} = require('playwright');
   });
   const res=await page.goto(base,{waitUntil:'networkidle'});
   assert(res?.ok(),`Matte OS root HTTP ${res?.status()}`);
-  const entry=page.locator('.flow-home-topics a[href="lara/#/sv"]');
+  const entry=page.locator('.ux-swedish[href="lara/#/sv"]');
   await entry.waitFor({state:'visible'});
   assert.match(await entry.innerText(),/Svenska/);
   await entry.click();
@@ -62,7 +62,7 @@ const {chromium} = require('playwright');
   assert(sw.includes('/lara/'),'Learning service worker owns only /lara');
   await context.setOffline(true);
   await page.goto(base+'lara/',{waitUntil:'domcontentloaded'});
-  await page.getByRole('heading',{name:'Vad vill du öva idag?'}).waitFor();
+  await page.getByRole('heading',{name:'Vad vill du lära dig?'}).waitFor();
   const offlineShared=await page.evaluate(()=>({
     guests:window.MOTogether?.load()?.guests?.length||0,
     chooserCss:[...document.styleSheets].some(sheet=>sheet.href?.includes('profile-chooser.css'))
