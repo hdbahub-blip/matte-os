@@ -10,7 +10,7 @@ const engine=process.argv[3]==='webkit'?'webkit':'chromium';
  try{
   const contexts=await Promise.all([0,1].map(()=>browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'})));
   const pages=await Promise.all(contexts.map(c=>c.newPage()));
-  const errors=[];pages.forEach(p=>{p.on('pageerror',e=>errors.push(e.message));p.setDefaultTimeout(15000);});
+  const errors=[];pages.forEach(p=>{p.on('pageerror',e=>errors.push(e.message));p.on('dialog',d=>d.accept().catch(()=>{}));p.setDefaultTimeout(15000);});
   const url=BASE+'/tillsammans/?dropin=1&topic=table&ref=table%3A7%3Av1';
   await Promise.all(pages.map(p=>p.goto(url,{waitUntil:'load'})));
   for(const p of pages){
