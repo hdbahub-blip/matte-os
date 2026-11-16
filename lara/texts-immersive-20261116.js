@@ -38,7 +38,7 @@
      "skill": "hitta",
      "ask": "Vad stod på lappen under lampan?",
      "options": [
-      "Att de skulle kontrollera rum 14",
+      "Kontrollera rum 14",
       "Att de skulle lämna museet genast",
       "Att de skulle slå av alla lampor",
       "Att de skulle gå till järnvägsrummet"
@@ -52,7 +52,7 @@
      "skill": "slutsats",
      "ask": "Varför väntade Leila och Omar på vakten?",
      "options": [
-      "De ville hjälpa utan att försöka bryta upp dörren",
+      "Hjälpa utan att bryta upp dörren",
       "De hade glömt vägen till huvudentrén",
       "De var rädda för att pojken var ett spöke",
       "De behövde en biljett för att öppna rummet"
@@ -76,7 +76,7 @@
      "skill": "tolka",
      "ask": "Vad visar slutet om Leilas sätt att tänka?",
      "options": [
-      "Hon undersöker vad som behöver lagas även om hon inte vet orsaken",
+      "Hon söker en praktisk lösning",
       "Hon tänker aldrig mer komma tillbaka till museet",
       "Hon tror att gamla lappar alltid fungerar som larmsystem",
       "Hon vill dölja händelsen för museets personal"
@@ -90,7 +90,7 @@
      "skill": "syfte",
      "ask": "Vilken fråga lämnar berättelsen öppen?",
      "options": [
-      "Om blinkningen var en varning eller ett vanligt elfel",
+      "Varför lampan blinkade",
       "Om pojkens mamma stod vid huvudentrén",
       "Om vakten hade nycklar till museets dörrar",
       "Om Leila och Omar arbetade på ett museum"
@@ -183,7 +183,7 @@
      "skill": "hitta",
      "ask": "Vad var annorlunda på kartan?",
      "options": [
-      "Lekplatsen hade ersatts av en grå ruta",
+      "En grå ruta hade ersatt lekplatsen",
       "Bibliotekets byggnad var helt borta",
       "Hela kommunen hade bytt namn",
       "En ny järnvägsstation var inritad"
@@ -197,7 +197,7 @@
      "skill": "slutsats",
      "ask": "Varför började ryktena spridas så snabbt?",
      "options": [
-      "Elever drog slutsatser innan någon hade läst ett beslut",
+      "Ingen hade läst ett beslut",
       "Kommunen hade skickat ett rivningsbeslut till alla",
       "Biblioteket hade redan stängt lekplatsen för gott",
       "En byggfirma hade börjat riva gungorna samma dag"
@@ -221,7 +221,7 @@
      "skill": "kritik",
      "ask": "Vilken källa ger starkast stöd för vad som formellt har beslutats?",
      "options": [
-      "Kommunens protokoll från handläggningen",
+      "Kommunens protokoll",
       "Ett anonymt meddelande i gruppchatten",
       "En persons gissning om ett köpcentrum",
       "Färgen på en karta utan förklaring"
@@ -235,7 +235,7 @@
      "skill": "syfte",
      "ask": "Vad är textens viktigaste budskap?",
      "options": [
-      "Undersök källor innan du sprider ett rykte",
+      "Kontrollera innan du sprider rykten",
       "Digitala kartor ska aldrig användas av elever",
       "Alla gamla lekplatser kommer förr eller senare rivas",
       "Kommunens möten är bara öppna för vuxna"
@@ -329,7 +329,7 @@
      "skill": "hitta",
      "ask": "Vilken förklaring gav kommunen först?",
      "options": [
-      "Ett gammalt dräneringsrör behövde bytas",
+      "Ett dräneringsrör skulle bytas",
       "En ny underjordisk station skulle öppnas",
       "Skogen skulle säljas till ett laboratorium",
       "En idrottsarena skulle byggas om"
@@ -343,7 +343,7 @@
      "skill": "slutsats",
      "ask": "Varför valde Elin den mindre dramatiska rubriken?",
      "options": [
-      "Den beskrev både vad som kunde beläggas och vad som saknades",
+      "Den utgick från kontrollerade fakta",
       "Hon var rädd att kommunen skulle ta bort hennes tidning",
       "Hon ville dölja att det fanns en grind i skogen",
       "Hon hade fått bevis för att inget arbete pågick"
@@ -367,7 +367,7 @@
      "skill": "kritik",
      "ask": "Vad är den största begränsningen i den boendes vittnesmål?",
      "options": [
-      "Hon vet inte säkert vad de tidigare maskinerna användes till",
+      "Hon vet inte vad maskinerna gjorde",
       "Hon såg inte den blå färgen på den nya grinden",
       "Hon hade aldrig tidigare läst skoltidningens artiklar",
       "Hon kunde inte minnas vilken veckodag det var"
@@ -381,7 +381,7 @@
      "skill": "syfte",
      "ask": "Vilket grepp hjälper läsaren att förstå artikelns trovärdighet?",
      "options": [
-      "Elin visar kontrollerade uppgifter och markerar kvarstående osäkerhet",
+      "Elin visar sina källor och osäkerheter",
       "Elin publicerar bara rykten som har många visningar",
       "Elin tar bort kommunens svar så att texten blir kortare",
       "Elin låter elever rösta om vilken förklaring som ska räknas"
@@ -474,7 +474,7 @@
      "skill": "hitta",
      "ask": "Vilken detalj upprepas i klassrummet?",
      "options": [
-      "Läraren tappar kritan igen",
+      "Kritan faller igen",
       "Provresultaten delas ut igen",
       "Eleverna byter plats igen",
       "Fågeln landar i rummet igen"
@@ -488,7 +488,7 @@
      "skill": "slutsats",
      "ask": "Varför sparar Amir häftet?",
      "options": [
-      "Han vill bevara det han faktiskt har observerat",
+      "För att bevara sina iakttagelser",
       "Han tänker sälja häftet till en tidning",
       "Han måste lämna det till rektorn direkt",
       "Han vill sudda ut dagens datum"
@@ -512,7 +512,7 @@
      "skill": "tolka",
      "ask": "Vad kan de två dateraderna symbolisera?",
      "options": [
-      "Att Amir behöver skilja minne från vad han kan kontrollera",
+      "Att Amir behöver kontrollera sina minnen",
       "Att läraren har gett två olika läxor samma dag",
       "Att provet har flyttats till nästa vecka",
       "Att klockan har gått sönder för alltid"
@@ -526,7 +526,7 @@
      "skill": "syfte",
      "ask": "Vilken osäkerhet bygger berättelsens spänning på?",
      "options": [
-      "Vi får aldrig säkert veta om tiden verkligen upprepades",
+      "Om tiden verkligen upprepades",
       "Vi får aldrig veta vem klassens lärare är",
       "Vi får aldrig veta vilken färg häftet hade",
       "Vi får aldrig veta om provet gavs tillbaka"
@@ -633,7 +633,7 @@
      "skill": "slutsats",
      "ask": "Varför hämtar Mira och Theo vaktmästaren?",
      "options": [
-      "De vill undersöka den okända våningen med ansvarig vuxen",
+      "För att få hjälp av en vuxen",
       "De tror att han kan hjälpa dem bryta upp skåpen",
       "De behöver ett betyg för att använda skolans hiss",
       "De har bestämt sig för att flytta ner skolbiblioteket"
@@ -657,7 +657,7 @@
      "skill": "tolka",
      "ask": "Vad gör den lilla texten på fotografiet med slutet?",
      "options": [
-      "Den ger en vardaglig förklaring utan att lösa hela mysteriet",
+      "Knappen hörde till personaldelen",
       "Den bevisar att det finns en hemlig tidsmaskin i skolan",
       "Den visar att Mira hade hittat på hela händelsen",
       "Den betyder att skolan tänker öppna skåpen nästa dag"
@@ -671,7 +671,7 @@
      "skill": "syfte",
      "ask": "Vilken detalj skapar mest förväntan i början?",
      "options": [
-      "En hissknapp som inte passar skolans vanliga våningar",
+      "En oväntad hissknapp",
       "Ett idrottspass som tar slut på en torsdag",
       "Att Theo har tillgång till skolans gamla ritningar",
       "Att skolan har en matsal på bottenvåningen"
@@ -765,7 +765,7 @@
      "skill": "hitta",
      "ask": "Vad hittades inuti cylindern?",
      "options": [
-      "En arkivkapsel med inspelning och karta",
+      "En inspelning och en karta",
       "En ny undervattensrobot från stationen",
       "En låda med färska laboratorieprover",
       "En sändare som fortfarande skickade meddelanden"
@@ -779,7 +779,7 @@
      "skill": "slutsats",
      "ask": "Varför ville Salma vänta med att publicera ljudfilen?",
      "options": [
-      "Hon ville kontrollera innehållet och ta hänsyn till berörda",
+      "För att granska och skydda privata minnen",
       "Hon tänkte behålla upptäckten för sig själv och Noa",
       "Hon trodde att hela inspelningen bara innehöll musik",
       "Hon ville använda filen som pris i en tävling"
@@ -803,7 +803,7 @@
      "skill": "kritik",
      "ask": "Vilken osäkerhet finns kvar även efter forskarnas beslut?",
      "options": [
-      "Ingen vet säkert varför kapseln hamnade på havsbottnen",
+      "Varför kapseln låg på havsbotten",
       "Forskarna vet inte om de hittade en karta eller en bok",
       "Noa vet inte om hon fick följa med på stationen",
       "Ingen känner till vilket hav stationen ligger under"
@@ -817,7 +817,7 @@
      "skill": "tolka",
      "ask": "Vad betyder slutmeningen 'vi fanns' i sammanhanget?",
      "options": [
-      "Att människors liv kan bli synliga igen genom bevarade minnen",
+      "Människors minnen kan bevaras",
       "Att byn i hemlighet byggts upp på havsbottnen",
       "Att stationens robotar hade blivit mänskliga",
       "Att alla i den övergivna byn fortfarande levde"
@@ -911,7 +911,7 @@
      "skill": "hitta",
      "ask": "Vad orsakade den farliga situationen vid tunneln?",
      "options": [
-      "Kraftigt regn medan många var oförberedda",
+      "Ett skyfall som ingen väntade sig",
       "Ett planerat strömavbrott i idrottshallen",
       "En försenad buss som blockerade vägen",
       "Ett byggarbete som stängde alla utgångar"
@@ -925,7 +925,7 @@
      "skill": "slutsats",
      "ask": "Varför hade den tredje sensorns värde sorterats bort?",
      "options": [
-      "Systemets regler behandlade avvikande mätningar som möjliga falsklarm",
+      "Reglerna ignorerade avvikande data",
       "Teknikern hade stängt av den med avsikt samma morgon",
       "Sanna hade tagit bort mätningen före skolstarten",
       "Informationschefen trodde att sensorn satt i ett annat land"
@@ -949,7 +949,7 @@
      "skill": "kritik",
      "ask": "Vad saknades i informationschefens första förklaring?",
      "options": [
-      "En redovisning av orsaken till just den felaktiga prognosen",
+      "Varför just denna prognos blev fel",
       "Ett påstående om hur ofta systemet brukar fungera",
       "Ett besked om att stadens panel är digital",
       "Ett erkännande av att staden har flera sensorer"
@@ -963,7 +963,7 @@
      "skill": "tolka",
      "ask": "Vad antyder de tre prickarna i slutet?",
      "options": [
-      "Att användarna kan se osäkerhet utan att förlora huvudinformationen",
+      "Osäkerheten blir synlig för alla",
       "Att panelen snart ska tas bort från torget",
       "Att skolan ska sluta lyssna på väderprognoser",
       "Att alla sensorer alltid mäter exakt samma väder"
@@ -1058,7 +1058,7 @@
      "skill": "hitta",
      "ask": "What did Grace notice in the lift?",
      "options": [
-      "A small button marked ZERO",
+      "A button marked ZERO",
       "A broken window near the door",
       "A new picture of the school",
       "A clock without any hands"
@@ -1072,7 +1072,7 @@
      "skill": "slutsats",
      "ask": "Why did the students ask Mrs Hall to join them?",
      "options": [
-      "They wanted a responsible adult to check the unknown floor",
+      "For an adult to check the floor",
       "They wanted her to help them hide the wooden boxes",
       "They needed permission to leave school early",
       "They thought the lift could only carry teachers"
@@ -1096,7 +1096,7 @@
      "skill": "tolka",
      "ask": "What does the tiny writing at the end suggest?",
      "options": [
-      "The button probably belonged to a staff-only area",
+      "An old staff-only floor",
       "The corridor leads to a secret planet",
       "Grace invented the entire event",
       "Ben has learned to repair lifts"
@@ -1110,7 +1110,7 @@
      "skill": "syfte",
      "ask": "Why does the author mention the glowing button twice?",
      "options": [
-      "To build suspense around an unexplained detail",
+      "It makes the button mysterious",
       "To show that blue is Grace's favourite colour",
       "To tell us how to fix an emergency light",
       "To prove that the school is very old"
@@ -1217,7 +1217,7 @@
      "skill": "slutsats",
      "ask": "Why does Zara visit the science museum?",
      "options": [
-      "She hopes to learn where the strange symbol came from",
+      "To identify the postcard's symbol",
       "She wants to buy a ticket to the real Moon Base 4",
       "She thinks Leo is hiding inside the museum",
       "She needs a new reading lamp for school"
@@ -1241,7 +1241,7 @@
      "skill": "tolka",
      "ask": "What does 'Keep asking questions' add to the ending?",
      "options": [
-      "It turns the mystery into encouragement to stay curious",
+      "It encourages curiosity",
       "It tells Zara to throw away the postcard immediately",
       "It explains exactly who mailed the card",
       "It warns the museum to close its exhibit"
@@ -1255,7 +1255,7 @@
      "skill": "syfte",
      "ask": "Which theme fits the story best?",
      "options": [
-      "Curiosity can matter even without a magical answer",
+      "Curiosity matters even without magic",
       "All postcards come from space stations",
       "Old museums should never change their exhibits",
       "Brothers always know more than sisters"
@@ -1349,7 +1349,7 @@
      "skill": "hitta",
      "ask": "How did Mina use the extra time before the competition?",
      "options": [
-      "She repaired her robot and practised her speech",
+      "Fixing her robot and practising",
       "She travelled to another city to buy a clock",
       "She worked an extra shift at the market",
       "She helped Theo build a new town hall"
@@ -1363,7 +1363,7 @@
      "skill": "slutsats",
      "ask": "Why was the time system especially difficult for Theo?",
      "options": [
-      "He had fewer flexible hours available for repayment",
+      "He had few hours he could lose",
       "He did not understand how a calendar worked",
       "He was not allowed to attend the science competition",
       "He preferred to sleep through every afternoon"
@@ -1387,7 +1387,7 @@
      "skill": "kritik",
      "ask": "What weakness does Mina find in the company's claim that borrowing is free?",
      "options": [
-      "The cost is paid in lost time rather than money",
+      "Repayment costs time, not money",
       "The company charges a hidden price for every screen",
       "Borrowing works only if people visit the town hall",
       "The service does not allow students to participate"
@@ -1401,7 +1401,7 @@
      "skill": "tolka",
      "ask": "Why does Mina choose to write a shorter speech at the end?",
      "options": [
-      "She refuses an easy solution whose later cost she now understands",
+      "She understands the later cost",
       "She has forgotten the date of the city meeting",
       "She no longer cares about Theo or the time system",
       "She thinks shorter speeches always win competitions"
@@ -1496,7 +1496,7 @@
      "skill": "hitta",
      "ask": "What detail first makes Imani question the message?",
      "options": [
-      "The voice changes the familiar phrase about the rain",
+      "A changed phrase about the rain",
       "The screen displays the wrong name of the ship",
       "The message arrives in a language nobody knows",
       "The captain has turned off the ship's receiver"
@@ -1510,7 +1510,7 @@
      "skill": "slutsats",
      "ask": "Why does the captain wait before changing course?",
      "options": [
-      "The crew cannot yet verify who sent the instruction",
+      "The sender is still unverified",
       "The ship no longer has enough fuel to move",
       "Imani refuses to listen to any other messages",
       "The engineer has deleted all navigation records"
@@ -1534,7 +1534,7 @@
      "skill": "kritik",
      "ask": "Why does the outdated encryption method matter?",
      "options": [
-      "It makes the message's claimed origin less certain",
+      "It casts doubt on the claimed origin",
       "It proves that Earth can never send messages again",
       "It shows that Imani wrote the message herself",
       "It tells the captain exactly which route is shortest"
@@ -1548,7 +1548,7 @@
      "skill": "tolka",
      "ask": "What does Imani mean when she says longing should not become proof?",
      "options": [
-      "Wanting an answer badly can distort the judgement of evidence",
+      "Hope is not evidence",
       "It is wrong to miss people while travelling in space",
       "The crew should never read old family messages again",
       "A personal memory always proves who sent a signal"
