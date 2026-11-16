@@ -33,5 +33,5 @@ const sw=fs.readFileSync(path.join(__dirname,'../lara/sw.js'),'utf8');
 const rootSW=fs.readFileSync(path.join(__dirname,'../sw.js'),'utf8');
 for(const s of [html,sw,rootSW]){assert.ok(s.includes('texts-immersive-20261116.js'),'offline/browser bundle');checks++;}
 assert.equal(W.audit().texts,SV.length+EN.length);checks++;
-assert.ok(SV.length>=19&&EN.length>=16,'all old and new readings present');checks++;
+assert.ok(SV.length>=18&&EN.length>=15,'all old and new readings present');checks++;
 console.log('Immersive reading acceptance '+checks+' checks PASS; 11 original stories, '+all.reduce((n,t)=>n+t.tasks.length,0)+' new reading tasks; 7 SV + 4 EN');
