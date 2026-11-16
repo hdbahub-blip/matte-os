@@ -15,14 +15,14 @@ const BASE=process.argv[2]||'http://127.0.0.1:8765/';
         await page.goto(BASE,{waitUntil:'networkidle'});
         assert.match(await page.locator('#main').innerText(),/Cup skickar tillfälliga speluppgifter/);n++;
         await page.locator('[data-p="'+grade+'"]').click();
-        await page.locator('.flow-explore > summary').click();
-        await page.waitForSelector('.calm-choices');
-        for(const [route,text] of [['formler','Förstå matte'],['tabell/home','Öva multiplikation'],['trana','Träna matte']]){
-          const link=page.locator('.calm-choice[href="#/'+route+'"]');
+        await page.locator('.ux-more > summary').click();
+        await page.waitForSelector('.ux-more-grid');
+        for(const [route,text] of [['formler','Lär dig matte'],['tabell/home','Tabellarenan'],['trana','Välj matteuppgift']]){
+          const link=page.locator('.ux-more-grid a[href="#/'+route+'"]');
           assert.equal(await link.count(),1,'Missing clear path '+route);n++;
           assert.match(await link.innerText(),new RegExp(text));n++;
         }
-        assert.equal(await page.locator('.hero .btn').count(),1,'One primary recommendation on Home');n++;
+        assert.equal(await page.locator('.ux-tiles .ux-math').count(),1,'One primary math action on Home');n++;
         await page.goto(BASE+'#/l/'+sid+'/0');
         await page.waitForSelector('.paper-flow');
         assert.equal(await page.locator('.paper-step:visible').count(),3,'All three steps visible on first explanation');n++;
