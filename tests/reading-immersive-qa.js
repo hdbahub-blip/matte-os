@@ -13,9 +13,9 @@ const expected={sv:{1:4,2:3},en:{1:2,2:2}};
 for(const lang of ['sv','en'])for(const level of [1,2])
  ok(R[lang].filter(t=>t.level===level).length===expected[lang][level],lang+' level '+level+' distribution');
 const all=[...R.sv,...R.en],ids=new Set();
-ok(SV.length===19&&EN.length===16,'preserve 12 old readings in each language');
-ok(W.audit().texts===35,'exactly 35 readings after anthology');
-ok(W.audit().perLang.sv===19&&W.audit().perLang.en===16,'language isolation');
+ok(SV.length===18&&EN.length===15,'preserve 11 old readings in each language');
+ok(W.audit().texts===33,'exactly 33 readings after anthology');
+ok(W.audit().perLang.sv===18&&W.audit().perLang.en===15,'language isolation');
 for(const t of all){
  const key=t.lang+':'+t.id,passage=t.paragraphs.join(' ');
  ok(!ids.has(key),'unique new id '+key);ids.add(key);
