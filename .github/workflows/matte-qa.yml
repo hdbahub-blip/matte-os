@@ -80,6 +80,7 @@ jobs:
           node --check lara/texts-sv.js
           node --check lara/texts-en.js
           node tests/sprak-qa.js
+          node tests/reading-immersive-qa.js
           node tests/immersive-reading-qa.js
           node tests/atelier-content-qa.js
           node tests/color-system-qa.js
