@@ -46,8 +46,10 @@
     S.activate(entryGuest);
     if (entryParams.get('edit')==='1') {ui.page='guests';ui.edit=entryGuest;}
   } else if (entryParams.get('dropin')==='1') {
+    ui.dropInRequested=true;
     const drop=S.dropIns()[0]||S.addDropIn('Joker');
     if(drop){ui.selectedGuest=drop.id;ui.members=new Set([drop.id]);}
+    else {ui.notice='Tillfälligt Jokerläge kan inte användas: den här webbläsaren blockerar sessionslagring. Inga svar har sparats.';}
     // Keep ?dropin=1 so reload stays in transient guest mode (no names or secrets in URL).
 
   } else if (entryParams.get('profiles')==='1') {
@@ -219,6 +221,7 @@
       +'<section class="hero flow-welcome"><p class="caps">MATTE OS · ENKEL START</p>'
       +'<h1>Vad vill ni göra?</h1>'
       +'<p class="lead">En text. Flera tankar. Börja direkt eller välj vilka som ska vara med.</p>'
+      +(ui.dropInRequested&&!ui.selectedGuest?'<div class="notice warning" role="alert">Tillfälligt Jokerläge kan inte köras eftersom sessionslagring saknas. Ingen permanent profil skapas.</div>':'')
       +(existing?'<div class="flow-resume"><strong>Ni har ett pausat pass</strong><button class="button" data-action="resume">Fortsätt där ni var</button></div>':'')
       +'<div class="flow-choices" role="group" aria-label="Välj hur ni vill träna">'
       +'<button class="flow-choice flow-choice-solo" data-action="quick-solo"><span class="flow-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4-.8L20 7.4a2.1 2.1 0 0 0-3-3L5 16z"/><path d="m14.5 6.5 3 3M4 20h16"/></svg></span><strong>Jag kör själv</strong><span>5 frågor · '+esc(selected?.name||'Joker')+'</span><b>Starta själv <span aria-hidden="true">›</span></b></button>'
@@ -428,6 +431,9 @@
     if(a==='home'){page('home');return;}
     if(a==='guests'){page('guests');return;}
     if(a==='quick-solo'){
+      if(ui.dropInRequested&&(!ui.selectedGuest||!S.dropIns().some(g=>g.id===ui.selectedGuest))){
+        note('Gästläget kräver fungerande sessionslagring. Inga svar sparades.');return;
+      }
       const selected=ui.selectedGuest&&member(ui.selectedGuest)||S.load().guests.find(g=>g.id===S.load().activeGuestId)||S.load().guests[0];
       if(!selected){note('Skapa en Joker-profil först.');return;}
       const ref=entryList(ui.topic).some(x=>x.ref===ui.ref)?ui.ref:defaultRef(ui.topic);
