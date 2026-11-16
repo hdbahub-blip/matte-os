@@ -1,0 +1,80 @@
+'use strict';
+/* Acceptance of the simple study IA: synthetic, local-only data; no live accounts. */
+const assert=require('node:assert/strict');
+const {chromium,webkit}=require('playwright');
+const BASE=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/?$/,'/');
+const engine=process.argv[3]==='webkit'?'webkit':'chromium';
+(async()=>{
+ const browser=await (engine==='webkit'?webkit:chromium).launch({headless:true});
+ let checks=0;
+ const pageErrors=[];
+ try{
+  for(const width of [320,390]){
+   const context=await browser.newContext({viewport:{width,height:800},hasTouch:true,isMobile:true,serviceWorkers:'block'});
+   const p=await context.newPage();
+   p.on('pageerror',err=>pageErrors.push(String(err)));
+   p.on('dialog',d=>d.accept().catch(()=>{}));
+   p.setDefaultTimeout(20000);
+   await p.goto(BASE,{waitUntil:'load'});
+   await p.locator('.pc-onboarding [data-a=pickprofile][data-p=grade9]').click();
+   await p.locator('.ux-landing').waitFor();
+   assert.equal(await p.locator('.ux-tiles .ux-tile').count(),4);checks++;
+   assert.equal(await p.locator('nav.nav .ux-dock > *').count(),5);checks++;
+   assert.equal(await p.locator('.ux-more').getAttribute('open'),null);checks++;
+   const tiles=await p.locator('.ux-tiles .ux-tile strong').allInnerTexts();
+   assert.deepEqual(tiles,['Matte','Svenska','Engelska','Spela ihop']);checks++;
+   const sentinel=await p.evaluate(()=>{
+     const s=window.MOEngine.state();
+     s.profiles.grade9.rests.simpleUxSentinel='keep9';
+     s.profiles.grade8.rests.simpleUxSentinel='keep8';
+     window.MOEngine.save();
+     return JSON.stringify(s.profiles);
+   });
+   await p.goto(BASE+'#/l/s9-powers/0');
+   await p.locator('.ux-focus-profile').waitFor();
+   await p.locator('.ux-focus-profile').click();
+   await p.locator('.pc-sheet .pc-grade8').waitFor();checks++;
+   await p.locator('.pc-sheet [data-a=pickprofile][data-p=grade8]').click();
+   assert.equal(await p.evaluate(()=>window.MOEngine.state().active),'grade8');checks++;
+   assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('matteos.v5')).profiles.grade9.rests.simpleUxSentinel),'keep9');checks++;
+   assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('matteos.v5')).profiles.grade8.rests.simpleUxSentinel),'keep8');checks++;
+   await p.locator('nav.nav a[href="lara/#/sv"]').click();
+   await p.locator('nav.bottom a[href="#/sv"][aria-current=page]').waitFor();checks++;
+   assert.equal(await p.evaluate(()=>window.MOL_ACTIVE()),'grade8');checks++;
+   assert.equal(await p.locator('.ux-reading-level').count(),3);checks++;
+   assert.equal(await p.locator('.ux-reading-level[open]').count(),1);checks++;
+   await p.locator('nav.bottom a[href="#/en"]').click();
+   await p.locator('h1').filter({hasText:/Engelska/}).first().waitFor();checks++;
+   await p.locator('.sitehead [data-a=profile]').click();
+   await p.locator('.pc-learning-overlay .pc-grade9').waitFor();checks++;
+   await p.locator('.pc-learning-overlay [data-a=choose-profile][data-p=grade9]').click();
+   assert.equal(await p.evaluate(()=>window.MOL_ACTIVE()),'grade9');checks++;
+   await p.locator('nav.bottom a[href="../tillsammans/"]').click();
+   await p.locator('.ux-together-home').waitFor();checks++;
+   assert.equal(await p.locator('.ux-topics .ux-topic').count(),3);checks++;
+   assert.equal(await p.locator('nav.bottom a').count(),5);checks++;
+   await p.locator('[data-action=choose-topic][data-topic=en]').click();
+   assert.match(await p.locator('.ux-selected-topic').innerText(),/Engelska/);checks++;
+   await p.locator('.top-actions [data-action=profiles]').click();
+   await p.locator('.ux-profile-dialog').waitFor();checks++;
+   assert.equal(await p.locator('.ux-profile-grid .ux-identity').count()>=5,true);checks++;
+   await p.keyboard.press('Escape');
+   assert.equal(await p.locator('.ux-profile-layer').count(),0);checks++;
+   await p.locator('.flow-choice-group').click();
+   await p.locator('select[data-role=source]').waitFor();
+   assert.equal(await p.locator('select[data-role=topic]').inputValue(),'en');checks++;
+   assert.ok((await p.locator('select[data-role=source] option').count())>2);checks++;
+   await p.locator('.top-actions [data-action=profiles]').click();
+   await p.locator('.ux-profile-dialog').waitFor();
+   assert.ok(await p.locator('.ux-identity[data-action=pick-guest]').count()>=3);checks++;
+   await p.locator('.ux-profile-dialog [data-action=profiles-close]').click();
+   const layout=await p.evaluate(()=>({width:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
+   assert.ok(layout.width<=layout.client+2,width+'px overflow '+JSON.stringify(layout));checks++;
+   assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('matteos.v5')).profiles.grade9.rests.simpleUxSentinel),'keep9');checks++;
+   assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('matteos.v5')).profiles.grade8.rests.simpleUxSentinel),'keep8');checks++;
+   await context.close();
+  }
+  assert.deepEqual(pageErrors,[],'no browser JS errors');checks++;
+  console.log('NETFLIX-SIMPLE '+engine+': '+checks+'/'+checks+' PASS — 320/390px, profile always visible, cross-module routing, level shelves, group subjects, identity isolation');
+ }finally{await browser.close();}
+})().catch(err=>{console.error(err);process.exitCode=1;});
