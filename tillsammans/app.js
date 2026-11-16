@@ -409,7 +409,8 @@
   }
   async function shareChallenge() {
     if(!questions(ui.ref).length){note('De här frågorna går inte att dela. Välj en annan övning.');return;}
-    if(sourceText(ui.ref)){shareGuestReading();return;}
+    // Keep both phones in the Together engine for IDENTICAL authored question subsets.
+    // A separate "full workshop" invite is available from each original reading text.
     const url=new URL('./',location.href);
     url.searchParams.set('dropin','1');
     url.searchParams.set('topic',ui.topic);
