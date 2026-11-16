@@ -118,7 +118,7 @@
             <span class="flow-home-icon">${I.pen}</span><strong>Kör själv</strong>
             <span>5 korta mattefrågor</span><b>Starta direkt <span aria-hidden="true">›</span></b>
           </button>
-          <a class="flow-home-choice flow-home-together" href="tillsammans/?start=group">
+          <a class="flow-home-choice flow-home-together" href="tillsammans/?start=group&grade=${p}">
             <span class="flow-home-icon">${I.people}</span><strong>Kör tillsammans</strong>
             <span>Samma mobil · välj spelare</span><b>Kom igång <span aria-hidden="true">›</span></b>
           </a>
