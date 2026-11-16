@@ -96,4 +96,33 @@ Object.defineProperty(global,'localStorage',{configurable:true,get(){throw Error
 assert.doesNotThrow(()=>S.status(),'Denied storage getter must not crash UI');
 assert.equal(S.status().storageOk,false);
 Object.defineProperty(global,'localStorage',{configurable:true,writable:true,value:realStorage});
+// A one-time Joker has neither a permanent profile nor permanent result history.
+const tab=new Map();
+global.sessionStorage={
+ getItem(k){return tab.has(k)?tab.get(k):null;},
+ setItem(k,v){tab.set(k,String(v));},
+ removeItem(k){tab.delete(k);}
+};
+const permanentGuestBefore=mock.get(S.KEY),mathBefore=mock.get('matteos.v5');
+const fleeting=S.addDropIn('  Nova  ');
+assert.ok(fleeting?.id && S.dropIns().length===1);
+assert.equal(S.dropIns()[0].name,'Nova');
+assert.equal(S.recordSolo(fleeting.id,'sv',true),true,'Drop-in answers only in active screen');
+assert.equal(mock.get(S.KEY),permanentGuestBefore,'No guest history written');
+const temp=S.startSession([fleeting.id,'grade8'],'table:7:v1',2);
+assert.ok(temp,'Temporary Joker can join same-phone sessions with school grades');
+assert.equal(mock.has(S.SESSION_KEY),false,'Temporary session must not enter persistent localStorage');
+assert.ok(tab.has(S.SESSION_KEY),'Session scoped only to this browser tab');
+assert.equal(S.restoreSession().id,temp.id);
+assert.equal(S.beginTurn(temp),true);
+assert.equal(S.answerTurn(temp,0,4,0),true);
+assert.equal(S.restoreSession().turn,1);
+assert.equal(S.endSession(),true);
+assert.equal(S.dropIns().length,0,'Drop-ins cleared on session end');
+assert.equal(tab.has(S.SESSION_KEY),false);
+assert.equal(mock.get(S.KEY),permanentGuestBefore,'No guest data saved after game');
+assert.equal(mock.get('matteos.v5'),mathBefore,'No school progress changed');
+assert.equal(S.addDropIn('Joker')!==null,true);
+delete global.sessionStorage;
+assert.equal(S.dropIns().length,0,'Not available without sessionStorage; never saved as a permanent guest');
 console.log('Matte OS Together: seeded guests, stable IDs, themes, backups, isolation, N-person turns, reveal + resume PASS');

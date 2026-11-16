@@ -17,28 +17,41 @@
       const p=JSON.parse(localStorage.getItem(PREF_KEY)||'null');
       if(!p||p.v!==1||!Object.prototype.hasOwnProperty.call(titles,p.topic))return null;
       return {topic:p.topic,ref:typeof p.ref==='string'&&p.ref.length<=90?p.ref:'',
-        members:Array.isArray(p.members)?p.members.slice(0,S.MEMBER_LIMIT).filter(x=>typeof x==='string'):[]};
+        members:Array.isArray(p.members)?p.members.slice(0,S.MEMBER_LIMIT).filter(x=>typeof x==='string'&&!S.dropIns().some(g=>g.id===x)):[]};
     } catch(_) {return null;}
   }
   function savePrefs() {
     try {
       localStorage.setItem(PREF_KEY,JSON.stringify({v:1,topic:ui.topic,ref:ui.ref,
-        members:[...ui.members].filter(id=>member(id)).slice(0,S.MEMBER_LIMIT)}));
+        members:[...ui.members].filter(id=>member(id)&&!S.dropIns().some(g=>g.id===id)).slice(0,S.MEMBER_LIMIT)}));
     } catch(_) { /* Local preferences are optional. Never touch school storage. */ }
   }
   const prefs=loadPrefs();
   if(prefs){ui.topic=prefs.topic;ui.ref=prefs.ref;}
   const entryParams = new URLSearchParams(location.search);
   const startRef = entryParams.get('text');
+  const challengeTopic=entryParams.get('topic'), challengeRef=entryParams.get('ref');
+  if(Object.prototype.hasOwnProperty.call(titles,challengeTopic) && entryList(challengeTopic).some(e=>e.ref===challengeRef)){
+    ui.topic=challengeTopic;ui.ref=challengeRef;
+  }
   const rawGuest = S.load().guests;
   const rememberedMembers=[...new Set((prefs?.members||[]).filter(id=>school[id]||rawGuest.some(g=>g.id===id)))];
-  (rememberedMembers.length?rememberedMembers:rawGuest.slice(0,3).map(g=>g.id)).forEach(id=>ui.members.add(id));
+  const gradeEntry=entryParams.get('grade');
+  const suggested=school[gradeEntry]?[gradeEntry,rawGuest[0]?.id].filter(Boolean):rawGuest.slice(0,2).map(g=>g.id);
+  (rememberedMembers.length?rememberedMembers:suggested).forEach(id=>ui.members.add(id));
   // Deep-link from the main Netflix-style profile chooser. Never change school profiles.
   const entryGuest = entryParams.get('guest');
   if (entryGuest && rawGuest.some(g=>g.id===entryGuest)) {
     ui.selectedGuest = entryGuest;
     S.activate(entryGuest);
     if (entryParams.get('edit')==='1') {ui.page='guests';ui.edit=entryGuest;}
+  } else if (entryParams.get('dropin')==='1') {
+    ui.dropInRequested=true;
+    const drop=S.dropIns()[0]||S.addDropIn('Joker');
+    if(drop){ui.selectedGuest=drop.id;ui.members=new Set([drop.id]);}
+    else {ui.notice='Tillfälligt Jokerläge kan inte användas: den här webbläsaren blockerar sessionslagring. Inga svar har sparats.';}
+    // Keep ?dropin=1 so reload stays in transient guest mode (no names or secrets in URL).
+
   } else if (entryParams.get('profiles')==='1') {
     ui.page='guests';
   }
@@ -48,7 +61,7 @@
     }
     // The launch instruction is one-time. Reload must not restart navigation or lose paused-session recovery.
     try {
-      const next=new URL(location.href);next.searchParams.delete('start');
+      const next=new URL(location.href);next.searchParams.delete('start');next.searchParams.delete('grade');
       history.replaceState(null,'',next.pathname+next.search+next.hash);
     } catch(_) { /* Launch works even when history is unavailable. */ }
   }
@@ -57,9 +70,9 @@
   }
   function member(id) {
     if (school[id]) return school[id];
-    return S.load().guests.find(g=>g.id===id) || null;
+    return S.load().guests.find(g=>g.id===id) || S.dropIns().find(g=>g.id===id) || null;
   }
-  function allMembers() { return [school.grade8,school.grade9].concat(S.load().guests); }
+  function allMembers() { return [school.grade8,school.grade9].concat(S.load().guests,S.dropIns()); }
   function initials(name) {
     const words=String(name||'?').trim().split(/\s+/);
     return words.length>1 ? words.slice(0,2).map(w=>w.charAt(0).toLocaleUpperCase('sv-SE')).join('') : words[0].slice(0,2).toLocaleUpperCase('sv-SE');
@@ -208,6 +221,7 @@
       +'<section class="hero flow-welcome"><p class="caps">MATTE OS · ENKEL START</p>'
       +'<h1>Vad vill ni göra?</h1>'
       +'<p class="lead">En text. Flera tankar. Börja direkt eller välj vilka som ska vara med.</p>'
+      +(ui.dropInRequested&&!ui.selectedGuest?'<div class="notice warning" role="alert">Tillfälligt Jokerläge kan inte köras eftersom sessionslagring saknas. Ingen permanent profil skapas.</div>':'')
       +(existing?'<div class="flow-resume"><strong>Ni har ett pausat pass</strong><button class="button" data-action="resume">Fortsätt där ni var</button></div>':'')
       +'<div class="flow-choices" role="group" aria-label="Välj hur ni vill träna">'
       +'<button class="flow-choice flow-choice-solo" data-action="quick-solo"><span class="flow-glyph" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 20 4-.8L20 7.4a2.1 2.1 0 0 0-3-3L5 16z"/><path d="m14.5 6.5 3 3M4 20h16"/></svg></span><strong>Jag kör själv</strong><span>5 frågor · '+esc(selected?.name||'Joker')+'</span><b>Starta själv <span aria-hidden="true">›</span></b></button>'
@@ -250,7 +264,7 @@
       +'<label class="button secondary" for="guest-backup">Återställ gästbackup</label><input class="sr" id="guest-backup" type="file" accept=".json,application/json"></div></section>';
   }
   function setupPage(shareOnly) {
-    const topics=shareOnly?['sv','en']:Object.keys(titles);
+    const topics=Object.keys(titles);
     if(!topics.includes(ui.topic))ui.topic=topics[0];
     const entries=currentEntries();
     if(!entries.some(x=>x.ref===ui.ref))ui.ref=entries[0]?.ref||'';
@@ -259,9 +273,9 @@
     const players=allMembers();
     const count=[...ui.members].filter(id=>member(id)).length;
     return '<button class="back button tertiary" data-action="home">‹ Tillbaka</button>'
-      +'<p class="kicker">'+(shareOnly?'DELA EN TEXT':'SAMMA MOBIL · SNABBSTART')+'</p>'
-      +'<h1>'+(shareOnly?'Dela samma lästext':'Redo att köra ihop?')+'</h1>'
-      +'<p class="lead">'+(shareOnly?'Välj en text och skicka länken. Svaren delas inte automatiskt.':'Välj ämne och deltagare. Vi börjar med fem korta frågor.')+'</p>'
+      +'<p class="kicker">'+(shareOnly?'SAMMA FRÅGOR PÅ OLIKA MOBILER':'SAMMA MOBIL · SNABBSTART')+'</p>'
+      +'<h1>'+(shareOnly?'Dela samma övning':'Redo att köra ihop?')+'</h1>'
+      +'<p class="lead">'+(shareOnly?'Välj ämne och uppgifter. Den andra mobilen får samma frågor utan konto eller sparade gästsvar. Jämför svaren själva.':'Välj ämne och deltagare. Vi börjar med fem korta frågor.')+'</p>'
       +'<section class="card section flow-setup"><label class="field" for="topic">Vad vill ni öva?</label>'
       +'<select id="topic" data-role="topic">'+topics.map(t=>'<option value="'+t+'"'+(t===ui.topic?' selected':'')+'>'+esc(titles[t])+'</option>').join('')+'</select>'
       +(!shareOnly?'<div class="flow-players-head"><h2>Vem är med?</h2><span>'+count+' valda · max '+S.MEMBER_LIMIT+'</span></div>'
@@ -269,17 +283,20 @@
           const selected=ui.members.has(g.id);
           return '<label class="selector" style="--gaccent:'+styleColor(g)+'"><input type="checkbox" data-role="participant" value="'+esc(g.id)+'" '+(selected?'checked':'')+'>'
             +'<span class="bubble" aria-hidden="true">'+esc(initials(g.name))+'</span>'
-            +'<span><b>'+esc(g.name)+'</b><small>'+(school[g.id]?'Årskurs · ingen skolprogress påverkas':'Joker · lokal profil')+'</small></span></label>';
-        }).join('')+'</div>':'')
-      +'<div class="flow-launch"><button class="button block" data-action="'+(shareOnly?'share-current':'start-session')+'" '+(!ui.ref||(!shareOnly&&!count)?'disabled':'')+'>'
-      +(shareOnly?'Dela länken':'Starta 5 frågor · '+count+' '+(count===1?'person':'personer'))+'</button></div>'
-      +'<details class="flow-extra-content"><summary>'+(shareOnly?'Välj en annan text':'Byt text, kapitel eller övning')+'</summary>'
+            +'<span><b>'+esc(g.name)+'</b><small>'+(school[g.id]?'Årskurs · ingen skolprogress påverkas':g.type==='dropin'?'Engångs-Joker · inget sparas':'Joker · lokal profil')+'</small></span></label>';
+        }).join('')+'</div>'
+        +'<div class="flow-dropin"><div><strong>Kompis utan profil?</strong><small>Lägg till en Joker för bara det här passet. Namn och svar sparas inte som skolresultat.</small></div>'
+        +'<div class="flow-dropin-fields"><input id="flow-dropin-name" type="text" maxlength="24" autocomplete="off" placeholder="Valfritt smeknamn" aria-label="Namn på tillfällig Joker">'
+        +'<button class="button secondary" type="button" data-action="add-dropin">+ Lägg till</button></div></div>':'')
+      +'<div class="flow-launch"><button class="button block" data-action="'+(shareOnly?'share-challenge':'start-session')+'" '+(!ui.ref||(!shareOnly&&!count)?'disabled':'')+'>'
+      +(shareOnly?'Dela frågor till varsin mobil':'Starta 5 frågor · '+count+' '+(count===1?'person':'personer'))+'</button></div>'
+      +'<details class="flow-extra-content"><summary>'+(shareOnly?'Välj andra frågor':'Byt text, kapitel eller övning')+'</summary>'
       +'<label class="field" for="source">Material</label><select id="source" data-role="source">'
       +entries.map(x=>'<option value="'+esc(x.ref)+'"'+(x.ref===ui.ref?' selected':'')+'>'+esc(x.label)+'</option>').join('')+'</select>'
       +(selectedEntry?'<p class="help">'+(current?'Originaltext · '+current.paragraphs.length+' stycken · version '+current.version:'Frågor från Matte OS egen undervisningsbank')+'</p>':'')
       +(current?'<details><summary>Läs texten först · '+esc(current.title)+'</summary>'+textMarkup(current)+'</details>':'')
       +'</details></section>'
-      +(shareOnly?'<p class="help">Länken innehåller ingen deltagarkod eller personliga svar.</p>':'<p class="help">Resultaten från det här passet ändrar inga skolprov eller skolprofiler.</p>');
+      +(shareOnly?'<p class="help">Gästlänken innehåller bara en publik referens till frågorna. Svaren synkas inte live. Vill ni enbart dela texten? <button class="button tertiary small" data-action="share-current">Dela bara text</button></p>':'<p class="help">Resultaten från det här passet ändrar inga skolprov eller skolprofiler.</p>');
   }
   function textMarkup(t) {
     return '<article class="reading"><h2>'+esc(t.title)+'</h2>'
@@ -294,8 +311,8 @@
       +'<h1>'+esc(t.title)+'</h1><p class="lead">'+esc(t.purpose||t.lead||'')+'</p>'
       +'<div class="reading-box">'+textMarkup(t)+'</div>'
       +'<div class="button-row"><button class="button" data-action="setup-from-text" data-ref="'+esc(ui.ref)+'">Svara tillsammans på samma mobil</button>'
-      +'<button class="button secondary" data-action="share-current">Dela textlänk</button></div>'
-      +'<p class="help">Varje deltagare kan läsa texten på sin egen telefon. Frågorna och poängen delas inte live.</p>';
+      +'<button class="button secondary" data-action="share-guest-reading">Dela frågor · varsin mobil</button></div>'
+      +'<p class="help">Länken öppnar samma originaltext och samma frågor i gästläge utan sparade svar. Ni jämför själva efter varje fråga; mobilerna synkroniseras inte live.</p>';
   }
   function scoreGrid(s) {
     return '<div class="score-grid">'+s.members.map(id=>{
@@ -338,7 +355,8 @@
           const r=record[id],correct=r===q.correct,p=member(id);
           return '<div class="score"><strong>'+esc(p?.name||'Deltagare')+'</strong><div class="'+(correct?'good':'bad')+'">'+(correct?'Rätt · +1':'Vi övar vidare')+'</div><small>'+fmt(q.options[r]||'Inget svar',q.topic==='math')+'</small></div>';
         }).join('')+'</div><h3>Poäng hittills</h3>'+scoreGrid(s)
-        +'<button class="button block" data-action="next-round">'+(s.round+1===s.count?'Se slutresultat':'Nästa fråga')+'</button></div>';
+        +'<button class="button block" data-action="next-round">'+(s.round+1===s.count?'Se slutresultat':'Nästa fråga')+'</button>'
+        +'<button class="button tertiary block" data-action="finish-session">Avsluta passet</button></div>';
     }
     return '<h1>Något gick fel</h1>';
   }
@@ -377,6 +395,33 @@
     }
     window.prompt('Kopiera länken till samma text',url);
   }
+  async function shareGuestReading() {
+    const text=sourceText(ui.ref);
+    if(!text){note('Välj en svensk eller engelsk originaltext först.');return;}
+    const url=new URL('../lara/',location.href);
+    url.searchParams.set('guest','1');
+    url.hash='#/verkstad/'+text.lang+'/'+text.id;
+    const link=url.toString();
+    if(navigator.share){try{await navigator.share({title:'Matte OS · läs tillsammans',text:'Samma frågor · ingen inloggning eller sparning av gästsvar',url:link});return;}
+      catch(e){if(e.name==='AbortError')return;}}
+    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(link);note('Gästlänken kopierades. Båda får samma frågor utan sparade gästsvar.');return;}catch(_){}}
+    window.prompt('Kopiera gästlänken',link);
+  }
+  async function shareChallenge() {
+    if(!questions(ui.ref).length){note('De här frågorna går inte att dela. Välj en annan övning.');return;}
+    // Keep both phones in the Together engine for IDENTICAL authored question subsets.
+    // A separate "full workshop" invite is available from each original reading text.
+    const url=new URL('./',location.href);
+    url.searchParams.set('dropin','1');
+    url.searchParams.set('topic',ui.topic);
+    url.searchParams.set('ref',ui.ref);
+    url.hash='';
+    const link=url.toString();
+    if(navigator.share){try{await navigator.share({title:'Matte OS · samma frågor',text:'Jokerläge, inga sparade gästsvar',url:link});return;}
+      catch(e){if(e.name==='AbortError')return;}}
+    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(link);note('Samma övning har kopierats. Ingen inloggning krävs och inga gästsvar sparas.');return;}catch(_){}}
+    window.prompt('Kopiera samma övning',link);
+  }
   function switchMode() {
     const cur=appearance();
     if(ui.selectedGuest && ui.page!=='session')S.updateGuest(ui.selectedGuest,{appearance:cur==='dark'?'light':'dark'});
@@ -388,6 +433,9 @@
     if(a==='home'){page('home');return;}
     if(a==='guests'){page('guests');return;}
     if(a==='quick-solo'){
+      if(ui.dropInRequested&&(!ui.selectedGuest||!S.dropIns().some(g=>g.id===ui.selectedGuest))){
+        note('Gästläget kräver fungerande sessionslagring. Inga svar sparades.');return;
+      }
       const selected=ui.selectedGuest&&member(ui.selectedGuest)||S.load().guests.find(g=>g.id===S.load().activeGuestId)||S.load().guests[0];
       if(!selected){note('Skapa en Joker-profil först.');return;}
       const ref=entryList(ui.topic).some(x=>x.ref===ui.ref)?ui.ref:defaultRef(ui.topic);
@@ -397,6 +445,16 @@
       const session=S.startSession([selected.id],ref,Math.min(5,deck.length));
       if(!session){note('Kunde inte spara det nya passet.');return;}
       S.beginTurn(session);ui.answer=null;page('session');return;
+    }
+    if(a==='add-dropin'){
+      const input=document.getElementById('flow-dropin-name');
+      const name=S.cleanName(input?.value)||'Joker';
+      if(ui.members.size>=S.MEMBER_LIMIT){note('Högst tio deltagare per pass.');return;}
+      const guest=S.addDropIn(name);
+      if(!guest){note('Tillfälliga Jokrar kräver tillgänglig sessionslagring i den här fliken.');return;}
+      ui.members.add(guest.id);
+      render();document.getElementById('flow-dropin-name')?.focus();
+      return;
     }
     if(a==='setup'){page('setup');return;}
     if(a==='share-setup'){page('share');return;}
@@ -430,6 +488,8 @@
       ui.ref=el.dataset.ref;page('setup');ui.ref=el.dataset.ref;render();return;
     }
     if(a==='share-current'){shareCurrent();return;}
+    if(a==='share-guest-reading'){shareGuestReading();return;}
+    if(a==='share-challenge'){shareChallenge();return;}
     if(a==='start-session'){
       const members=[...ui.members].filter(m=>member(m));
       if(!members.length){note('Välj minst en deltagare.');return;}

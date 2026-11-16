@@ -8,6 +8,8 @@
   'use strict';
   const KEY = 'matteos.guests.v1';
   const SESSION_KEY = 'matteos.together.session.v1';
+  const DROPIN_KEY = 'matteos.together.dropins.tab.v1';
+  const DROPIN_TTL_MS = 4 * 60 * 60 * 1000;
   const THEMES = Object.freeze({
     emerald: { label: 'Emerald', accent: '#176B50', light: '#E7F3EB', dark: '#10271F' },
     plum: { label: 'Royal Plum', accent: '#70437E', light: '#F3ECF5', dark: '#231829' },
@@ -152,6 +154,8 @@
   function recordSolo(id, topic, correct) {
     if (!['sv', 'en', 'study', 'math', 'table'].includes(topic)) return false;
     const g = load().guests.find(x => x.id === id);
+    // A one-time Joker completes the question without writing stats anywhere.
+    if(!g && dropIns().some(x=>x.id===id))return true;
     if (!g) return false;
     const r = g.stats[topic] || { total: 0, correct: 0 };
     r.total = Math.min(100000, r.total + 1);
@@ -174,7 +178,45 @@
     removeKey(SESSION_KEY);
     return { ok: true, message: 'Gästprofiler återställda. Skolprofiler har inte ändrats.' };
   }
-  const allowedMember = id => id === 'grade8' || id === 'grade9' || load().guests.some(g => g.id === id);
+
+  /* Drop-in Jokers are not accounts or permanent guest profiles.
+     They use tab-scoped sessionStorage (never guest backup, math results or cloud).
+     A session with drop-ins is stored only in sessionStorage. */
+  function tabStore() {
+    try { return root.sessionStorage || null; } catch (_) { return null; }
+  }
+  function dropIns() {
+    const store=tabStore(); if(!store)return [];
+    let parsed;
+    try {parsed=JSON.parse(store.getItem(DROPIN_KEY)||'null');}catch(_){return [];}
+    if(!isObject(parsed)||parsed.v!==1||!Array.isArray(parsed.guests)||!Number.isFinite(parsed.at)
+      ||parsed.at>now()+60000||now()-parsed.at>DROPIN_TTL_MS)return [];
+    const seen=new Set();
+    return parsed.guests.slice(0,MEMBER_LIMIT).filter(g=>{
+      if(!isObject(g)||g.type!=='dropin'||typeof g.id!=='string'||!VALID_ID.test(g.id)
+        ||seen.has(g.id)||!cleanName(g.name))return false;
+      seen.add(g.id);return true;
+    }).map(g=>({id:g.id,type:'dropin',name:cleanName(g.name),theme:THEMES[g.theme]?g.theme:'teal',appearance:'system',stats:{}}));
+  }
+  function addDropIn(name) {
+    const st=tabStore(), guests=dropIns();
+    if(!st||guests.length>=MEMBER_LIMIT)return null;
+    const g={id:uid(),type:'dropin',name:cleanName(name)||'Joker',theme:THEMENAMES[guests.length%THEMENAMES.length]};
+    const next={v:1,at:now(),guests:guests.concat(g)};
+    try{st.setItem(DROPIN_KEY,JSON.stringify(next));return g;}catch(_){return null;}
+  }
+  function clearDropIns() {
+    try {tabStore()?.removeItem(DROPIN_KEY);return true;} catch (_) {return false;}
+  }
+  function readTabSession() {
+    try{return JSON.parse(tabStore()?.getItem(SESSION_KEY)||'null');}catch(_){return null;}
+  }
+  function persistTabSession(s) {
+    try{const st=tabStore();if(!st)return false;st.setItem(SESSION_KEY,JSON.stringify(s));return true;}
+    catch(_){return false;}
+  }
+  const hasDropIn = s => Array.isArray(s?.members)&&s.members.some(id=>dropIns().some(g=>g.id===id));
+  const allowedMember = id => id === 'grade8' || id === 'grade9' || load().guests.some(g => g.id === id) || dropIns().some(g=>g.id===id);
   function startSession(members, contentRef, questionCount) {
     if (!Array.isArray(members) || members.length < 1 || members.length > MEMBER_LIMIT
       || new Set(members).size !== members.length || !members.every(allowedMember)
@@ -184,7 +226,13 @@
       contentRef, members: members.slice(), count: questionCount, round: 0, turn: 0,
       phase: 'handoff', answers: [], scores: Object.fromEntries(members.map(id => [id, 0])),
       createdAt: now(), updatedAt: now() };
-    if (!writeKey(SESSION_KEY, JSON.stringify(session))) return null;
+    if (hasDropIn(session)) {
+      if (!persistTabSession(session))return null;
+      removeKey(SESSION_KEY); // Never promote drop-in answers to persistent browser storage.
+    } else {
+      if (!writeKey(SESSION_KEY, JSON.stringify(session))) return null;
+      try{tabStore()?.removeItem(SESSION_KEY);}catch(_){}
+    }
     return session;
   }
   function validSession(s) {
@@ -202,13 +250,16 @@
   }
   function restoreSession() {
     let s;
-    try { s = JSON.parse(readKey(SESSION_KEY)); } catch (_) { return null; }
+    s=readTabSession();
+    if(!validSession(s)){
+      try{s=JSON.parse(readKey(SESSION_KEY));}catch(_){return null;}
+    }
     if (!validSession(s)) return null;
     if (!Number.isFinite(s.createdAt) || s.createdAt > now() + 60000 || now() - s.createdAt > 7 * 86400000)
       return null;
     return s;
   }
-  function persistSession(s) { s.updatedAt = now(); return writeKey(SESSION_KEY, JSON.stringify(s)); }
+  function persistSession(s) { s.updatedAt = now(); return hasDropIn(s)?persistTabSession(s):writeKey(SESSION_KEY, JSON.stringify(s)); }
   function beginTurn(s) {
     if (!validSession(s) || s.phase !== 'handoff') return false;
     s.phase = 'answer'; return persistSession(s);
@@ -236,10 +287,14 @@
     else { s.round += 1; s.turn = 0; s.phase = 'handoff'; }
     return persistSession(s);
   }
-  function endSession() { return removeKey(SESSION_KEY); }
+  function endSession() {
+    const local=removeKey(SESSION_KEY);
+    try{tabStore()?.removeItem(SESSION_KEY);}catch(_){}
+    clearDropIns();return local;
+  }
   function _clearMemory() { memory = null; storageOk = true; }
   return { KEY, SESSION_KEY, THEMES, GUEST_LIMIT, MEMBER_LIMIT,
     cleanName, sanitize, initial, load, save, status, addGuest, updateGuest, activate,
-    deleteGuest, recordSolo, exportGuests, importGuests,
+    deleteGuest, recordSolo, exportGuests, importGuests, dropIns, addDropIn, clearDropIns, DROPIN_KEY,
     startSession, validSession, restoreSession, beginTurn, answerTurn, nextRound, endSession, _clearMemory };
 });

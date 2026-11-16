@@ -62,7 +62,8 @@
       + '<span aria-hidden="true">✎</span><span><strong>Hantera profiler</strong><small>Byt namn och färger</small></span></button>'
       + '<button class="pc-add" type="button" data-a="profilenew"' + (guests.length >= limit ? ' disabled' : '')
       + '><span aria-hidden="true">＋</span> Ny profil</button></div>'
-      + '<p class="pc-footnote">Jokrar sparas lokalt. Åk 8 och 9 behåller sina egna framsteg.</p>'
+      + '<a class="pc-dropin" href="tillsammans/?dropin=1"><span class="pc-dropin-spark" aria-hidden="true">✦</span><span><strong>Hoppa in som Joker</strong><small>Utan konto, profil eller sparad historik</small></span><span aria-hidden="true">›</span></a>'
+      + '<p class="pc-footnote">Sparade Jokrar är valfria. Engångs-Jokrar lämnar ingen permanent resultatstatistik. Åk 8 och 9 behåller sina egna framsteg.</p>'
       + '</section>';
   }
 

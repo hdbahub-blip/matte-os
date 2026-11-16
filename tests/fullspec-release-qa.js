@@ -5,7 +5,7 @@ const sw=file('sw.js'),learnsw=file('lara/sw.js'),engine=file('js/engine.js'),ap
 const lapp=file('lara/app.js'),lcss=file('lara/style.css'),css=file('css/app.css'),tabcss=file('css/tabell-arena.css');
 const prov=file('prov/js/app.js'),provcss=file('prov/css/app.css'),provhtml=file('prov/index.html'),provsw=file('prov/sw.js');
 let n=0;const ok=(v,msg)=>{assert.ok(v,msg);n++};
-const cache='matte-os-larande-4.3.0-one-tap';
+const cache='matte-os-larande-4.4.0-room';
 const shouldDelete=k=>k.startsWith('matte-os-')&&!k.startsWith('matte-os-larande-')&&k!=='matte-os-6.3.2-20261111-private-history';
 ok(!shouldDelete(cache),'Root worker must preserve language cache');
 ok(shouldDelete('matte-os-5.5.8-20261108-orddark'),'Root worker may retire its own old cache');
@@ -23,4 +23,5 @@ ok(prov.includes('filter(a=>a.grade===store.grade)'),'Exam history isolated by g
 ok(provhtml.includes('1.2.5')&&provsw.includes('1.2.5')&&provhtml.includes('5.5.6')&&provsw.includes('5.5.6'),'Exam build uses current shared math resources');
 ok(file('lara/sprak.js').includes('SPRÅKVERKSTAD 3.1'),'Language heading tracks content release');
 ok(file('index.html').includes('5.5.9')&&sw.includes('5.5.9'),'UI assets get fresh service worker version');
+ok(file('index.html').includes('<meta name="matte-os-build" content="6.7.0-room">')&&file('lara/index.html').includes('<meta name="matte-larande-build" content="4.4.0-room">'),'Both release metadata attributes are valid and closed');
 console.log('FULLSPEC static regressions: '+n+'/'+n+' PASS');
