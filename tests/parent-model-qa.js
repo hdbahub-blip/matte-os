@@ -48,7 +48,7 @@ ok(a.language.started===1&&b.language.started===0,'language short lessons isolat
 ok(a.memory.remembered===1&&b.memory.remembered===0,'memory after delay counted');
 ok(a.exams.attempts===1&&b.exams.attempts===0&&a.exams.mean===80,'exam grade filter and mean');
 ok(a.math.chapters.reduce((s,x)=>s+x.total,0)===a.math.total,'math skill completeness');
-ok(a.reading.forLang.reduce((s,x)=>s+x.total,0)===22,'reading levels complete');
+ok(a.reading.forLang.reduce((s,x)=>s+x.total,0)===33,'reading levels complete');
 ok(a.activity14.some(x=>x.count>0),'activity histogram counts known events');
 const compact=MODEL.minimalReport('grade8',storage);
 ok(compact.app==='matte-os-parent-report'&&compact.grade==='grade8','portable grade-scoped report');
