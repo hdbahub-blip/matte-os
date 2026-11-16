@@ -188,7 +188,6 @@ T.push(...((typeof module==='object'&&module.exports)?require('./texts-extra-sv.
 /* New original mystery stories, versioned independently of pupil results. */
 T.push(...((typeof module==='object'&&module.exports)?require('./texts-immersive-20261116.js').sv:(root.MO_STORIES_NOV26?.sv||[])).map(t=>({...t,collection:'nov26'})));
 
-T.push(...((typeof module==='object'&&module.exports)?require('./texts-immersive-20261116.js').sv:(root.MO_STORIES_NOV26?.sv||[])));
 root.MO_BANK3=(root.MO_BANK3||[]).concat(T);
 if(typeof module==='object'&&module.exports)module.exports=T;
 })(typeof window!=='undefined'?window:globalThis);
