@@ -238,6 +238,7 @@
     const pickTopic=t=>'<button class="ux-topic'+(ui.topic===t?' chosen':'')+'" type="button" data-action="choose-topic" data-topic="'+t+'" aria-pressed="'+(ui.topic===t)+'"><span aria-hidden="true">'+(t==='sv'?'S':t==='en'?'E':'∑')+'</span><strong>'+esc(titles[t])+'</strong></button>';
     return '<section class="hero flow-welcome ux-together-home"><p class="caps">MATTE OS · SPELA OCH LÄR</p>'
       +'<h1>Vad vill ni öva?</h1><p class="lead">Välj ämne. Spela sedan själv eller tillsammans.</p>'
+      +'<p class="ux-selected-identity">'+(ui.selectedSchool?'Vald profil: ':'Vald Joker: ')+'<strong>'+esc(selected.name)+'</strong></p>'
       +(existing?'<div class="flow-resume"><strong>Ni har ett pausat pass</strong><button class="button" data-action="resume">Fortsätt passet ›</button></div>':'')
       +'<div class="ux-topics" role="group" aria-label="Välj ämne">'+mainTopics.map(pickTopic).join('')+'</div>'
       +'<details class="ux-topic-extra"><summary>Tabeller eller studieteknik</summary><div class="ux-topics">'+['table','study'].map(pickTopic).join('')+'</div></details>'
