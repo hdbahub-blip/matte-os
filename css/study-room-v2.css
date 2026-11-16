@@ -75,6 +75,16 @@
 .wk-guest-invite strong{font-size:15px;}
 .wk-guest-invite small{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.55;}
 .wk-guest-invite .wk-link{flex:none;min-height:46px;border:1px solid var(--accent);border-radius:11px;padding:9px 12px;font-weight:750;text-decoration:none;}
+.wk-guest-banner{
+ display:flex;flex-wrap:wrap;align-items:center;gap:9px;
+ margin:8px 0 17px;padding:12px 14px;border-radius:15px;
+ background:color-mix(in srgb,var(--accent) 9%,var(--paper));
+ color:var(--ink);border:1px solid color-mix(in srgb,var(--accent) 34%,var(--line));
+ font-size:12px;
+}
+.wk-guest-banner strong{font-weight:810;font-size:13px;}
+.wk-guest-banner span{flex:1;min-width:120px;opacity:.85;}
+.wk-guest-banner a{color:var(--accent);text-decoration:underline;font-weight:750;padding:7px 0;}
 .wk-guest-mode{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--paper));}
 .wk-guest-mode strong::before{content:"✦";display:inline-block;margin-right:7px;color:var(--accent);}
 .wk-guest-mode span{line-height:1.5;}
