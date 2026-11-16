@@ -135,6 +135,15 @@
 .turncard{box-shadow:var(--room-shadow),inset 0 1px 0 rgba(255,255,255,.13);}
 .flow-players .selector:has(input:checked){box-shadow:inset 0 0 0 1px var(--gaccent,var(--accent));}
 .question{letter-spacing:-.022em;}
+.math-guest-link{
+ margin:18px 0 5px;padding:17px;
+ border-radius:18px;
+ border:1px solid color-mix(in srgb,var(--acc) 26%,var(--line));
+ background:color-mix(in srgb,var(--acc-soft) 28%,var(--paper));
+}
+.math-guest-link strong{font-size:16px;display:block;}
+.math-guest-link p{font-size:13px;line-height:1.5;color:var(--ink2);margin:6px 0 14px;}
+.math-guest-link .btn{min-height:48px;}
 /* Root: retain course continuity while making the first choice welcoming. */
 h1.home-h{font-size:clamp(24px,5.8vw,33px);line-height:1.2;letter-spacing:-.035em;}
 .flow-home-choices .flow-home-choice{min-height:180px;}
