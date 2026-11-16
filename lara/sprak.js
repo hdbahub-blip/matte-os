@@ -195,7 +195,10 @@ function page(route,active){const parts=route.replace(/^\/verkstad\/?/,'').split
  else if(ui.view==='task')body=taskView(t,active);
  else if(ui.view==='talk')body=talkView(t);
  else body=doneView(t,active);
- return head+body;}
+ const guestBanner=ui.mode==='guest'
+   ?'<div class="wk-guest-banner" role="status"><strong>✦ Jokerläge · utan sparning</strong><span>Samma frågor på varje mobil. Inga svar synkas.</span><a href="'+e(root.location?.pathname||'./')+'#/verkstad/'+e(lang)+'/'+e(id)+'">Byt till elevläge</a></div>'
+   :'';
+ return head+guestBanner+body;}
 function intro(t,link,guestLink){return `<p class="wk-lead">${e(t.lead)}</p><div class="wk-inline"><span>${words(t)} ord</span><span>${t.tasks.length} uppgifter</span><span>ca ${minutes(t)} min</span>${t.note?`<span>${e(t.note)}</span>`:''}</div>
  <div class="wk-challenge"><div><small>UTMANINGSKOD</small><strong>${e(code(t))}</strong><span class="mut small">Samma kod ger samma text, frågor och svarsordning på alla mobiler och för båda årskurserna.</span></div><button data-w="share" data-link="${e(link)}" class="wk-link">Kopiera länken</button></div>
  <div class="wk-guest-invite"><div><strong>Kompis på en annan mobil?</strong><small>Skicka samma text och frågor. Ingen inloggning, inga gästsvar sparas och inga svar synkas live.</small></div><button type="button" class="wk-link" data-w="share" data-link="${e(guestLink)}">Dela gästlänk</button></div>
