@@ -177,20 +177,31 @@ function library(lang,active){if(!LANG[lang])return '<p>Okänt språk.</p>';cons
 function page(route,active){const parts=route.replace(/^\/verkstad\/?/,'').split('/').filter(Boolean);const [lang,id]=parts;
  if(LANG[lang]&&OLD_IDS.has(id))return `<a class="back" href="#/${e(lang)}">‹ Alla texter</a><div class="wk-card"><h1>Texten har ersatts</h1><p>Den här länken gick till en text i Språkverkstad 2.0. Texterna har bytts ut mot nya, längre texter med bättre uppgifter. Dina gamla framsteg finns kvar på enheten.</p><a class="wk-btn" href="#/${e(lang)}">Välj en ny text →</a></div>`;
  const t=getText(lang,id);if(!t)return `<a class="back" href="#/">‹ Till start</a><div class="wk-card"><p>Texten hittades inte. Välj språk och text igen.</p><a class="wk-btn" href="#/sv">Svenska texter</a> <a class="wk-btn" href="#/en">Engelska texter</a></div>`;
- const key=active+':'+lang+':'+id;if(ui.key!==key)ui=fresh(key);
+ const key=active+':'+lang+':'+id;
+ if(ui.key!==key){
+   ui=fresh(key);
+   // Shared guest links open the SAME authored tasks on another phone.
+   // Guest answers stay in memory and NEVER enter school progress or Study Cloud.
+   if(root.location&&new URLSearchParams(root.location.search).get('guest')==='1'){
+     ui.mode='guest';ui.view='read';
+   }
+ }
  const link=(root.location?root.location.origin+root.location.pathname:'')+'#/verkstad/'+lang+'/'+id;
+ const guestLink=(root.location?root.location.origin+root.location.pathname:'')+'?guest=1#/verkstad/'+lang+'/'+id;
  const head=`<a class="back" href="#/${lang}">‹ Alla texter på ${LANG[lang].toLowerCase()}</a><p class="wk-eyebrow">${LANG[lang].toUpperCase()} · ${e(t.genre)} · NIVÅ ${t.level} ${e(LEVEL[t.level]).toUpperCase()}</p><h1 ${ui.view==='intro'?'tabindex="-1" data-wfocus':''}>${e(t.title)}</h1>`;
  let body='';
- if(ui.view==='intro')body=intro(t,link);
+ if(ui.view==='intro')body=intro(t,link,guestLink);
  else if(ui.view==='read')body=reading(t);
  else if(ui.view==='task')body=taskView(t,active);
  else if(ui.view==='talk')body=talkView(t);
  else body=doneView(t,active);
  return head+body;}
-function intro(t,link){return `<p class="wk-lead">${e(t.lead)}</p><div class="wk-inline"><span>${words(t)} ord</span><span>${t.tasks.length} uppgifter</span><span>ca ${minutes(t)} min</span>${t.note?`<span>${e(t.note)}</span>`:''}</div>
+function intro(t,link,guestLink){return `<p class="wk-lead">${e(t.lead)}</p><div class="wk-inline"><span>${words(t)} ord</span><span>${t.tasks.length} uppgifter</span><span>ca ${minutes(t)} min</span>${t.note?`<span>${e(t.note)}</span>`:''}</div>
  <div class="wk-challenge"><div><small>UTMANINGSKOD</small><strong>${e(code(t))}</strong><span class="mut small">Samma kod ger samma text, frågor och svarsordning på alla mobiler och för båda årskurserna.</span></div><button data-w="share" data-link="${e(link)}" class="wk-link">Kopiera länken</button></div>
+ <div class="wk-guest-invite"><div><strong>Kompis på en annan mobil?</strong><small>Skicka samma text och frågor. Ingen inloggning, inga gästsvar sparas och inga svar synkas live.</small></div><button type="button" class="wk-link" data-w="share" data-link="${e(guestLink)}">Dela gästlänk</button></div>
  <h2 class="wk-section">Hur vill ni träna?</h2><div class="wk-modes">
  <button class="wk-mode" data-w="mode" data-mode="solo"><strong>Själv</strong><span>Läs, svara och få återkoppling. Ditt första försök sparas på den här profilen.</span></button>
+ <button class="wk-mode wk-guest-mode" data-w="mode" data-mode="guest"><strong>Joker / gäst</strong><span>Alla läsuppgifter utan konto, sparade svar eller skolpoäng.</span></button>
  <button class="wk-mode" data-w="mode" data-mode="pair"><strong>Två på en mobil</strong><span>Turas om att svara. Svaren låses och visas först när båda har svarat. Sparas inte som individuell nivå.</span></button>
  <button class="wk-mode" data-w="mode" data-mode="listen"><strong>Lyssna-läge</strong><span>En läser texten högt, den andra svarar utan att se texten. Tränar hörförståelse med en riktig uppläsare.</span></button></div>
  <p class="mut small">Två mobiler? Välj ”Själv” på båda och jämför bokstäverna högt efter varje fråga.</p>`;}
@@ -248,6 +259,7 @@ function pairTask(t,k,ask){const P=ui.pair;const name=n=>tr(t,'Spelare ','Player
 function talkView(t){return `<div class="wk-card"><p class="wk-eyebrow">${tr(t,'SAMTAL · TURAS OM','DISCUSSION · TAKE TURNS')}</p><h2 tabindex="-1" data-wfocus>${e(t.talk.prompt)}</h2><p>${e(t.talk.follow)}</p><div class="wk-role"><span>${tr(t,'1 · En säger sin åsikt och ett skäl','1 · One says an opinion and a reason')}</span><span>${tr(t,'2 · Den andra frågar ”hur menar du?” eller ”varför?”','2 · The other asks “what do you mean?” or “why?”')}</span><span>${tr(t,'3 · Byt roller och pröva ett motargument','3 · Swap roles and try a counter-argument')}</span></div>${t.lang==='en'?'<p class="mut small">Försök prata engelska hela tiden. Fastnar ni: säg det på ett annat sätt (”I mean…”, ”It’s like…”) i stället för att byta till svenska.</p>':''}<p class="mut small">Ensam? Säg dina svar högt eller skriv tre meningar.</p><button class="wk-btn wk-wide" data-w="finish">${tr(t,'Vi är klara →','We are done →')}</button></div>`;}
 function nextId(t,rec){if(rec.t.id!==t.id)return rec.t.id;const same=BANK.find(x=>x.lang===t.lang&&x.level===t.level&&x.id!==t.id);return (same||rec.t).id;}
 function doneView(t,active){const lang=t.lang;const rec=recommend(active,lang);
+ if(ui.mode==='guest')return `<div class="wk-card wk-result"><p class="wk-eyebrow">GÄSTPASS KLART</p><h1 tabindex="-1" data-wfocus>Starkt jobbat!</h1><p>Ni gick igenom samma originaltext och frågor. Inga gästsvar eller resultat har sparats på elevprofilen eller skickats till Study Cloud.</p><div class="wk-actions"><a class="wk-btn" href="#/${lang}">Fler texter →</a><a class="wk-link" href="#/">Till studierummet</a></div></div>`;
  if(ui.mode==='pair'){const s=ui.pair.score;return `<div class="wk-card wk-result"><p class="wk-eyebrow">PARÖVNING KLAR</p><h1 tabindex="-1" data-wfocus>Bra samarbete</h1><div class="wk-pairscore big"><span>Spelare 1: <b>${s[0]}</b></span><span>Spelare 2: <b>${s[1]}</b></span></div><p>Poängen bygger på rätt svar (2 själv, 1 med ledtråd) och på kamratbedömda förklaringar. De visar hur ni tänkte i dag, inte vem som är bäst.</p><p class="mut small">Parövningar sparas inte som individuell nivå, eftersom mobilen inte kan veta vem som tänkte vad. Gör en ny text själv för att visa vad du klarar.</p><div class="wk-actions"><a class="wk-btn" href="#/verkstad/${lang}/${nextId(t,rec)}">Nästa text →</a><a class="wk-link" href="#/${lang}">Alla texter</a></div></div>`;}
  const s=ui.solo;const statusLine=s.auto?`${s.indep} av ${s.auto} automatiskt rättade uppgifter rätt helt själv${s.helped?', '+s.helped+' rätt med stöd':''}.`:'';
  return `<div class="wk-card wk-result"><p class="wk-eyebrow">${ui.mode==='listen'?'LYSSNA-LÄGE KLART':'TEXTEN KLAR'}</p><h1 tabindex="-1" data-wfocus>Du har arbetat med en hel text</h1><p>${e(statusLine)}${s.open?' '+s.open+' öppna svar bedömda mot kriterier.':''}</p><p class="mut small">Det här är inte ett betyg. En text visar inte att du behärskar något. Det syns först när du klarar en <strong>ny</strong> text på samma nivå själv – helst några dagar senare.</p>
@@ -264,7 +276,7 @@ function speak(t){const msg=t.lang==='en'?'Ingen engelsk röst hittades på enhe
 function stopSpeech(){try{if('speechSynthesis' in root)root.speechSynthesis.cancel();}catch{}}
 function handle(action,el){const t=current();if(!t)return;const active=activeProfile();const list=tasksFor(t,ui.mode||'solo');const k=list[ui.i];
  switch(action){
- case 'mode':ui.mode=['solo','pair','listen'].includes(el.dataset.mode)?el.dataset.mode:'solo';ui.view='read';ui.i=0;ui.pair=ui.mode==='pair'?pairState():null;ui.solo={auto:0,indep:0,helped:0,open:0};resetTask();if(ui.mode!=='pair')markText(active,t,'started');break;
+ case 'mode':ui.mode=['solo','pair','listen','guest'].includes(el.dataset.mode)?el.dataset.mode:'solo';ui.view='read';ui.i=0;ui.pair=ui.mode==='pair'?pairState():null;ui.solo={auto:0,indep:0,helped:0,open:0};resetTask();if(ui.mode!=='pair'&&ui.mode!=='guest')markText(active,t,'started');break;
  case 'listen-done':stopSpeech();ui.listenReady=true;ui.view='task';ui.i=0;resetTask();break;
  case 'start-tasks':stopSpeech();ui.view='task';ui.i=0;resetTask();break;
  case 'tts':speak(t);return;
@@ -274,30 +286,32 @@ function handle(action,el){const t=current();if(!t)return;const active=activePro
  case 'order':{const i=Number(el.dataset.i);if(!ui.picks.includes(i))ui.picks.push(i);break;}
  case 'order-undo':ui.picks.pop();break;
  case 'fill':ui.typed=el.dataset.value||'';break;
- case 'check':{if(k?.type==='cloze')syncTyped();if(!k||ui.checked||!ready(k))return;const res=evaluate(t,k,currentAnswer(k));ui.res=res;ui.checked=true;ui.focus='fb';ui.solo.auto++;if(res.ok&&!ui.help)ui.solo.indep++;else if(res.ok)ui.solo.helped++;recordTask(active,t,k,{ok:res.ok,help:ui.help>0,mode:ui.mode});
-   root.MO_STUDY?.capture({grade:active,module:'reading',question_id:t.lang+':'+t.id+':'+k.id,
+ case 'check':{if(k?.type==='cloze')syncTyped();if(!k||ui.checked||!ready(k))return;const res=evaluate(t,k,currentAnswer(k));ui.res=res;ui.checked=true;ui.focus='fb';ui.solo.auto++;if(res.ok&&!ui.help)ui.solo.indep++;else if(res.ok)ui.solo.helped++;if(ui.mode!=='guest'){
+     recordTask(active,t,k,{ok:res.ok,help:ui.help>0,mode:ui.mode});
+     root.MO_STUDY?.capture({grade:active,module:'reading',question_id:t.lang+':'+t.id+':'+k.id,
      question_text:k.ask||k.claim||k.sentence||'',passage_title:t.title,
      passage_text:t.paragraphs.join('\n\n'),answer:describeAnswer(t,k,currentAnswer(k)),
      solution_text:solution(t,k),is_correct:!!res.ok,help_used:ui.help>0,type:k.type,
      mode:ui.mode,content_version:String(t.version||1)});
+   }
    break;}
  case 'next':ui.i++;resetTask();ui.showText=false;if(ui.i>=list.length)ui.view='talk';break;
  case 'open-done':ui.checked=true;ui.focus=false;break;
  case 'model':ui.modelShown=true;ui.focus=false;break;
  case 'open-next':{
  const written=root.document?.getElementById?.('wk-open')?.value??ui.open;
- root.MO_STUDY?.capture({grade:active,module:'reading',question_id:t.lang+':'+t.id+':'+k.id,
+ if(ui.mode!=='guest')root.MO_STUDY?.capture({grade:active,module:'reading',question_id:t.lang+':'+t.id+':'+k.id,
    question_text:k.ask||'',passage_title:t.title,passage_text:t.paragraphs.join('\n\n'),
    answer:String(written||'').slice(0,1500),solution_text:k.model||'',is_correct:null,
    help_used:false,type:'open',mode:ui.mode,content_version:String(t.version||1),
    criteria:ui.self.map(i=>k.criteria[i])});
- recordTask(active,t,k,{self:ui.self.length,mode:ui.mode,help:false});ui.solo.open++;ui.i++;resetTask();ui.showText=false;if(ui.i>=list.length)ui.view='talk';break;}
+ if(ui.mode!=='guest')recordTask(active,t,k,{self:ui.self.length,mode:ui.mode,help:false});ui.solo.open++;ui.i++;resetTask();ui.showText=false;if(ui.i>=list.length)ui.view='talk';break;}
  case 'pair-lock':{if(k?.type==='cloze')syncTyped();if(!k||!ready(k))return;const n=playerNow();ui.pair.ans[n]=currentAnswer(k);ui.pair.help[n]=ui.help;ui.pair.res[n]=evaluate(t,k,ui.pair.ans[n]);ui.sel=null;ui.typed='';ui.picks=[];ui.help=0;ui.showText=false;
   if(ui.pair.turn===0){ui.pair.turn=1;ui.pair.phase='pass';}else{ui.pair.phase='reveal';ui.focus='fb';for(const m of [0,1])ui.pair.score[m]+=ui.pair.res[m].ok?(ui.pair.help[m]?1:2):0;}break;}
  case 'pair-take':ui.pair.phase='answer';ui.focus=true;break;
  case 'pair-open-ready':ui.pair.phase='peer';ui.pair.peerTurn=first(ui.i);break;
  case 'peer-next':{const who=ui.pair.peerTurn;ui.pair.score[who]+=ui.pair.peer[who].length;if(who===first(ui.i)){ui.pair.peerTurn=1-who;ui.focus=true;}else{ui.i++;resetTask();ui.showText=false;if(ui.i>=list.length)ui.view='talk';}break;}
- case 'finish':ui.view='done';if(ui.mode==='pair')markText(active,t,'pair');else markText(active,t,'done');break;
+ case 'finish':ui.view='done';if(ui.mode==='pair')markText(active,t,'pair');else if(ui.mode!=='guest')markText(active,t,'done');break;
  case 'share':{const link=el.dataset.link;if(!link)return;const cb=root.navigator?.clipboard;if(cb&&typeof cb.writeText==='function')cb.writeText(link).then(()=>{el.textContent='Länken är kopierad';}).catch(()=>root.prompt?.('Kopiera länken',link));else root.prompt?.('Kopiera länken',link);return;}
  default:return;}
  redraw();}
