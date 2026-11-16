@@ -17,13 +17,13 @@
       const p=JSON.parse(localStorage.getItem(PREF_KEY)||'null');
       if(!p||p.v!==1||!Object.prototype.hasOwnProperty.call(titles,p.topic))return null;
       return {topic:p.topic,ref:typeof p.ref==='string'&&p.ref.length<=90?p.ref:'',
-        members:Array.isArray(p.members)?p.members.slice(0,S.MEMBER_LIMIT).filter(x=>typeof x==='string'):[]};
+        members:Array.isArray(p.members)?p.members.slice(0,S.MEMBER_LIMIT).filter(x=>typeof x==='string'&&!S.dropIns().some(g=>g.id===x)):[]};
     } catch(_) {return null;}
   }
   function savePrefs() {
     try {
       localStorage.setItem(PREF_KEY,JSON.stringify({v:1,topic:ui.topic,ref:ui.ref,
-        members:[...ui.members].filter(id=>member(id)).slice(0,S.MEMBER_LIMIT)}));
+        members:[...ui.members].filter(id=>member(id)&&!S.dropIns().some(g=>g.id===id)).slice(0,S.MEMBER_LIMIT)}));
     } catch(_) { /* Local preferences are optional. Never touch school storage. */ }
   }
   const prefs=loadPrefs();
@@ -32,13 +32,17 @@
   const startRef = entryParams.get('text');
   const rawGuest = S.load().guests;
   const rememberedMembers=[...new Set((prefs?.members||[]).filter(id=>school[id]||rawGuest.some(g=>g.id===id)))];
-  (rememberedMembers.length?rememberedMembers:rawGuest.slice(0,3).map(g=>g.id)).forEach(id=>ui.members.add(id));
+  (rememberedMembers.length?rememberedMembers:rawGuest.slice(0,2).map(g=>g.id)).forEach(id=>ui.members.add(id));
   // Deep-link from the main Netflix-style profile chooser. Never change school profiles.
   const entryGuest = entryParams.get('guest');
   if (entryGuest && rawGuest.some(g=>g.id===entryGuest)) {
     ui.selectedGuest = entryGuest;
     S.activate(entryGuest);
     if (entryParams.get('edit')==='1') {ui.page='guests';ui.edit=entryGuest;}
+  } else if (entryParams.get('dropin')==='1') {
+    const drop=S.addDropIn('Joker');
+    if(drop){ui.selectedGuest=drop.id;ui.members=new Set([drop.id]);}
+    try{const next=new URL(location.href);next.searchParams.delete('dropin');history.replaceState(null,'',next.pathname+next.search+next.hash);}catch(_){}
   } else if (entryParams.get('profiles')==='1') {
     ui.page='guests';
   }
@@ -57,9 +61,9 @@
   }
   function member(id) {
     if (school[id]) return school[id];
-    return S.load().guests.find(g=>g.id===id) || null;
+    return S.load().guests.find(g=>g.id===id) || S.dropIns().find(g=>g.id===id) || null;
   }
-  function allMembers() { return [school.grade8,school.grade9].concat(S.load().guests); }
+  function allMembers() { return [school.grade8,school.grade9].concat(S.load().guests,S.dropIns()); }
   function initials(name) {
     const words=String(name||'?').trim().split(/\s+/);
     return words.length>1 ? words.slice(0,2).map(w=>w.charAt(0).toLocaleUpperCase('sv-SE')).join('') : words[0].slice(0,2).toLocaleUpperCase('sv-SE');
@@ -269,8 +273,11 @@
           const selected=ui.members.has(g.id);
           return '<label class="selector" style="--gaccent:'+styleColor(g)+'"><input type="checkbox" data-role="participant" value="'+esc(g.id)+'" '+(selected?'checked':'')+'>'
             +'<span class="bubble" aria-hidden="true">'+esc(initials(g.name))+'</span>'
-            +'<span><b>'+esc(g.name)+'</b><small>'+(school[g.id]?'Årskurs · ingen skolprogress påverkas':'Joker · lokal profil')+'</small></span></label>';
-        }).join('')+'</div>':'')
+            +'<span><b>'+esc(g.name)+'</b><small>'+(school[g.id]?'Årskurs · ingen skolprogress påverkas':g.type==='dropin'?'Engångs-Joker · inget sparas':'Joker · lokal profil')+'</small></span></label>';
+        }).join('')+'</div>'
+        +'<div class="flow-dropin"><div><strong>Kompis utan profil?</strong><small>Lägg till en Joker för bara det här passet. Namn och svar sparas inte som skolresultat.</small></div>'
+        +'<div class="flow-dropin-fields"><input id="flow-dropin-name" type="text" maxlength="24" autocomplete="off" placeholder="Valfritt smeknamn" aria-label="Namn på tillfällig Joker">'
+        +'<button class="button secondary" type="button" data-action="add-dropin">+ Lägg till</button></div></div>':'')
       +'<div class="flow-launch"><button class="button block" data-action="'+(shareOnly?'share-current':'start-session')+'" '+(!ui.ref||(!shareOnly&&!count)?'disabled':'')+'>'
       +(shareOnly?'Dela länken':'Starta 5 frågor · '+count+' '+(count===1?'person':'personer'))+'</button></div>'
       +'<details class="flow-extra-content"><summary>'+(shareOnly?'Välj en annan text':'Byt text, kapitel eller övning')+'</summary>'
@@ -294,8 +301,8 @@
       +'<h1>'+esc(t.title)+'</h1><p class="lead">'+esc(t.purpose||t.lead||'')+'</p>'
       +'<div class="reading-box">'+textMarkup(t)+'</div>'
       +'<div class="button-row"><button class="button" data-action="setup-from-text" data-ref="'+esc(ui.ref)+'">Svara tillsammans på samma mobil</button>'
-      +'<button class="button secondary" data-action="share-current">Dela textlänk</button></div>'
-      +'<p class="help">Varje deltagare kan läsa texten på sin egen telefon. Frågorna och poängen delas inte live.</p>';
+      +'<button class="button secondary" data-action="share-guest-reading">Dela frågor · varsin mobil</button></div>'
+      +'<p class="help">Länken öppnar samma originaltext och samma frågor i gästläge utan sparade svar. Ni jämför själva efter varje fråga; mobilerna synkroniseras inte live.</p>';
   }
   function scoreGrid(s) {
     return '<div class="score-grid">'+s.members.map(id=>{
@@ -377,6 +384,18 @@
     }
     window.prompt('Kopiera länken till samma text',url);
   }
+  async function shareGuestReading() {
+    const text=sourceText(ui.ref);
+    if(!text){note('Välj en svensk eller engelsk originaltext först.');return;}
+    const url=new URL('../lara/',location.href);
+    url.searchParams.set('guest','1');
+    url.hash='#/verkstad/'+text.lang+'/'+text.id;
+    const link=url.toString();
+    if(navigator.share){try{await navigator.share({title:'Matte OS · läs tillsammans',text:'Samma frågor · ingen inloggning eller sparning av gästsvar',url:link});return;}
+      catch(e){if(e.name==='AbortError')return;}}
+    if(navigator.clipboard?.writeText){try{await navigator.clipboard.writeText(link);note('Gästlänken kopierades. Båda får samma frågor utan sparade gästsvar.');return;}catch(_){}}
+    window.prompt('Kopiera gästlänken',link);
+  }
   function switchMode() {
     const cur=appearance();
     if(ui.selectedGuest && ui.page!=='session')S.updateGuest(ui.selectedGuest,{appearance:cur==='dark'?'light':'dark'});
@@ -397,6 +416,16 @@
       const session=S.startSession([selected.id],ref,Math.min(5,deck.length));
       if(!session){note('Kunde inte spara det nya passet.');return;}
       S.beginTurn(session);ui.answer=null;page('session');return;
+    }
+    if(a==='add-dropin'){
+      const input=document.getElementById('flow-dropin-name');
+      const name=S.cleanName(input?.value)||'Joker';
+      if(ui.members.size>=S.MEMBER_LIMIT){note('Högst tio deltagare per pass.');return;}
+      const guest=S.addDropIn(name);
+      if(!guest){note('Tillfälliga Jokrar kräver tillgänglig sessionslagring i den här fliken.');return;}
+      ui.members.add(guest.id);
+      render();document.getElementById('flow-dropin-name')?.focus();
+      return;
     }
     if(a==='setup'){page('setup');return;}
     if(a==='share-setup'){page('share');return;}
@@ -430,6 +459,7 @@
       ui.ref=el.dataset.ref;page('setup');ui.ref=el.dataset.ref;render();return;
     }
     if(a==='share-current'){shareCurrent();return;}
+    if(a==='share-guest-reading'){shareGuestReading();return;}
     if(a==='start-session'){
       const members=[...ui.members].filter(m=>member(m));
       if(!members.length){note('Välj minst en deltagare.');return;}
