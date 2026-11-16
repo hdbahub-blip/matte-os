@@ -517,6 +517,19 @@ function boostCard() {
         <div class="actions">${nextBtn}<button class="btn ghost block" data-a="startTrain" data-sid="${sid}">Träna 5 till på detta</button><button class="btn text block" data-a="nav" data-h="#/">Till start</button></div>`;
       head.cur = 4;
     }
+    // Share only when this original skill actually contains authored multiple-choice practice.
+    // Temporary visitors never touch the grade lesson engine or school progress.
+    const publicChoices=[s.g,...(s.p||[])].filter(q=>{
+      const opts=q&&(q.opts||q.ro);
+      return q&&q.type==='choice'&&Array.isArray(opts)&&opts.length>=2&&opts.length<=8
+        &&opts.some(x=>String(x)===String(q.a));
+    });
+    if(publicChoices.length&&(step===0||step===4)){
+      c+='<section class="math-guest-link"><strong>Vill du öva det här med en kompis?</strong>'
+       +'<p>Joker kan testa frågor från samma moment utan konto eller sparade resultat.</p>'
+       +'<a class="btn ghost block" href="tillsammans/?dropin=1&topic=math&ref=math:'+encodeURIComponent(sid)
+       +'">Öva som Joker · samma moment</a></section>';
+    }
     return focusShell(c, head);
   }
 
