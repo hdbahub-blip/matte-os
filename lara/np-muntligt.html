@@ -92,13 +92,16 @@ function output(){E('status').textContent=doc?'Textpaketet är inläst. Lokal ko
 function mark(k){noteAt[k]=Date.now();save('noteAt',noteAt);progress();window.MO_NP_SYNC?.schedule()}
 function progress(){var n=[0,1,2,3,4].filter(function(i){return String(notes['q'+i]||'').trim().length>10}).length;E('progress').textContent=n+'/5 frågor besvarade'}
 function switchAccount(id){if(!/^[0-9a-f-]{36}$/i.test(id||''))return false;if(accountId===id)return true;
-var guest={source:doc,notes:notes,noteAt:noteAt,sourceAt:sourceAt};accountId=id;ROOT='matteos.np.enstarknolla.account.'+id+'.';
+var wasGuest=!accountId,guest={source:doc,notes:notes,noteAt:noteAt,sourceAt:sourceAt};accountId=id;ROOT='matteos.np.enstarknolla.account.'+id+'.';
 doc=load('source',null);notes=load('notes',{});noteAt=load('noteAt',{});sourceAt=Number(load('sourceAt',0))||0;
-if(!doc&&guest.source&&!localStorage.getItem('matteos.np.guest-claimed.v1')){
+if(wasGuest&&!doc&&guest.source&&!localStorage.getItem('matteos.np.guest-claimed.v1')){
  doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt||Date.now();Object.keys(notes).forEach(function(k){if(!noteAt[k])noteAt[k]=sourceAt});var migrated=save('source',doc)&&save('notes',notes)&&save('noteAt',noteAt)&&save('sourceAt',sourceAt);
 if(migrated){localStorage.setItem('matteos.np.guest-claimed.v1',id);['source','notes','noteAt','sourceAt'].forEach(function(k){localStorage.removeItem('matteos.np.enstarknolla.grade9.'+k)})}
 else{ROOT='matteos.np.enstarknolla.grade9.';accountId='';doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt;alert('Kunde inte flytta materialet till kontot. Din ursprungliga lokala kopia är kvar. Frigör lagringsutrymme och försök igen.');return false}}
 try{localStorage.setItem('matteos.np.last-user.v1',id)}catch(e){}paint();fill();progress();return true}
+function lockAccount(){if(!accountId)return false;
+ accountId='';ROOT='matteos.np.enstarknolla.grade9.';doc=null;notes={};noteAt={};sourceAt=0;
+ paint();progress();return true}
 function snapshot(){var entries={};Object.keys(notes).forEach(function(k){var v=notes[k];if(k.length<90&&(typeof v==='string'||typeof v==='boolean')&&String(v).length<=10000)entries[k]={value:v,at:Number(noteAt[k])||0}});return {kind:'matteos-private-np-1',workId:'en-stark-nolla',source:doc,sourceAt:sourceAt,entries:entries}}
 function mergeCloud(rows){var changed=false;rows.forEach(function(r){var p=r?.payload;if(p?.kind!=='matteos-private-np-1'||p?.workId!=='en-stark-nolla')return;
 if(Number(p.sourceAt)>sourceAt&&sourceOK(p.source)){doc=p.source;sourceAt=Number(p.sourceAt);changed=true}
@@ -150,6 +153,6 @@ E('stop').onclick=function(){clearInterval(timer);timer=null;time=360;clock()};
 E('clear').onclick=function(){if(confirm('Rensa svar och anteckningar, även i synkad kopia?')){var at=Date.now();Object.keys(notes).forEach(function(k){notes[k]=typeof notes[k]==='boolean'?false:'';noteAt[k]=at});save('notes',notes);save('noteAt',noteAt);fill();recap();progress();window.MO_NP_SYNC?.schedule()}};
 E('theme').onclick=function(){document.documentElement.classList.toggle('dark');try{localStorage.setItem('matteos.appearance.v1',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){}};
 try{if(localStorage.getItem('matteos.appearance.v1')==='dark')document.documentElement.classList.add('dark')}catch(e){}
-changeTab('read');progress();window.MO_NP_APP={switchAccount:switchAccount,snapshot:snapshot,mergeCloud:mergeCloud,hasSource:function(){return !!doc},accountId:function(){return accountId}};
+changeTab('read');progress();window.MO_NP_APP={switchAccount:switchAccount,snapshot:snapshot,mergeCloud:mergeCloud,hasSource:function(){return !!doc},accountId:function(){return accountId},lockAccount:lockAccount};
 })();
 </script><script src="./study-cloud.js?v=1.0.0"></script><script src="./np-cloud.js?v=1.0.0"></script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});</script></body></html>
