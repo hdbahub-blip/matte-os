@@ -86,7 +86,10 @@ async function connect(force){
 }
 if(syncButton)syncButton.addEventListener('click',()=>{if(connected)connect(true);else connect(false)});
 root.MO_NP_SYNC={schedule:schedule,connect:connect};
-root.addEventListener('matte-study-status',()=>{if(member()&&!connected&&!connecting)connect(false).catch(()=>{});});
+root.addEventListener('matte-study-status',()=>{
+ if(!member()&&activeUser){APP.lockAccount();activeUser='';connected=false;dirty=false;status('Elevkontot är utloggat. Privat studietext visas igen efter inloggning.');}
+ else if(member()&&!connected&&!connecting)connect(false).catch(()=>{});
+});
 root.addEventListener('online',()=>{if(connected&&dirty)schedule();else connect(true).catch(()=>{});});
 root.addEventListener('focus',()=>{if(connected)connect(true).catch(()=>{});else if(member())connect(false).catch(()=>{});});
 if(member())connect(false).catch(()=>{});
