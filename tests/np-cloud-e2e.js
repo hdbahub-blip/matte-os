@@ -78,6 +78,14 @@ async function attach(page,userId){
     assert(ratio>=4.5,'button '+tab+' contrast '+ratio.toFixed(2)+' in '+(night?'night':'day'));
    }
   }
+  // Signing out must hide account-scoped content without deleting its local cache.
+  await pa.evaluate(()=>window.MO_NP_APP.lockAccount());
+  assert.equal(await pa.locator('#passages .text').count(),0,'sign-out hides private chapter from the page');
+  assert.equal(await pa.locator('#q0').count(),0,'sign-out hides private school questions');
+  // Switching to an unrelated account on the same browser must NEVER claim the old signed-in account's data.
+  await pa.evaluate(uid=>window.MO_NP_APP.switchAccount(uid),bob);
+  assert.equal(await pa.locator('#passages .text').count(),0,'same-browser account switch keeps content isolated');
+  assert.equal(await pa.locator('#q0').count(),0,'same-browser account switch keeps notes isolated');
   assert.deepEqual(errs,[],'no client-side runtime errors');
   console.log('PASS: two isolated browser devices synced source, edits, learner isolation, and contrast in both themes');
   await Promise.all([A.close(),B.close(),C.close()]);
