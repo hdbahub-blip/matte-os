@@ -48,7 +48,11 @@ async function attach(page,userId){
   await pa.locator('[data-tab="questions"]').click();
   await pa.locator('#q0').fill('Mitt första syntetiska resonemang, med egna skäl.');
   await pa.waitForFunction(async uid=>(await window.__npFakeRead(uid)).some(r=>r.payload?.entries?.q0?.value?.includes('första')),alice,{timeout:12000});
-  assert(rows.some(r=>r.learner_id===alice&&r.payload?.source?.workId==='en-stark-nolla'&&r.payload.entries.q0?.value?.includes('första')),'source and notes must upload to owned snapshot');
+  if(!rows.some(r=>r.learner_id===alice&&r.payload?.source?.workId==='en-stark-nolla'&&r.payload.entries.q0?.value?.includes('första'))){
+   console.error('NP cloud diagnostic',JSON.stringify(rows.map(r=>({user:r.learner_id,sourceWorkId:r.payload?.source?.workId,hasSource:!!r.payload?.source,entries:Object.keys(r.payload?.entries||{}),note:r.payload?.entries?.q0?.value?.slice(0,55)}))));
+   console.error('NP local diagnostic',JSON.stringify(await pa.evaluate(()=>({account:window.MO_NP_APP?.accountId(),snap:{sourceWorkId:window.MO_NP_APP?.snapshot().source?.workId,keys:Object.keys(window.MO_NP_APP?.snapshot().entries||{})},status:document.querySelector('#cloudStatus')?.textContent}))));
+   throw Error('source and notes must upload to same owned snapshot');
+  }
   const B=await browser.newContext({viewport:{width:1280,height:880}});
   const pb=await B.newPage();await attach(pb,alice);
   await pb.goto(new URL('lara/np-muntligt.html',base).toString());
