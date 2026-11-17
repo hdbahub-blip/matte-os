@@ -130,6 +130,7 @@ jobs:
           node tests/profile-chooser-e2e.js http://127.0.0.1:8765/ chromium
           node tests/one-tap-journeys-e2e.js http://127.0.0.1:8765/ chromium
           node tests/netflix-simple-e2e.js http://127.0.0.1:8765/ chromium
+          node tests/ux-polish-e2e.js http://127.0.0.1:8765/ chromium
           node tests/guest-reading-e2e.js http://127.0.0.1:8765/ chromium
           node tests/guest-math-e2e.js http://127.0.0.1:8765/ chromium
           node tests/together-live-e2e.js http://127.0.0.1:8765/ chromium
@@ -182,6 +183,8 @@ jobs:
           node tests/profile-chooser-e2e.js http://127.0.0.1:8765/ webkit
           node tests/one-tap-journeys-e2e.js http://127.0.0.1:8765/ webkit
           node tests/netflix-simple-e2e.js http://127.0.0.1:8765/ webkit
+          node tests/ux-polish-e2e.js http://127.0.0.1:8765/ webkit
+          node tests/ux-polish-e2e.js http://127.0.0.1:8765/ firefox
           node tests/guest-reading-e2e.js http://127.0.0.1:8765/ webkit
           node tests/guest-math-e2e.js http://127.0.0.1:8765/ webkit
           node tests/together-live-e2e.js http://127.0.0.1:8765/ webkit
