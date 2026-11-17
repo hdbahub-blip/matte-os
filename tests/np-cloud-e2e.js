@@ -6,6 +6,7 @@ const {chromium}=require('playwright');
 const base=process.argv[2]||'http://127.0.0.1:8765/';
 const alice='11111111-1111-4111-8111-111111111111',bob='22222222-2222-4222-8222-222222222222';
 const rows=[];
+async function until(fn,max=15000){const start=Date.now();while(!fn()){if(Date.now()-start>max)throw Error('Cloud fixture timeout');await new Promise(resolve=>setTimeout(resolve,100))}}
 const fixture={format:'matte-os-np-private-v1',workId:'en-stark-nolla',grade:'grade9',
  schoolIntro:'Syntetisk skolinledning',summary:'Syntetisk sammanfattning',
  questions:['Fråga A?','Fråga B?','Fråga C?','Fråga D?'],discussionQuestion:'Öppen diskussionsfråga?',
@@ -47,7 +48,7 @@ async function attach(page,userId){
   await pa.waitForFunction(()=>document.querySelector('#passages .text')?.textContent.includes('Syntetisk paragraf 0'));
   await pa.locator('[data-tab="questions"]').click();
   await pa.locator('#q0').fill('Mitt första syntetiska resonemang, med egna skäl.');
-  await pa.waitForFunction(async uid=>(await window.__npFakeRead(uid)).some(r=>r.payload?.entries?.q0?.value?.includes('första')),alice,{timeout:12000});
+  await until(()=>rows.some(r=>r.learner_id===alice&&r.payload?.entries?.q0?.value?.includes('första')));
   if(!rows.some(r=>r.learner_id===alice&&r.payload?.source?.workId==='en-stark-nolla'&&r.payload.entries.q0?.value?.includes('första'))){
    console.error('NP cloud diagnostic',JSON.stringify(rows.map(r=>({user:r.learner_id,sourceWorkId:r.payload?.source?.workId,hasSource:!!r.payload?.source,entries:Object.keys(r.payload?.entries||{}),note:r.payload?.entries?.q0?.value?.slice(0,55)}))));
    console.error('NP local diagnostic',JSON.stringify(await pa.evaluate(()=>({account:window.MO_NP_APP?.accountId(),snap:{sourceWorkId:window.MO_NP_APP?.snapshot().source?.workId,keys:Object.keys(window.MO_NP_APP?.snapshot().entries||{})},status:document.querySelector('#cloudStatus')?.textContent}))));
@@ -60,7 +61,7 @@ async function attach(page,userId){
   await pb.locator('[data-tab="questions"]').click();
   assert.match(await pb.locator('#q0').inputValue(),/Mitt första syntetiska resonemang/,'second device recovers note');
   await pb.locator('#q0').fill('Mitt andra och senare syntetiska svar från datorn.');
-  await pb.waitForFunction(async uid=>(await window.__npFakeRead(uid)).some(r=>r.payload?.entries?.q0?.value?.includes('andra och senare')),alice,{timeout:12000});
+  await until(()=>rows.some(r=>r.learner_id===alice&&r.payload?.entries?.q0?.value?.includes('andra och senare')));
   await pa.reload();await pa.locator('[data-tab="questions"]').click();
   await pa.waitForFunction(()=>document.querySelector('#q0')?.value.includes('Mitt andra och senare'),null,{timeout:12000});
   assert.match(await pa.locator('#q0').inputValue(),/andra och senare/,'first device receives newer per-field edit');
