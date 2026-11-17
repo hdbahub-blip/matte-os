@@ -98,7 +98,7 @@ if(!doc&&guest.source&&!localStorage.getItem('matteos.np.guest-claimed.v1')){
  doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt||Date.now();Object.keys(notes).forEach(function(k){if(!noteAt[k])noteAt[k]=sourceAt});var migrated=save('source',doc)&&save('notes',notes)&&save('noteAt',noteAt)&&save('sourceAt',sourceAt);
 if(migrated){localStorage.setItem('matteos.np.guest-claimed.v1',id);['source','notes','noteAt','sourceAt'].forEach(function(k){localStorage.removeItem('matteos.np.enstarknolla.grade9.'+k)})}
 else{ROOT='matteos.np.enstarknolla.grade9.';accountId='';doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt;alert('Kunde inte flytta materialet till kontot. Din ursprungliga lokala kopia är kvar. Frigör lagringsutrymme och försök igen.');return false}}
-paint();fill();progress();return true}
+try{localStorage.setItem('matteos.np.last-user.v1',id)}catch(e){}paint();fill();progress();return true}
 function snapshot(){var entries={};Object.keys(notes).forEach(function(k){var v=notes[k];if(k.length<90&&(typeof v==='string'||typeof v==='boolean')&&String(v).length<=10000)entries[k]={value:v,at:Number(noteAt[k])||0}});return {kind:'matteos-private-np-1',workId:'en-stark-nolla',source:doc,sourceAt:sourceAt,entries:entries}}
 function mergeCloud(rows){var changed=false;rows.forEach(function(r){var p=r?.payload;if(p?.kind!=='matteos-private-np-1'||p?.workId!=='en-stark-nolla')return;
 if(Number(p.sourceAt)>sourceAt&&sourceOK(p.source)){doc=p.source;sourceAt=Number(p.sourceAt);changed=true}
@@ -106,7 +106,7 @@ Object.entries(p.entries||{}).forEach(function(item){var k=item[0],v=item[1],at=
 if(k.length>90||!v||(typeof v.value!=='string'&&typeof v.value!=='boolean')||String(v.value).length>10000)return;
 if(at>(Number(noteAt[k])||0)){notes[k]=v.value;noteAt[k]=at;changed=true}})
 });if(changed){save('source',doc);save('sourceAt',sourceAt);save('notes',notes);save('noteAt',noteAt);paint();fill();progress()}return changed}
-function sourceOK(o){return o&&o.format==='matte-os-np-private-v1'&&o.workId==='en-stark-nolla'&&o.grade==='grade9'&&Array.isArray(o.questions)&&o.questions.length===4&&Array.isArray(o.textParagraphs)&&o.textParagraphs.length>=6}
+function sourceOK(o){return !!(o&&o.format==='matte-os-np-private-v1'&&o.workId==='en-stark-nolla'&&o.grade==='grade9'&&Array.isArray(o.questions)&&o.questions.length===4&&o.questions.every(function(q){return typeof q==='string'&&q.length<2000})&&Array.isArray(o.textParagraphs)&&o.textParagraphs.length>=6&&o.textParagraphs.length<=120&&o.textParagraphs.every(function(p){return typeof p==='string'&&p.length<=12000})&&Array.isArray(o.supports)&&o.supports.length>=5&&typeof o.discussionQuestion==='string')}
 function paint(){
  output();E('intro').textContent=doc?doc.schoolIntro:'';E('summary').textContent=doc?doc.summary:'';
  E('passages').innerHTML=doc?doc.textParagraphs.map(function(s){return '<div class="text">'+esc(s)+'</div>'}).join(''):'Läs in den privata textfilen först.';
@@ -121,7 +121,9 @@ function changeTab(next){tab=next;document.querySelectorAll('nav [data-tab]').fo
 function recap(){var q=doc?doc.questions.concat([doc.discussionQuestion]):[];E('recap').innerHTML=q.map(function(s,i){return '<div class="note"><b>'+esc(s)+'</b><blockquote>'+esc(notes['q'+i]||'Inget svar än.')+'</blockquote></div>'}).join('')}
 function download(){var blob=new Blob([JSON.stringify({format:'matte-os-np-backup-v2',workId:'en-stark-nolla',grade:'grade9',source:doc,sourceAt:sourceAt,notes:notes,noteAt:noteAt,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='matte-os-np-PRIVAT-sakerhetskopia.json';a.click();setTimeout(function(){URL.revokeObjectURL(u)},1000)}
 function clock(){E('clock').textContent=String(Math.floor(time/60)).padStart(2,'0')+':'+String(time%60).padStart(2,'0')}
-doc=load('source',null);notes=load('notes',{});noteAt=load('noteAt',{});sourceAt=Number(load('sourceAt',0))||0;paint();
+doc=load('source',null);notes=load('notes',{});noteAt=load('noteAt',{});sourceAt=Number(load('sourceAt',0))||0;
+try{var cached=JSON.parse(localStorage.getItem('matteos-study-auth-v1')||'null'),recent=localStorage.getItem('matteos.np.last-user.v1');if(cached?.user?.id===recent&&/^[0-9a-f-]{36}$/i.test(recent||''))switchAccount(recent)}catch(e){}
+paint();
 var checks=['Sammanfattat med egna ord','Motiverat med textbevis','Förklarat en egen åsikt','Resonerat om annat perspektiv','Ställt öppna frågor','Bjudit in andra','Byggt vidare på deras svar'];
 E('rubric').innerHTML=checks.map(function(s,i){return '<label class="check"><input type="checkbox" data-check="rubric'+i+'"><span>'+esc(s)+'</span></label>'}).join('');fill();
 document.querySelector('nav').addEventListener('click',function(e){var b=e.target.closest('[data-tab]');if(b)changeTab(b.dataset.tab)});
@@ -132,9 +134,10 @@ E('restoreBackup').addEventListener('change',function(e){
  var f=e.target.files&&e.target.files[0];if(!f)return;
  if(f.size>300000){alert('Säkerhetskopian är för stor.');return}
  f.text().then(function(txt){var v=JSON.parse(txt);
-  if(v?.format!=='matte-os-np-backup-v2'||v?.workId!=='en-stark-nolla'||v.grade!=='grade9'||(v.source&&!sourceOK(v.source)))throw Error('Felaktigt backupformat.');
+  if(v?.workId!=='en-stark-nolla'||!['matte-os-np-backup-v2','matte-os-np-notes-v1'].includes(v.format)||(v.source&&!sourceOK(v.source)))throw Error('Felaktigt backupformat.');
   if(!confirm('Återställ backup? Den ersätter svar och eventuell text på detta elevkonto.'))return;
-  doc=v.source||null;sourceAt=Date.now();
+  if(v.format==='matte-os-np-backup-v2'){doc=v.source||null;sourceAt=Date.now()}
+  else if(!doc)sourceAt=0;
   notes={};noteAt={};Object.entries(v.notes||{}).forEach(function(item){var k=item[0],value=item[1];if(k.length<90&&(typeof value==='string'||typeof value==='boolean')&&String(value).length<=10000){notes[k]=value;noteAt[k]=sourceAt}});
   save('source',doc);save('sourceAt',sourceAt);save('notes',notes);save('noteAt',noteAt);paint();fill();progress();window.MO_NP_SYNC?.schedule();
  }).catch(function(err){alert('Kunde inte återställa: '+err.message)});
