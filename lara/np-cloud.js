@@ -9,7 +9,7 @@ if(!S||!APP)return;
 const label=root.document.getElementById('cloudStatus');
 const syncButton=root.document.getElementById('syncNow');
 const DEVICE_KEY='matteos.np.enstarknolla.cloud-device.v1';
-let activeUser='',connecting=false,saving=false,dirty=false,connected=false,queued=null,lastRead=0;
+let activeUser='',connecting=false,saving=false,dirty=false,connected=false,queued=null,lastRead=0,changedWhileSaving=false;
 function status(message){if(label)label.textContent=message;}
 function newUuid(){
  if(root.crypto?.randomUUID)return root.crypto.randomUUID();
@@ -29,7 +29,7 @@ function member(){
 }
 function current(){const m=member();return m&&m.user_id===activeUser&&APP.accountId()===activeUser?m:null}
 async function push(){
- if(saving){dirty=true;return false}
+ if(saving){dirty=true;changedWhileSaving=true;return false}
  const m=current(),db=S.client();
  if(!m||!db){dirty=true;status('Sparas lokalt. Logga in på elevkontot för molnsynk.');return false}
  const snap=APP.snapshot();
@@ -47,7 +47,7 @@ async function push(){
   dirty=true;status('Lokalt sparat, men molnsynk misslyckades: '+String(e?.message||e).slice(0,180));
   return false;
  }finally{
-  saving=false;if(dirty&&current()&&root.navigator.onLine)schedule();
+  saving=false;if(changedWhileSaving&&current()&&root.navigator.onLine){changedWhileSaving=false;schedule();}
  }
 }
 function schedule(){
