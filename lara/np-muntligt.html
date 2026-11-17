@@ -38,7 +38,7 @@ html.dark nav button[aria-selected=false]:hover{background:#453440}
 <header><div class="actions" style="justify-content:space-between"><div><b>MATTE OS · SPRÅKVERKSTAD</b><div class="muted"><small>Åk 9 · Svenska · Muntlig träning</small></div></div><div class="actions"><a href="./#/sv">‹ Till Svenska</a><button class="alt" type="button" id="theme">Dag/kväll</button></div></div>
 <div class="card"><div class="eyebrow">Privat text · övning hemma</div><h1>En stark nolla</h1><p>Träna på att förstå, reflektera, presentera, leda och delta i samtal.</p>
 <div class="notice" id="status" role="status">Läs in privat textpaket på din enhet för att börja.</div>
-<div class="actions"><label style="margin:0" class="button alt" for="source">Läs in privat textpaket</label><input id="source" type="file" accept=".json,application/json" style="display:none"><button id="export" class="alt">Exportera anteckningar</button><button id="print" class="alt">Skriv ut</button></div>
+<div class="actions"><label style="margin:0" class="button alt" for="source">Läs in privat textpaket</label><input id="source" type="file" accept=".json,application/json" style="display:none"><button id="export" class="alt">Exportera privat säkerhetskopia</button><label for="restoreBackup" class="button alt" style="margin:0">Återställ säkerhetskopia</label><input id="restoreBackup" type="file" accept=".json,application/json" hidden><button id="print" class="alt">Skriv ut</button></div>
 <div class="note" role="status" aria-live="polite" id="cloudStatus">Kontrollerar elevkontots synkstatus …</div><div class="actions"><a href="../study/" class="button alt">Elevkonto / logga in</a><button class="alt" type="button" id="syncNow">Synka nu</button><span class="badge" id="progress" role="status">Framsteg</span></div><p class="muted"><small>Utan konto sparas allt bara på denna enhet. Med Study Cloud-konto (åk 9) synkas privat text och anteckningar till skyddad molnlagring. En kopplad mentor har åtkomst enligt elevens godkännande. Använd aldrig Gmail-lösenord här.</small></p></div></header>
 <nav aria-label="Träningsdelar">
 <button data-tab="read" aria-selected="true">1. Läs</button><button data-tab="understand" aria-selected="false">2. Förstå</button>
@@ -95,7 +95,8 @@ function switchAccount(id){if(!/^[0-9a-f-]{36}$/i.test(id||''))return false;if(a
 var guest={source:doc,notes:notes,noteAt:noteAt,sourceAt:sourceAt};accountId=id;ROOT='matteos.np.enstarknolla.account.'+id+'.';
 doc=load('source',null);notes=load('notes',{});noteAt=load('noteAt',{});sourceAt=Number(load('sourceAt',0))||0;
 if(!doc&&guest.source&&!localStorage.getItem('matteos.np.guest-claimed.v1')){
- doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt||Date.now();save('source',doc);save('notes',notes);save('noteAt',noteAt);save('sourceAt',sourceAt);localStorage.setItem('matteos.np.guest-claimed.v1',id)}
+ doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt||Date.now();Object.keys(notes).forEach(function(k){if(!noteAt[k])noteAt[k]=sourceAt});save('source',doc);save('notes',notes);save('noteAt',noteAt);save('sourceAt',sourceAt);localStorage.setItem('matteos.np.guest-claimed.v1',id);
+['source','notes','noteAt','sourceAt'].forEach(function(k){localStorage.removeItem('matteos.np.enstarknolla.grade9.'+k)})}
 paint();fill();progress();return true}
 function snapshot(){var entries={};Object.keys(notes).forEach(function(k){var v=notes[k];if(k.length<90&&(typeof v==='string'||typeof v==='boolean')&&String(v).length<=10000)entries[k]={value:v,at:Number(noteAt[k])||0}});return {kind:'matteos-private-np-1',workId:'en-stark-nolla',source:doc,sourceAt:sourceAt,entries:entries}}
 function mergeCloud(rows){var changed=false;rows.forEach(function(r){var p=r?.payload;if(p?.kind!=='matteos-private-np-1'||p?.workId!=='en-stark-nolla')return;
@@ -117,7 +118,7 @@ function paint(){
 function fill(){document.querySelectorAll('[data-note]').forEach(function(x){x.value=notes[x.dataset.note]||''});document.querySelectorAll('[data-check]').forEach(function(x){x.checked=!!notes[x.dataset.check]})}
 function changeTab(next){tab=next;document.querySelectorAll('nav [data-tab]').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.tab===next))});document.querySelectorAll('.pane').forEach(function(p){p.hidden=p.id!==next});if(next==='review')recap()}
 function recap(){var q=doc?doc.questions.concat([doc.discussionQuestion]):[];E('recap').innerHTML=q.map(function(s,i){return '<div class="note"><b>'+esc(s)+'</b><blockquote>'+esc(notes['q'+i]||'Inget svar än.')+'</blockquote></div>'}).join('')}
-function download(){var blob=new Blob([JSON.stringify({format:'matte-os-np-notes-v1',workId:'en-stark-nolla',profile:'grade9',notes:notes,at:new Date().toISOString()},null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='matte-os-np-anteckningar.json';a.click();setTimeout(function(){URL.revokeObjectURL(u)},1000)}
+function download(){var blob=new Blob([JSON.stringify({format:'matte-os-np-backup-v2',workId:'en-stark-nolla',grade:'grade9',source:doc,sourceAt:sourceAt,notes:notes,noteAt:noteAt,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='matte-os-np-PRIVAT-sakerhetskopia.json';a.click();setTimeout(function(){URL.revokeObjectURL(u)},1000)}
 function clock(){E('clock').textContent=String(Math.floor(time/60)).padStart(2,'0')+':'+String(time%60).padStart(2,'0')}
 doc=load('source',null);notes=load('notes',{});noteAt=load('noteAt',{});sourceAt=Number(load('sourceAt',0))||0;paint();
 var checks=['Sammanfattat med egna ord','Motiverat med textbevis','Förklarat en egen åsikt','Resonerat om annat perspektiv','Ställt öppna frågor','Bjudit in andra','Byggt vidare på deras svar'];
@@ -126,6 +127,17 @@ document.querySelector('nav').addEventListener('click',function(e){var b=e.targe
 document.addEventListener('input',function(e){if(e.target.dataset.note){var k=e.target.dataset.note;notes[k]=e.target.value.slice(0,10000);save('notes',notes);mark(k)}});
 document.addEventListener('change',function(e){if(e.target.dataset.check){var k=e.target.dataset.check;notes[k]=e.target.checked;save('notes',notes);mark(k)}});
 E('source').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>250000){alert('Filen är för stor.');return;}f.text().then(function(s){var v=JSON.parse(s);if(!sourceOK(v))throw Error('Fel privat textpaket.');doc=v;sourceAt=Date.now();save('source',doc);save('sourceAt',sourceAt);paint();changeTab('read');window.MO_NP_SYNC?.schedule()}).catch(function(err){alert('Kunde inte läsa paketet: '+err.message)})});
+E('restoreBackup').addEventListener('change',function(e){
+ var f=e.target.files&&e.target.files[0];if(!f)return;
+ if(f.size>300000){alert('Säkerhetskopian är för stor.');return}
+ f.text().then(function(txt){var v=JSON.parse(txt);
+  if(v?.format!=='matte-os-np-backup-v2'||v?.workId!=='en-stark-nolla'||v.grade!=='grade9'||(v.source&&!sourceOK(v.source)))throw Error('Felaktigt backupformat.');
+  if(!confirm('Återställ backup? Den ersätter svar och eventuell text på detta elevkonto.'))return;
+  doc=v.source||null;sourceAt=Number(v.sourceAt)||Date.now();
+  notes={};noteAt={};Object.entries(v.notes||{}).forEach(function(item){var k=item[0],value=item[1];if(k.length<90&&(typeof value==='string'||typeof value==='boolean')&&String(value).length<=10000){notes[k]=value;noteAt[k]=Number(v.noteAt?.[k])||Date.now()}});
+  save('source',doc);save('sourceAt',sourceAt);save('notes',notes);save('noteAt',noteAt);paint();fill();progress();window.MO_NP_SYNC?.schedule();
+ }).catch(function(err){alert('Kunde inte återställa: '+err.message)});
+});
 E('quote').onclick=function(){var t=window.getSelection().toString().trim();if(!t){alert('Markera först ett textstycke.');return;}notes.highlight=t.slice(0,800);E('highlight').value=notes.highlight;save('notes',notes);mark('highlight');E('thought').focus()};
 E('cue').onclick=function(){E('cues').hidden=false;E('cues').innerHTML=['p1','p2','p3','p4','p5'].map(function(k,i){return '<p><b>'+(i+1)+'.</b> '+esc((notes[k]||'–').split(/[.!?\n]/)[0].slice(0,100))+'</p>'}).join('')};
 E('export').onclick=download;E('print').onclick=function(){window.print()};
