@@ -17,7 +17,7 @@ const { chromium } = require('playwright');
     const page=await context.newPage();const errors=[];
     page.on('pageerror',e=>errors.push(String(e)));
     await page.goto(new URL('lara/np-muntligt.html',base).toString(),{waitUntil:'load'});
-    assert.match(await page.locator('#status').innerText(),/privata JSON|privat textpaket/i);
+    assert.match(await page.locator('#status').innerText(),/privat(a)? JSON|privat textpaket/i);
     await page.locator('#source').setInputFiles({name:'np-private-fixture.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(content),'utf8')});
     await page.waitForFunction(()=>document.getElementById('status').textContent.includes('inläst'));
     assert.equal(await page.locator('#passages .text').count(),8);
@@ -38,6 +38,16 @@ const { chromium } = require('playwright');
     await page.locator('#stop').click();
     await page.locator('#theme').click();
     assert(await page.evaluate(()=>document.documentElement.classList.contains('dark')));
+    // A visited private NP page must not poison the cached Learning home.
+    await page.evaluate(async()=>{await navigator.serviceWorker.ready});
+    await page.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:12000});
+    await context.setOffline(true);
+    await page.reload({waitUntil:'domcontentloaded'});
+    assert.match(await page.locator('h1').innerText(),/En stark nolla/);
+    assert.equal(await page.locator('#passages .text').count(),8,'offline NP page retains private local text');
+    await page.goto(new URL('lara/',base).toString(),{waitUntil:'domcontentloaded'});
+    assert.match(await page.locator('h1').first().innerText(),/Vad vill du lära dig\?/,'offline Learning home retains its own shell');
+    await context.setOffline(false);
     assert.deepEqual(errors,[]);
     await context.close();
   }

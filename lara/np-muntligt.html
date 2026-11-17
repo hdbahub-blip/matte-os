@@ -29,14 +29,17 @@ a{color:var(--accent)}
 .check{display:flex;gap:12px;align-items:start;border:1px solid var(--line);padding:10px;border-radius:10px;margin:8px 0}.check input{width:18px;height:18px;accent-color:var(--accent)}
 @media(max-width:620px){.grid{grid-template-columns:1fr}main{padding:12px 12px 80px}nav{margin:0 -12px;padding:8px 12px}}
 html.dark{color-scheme:dark;--bg:#1c151b;--card:#2a2129;--ink:#f7e9f0;--muted:#d4bbc7;--line:#574251;--accent:#efb6cc;--soft:#432d3b}
-html.dark button:not(.alt),html.dark nav button[aria-selected=true]{color:#23131f}
+html.dark button:not(.alt){color:#23131f}
+html.dark nav button[aria-selected=false]{color:var(--ink);background:var(--card);border-color:#997f91}
+html.dark nav button[aria-selected=true]{color:#23131f;background:var(--accent)}
+html.dark nav button[aria-selected=false]:hover{background:#453440}
 @media print{nav,.actions,button,input[type=file]{display:none!important}.pane[hidden]{display:block!important}body{background:white}.card{break-inside:avoid}}
 </style></head><body><main>
 <header><div class="actions" style="justify-content:space-between"><div><b>MATTE OS · SPRÅKVERKSTAD</b><div class="muted"><small>Åk 9 · Svenska · Muntlig träning</small></div></div><div class="actions"><a href="./#/sv">‹ Till Svenska</a><button class="alt" type="button" id="theme">Dag/kväll</button></div></div>
 <div class="card"><div class="eyebrow">Privat text · övning hemma</div><h1>En stark nolla</h1><p>Träna på att förstå, reflektera, presentera, leda och delta i samtal.</p>
 <div class="notice" id="status" role="status">Läs in privat textpaket på din enhet för att börja.</div>
-<div class="actions"><label style="margin:0" class="button alt" for="source">Läs in privat textpaket</label><input id="source" type="file" accept=".json,application/json" style="display:none"><button id="export" class="alt">Exportera anteckningar</button><button id="print" class="alt">Skriv ut</button></div>
-<p class="muted"><small>Text och anteckningar ligger bara på den här enheten. Ingen romantext publiceras i Matte OS-koden. Lagra inte Gmail-lösenord här.</small></p></div></header>
+<div class="actions"><label style="margin:0" class="button alt" for="source">Läs in privat textpaket</label><input id="source" type="file" accept=".json,application/json" style="display:none"><button id="export" class="alt">Exportera privat säkerhetskopia</button><label for="restoreBackup" class="button alt" style="margin:0">Återställ säkerhetskopia</label><input id="restoreBackup" type="file" accept=".json,application/json" hidden><button id="print" class="alt">Skriv ut</button></div>
+<div class="note" role="status" aria-live="polite" id="cloudStatus">Kontrollerar elevkontots synkstatus …</div><div class="actions"><a href="../study/" class="button alt">Elevkonto / logga in</a><button class="alt" type="button" id="syncNow">Synka nu</button><span class="badge" id="progress" role="status">Framsteg</span></div><p class="muted"><small>Utan konto sparas allt bara på denna enhet. Med Study Cloud-konto (åk 9) synkas privat text och anteckningar till skyddad molnlagring. En kopplad mentor har åtkomst enligt elevens godkännande. Använd aldrig Gmail-lösenord här.</small></p></div></header>
 <nav aria-label="Träningsdelar">
 <button data-tab="read" aria-selected="true">1. Läs</button><button data-tab="understand" aria-selected="false">2. Förstå</button>
 <button data-tab="questions" aria-selected="false">3. Frågor</button><button data-tab="present" aria-selected="false">4. Presentera</button>
@@ -81,17 +84,37 @@ html.dark button:not(.alt),html.dark nav button[aria-selected=true]{color:#23131
 <footer><small>Matte OS · Privat utbildningsstöd, inte ett officiellt NP. Inga elevsvar eller ljud skickas till någon tjänst från denna sida.</small></footer></main>
 <script>
 (function(){'use strict';
-var ROOT='matteos.np.enstarknolla.grade9.',doc=null,notes={},tab='read',time=360,timer=null;
+var ROOT='matteos.np.enstarknolla.grade9.',doc=null,notes={},noteAt={},sourceAt=0,accountId='',tab='read',time=360,timer=null;
 function E(id){return document.getElementById(id)}function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]})}
 function load(k,other){try{var s=localStorage.getItem(ROOT+k);return s?JSON.parse(s):other}catch(e){return other}}
 function save(k,o){try{localStorage.setItem(ROOT+k,JSON.stringify(o));return true}catch(e){return false}}
-function output(){E('status').textContent=doc?'Privat textpaket inläst. Anteckningarna sparas lokalt.':'Läs in den privata JSON-filen för att se text och skolfrågor.'}
-function sourceOK(o){return o&&o.format==='matte-os-np-private-v1'&&o.workId==='en-stark-nolla'&&o.grade==='grade9'&&Array.isArray(o.questions)&&o.questions.length===4&&Array.isArray(o.textParagraphs)&&o.textParagraphs.length>=6}
+function output(){E('status').textContent=doc?'Textpaketet är inläst. Lokal kopia finns; se molnstatus för synk.':'Ingen lokal skoltext ännu. Importera privat JSON, eller logga in för att hämta en synkad kopia.'}
+function mark(k){noteAt[k]=Date.now();save('noteAt',noteAt);progress();window.MO_NP_SYNC?.schedule()}
+function progress(){var n=[0,1,2,3,4].filter(function(i){return String(notes['q'+i]||'').trim().length>10}).length;E('progress').textContent=n+'/5 frågor besvarade'}
+function switchAccount(id){if(!/^[0-9a-f-]{36}$/i.test(id||''))return false;if(accountId===id)return true;
+var wasGuest=!accountId,guest={source:doc,notes:notes,noteAt:noteAt,sourceAt:sourceAt};accountId=id;ROOT='matteos.np.enstarknolla.account.'+id+'.';
+doc=load('source',null);notes=load('notes',{});noteAt=load('noteAt',{});sourceAt=Number(load('sourceAt',0))||0;
+if(wasGuest&&!doc&&guest.source&&!localStorage.getItem('matteos.np.guest-claimed.v1')){
+ doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt||Date.now();Object.keys(notes).forEach(function(k){if(!noteAt[k])noteAt[k]=sourceAt});var migrated=save('source',doc)&&save('notes',notes)&&save('noteAt',noteAt)&&save('sourceAt',sourceAt);
+if(migrated){localStorage.setItem('matteos.np.guest-claimed.v1',id);['source','notes','noteAt','sourceAt'].forEach(function(k){localStorage.removeItem('matteos.np.enstarknolla.grade9.'+k)})}
+else{ROOT='matteos.np.enstarknolla.grade9.';accountId='';doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt;alert('Kunde inte flytta materialet till kontot. Din ursprungliga lokala kopia är kvar. Frigör lagringsutrymme och försök igen.');return false}}
+try{localStorage.setItem('matteos.np.last-user.v1',id)}catch(e){}paint();fill();progress();return true}
+function lockAccount(){if(!accountId)return false;
+ accountId='';ROOT='matteos.np.enstarknolla.grade9.';doc=null;notes={};noteAt={};sourceAt=0;
+ paint();progress();return true}
+function snapshot(){var entries={};Object.keys(notes).forEach(function(k){var v=notes[k];if(k.length<90&&(typeof v==='string'||typeof v==='boolean')&&String(v).length<=10000)entries[k]={value:v,at:Number(noteAt[k])||0}});return {kind:'matteos-private-np-1',workId:'en-stark-nolla',source:doc,sourceAt:sourceAt,entries:entries}}
+function mergeCloud(rows){var changed=false;rows.forEach(function(r){var p=r?.payload;if(p?.kind!=='matteos-private-np-1'||p?.workId!=='en-stark-nolla')return;
+if(Number(p.sourceAt)>sourceAt&&sourceOK(p.source)){doc=p.source;sourceAt=Number(p.sourceAt);changed=true}
+Object.entries(p.entries||{}).forEach(function(item){var k=item[0],v=item[1],at=Number(v?.at)||0;
+if(k.length>90||!v||(typeof v.value!=='string'&&typeof v.value!=='boolean')||String(v.value).length>10000)return;
+if(at>(Number(noteAt[k])||0)){notes[k]=v.value;noteAt[k]=at;changed=true}})
+});if(changed){save('source',doc);save('sourceAt',sourceAt);save('notes',notes);save('noteAt',noteAt);paint();fill();progress()}return changed}
+function sourceOK(o){return !!(o&&o.format==='matte-os-np-private-v1'&&o.workId==='en-stark-nolla'&&o.grade==='grade9'&&Array.isArray(o.questions)&&o.questions.length===4&&o.questions.every(function(q){return typeof q==='string'&&q.length<2000})&&Array.isArray(o.textParagraphs)&&o.textParagraphs.length>=6&&o.textParagraphs.length<=120&&o.textParagraphs.every(function(p){return typeof p==='string'&&p.length<=12000})&&Array.isArray(o.supports)&&o.supports.length>=5&&typeof o.discussionQuestion==='string')}
 function paint(){
  output();E('intro').textContent=doc?doc.schoolIntro:'';E('summary').textContent=doc?doc.summary:'';
  E('passages').innerHTML=doc?doc.textParagraphs.map(function(s){return '<div class="text">'+esc(s)+'</div>'}).join(''):'Läs in den privata textfilen först.';
  E('leadquestion').textContent=doc?doc.discussionQuestion+' '+doc.discussionInstruction:'Här visas den ordagranna diskussionsfrågan.';
- if(!doc){E('qlist').textContent='Importera den privata JSON-filen först.';return;}
+ if(!doc){E('qlist').textContent='Importera den privata filen eller hämta texten via elevkontot.';fill();progress();return;}
  var q=doc.questions.concat([doc.discussionQuestion]);
  E('qlist').innerHTML=q.map(function(s,i){var x=doc.supports[i]||{steps:[],stem:'',perspective:'',evidence:''};return '<article class="question"><span class="badge">'+(i===4?'Diskussionsfråga':'Fråga '+(i+1))+'</span><h3>'+esc(s)+'</h3>'+(i===4?'<p>'+esc(doc.discussionInstruction)+'</p>':'')+'<label for="q'+i+'">Mitt eget resonemang</label><textarea id="q'+i+'" data-note="q'+i+'" placeholder="Jag tänker … därför att … Ett exempel ur texten är …"></textarea><details><summary>Hjälp mig tänka</summary><ol>'+x.steps.map(function(y){return '<li>'+esc(y)+'</li>'}).join('')+'</ol><p><b>Textbevis:</b> '+esc(x.evidence)+'</p><p><b>Annat perspektiv:</b> '+esc(x.perspective)+'</p><p><b>Svarsstart:</b> '+esc(x.stem)+'</p></details></article>'}).join('');
  fill();
@@ -99,23 +122,37 @@ function paint(){
 function fill(){document.querySelectorAll('[data-note]').forEach(function(x){x.value=notes[x.dataset.note]||''});document.querySelectorAll('[data-check]').forEach(function(x){x.checked=!!notes[x.dataset.check]})}
 function changeTab(next){tab=next;document.querySelectorAll('nav [data-tab]').forEach(function(b){b.setAttribute('aria-selected',String(b.dataset.tab===next))});document.querySelectorAll('.pane').forEach(function(p){p.hidden=p.id!==next});if(next==='review')recap()}
 function recap(){var q=doc?doc.questions.concat([doc.discussionQuestion]):[];E('recap').innerHTML=q.map(function(s,i){return '<div class="note"><b>'+esc(s)+'</b><blockquote>'+esc(notes['q'+i]||'Inget svar än.')+'</blockquote></div>'}).join('')}
-function download(){var blob=new Blob([JSON.stringify({format:'matte-os-np-notes-v1',workId:'en-stark-nolla',profile:'grade9',notes:notes,at:new Date().toISOString()},null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='matte-os-np-anteckningar.json';a.click();setTimeout(function(){URL.revokeObjectURL(u)},1000)}
+function download(){var blob=new Blob([JSON.stringify({format:'matte-os-np-backup-v2',workId:'en-stark-nolla',grade:'grade9',source:doc,sourceAt:sourceAt,notes:notes,noteAt:noteAt,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='matte-os-np-PRIVAT-sakerhetskopia.json';a.click();setTimeout(function(){URL.revokeObjectURL(u)},1000)}
 function clock(){E('clock').textContent=String(Math.floor(time/60)).padStart(2,'0')+':'+String(time%60).padStart(2,'0')}
-doc=load('source',null);notes=load('notes',{});paint();
+doc=load('source',null);notes=load('notes',{});noteAt=load('noteAt',{});sourceAt=Number(load('sourceAt',0))||0;
+try{var cached=JSON.parse(localStorage.getItem('matteos-study-auth-v1')||'null'),recent=localStorage.getItem('matteos.np.last-user.v1');if(cached?.user?.id===recent&&/^[0-9a-f-]{36}$/i.test(recent||''))switchAccount(recent)}catch(e){}
+paint();
 var checks=['Sammanfattat med egna ord','Motiverat med textbevis','Förklarat en egen åsikt','Resonerat om annat perspektiv','Ställt öppna frågor','Bjudit in andra','Byggt vidare på deras svar'];
 E('rubric').innerHTML=checks.map(function(s,i){return '<label class="check"><input type="checkbox" data-check="rubric'+i+'"><span>'+esc(s)+'</span></label>'}).join('');fill();
 document.querySelector('nav').addEventListener('click',function(e){var b=e.target.closest('[data-tab]');if(b)changeTab(b.dataset.tab)});
-document.addEventListener('input',function(e){if(e.target.dataset.note){notes[e.target.dataset.note]=e.target.value.slice(0,10000);save('notes',notes)}});
-document.addEventListener('change',function(e){if(e.target.dataset.check){notes[e.target.dataset.check]=e.target.checked;save('notes',notes)}});
-E('source').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>250000){alert('Filen är för stor.');return;}f.text().then(function(s){var v=JSON.parse(s);if(!sourceOK(v))throw Error('Fel privat textpaket.');doc=v;save('source',doc);paint();changeTab('read')}).catch(function(err){alert('Kunde inte läsa paketet: '+err.message)})});
-E('quote').onclick=function(){var t=window.getSelection().toString().trim();if(!t){alert('Markera först ett textstycke.');return;}notes.highlight=t.slice(0,800);E('highlight').value=notes.highlight;save('notes',notes);E('thought').focus()};
+document.addEventListener('input',function(e){if(e.target.dataset.note){var k=e.target.dataset.note;notes[k]=e.target.value.slice(0,10000);save('notes',notes);mark(k)}});
+document.addEventListener('change',function(e){if(e.target.dataset.check){var k=e.target.dataset.check;notes[k]=e.target.checked;save('notes',notes);mark(k)}});
+E('source').addEventListener('change',function(e){var f=e.target.files&&e.target.files[0];if(!f)return;if(f.size>250000){alert('Filen är för stor.');return;}f.text().then(function(s){var v=JSON.parse(s);if(!sourceOK(v))throw Error('Fel privat textpaket.');doc=v;sourceAt=Date.now();save('source',doc);save('sourceAt',sourceAt);paint();changeTab('read');window.MO_NP_SYNC?.schedule()}).catch(function(err){alert('Kunde inte läsa paketet: '+err.message)})});
+E('restoreBackup').addEventListener('change',function(e){
+ var f=e.target.files&&e.target.files[0];if(!f)return;
+ if(f.size>300000){alert('Säkerhetskopian är för stor.');return}
+ f.text().then(function(txt){var v=JSON.parse(txt);
+  if(v?.workId!=='en-stark-nolla'||!['matte-os-np-backup-v2','matte-os-np-notes-v1'].includes(v.format)||(v.source&&!sourceOK(v.source)))throw Error('Felaktigt backupformat.');
+  if(!confirm('Återställ backup? Den ersätter svar och eventuell text på detta elevkonto.'))return;
+  if(v.format==='matte-os-np-backup-v2'){doc=v.source||null;sourceAt=Date.now()}
+  else if(!doc)sourceAt=0;
+  notes={};noteAt={};Object.entries(v.notes||{}).forEach(function(item){var k=item[0],value=item[1];if(k.length<90&&(typeof value==='string'||typeof value==='boolean')&&String(value).length<=10000){notes[k]=value;noteAt[k]=sourceAt}});
+  save('source',doc);save('sourceAt',sourceAt);save('notes',notes);save('noteAt',noteAt);paint();fill();progress();window.MO_NP_SYNC?.schedule();
+ }).catch(function(err){alert('Kunde inte återställa: '+err.message)});
+});
+E('quote').onclick=function(){var t=window.getSelection().toString().trim();if(!t){alert('Markera först ett textstycke.');return;}notes.highlight=t.slice(0,800);E('highlight').value=notes.highlight;save('notes',notes);mark('highlight');E('thought').focus()};
 E('cue').onclick=function(){E('cues').hidden=false;E('cues').innerHTML=['p1','p2','p3','p4','p5'].map(function(k,i){return '<p><b>'+(i+1)+'.</b> '+esc((notes[k]||'–').split(/[.!?\n]/)[0].slice(0,100))+'</p>'}).join('')};
 E('export').onclick=download;E('print').onclick=function(){window.print()};
 E('start').onclick=function(){if(timer)return;time=360;clock();timer=setInterval(function(){time=Math.max(0,time-1);clock();if(time===0){clearInterval(timer);timer=null}},1000)};
 E('stop').onclick=function(){clearInterval(timer);timer=null;time=360;clock()};
-E('clear').onclick=function(){if(confirm('Rensa anteckningarna på den här enheten?')){notes={};save('notes',notes);fill();recap()}};
+E('clear').onclick=function(){if(confirm('Rensa svar och anteckningar, även i synkad kopia?')){var at=Date.now();Object.keys(notes).forEach(function(k){notes[k]=typeof notes[k]==='boolean'?false:'';noteAt[k]=at});save('notes',notes);save('noteAt',noteAt);fill();recap();progress();window.MO_NP_SYNC?.schedule()}};
 E('theme').onclick=function(){document.documentElement.classList.toggle('dark');try{localStorage.setItem('matteos.appearance.v1',document.documentElement.classList.contains('dark')?'dark':'light')}catch(e){}};
 try{if(localStorage.getItem('matteos.appearance.v1')==='dark')document.documentElement.classList.add('dark')}catch(e){}
-changeTab('read');
+changeTab('read');progress();window.MO_NP_APP={switchAccount:switchAccount,snapshot:snapshot,mergeCloud:mergeCloud,hasSource:function(){return !!doc},accountId:function(){return accountId},lockAccount:lockAccount};
 })();
-</script></body></html>
+</script><script src="./study-cloud.js?v=1.0.0"></script><script src="./np-cloud.js?v=1.0.0"></script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});</script></body></html>
