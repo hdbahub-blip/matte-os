@@ -95,8 +95,9 @@ function switchAccount(id){if(!/^[0-9a-f-]{36}$/i.test(id||''))return false;if(a
 var guest={source:doc,notes:notes,noteAt:noteAt,sourceAt:sourceAt};accountId=id;ROOT='matteos.np.enstarknolla.account.'+id+'.';
 doc=load('source',null);notes=load('notes',{});noteAt=load('noteAt',{});sourceAt=Number(load('sourceAt',0))||0;
 if(!doc&&guest.source&&!localStorage.getItem('matteos.np.guest-claimed.v1')){
- doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt||Date.now();Object.keys(notes).forEach(function(k){if(!noteAt[k])noteAt[k]=sourceAt});save('source',doc);save('notes',notes);save('noteAt',noteAt);save('sourceAt',sourceAt);localStorage.setItem('matteos.np.guest-claimed.v1',id);
-['source','notes','noteAt','sourceAt'].forEach(function(k){localStorage.removeItem('matteos.np.enstarknolla.grade9.'+k)})}
+ doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt||Date.now();Object.keys(notes).forEach(function(k){if(!noteAt[k])noteAt[k]=sourceAt});var migrated=save('source',doc)&&save('notes',notes)&&save('noteAt',noteAt)&&save('sourceAt',sourceAt);
+if(migrated){localStorage.setItem('matteos.np.guest-claimed.v1',id);['source','notes','noteAt','sourceAt'].forEach(function(k){localStorage.removeItem('matteos.np.enstarknolla.grade9.'+k)})}
+else{ROOT='matteos.np.enstarknolla.grade9.';accountId='';doc=guest.source;notes=guest.notes;noteAt=guest.noteAt;sourceAt=guest.sourceAt;alert('Kunde inte flytta materialet till kontot. Din ursprungliga lokala kopia är kvar. Frigör lagringsutrymme och försök igen.');return false}}
 paint();fill();progress();return true}
 function snapshot(){var entries={};Object.keys(notes).forEach(function(k){var v=notes[k];if(k.length<90&&(typeof v==='string'||typeof v==='boolean')&&String(v).length<=10000)entries[k]={value:v,at:Number(noteAt[k])||0}});return {kind:'matteos-private-np-1',workId:'en-stark-nolla',source:doc,sourceAt:sourceAt,entries:entries}}
 function mergeCloud(rows){var changed=false;rows.forEach(function(r){var p=r?.payload;if(p?.kind!=='matteos-private-np-1'||p?.workId!=='en-stark-nolla')return;
@@ -133,8 +134,8 @@ E('restoreBackup').addEventListener('change',function(e){
  f.text().then(function(txt){var v=JSON.parse(txt);
   if(v?.format!=='matte-os-np-backup-v2'||v?.workId!=='en-stark-nolla'||v.grade!=='grade9'||(v.source&&!sourceOK(v.source)))throw Error('Felaktigt backupformat.');
   if(!confirm('Återställ backup? Den ersätter svar och eventuell text på detta elevkonto.'))return;
-  doc=v.source||null;sourceAt=Number(v.sourceAt)||Date.now();
-  notes={};noteAt={};Object.entries(v.notes||{}).forEach(function(item){var k=item[0],value=item[1];if(k.length<90&&(typeof value==='string'||typeof value==='boolean')&&String(value).length<=10000){notes[k]=value;noteAt[k]=Number(v.noteAt?.[k])||Date.now()}});
+  doc=v.source||null;sourceAt=Date.now();
+  notes={};noteAt={};Object.entries(v.notes||{}).forEach(function(item){var k=item[0],value=item[1];if(k.length<90&&(typeof value==='string'||typeof value==='boolean')&&String(value).length<=10000){notes[k]=value;noteAt[k]=sourceAt}});
   save('source',doc);save('sourceAt',sourceAt);save('notes',notes);save('noteAt',noteAt);paint();fill();progress();window.MO_NP_SYNC?.schedule();
  }).catch(function(err){alert('Kunde inte återställa: '+err.message)});
 });
