@@ -1,0 +1,32 @@
+name: NP private study regression
+
+on:
+  pull_request:
+    paths:
+      - 'lara/np-muntligt.html'
+      - 'lara/np-cloud.js'
+      - 'lara/sw.js'
+      - 'lara/app.js'
+      - 'tests/np-*.js'
+      - '.github/workflows/np-focused-qa.yml'
+
+jobs:
+  private-np:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned browser dependencies
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Private content, multi-device and offline regression
+        run: |
+          node tests/np-private-qa.js
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/np-http.log 2>&1 &
+          sleep 2
+          node tests/np-private-e2e.js http://127.0.0.1:8765/
+          node tests/np-cloud-e2e.js http://127.0.0.1:8765/
