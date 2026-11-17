@@ -152,4 +152,4 @@ E('theme').onclick=function(){document.documentElement.classList.toggle('dark');
 try{if(localStorage.getItem('matteos.appearance.v1')==='dark')document.documentElement.classList.add('dark')}catch(e){}
 changeTab('read');progress();window.MO_NP_APP={switchAccount:switchAccount,snapshot:snapshot,mergeCloud:mergeCloud,hasSource:function(){return !!doc},accountId:function(){return accountId}};
 })();
-</script><script src="./study-cloud.js?v=1.0.0"></script><script src="./np-cloud.js?v=1.0.0"></script></body></html>
+</script><script src="./study-cloud.js?v=1.0.0"></script><script src="./np-cloud.js?v=1.0.0"></script><script>if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});</script></body></html>
