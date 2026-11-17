@@ -47,7 +47,7 @@ async function attach(page,userId){
   await pa.waitForFunction(()=>document.querySelector('#passages .text')?.textContent.includes('Syntetisk paragraf 0'));
   await pa.locator('[data-tab="questions"]').click();
   await pa.locator('#q0').fill('Mitt första syntetiska resonemang, med egna skäl.');
-  await pa.waitForFunction(()=>document.querySelector('#cloudStatus').textContent.includes('Synkat'),{timeout:12000});
+  await pa.waitForFunction(async uid=>(await window.__npFakeRead(uid)).some(r=>r.payload?.entries?.q0?.value?.includes('första')),alice,{timeout:12000});
   assert(rows.some(r=>r.learner_id===alice&&r.payload?.source?.workId==='en-stark-nolla'&&r.payload.entries.q0?.value?.includes('första')),'source and notes must upload to owned snapshot');
   const B=await browser.newContext({viewport:{width:1280,height:880}});
   const pb=await B.newPage();await attach(pb,alice);
@@ -56,9 +56,9 @@ async function attach(page,userId){
   await pb.locator('[data-tab="questions"]').click();
   assert.match(await pb.locator('#q0').inputValue(),/Mitt första syntetiska resonemang/,'second device recovers note');
   await pb.locator('#q0').fill('Mitt andra och senare syntetiska svar från datorn.');
-  await pb.waitForFunction(()=>document.querySelector('#cloudStatus').textContent.includes('Synkat'),{timeout:12000});
+  await pb.waitForFunction(async uid=>(await window.__npFakeRead(uid)).some(r=>r.payload?.entries?.q0?.value?.includes('andra och senare')),alice,{timeout:12000});
   await pa.reload();await pa.locator('[data-tab="questions"]').click();
-  await pa.waitForFunction(()=>document.querySelector('#q0').value.includes('Mitt andra och senare'),{timeout:12000});
+  await pa.waitForFunction(()=>document.querySelector('#q0')?.value.includes('Mitt andra och senare'),null,{timeout:12000});
   assert.match(await pa.locator('#q0').inputValue(),/andra och senare/,'first device receives newer per-field edit');
   const C=await browser.newContext({viewport:{width:390,height:844}});
   const pc=await C.newPage();await attach(pc,bob);
