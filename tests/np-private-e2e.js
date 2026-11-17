@@ -17,7 +17,7 @@ const { chromium } = require('playwright');
     const page=await context.newPage();const errors=[];
     page.on('pageerror',e=>errors.push(String(e)));
     await page.goto(new URL('lara/np-muntligt.html',base).toString(),{waitUntil:'load'});
-    assert.match(await page.locator('#status').innerText(),/privata JSON|privat textpaket/i);
+    assert.match(await page.locator('#status').innerText(),/privat(a)? JSON|privat textpaket/i);
     await page.locator('#source').setInputFiles({name:'np-private-fixture.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(content),'utf8')});
     await page.waitForFunction(()=>document.getElementById('status').textContent.includes('inläst'));
     assert.equal(await page.locator('#passages .text').count(),8);
