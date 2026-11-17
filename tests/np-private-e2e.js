@@ -38,6 +38,16 @@ const { chromium } = require('playwright');
     await page.locator('#stop').click();
     await page.locator('#theme').click();
     assert(await page.evaluate(()=>document.documentElement.classList.contains('dark')));
+    // A visited private NP page must not poison the cached Learning home.
+    await page.evaluate(async()=>{await navigator.serviceWorker.ready});
+    await page.waitForFunction(()=>!!navigator.serviceWorker.controller,null,{timeout:12000});
+    await context.setOffline(true);
+    await page.reload({waitUntil:'domcontentloaded'});
+    assert.match(await page.locator('h1').innerText(),/En stark nolla/);
+    assert.equal(await page.locator('#passages .text').count(),8,'offline NP page retains private local text');
+    await page.goto(new URL('lara/',base).toString(),{waitUntil:'domcontentloaded'});
+    assert.match(await page.locator('h1').first().innerText(),/Vad vill du lära dig\?/,'offline Learning home retains its own shell');
+    await context.setOffline(false);
     assert.deepEqual(errors,[]);
     await context.close();
   }
