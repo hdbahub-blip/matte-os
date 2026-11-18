@@ -51,7 +51,7 @@ try{
  await b.goto(url+'#/think/0');
  try{await wait(b,()=>window.MO_NP_APP?.hasSource()&&!!MO_NP_APP._debug().notes['ans.q0.a1']);}
  catch(e){
-  console.error('Second device diagnostics',JSON.stringify(await b.evaluate(()=>({study:MO_STUDY?.info(),profile:MO_STUDY?.profile(),np:window.MO_NP_STATUS,source:window.MO_NP_SOURCE_STATUS,ready:window.MO_NP_SYNC?.ready?.(),account:window.MO_NP_APP?.accountId(),hasSource:window.MO_NP_APP?.hasSource(),noteKeys:Object.keys(window.MO_NP_APP?._debug()?.notes||{}).slice(0,12)}))));
+  console.error('Second device diagnostics',JSON.stringify(await b.evaluate(()=>({study:MO_STUDY?.info(),profile:MO_STUDY?.profile(),np:window.MO_NP_STATUS,source:window.MO_NP_SOURCE_STATUS,ready:window.MO_NP_SYNC?.ready?.(),trace:window.MO_NP_SYNC_TRACE,account:window.MO_NP_APP?.accountId(),hasSource:window.MO_NP_APP?.hasSource(),noteKeys:Object.keys(window.MO_NP_APP?._debug()?.notes||{}).slice(0,12)}))));
   console.error('Synthetic server rows',JSON.stringify(writes.filter(r=>r.learner_id===alice).map(r=>({device_id:r.device_id,module:r.module,kind:r.payload?.kind,keys:Object.keys(r.payload?.entries||{}).slice(0,15),note:r.payload?.entries?.['ans.q0.a1']?.value?.slice(0,70)}))));
   console.error('Device B direct server read',JSON.stringify(await b.evaluate(async()=> (await window.__privateSnapshots()).map(r=>({kind:r.payload?.kind,keys:Object.keys(r.payload?.entries||{})})))));
   throw e;
