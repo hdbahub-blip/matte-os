@@ -3,8 +3,10 @@ name: NP private study regression
 on:
   pull_request:
     paths:
+      - 'lara/np-*.js'
       - 'lara/np-muntligt.html'
-      - 'lara/np-cloud.js'
+      - 'lara/np.css'
+      - 'tests/np-leak-hashes.json'
       - 'lara/sw.js'
       - 'lara/app.js'
       - 'tests/np-*.js'
@@ -25,6 +27,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Private content, multi-device and offline regression
         run: |
+          node tests/np-core-qa.js
           node tests/np-private-qa.js
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/np-http.log 2>&1 &
           sleep 2
