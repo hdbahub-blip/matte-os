@@ -35,6 +35,8 @@ jobs:
           node tests/paper-lessons.js
           node --check js/knep.js
           node tests/knep-qa.js
+          node tests/np-core-qa.js
+          node tests/np-private-qa.js
           node --check js/engine.js
           node --check sw.js
           node --check prov/sw.js
@@ -127,6 +129,8 @@ jobs:
           node tests/np-cloud-e2e.js http://127.0.0.1:8765/
           node tests/ordlek-night-e2e.js http://127.0.0.1:8765/ chromium
           node tests/knep-e2e.js http://127.0.0.1:8765/ test-screenshots
+          node tests/np-private-e2e.js http://127.0.0.1:8765/ test-screenshots
+          node tests/np-cloud-e2e.js http://127.0.0.1:8765/
           node tests/tabell-selected-e2e.js http://127.0.0.1:8765/ chromium
           node tests/navigation-ux-e2e.js http://127.0.0.1:8765/ chromium
           node tests/together-e2e.js http://127.0.0.1:8765/
