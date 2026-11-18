@@ -48,28 +48,27 @@
     const auth=root.MO_STUDY?.profile?.()||root.MO_STUDY?.offlineProfile?.();
     if(auth?.role==='learner'){
       const grade=auth.grade==='grade8'?'Årskurs 8':'Årskurs 9';
-      return '<section class="pc-chooser"><div class="pc-heading"><h2 id="pc-title">Min studieprofil</h2><p>Du är inloggad i '+grade+'. Här visas bara din egen lärmiljö.</p></div><div class="pc-current-profile"><strong>'+grade+'</strong><span>Din privata lärmiljö</span></div><a class="btn" href="study/">Mitt konto och synk</a></section>';
+      return '<section class="pc-chooser"><div class="pc-heading"><div><h2 id="pc-title">Mitt konto</h2><p>Du är inloggad i '+grade+'.</p></div></div><div class="pc-current-profile"><strong>'+grade+'</strong><span>Dina egna övningar och framsteg</span></div><a class="btn" href="study/">Konto och synk</a></section>';
     }
-    const active = opts && opts.active;
-    const closable = !!(opts && opts.closable);
-    const store = root.MOTogether;
-    const guests = store ? store.load().guests : [];
-    const limit = store ? store.GUEST_LIMIT : 0;
-    const cards = gradeCard('grade9', active) + gradeCard('grade8', active)
-      + guests.map(guestCard).join('') + overviewCard();
-    return '<section class="pc-chooser">'
-      + '<div class="pc-heading"><div><span class="pc-kicker">MATTE OS · VÄLJ DIN VÄG</span>'
-      + '<h2 id="pc-title">Vem pluggar?</h2><p>Tryck på din profil och kör igång.</p></div>'
-      + (closable ? '<button class="pc-close" type="button" data-a="closesheet" aria-label="Stäng profilväljaren">×</button>' : '')
-      + '</div><div class="pc-grid" role="group" aria-label="Tillgängliga profiler">'
-      + cards + '</div>'
-      + '<a class="pc-account-link" href="study/">Har du ett elevkonto? Logga in här</a>'
-      + '<div class="pc-controls"><button class="pc-manage" type="button" data-a="profilemanage">'
-      + '<span aria-hidden="true">✎</span><span><strong>Hantera profiler</strong><small>Byt namn och färger</small></span></button>'
-      + '<button class="pc-add" type="button" data-a="profilenew"' + (guests.length >= limit ? ' disabled' : '')
-      + '><span aria-hidden="true">＋</span> Ny profil</button></div>'
-      + '<a class="pc-dropin" href="tillsammans/?dropin=1"><span class="pc-dropin-spark" aria-hidden="true">✦</span><span><strong>Hoppa in som Joker</strong><small>Utan konto, profil eller sparad historik</small></span><span aria-hidden="true">›</span></a>'
-      + '<p class="pc-footnote">Sparade Jokrar är valfria. Engångs-Jokrar lämnar ingen permanent resultatstatistik. Åk 8 och 9 behåller sina egna framsteg.</p>'
+    const active=opts&&opts.active;
+    const closable=!!(opts&&opts.closable);
+    const store=root.MOTogether,guests=store?store.load().guests:[],limit=store?store.GUEST_LIMIT:0;
+    return '<section class="pc-chooser pc-simple">'
+      + '<div class="pc-heading"><div><span class="pc-kicker">MATTE OS</span><h2 id="pc-title">'+(closable?'Byt profil':'Välkommen!')+'</h2>'
+      + '<p>Logga in med ditt elevkonto, eller prova utan konto.</p></div>'
+      + (closable?'<button class="pc-close" type="button" data-a="closesheet" aria-label="Stäng profilväljaren">×</button>':'')
+      + '</div>'
+      + '<a class="pc-primary-login" href="study/">Logga in på elevkonto</a>'
+      + '<p class="pc-try-label">Prova utan konto</p>'
+      + '<div class="pc-grid pc-school-grid" role="group" aria-label="Välj årskurs för lokal övning">'
+      + gradeCard('grade8',active)+gradeCard('grade9',active)
+      + '<details class="pc-advanced"><summary>Fler val: Joker, översikt och profiler</summary>'
+      + '<div class="pc-extra-grid">'+guests.map(guestCard).join('')+overviewCard()+'</div>'
+      + '<div class="pc-controls"><button class="pc-manage" type="button" data-a="profilemanage"><span aria-hidden="true">✎</span><span><strong>Hantera profiler</strong></span></button>'
+      + '<button class="pc-add" type="button" data-a="profilenew"'+(guests.length>=limit?' disabled':'')+'>Ny Joker-profil</button></div>'
+      + '<a class="pc-dropin" href="tillsammans/?dropin=1"><span><strong>Spela direkt som Joker</strong><small>Utan att skapa en profil</small></span><span aria-hidden="true">›</span></a>'
+      + '</details></div>'
+      + '<p class="pc-privacy">Utan konto sparas övningarna bara på den här enheten.</p>'
       + '</section>';
   }
 

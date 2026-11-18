@@ -17,7 +17,7 @@ const asRGB=h=>'rgb('+[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(', ')+')'
    const errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto(base,{waitUntil:'domcontentloaded'});
    await page.locator('[data-p="'+grade+'"]').click();
-   await page.locator('nav.nav').waitFor();
+   await page.locator('.ux-tiles').waitFor();
    if(mode==='dark')await page.locator('[data-a="appearance"]').first().click();
    await page.locator('html[data-mode="'+mode+'"]').waitFor();
    async function verify(name,readySelector){
@@ -40,7 +40,7 @@ const asRGB=h=>'rgb('+[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(', ')+')'
      n+=4;
      await page.screenshot({path:path.join(output,grade+'-'+mode+'-'+name+'.png'),fullPage:false});
    }
-   await verify('mathematics','nav.nav');
+   await verify('mathematics','.ux-tiles');
    await page.goto(base+'#/tabell/home',{waitUntil:'domcontentloaded'});
    await page.locator('#arena .selected-front').waitFor();
    const table=await page.locator('#arena .selected-front').evaluate(x=>{
