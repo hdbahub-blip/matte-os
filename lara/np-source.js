@@ -34,6 +34,10 @@ async function load(force){
   return false;
  }
  const uid=member.user_id;
+ if(root.MO_NP_SYNC?.ready&&!root.MO_NP_SYNC.ready()){
+  notify('Återställer tidigare svar från elevkontot innan skoltexten hämtas …');
+  return false;
+ }
  if(!force&&claimed&&attemptUser===uid&&APP.hasSource())return true;
  if(!force&&Date.now()-lastAttempt<900&&attemptUser===uid)return false;
  attemptUser=uid;lastAttempt=Date.now();inflight=true;
@@ -82,6 +86,7 @@ root.document.addEventListener('click',e=>{
  if(e.target?.closest('[data-a="loadsource"]'))load(true).catch(()=>{});
 });
 root.addEventListener('matte-study-status',accountState);
+root.addEventListener('np-cloud-ready',()=>load(false).catch(()=>{}));
 root.addEventListener('online',()=>load(true).catch(()=>{}));
 root.addEventListener('focus',()=>{if(eligible())load(true).catch(()=>{})});
 root.addEventListener('np-sheet',()=>{if(lastStatus)notify(lastStatus)});
