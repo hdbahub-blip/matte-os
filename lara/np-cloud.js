@@ -77,7 +77,7 @@ async function connect(force){
   if(member()?.user_id!==activeUser)throw Error('Kontot ändrades under synken.');
   const rows=(data||[]).filter(r=>(r.payload?.kind==='matteos-private-np-1'||r.payload?.kind==='matteos-private-np-2')&&r.payload?.workId==='en-stark-nolla');
   const merged=APP.mergeCloud(rows);
-  root.MO_NP_SYNC_TRACE={remoteRows:rows.length,remoteKeys:rows.map(x=>Object.keys(x.payload?.entries||{})),mergeChanged:merged,localKeys:Object.keys(APP.snapshot().entries||{})};
+  root.MO_NP_SYNC_TRACE={rawRows:(data||[]).length,rawKind:(data||[]).map(x=>({kind:x.payload?.kind,workId:x.payload?.workId})),remoteRows:rows.length,remoteKeys:rows.map(x=>Object.keys(x.payload?.entries||{})),mergeChanged:merged,localKeys:Object.keys(APP.snapshot().entries||{})};
   lastRead=Date.now();connected=true;
   status('Privat studiepaket anslutet till elevkontot. Text, svar och framsteg sparas över enheter.');
   await push();
