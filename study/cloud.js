@@ -46,7 +46,11 @@ function restoreWorkspace(snapshot){
  }
 }
 function activateWorkspace(p){
- if(p?.role!=='learner'){workspaceBound=false;return {ok:true,changed:false};}
+ if(p?.role!=='learner'){
+  const hadOwner=!!get(OWNER);
+  if(hadOwner&&!suspendWorkspace()){status='workspace-blocked';lastError='Kan inte skydda tidigare elevresultat på enheten.';dispatch();return {ok:false,changed:false};}
+  workspaceBound=false;return {ok:true,changed:hadOwner};
+ }
  const user=p.user_id,owner=get(OWNER);
  if(!/^[0-9a-f-]{36}$/i.test(user||''))return {ok:false,changed:false};
  if(owner===user){workspaceBound=true;return {ok:true,changed:false};}
@@ -71,7 +75,8 @@ function activateWorkspace(p){
 }
 function suspendWorkspace(){
  const owner=get(OWNER);if(!owner){workspaceBound=false;return true;}
- const p=member||cache;if(p?.role==='learner'&&p.user_id!==owner){workspaceBound=false;return false;}
+ const knownOwner=member?.role==='learner'?member.user_id:cache?.role==='learner'?cache.user_id:null;
+ if(knownOwner!==owner){workspaceBound=false;return false;}
  if(!set(WORK+owner,JSON.stringify(workspaceSnapshot())))return false;
  try{restoreWorkspace(null);root.localStorage?.removeItem(OWNER)}catch{return false;}
  pending={events:[],dirty:[]};workspaceBound=false;return true;

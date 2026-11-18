@@ -7,9 +7,9 @@ const map=new Map();
 const local={getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,String(v)),removeItem:k=>map.delete(k)};
 let checks=0;
 const ok=(condition,msg)=>{assert(condition,msg);checks++};
-function client(user){
+function client(user,role='learner'){
  let session={user:{id:user}},sent=[];
- const profile={user_id:user,role:'learner',grade:'grade8'};
+ const profile={user_id:user,role,grade:role==='mentor'?null:'grade8'};
  const db={
   auth:{onAuthStateChange(){return {data:{subscription:{unsubscribe(){}}}}},
    async getSession(){return {data:{session}}},async signOut(){session=null;return {error:null}}},
@@ -53,5 +53,12 @@ function client(user){
  ok(b.S.canWriteLocal()===false,'owner mismatch blocks local module writes as well as cloud');
  await assert.rejects(()=>b.S.signOut(),/Kan inte bevara väntande svar/);
  ok(local.getItem('matteos.study.workspace-owner.v1')===A,'stale-tab signout cannot erase newer account owner');
+ local.setItem('matteos.study.workspace-owner.v1',B);
+ local.setItem('matteos.v5',JSON.stringify({v:5,profiles:{grade8:{name:'B-private-local'}}}));
+ const mentor=client('33333333-3333-4333-8333-333333333333','mentor');await mentor.S.init();
+ ok(local.getItem('matteos.study.workspace-owner.v1')===null,'Mentor login clears prior pupil owner');
+ ok(local.getItem('matteos.v5')===null,'Mentor cannot inherit pupil local learning data');
+ ok(local.getItem('matteos.study.workspace.v1.'+B)?.includes('B-private-local')===true,'Previous learner local state backed up before mentor starts');
+ ok(mentor.S.capture({grade:'grade8',module:'reading',question_id:'no',answer:'no'})===false,'Mentor is read-only and cannot submit pupil answer');
  console.log('WORKSPACE GUARD QA '+checks+'/'+checks+' PASS');
 })().catch(e=>{console.error(e);process.exit(1)});
