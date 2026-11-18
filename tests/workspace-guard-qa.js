@@ -51,5 +51,7 @@ function client(user){
  local.setItem('matteos.study.workspace-owner.v1',A);
  ok(b.S.capture({grade:'grade8',module:'math',question_id:'b:2',answer:'fail'})===false,'owner mismatch denies capture');
  ok(b.S.canWriteLocal()===false,'owner mismatch blocks local module writes as well as cloud');
+ await assert.rejects(()=>b.S.signOut(),/Kan inte bevara väntande svar/);
+ ok(local.getItem('matteos.study.workspace-owner.v1')===A,'stale-tab signout cannot erase newer account owner');
  console.log('WORKSPACE GUARD QA '+checks+'/'+checks+' PASS');
 })().catch(e=>{console.error(e);process.exit(1)});

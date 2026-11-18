@@ -127,6 +127,7 @@
       <p class="ux-kicker">MATTE OS · ${esc(displayName(p))}</p>
       <h1>${nm ? `Hej, ${esc(nm)}!` : "Vad vill du studera?"}</h1>
       <p class="ux-intro">Några minuter räcker för att börja. Vad känns kul idag?</p>
+      ${window.MO_STUDY?.hasLegacy?.() ? `<a class="joy-legacy" href="study/" role="status"><strong>Äldre övningar finns kvar</strong><span>De är sparade separat för att skydda elevkonton. Visa vad som gäller.</span></a>` : ''}
       <div class="ux-tiles">
         <button class="ux-tile ux-math" data-a="startTrain" data-ch="${rec.chapter}"><span class="ux-tile-mark" aria-hidden="true">∑</span><strong>Matte</strong><small>Fem frågor · din takt · hjälp när du vill</small><b>Starta ›</b></button>
         <a class="ux-tile ux-swedish" href="lara/#/sv"><span class="ux-tile-mark" aria-hidden="true">S</span><strong>Svenska</strong><small>Läsa · förstå · ord</small><b>Välj text ›</b></a>

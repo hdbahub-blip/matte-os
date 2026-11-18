@@ -85,6 +85,10 @@ html[data-mode="dark"] .ux-play{background:linear-gradient(145deg,#543044,#603B4
 .card.hero,.recommended,.wk-feature{border-radius:22px;}
 .done-mark svg{transform-origin:center;animation:joy-success .52s cubic-bezier(.2,.9,.25,1) both;}
 .feedback.ok,.wk-feedback.good{animation:joy-appear .30s ease both;}
+.joy-legacy{display:flex;flex-direction:column;gap:5px;padding:12px 16px;margin:12px 0 15px;border:1px solid var(--ui-border-strong);border-radius:15px;background:var(--ui-primary-tint);color:var(--ui-on-tint);text-decoration:none;}
+.joy-legacy strong{font-weight:800;}
+.joy-legacy span{line-height:1.45;font-size:13px;}
+.joy-legacy:hover,.joy-legacy:focus-visible{border-color:var(--ui-primary);}
 .joy-reflect{margin:16px 0;padding:17px 19px;border:1.5px solid var(--ui-border-strong);border-radius:19px;background:var(--ui-primary-tint);color:var(--ui-on-tint);}
 .joy-reflect strong{font-weight:800;letter-spacing:-.015em;}
 .joy-reflect p{margin:8px 0 0;line-height:1.55;}

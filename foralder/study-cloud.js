@@ -64,11 +64,13 @@ function activateWorkspace(p){
 }
 function suspendWorkspace(){
  const owner=get(OWNER);if(!owner){workspaceBound=false;return true;}
+ const p=member||cache;if(p?.role==='learner'&&p.user_id!==owner){workspaceBound=false;return false;}
  if(!set(WORK+owner,JSON.stringify(workspaceSnapshot())))return false;
  try{restoreWorkspace(null);root.localStorage?.removeItem(OWNER)}catch{return false;}
  pending={events:[],dirty:[]};workspaceBound=false;return true;
 }
 function ownWorkspace(){const p=member||cache;return !!p&&p.role==='learner'&&workspaceBound&&get(OWNER)===p.user_id;}
+function hasLegacy(){try{for(let i=0;i<(root.localStorage?.length||0);i++){if(String(root.localStorage.key(i)||'').startsWith(LEGACY))return true;}}catch{}return false;}
 function canWriteLocal(){const p=member||cache;const owner=get(OWNER);if(owner&&(!p||p.role!=='learner'))return false;return p?.role==='learner'?ownWorkspace():true;}
 
 function dispatch(){try{root.dispatchEvent(new CustomEvent('matte-study-status',{detail:info()}))}catch{}}
@@ -362,5 +364,5 @@ function start(){
  }
 }
 if(typeof root.document!=='undefined')start();
-return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,recover,onActiveGrade,hashCode,compact,canCapture,canWriteLocal,mergeProfile};
+return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,recover,onActiveGrade,hashCode,compact,canCapture,canWriteLocal,hasLegacy,mergeProfile};
 });
