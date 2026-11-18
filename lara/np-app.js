@@ -160,10 +160,10 @@ function viewThinkQ(qi,sub){
   body='<h2>3. Hur kan någon annan se det?</h2><p>Välj en person och tänk som hen. Du behöver inte hålla med.</p><div class="seg col" role="group" aria-label="Perspektiv">'+list.map(function(x,i){return '<button type="button" class="btn alt" data-a="pers" data-q="'+qi+'" data-i="'+i+'" aria-pressed="'+(String(pr.id)===String(i))+'"><b>'+esc(x.who)+'</b><small>'+esc(x.prompt)+'</small></button>';}).join('')+'</div>'
    +(String(pr.id)!==''?'<label for="pers">Vad skulle hen säga – och vad förändrar det för ditt svar?</label><textarea id="pers" rows="4" data-persq="'+qi+'">'+esc(pr.t)+'</textarea>':'')+nav(2,4,'Nästa: jämför ›');
  }else if(step===4){
-  var sup=doc.supports[qi],pair=sup.weak&&sup.strong?[{id:'a',t:sup.weak,tag:'weak'},{id:'b',t:sup.strong,tag:'strong'}]:rot(C.model.answers.map(function(x){return {id:x.id,t:x.t,tag:x.tag};}),qi),picked=(ui.model[qi]||{}),qtext=sup.weak&&sup.strong?q:C.model.question;
-  body='<h2>4. Jämför tre resonemang</h2>'+helpBlock('Övningsexempel – inte facit',(sup.weak&&sup.strong?'<p>Frågan: <i>'+esc(qtext)+'</i></p>':'<p>Exempel på en påhittad text, <b>'+esc(C.model.title)+'</b>:</p><p class="schooltext small">'+esc(C.model.text)+'</p><p>Frågan: <i>'+esc(qtext)+'</i></p>')
+  var sup=doc.supports[qi],pair=sup.weak&&sup.strong?[{id:'a',t:sup.weak,tag:'weak'}].concat(sup.middle?[{id:'b',t:sup.middle,tag:'middle'}]:[]).concat([{id:'c',t:sup.strong,tag:'strong'}]):rot(C.model.answers.map(function(x){return {id:x.id,t:x.t,tag:x.tag};}),qi),picked=(ui.model[qi]||{}),qtext=sup.weak&&sup.strong?q:C.model.question;
+  body='<h2>4. Jämför resonemang</h2>'+helpBlock('Övningsexempel – inte facit',(sup.weak&&sup.strong?'<p>Frågan: <i>'+esc(qtext)+'</i></p>':'<p>Exempel på en påhittad text, <b>'+esc(C.model.title)+'</b>:</p><p class="schooltext small">'+esc(C.model.text)+'</p><p>Frågan: <i>'+esc(qtext)+'</i></p>')
    +'<p>Vilket resonemang är starkast – och varför? Välj först. Sedan ser du förklaringen.</p><div class="seg col" role="group" aria-label="Välj resonemang">'+pair.map(function(x,i){return '<button type="button" class="btn alt" data-a="model" data-q="'+qi+'" data-i="'+x.id+'" aria-pressed="'+(picked.pick===x.id)+'">'+'Svar '+String.fromCharCode(65+i)+': '+esc(x.t)+'</button>';}).join('')+'</div>'
-   +(picked.pick?'<div class="fb '+(pair.filter(function(x){return x.id===picked.pick;})[0].tag==='strong'?'ok':'no')+'" role="status">'+(sup.weak&&sup.strong?esc(sup.why||'Det starkaste svaret har tydligt svar, ”därför”, belägg och en annan syn.'):esc(C.model.explain[picked.pick]))+'</div>':''))
+   +(picked.pick?'<div class="fb '+(pair.filter(function(x){return x.id===picked.pick;})[0].tag==='strong'?'ok':'no')+'" role="status">'+(sup.weak&&sup.strong?esc(({weak:'En start, men förklaringen och textbelägget saknas. ',middle:'En mer utvecklad tanke, men belägg eller annat perspektiv behövs. ',strong:'Det här svaret förklarar, visar och nyanserar. '}[(pair.filter(function(x){return x.id===picked.pick;})[0]||{}).tag]||'')+(sup.why||'')):esc(C.model.explain[picked.pick]))+'</div>':''))
    +'<p class="small">Titta på dina egna fyra delar: Mitt svar, Därför, Belägg, Annan syn. Vilka saknar du?</p>'+nav(3,5,'Nästa: förbättra mitt svar ›',!!picked.pick);
  }else if(step===5){
   var cur=a2.t||a1,an1=K.analyse(a1,{evidenceCount:ev.length,perspectiveDone:!!(J(pre+'.pers',null)||{}).t}),an2=K.analyse(cur,{evidenceCount:ev.length,perspectiveDone:!!(J(pre+'.pers',null)||{}).t}),better=J(pre+'.better',[]);
@@ -189,9 +189,15 @@ function oralRound(qi,parts,lvl,oral){
 }
 function compare(qi,a1,a2){return a2?'<details class="cmp"><summary>Före och efter</summary><div class="grid2"><div><b>Första svaret</b><p class="schooltext">'+esc(a1)+'</p></div><div><b>Förbättrat</b><p class="schooltext">'+esc(a2)+'</p></div></div></details>':'';}
 function viewRetest(qi){
- var pre='ans.q'+qi,rt=J(pre+'.rt',null),q=doc.questions[qi];
- return '<section>'+back('think')+'<p class="eyebrow">Återtest · '+qLabel(qi)+'</p><h1 id="h1" tabindex="-1">Svara på nytt – utan hjälp</h1><p>Du får inte titta på dina gamla svar. Skriv som om du fick frågan för första gången.</p>'+schoolBlock('Skolans fråga',q)
-  +'<div class="card">'+(rt?'<p class="schooltext">'+esc(rt.t)+'</p><div class="chips-box">'+chips(K.analyse(rt.t,{}))+'</div>'+compare(qi,J(pre+'.a2',{t:''}).t,rt.t)+'<p class="fb ok">Sparat. Jämför med ditt förbättrade svar ovan.</p>':'<label for="rt">Mitt svar</label><textarea id="rt" rows="7"></textarea>'+btn('Spara återtest','rtsave','data-q="'+qi+'"'))+'</div></section>';
+ if(needSource())return '<section>'+back('think')+noSource()+'</section>';
+ var pre='ans.q'+qi,rt=J(pre+'.rt',null),st=K.qState(notes,qi,now()),q=doc.questions[qi],rev=J(pre+'.a2',null)||{};
+ var eligible=st.revised&&Number(rev.at)>0&&now()-Number(rev.at)>=20*3600*1000;
+ var head='<section>'+back('think')+'<p class="eyebrow">Återtest · '+qLabel(qi)+'</p><h1 id="h1" tabindex="-1">Svara igen – utan hjälp</h1>';
+ if(!eligible&&!st.retested)return head+'<div class="card note"><h2>Inte dags riktigt än</h2><p>'+(st.revised?'Återkom efter ungefär ett dygn, så får du pröva utan att se ditt gamla svar.':'Förbättra först ditt svar genom träningsstegen.')+'</p><a class="btn" href="#/think/'+qi+'">Till frågan</a></div></section>';
+ head+='<p>Svara med egna ord utan att titta på tidigare svar. Det här är egen träning, inte ett betyg.</p>'+schoolBlock('Skolans fråga',q);
+ if(st.retested&&rt)return head+'<div class="card ok"><h2>Återtest genomfört</h2><p class="schooltext">'+esc(rt.t)+'</p>'+compare(qi,rev.t||'',rt.t)+'<p class="hint">Automatisk textspaning kan inte avgöra om ditt svar är korrekt. Jämför själv vad du har förstått.</p></div></section>';
+ if(rt&&rt.t)return head+'<div class="card"><h2>Ditt försök är sparat</h2><p>Det automatiska stödet hittar inte tillräckligt många resonemangsdelar ännu. Du kan alltid prova igen.</p><p class="schooltext">'+esc(rt.t)+'</p>'+chips(K.analyse(rt.t,{}))+btn('Gör ett nytt försök','rtretry','data-q="'+qi+'"','alt')+'</div></section>';
+ return head+'<div class="card"><label for="rt">Mitt nya svar</label><textarea id="rt" rows="7"></textarea>'+btn('Spara återtest','rtsave','data-q="'+qi+'"')+'<p class="hint">Skriv din egen tanke, motivera och visa exempel. Du kan försöka igen vid behov.</p></div></section>';
 }
 
 /* --- Presentera --- */
@@ -252,7 +258,7 @@ function viewFinish(){
   +'<div class="card"><h2>Genomgång</h2><ol class="checks">'+C.rehearsal.steps.map(function(x,i){return '<li><label class="check"><input type="checkbox" data-reh="'+i+'" '+(checks.indexOf(i)>=0?'checked':'')+'><span>'+esc(x)+'</span></label></li>';}).join('')+'</ol><p class="actions">'+btn(ui.timer?'Stoppa klockan':'Starta sex minuter (övning)','rtimer','','alt')+'<b id="clock" role="timer">'+clockText(360)+'</b></p><p class="hint">'+esc(C.rehearsal.timerNote)+'</p>'+btn(reh?'Genomförd – spara igen':'Jag har genomfört en generalrepetition','rehdone')+(reh?'<p class="fb ok">Genomförd.</p>':'')+'</div>'
   +'<div class="card"><h2>Reflektion</h2>'+C.reflect.map(function(r){return '<label for="rf'+r.k+'">'+esc(r.label)+'</label><textarea id="rf'+r.k+'" rows="3" data-k="reflect.'+r.k+'">'+esc(get('reflect.'+r.k)||'')+'</textarea>';}).join('')+'</div>'
   +(hasQ?'<div class="card"><h2>Du då och nu</h2><div class="grid2"><div><b>Första svaret på fråga 1</b><p class="schooltext">'+esc(a1)+'</p></div><div><b>Efter förbättring</b><p class="schooltext">'+esc(a2||'Inte förbättrat än.')+'</p></div></div></div>':'')
-  +'<div class="card"><h2>Det här kan du nu – bevisat av vad du gjort</h2><ul><li>Svar förbättrade: '+s.improved+' av 5</li><li>Svar sagda högt med mindre stöd: '+s.spoken+' av 5</li><li>Återtest klarade: '+s.retested+'</li><li>Ledarsituationer prövade: '+s.leadSims+' av 5</li><li>Okända texter besvarade: '+s.joinN+' av 3</li></ul><p class="hint">Det här är din egen översikt – inte en bedömning och inte provpoäng.</p></div>'
+  +'<div class="card"><h2>Det här har du övat – enligt dina egna markeringar</h2><ul><li>Svar förbättrade: '+s.improved+' av 5</li><li>Svar sagda högt med mindre stöd: '+s.spoken+' av 5</li><li>Återtest klarade: '+s.retested+'</li><li>Ledarsituationer prövade: '+s.leadSims+' av 5</li><li>Okända texter besvarade: '+s.joinN+' av 3</li></ul><p class="hint">Det här visar träningsaktiviteter som du själv markerat – inte objektivt uppmätt muntlig förmåga, betyg eller provpoäng.</p></div>'
   +(legacy.length?'<details class="card"><summary>Dina tidigare anteckningar (från den gamla övningen)</summary>'+legacy.map(function(k){return '<p><b>'+esc(k.slice(7))+':</b> '+esc(String(notes[k]))+'</p>';}).join('')+'</details>':'')+'</section>';
 }
 
@@ -332,7 +338,8 @@ var A={
  pers:function(b){var q=+b.dataset.q,p=J('ans.q'+q+'.pers',null)||{t:''};setJ('ans.q'+q+'.pers',{id:+b.dataset.i,t:p.t||''});render(true);},
  model:function(b){var q=+b.dataset.q;ui.model[q]={pick:b.dataset.i};render(true);},
  oral:function(b){var q=+b.dataset.q,lvl=+b.dataset.lvl,l=J('ans.q'+q+'.oral',[]);l.push({lvl:lvl,rate:b.dataset.r,at:now()});setJ('ans.q'+q+'.oral',l.slice(-12));ui.oralLvl[q]=Math.min(3,lvl+(b.dataset.r==='read'?0:1));render(true);},
- rtsave:function(b){var q=+b.dataset.q,t=(E('rt')||{}).value||'';if(K.words(t).length<3)return;setJ('ans.q'+q+'.rt',{t:t,at:now(),help:0});render(true);},
+ rtsave:function(b){var q=+b.dataset.q,t=(E('rt')||{}).value||'';if(!K.qState(notes,q,now()).retestReady){ui.msg='Återtestet är inte öppet ännu.';render(true);return;}if(K.words(t).length<3){ui.msg='Skriv några egna ord först.';render(true);return;}setJ('ans.q'+q+'.rt',{t:t,at:now(),help:0});ui.msg='';render(true);},
+  rtretry:function(b){var q=+b.dataset.q,p='ans.q'+q,rt=J(p+'.rt',null),h=J(p+'.rtHistory',[]);if(!K.qState(notes,q,now()).retestReady||!rt||!rt.t)return;h.push(rt);setJ(p+'.rtHistory',h.slice(-12));setJ(p+'.rt',null);render(true);},
  ptimer:function(){toggleTimer(120);},rtimer:function(){toggleTimer(360);},
  plvl:function(b){ui.presLvl=+b.dataset.lvl;render(true);},
  prate:function(b){var l=J('pres.rounds',[]);l.push({lvl:+b.dataset.lvl,rate:b.dataset.r,at:now()});setJ('pres.rounds',l.slice(-12));if(b.dataset.r!=='read'&&ui.presLvl<3)ui.presLvl++;render(true);},
