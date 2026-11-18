@@ -20,6 +20,7 @@ const now=Date.now();let n=0;
      localStorage.setItem('matte-prov-v1',JSON.stringify({grade:'grade8',attempts:[{grade:'grade8',chapter:'f8-geo',mode:'prov',correct:7,total:10,percent:70,finishedAt:now,results:[{raw:'CONFIDENTIAL_EXAM_ANSWER'}]}],attemptNo:1}));
      return localStorage.getItem('matteos.v5');
    },now);
+   await p.locator('.pc-advanced > summary').click();
    await p.locator('a.pc-parent[href="foralder/"]').click();
    await p.waitForURL(/\/foralder\//);
    await p.locator('form#setup').waitFor();n++;
