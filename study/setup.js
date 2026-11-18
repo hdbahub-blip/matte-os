@@ -22,8 +22,8 @@ function authView(){
   +'<li>Första gången väljer du <b>Mentor</b> eller <b>Elev</b> med rätt årskurs och sparar profilen.</li>'
   +'<li>Mentorn skickar en privat inbjudan som eleven godkänner. Sedan följer resultaten med mellan enheter.</li></ol>'
   +'<details><summary>Information för den som administrerar kontona</summary>'
-  +'<p>Öppna <a href="https://supabase.com/dashboard/project/bjyahpcpthumpbktrxnc/auth/users" target="_blank" rel="noopener noreferrer">Supabase → Authentication → Users</a>. '
-  +'Välj <b>Add user → Create new user</b>. Ange personens egen e-postadress, ett separat starkt lösenord och välj e-postbekräftelse enligt projektets inställningar.</p>'
+  +'<p>Öppna kontohanteringen i Supabase:</p><p><a class="btn secondary" href="https://supabase.com/dashboard/project/bjyahpcpthumpbktrxnc/auth/users" target="_blank" rel="noopener noreferrer">Öppna Supabase – användare</a></p>'
+  +'<p>Välj <b>Add user → Create new user</b>. Ange personens egen e-postadress, ett separat starkt lösenord och välj e-postbekräftelse enligt projektets inställningar.</p>'
   +'<p>Varje elev får ett eget konto. Lägg aldrig till eleverna som projektmedlemmar i Supabase Dashboard. Dela inloggningen privat.</p>'
   +'<p>För att hindra självregistrering även genom Auth-API:t måste administratören också stänga <b>Allow new users to sign up</b> under Supabase Authentication → Sign In / Providers. Att dölja registrering här räcker inte som serverbaserad spärr.</p></details>'
   +'<p class="note"><b>Viktigt om gamla resultat:</b> Om du redan tränat på en annan telefon eller installerad ikon, synka först därifrån innan du raderar den gamla installationen.</p></aside>';
