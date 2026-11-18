@@ -7,6 +7,7 @@ const f=F.make();
 ok(K.sourceOK(f),'fixture valid');
 for(const [name,mut] of [['3 questions',o=>o.questions.pop()],['no discussion',o=>{delete o.discussionQuestion}],['few paras',o=>{o.textParagraphs=o.textParagraphs.slice(0,3)}],['wrong grade',o=>{o.grade='grade8'}],['wrong format',o=>{o.format='x'}],['bad section index',o=>{o.sections[0].paras=[99]}],['huge para',o=>{o.textParagraphs[0]='x'.repeat(13000)}],['bad keypoint',o=>{o.sections[0].keyPoints=[1]}]]){const g=F.make();mut(g);ok(!K.sourceOK(g),'rejects '+name);}
 const nd=K.normalize(f);ok(nd.questions.length===5&&nd.questions[4]===f.discussionQuestion,'4 school questions + discussion');ok(nd.sections.length===3,'sections kept');
+ok(nd.supports[0].middle===f.supports[0].middle,'private third example survives normalisation');
 const v1=F.make();v1.format='matte-os-np-private-v1';delete v1.sections;delete v1.fidelity;const n1=K.normalize(v1);ok(n1&&n1.v===1&&n1.sections.length===2&&n1.sections[0].paras.length===4,'v1 package gets automatic sections');
 // textspaning
 const weak=K.analyse('Den var bra.');ok(weak.count<=1,'weak answer: few ingredients');
