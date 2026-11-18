@@ -30,7 +30,7 @@
   };
 
   /* ---------- hjälpare ---------- */
-  const pid = () => E.state().active;
+  const pid = () => { const p=window.MO_STUDY?.profile?.(); return p?.role==='learner'&&['grade8','grade9'].includes(p.grade)?p.grade:E.state().active; };
   const P = () => CORE.profiles[pid()];
   const go = h => { if (location.hash === h) render(); else location.hash = h; };
   const chName = chId => { for (const p of Object.values(CORE.profiles)) { const c = p.chapters.find(c => c.id === chId); if (c) return c.name; } return ''; };
@@ -47,7 +47,7 @@
     return `<header class="top"><div class="top-in">
       <button class="brand" data-a="nav" data-h="#/" aria-label="Matte OS – start"><span class="brand-m">M</span><span class="brand-t">MATTE OS</span></button>
       <button class="icon-btn" data-a="appearance" title="Växla nattläge" aria-label="${mode()==="dark"?"Ljust läge":"Nattläge"}" aria-pressed="${mode()==="dark"}"><span aria-hidden="true">${mode()==="dark"?"☀":"☾"}</span></button>
-      <button class="chip-btn" data-a="profile" aria-label="Byt profil, nu ${esc(displayName(p))}"><span class="av">${esc(CORE.profiles[p].short)}</span>${E.prof(p).name ? `<span class="n">${esc(E.prof(p).name)}</span>` : ''}</button>
+      ${window.MO_STUDY?.profile?.()?.role==='learner' ? `<a class="chip-btn" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[p].short)}</span><span class="n">Mitt konto</span></a>` : `<button class="chip-btn" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[p].short)}</span>${E.prof(p).name ? `<span class="n">${esc(E.prof(p).name)}</span>` : ''}</button>`}
     </div></header>
     <main id="main">${content}</main>
     <nav class="nav" aria-label="Välj ämne eller spel"><div class="nav-in ux-dock">
@@ -64,7 +64,7 @@
       <button class="focus-back" data-a="exit" data-h="${exit}" aria-label="Avsluta och gå tillbaka">${I.back}<span>Tillbaka</span></button>
       <div class="ttl"><small>${esc(sub || '')}</small><b>${esc(title || '')}</b>${bar}</div>
       ${formula ? `<button class="icon-btn" data-a="formula" data-sid="${formula}" aria-label="Visa formelkort">${I.f}</button>` : ''}
-      <button class="chip-btn ux-focus-profile" data-a="profile" aria-label="Byt profil, nu ${esc(displayName(pid()))}"><span class="av">${esc(CORE.profiles[pid()].short)}</span></button>
+      ${window.MO_STUDY?.profile?.()?.role==='learner' ? `<a class="chip-btn ux-focus-profile" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[pid()].short)}</span></a>` : `<button class="chip-btn ux-focus-profile" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[pid()].short)}</span></button>`}
     </div></header><main id="main" class="focus">${content}</main>`;
   }
 
@@ -126,12 +126,12 @@
     return shell(`<section class="ux-landing" aria-label="Välj vad du vill studera">
       <p class="ux-kicker">MATTE OS · ${esc(displayName(p))}</p>
       <h1>${nm ? `Hej, ${esc(nm)}!` : "Vad vill du studera?"}</h1>
-      <p class="ux-intro">Välj en sak. Tryck och börja.</p>
+      <p class="ux-intro">Några minuter räcker för att börja. Vad känns kul idag?</p>
       <div class="ux-tiles">
-        <button class="ux-tile ux-math" data-a="startTrain" data-ch="${rec.chapter}"><span class="ux-tile-mark" aria-hidden="true">∑</span><strong>Matte</strong><small>Starta 5 frågor direkt</small><b>Starta ›</b></button>
+        <button class="ux-tile ux-math" data-a="startTrain" data-ch="${rec.chapter}"><span class="ux-tile-mark" aria-hidden="true">∑</span><strong>Matte</strong><small>Fem frågor · din takt · hjälp när du vill</small><b>Starta ›</b></button>
         <a class="ux-tile ux-swedish" href="lara/#/sv"><span class="ux-tile-mark" aria-hidden="true">S</span><strong>Svenska</strong><small>Läsa · förstå · ord</small><b>Välj text ›</b></a>
         <a class="ux-tile ux-english" href="lara/#/en"><span class="ux-tile-mark" aria-hidden="true">E</span><strong>Engelska</strong><small>Reading · words · stories</small><b>Välj text ›</b></a>
-        <a class="ux-tile ux-play" href="tillsammans/?start=group&grade=${p}"><span class="ux-tile-mark" aria-hidden="true">◈</span><strong>Spela ihop</strong><small>Ensam, två eller flera</small><b>Välj spel ›</b></a>
+        <a class="ux-tile ux-play" href="tillsammans/?start=group&grade=${p}"><span class="ux-tile-mark" aria-hidden="true">◈</span><strong>Spela & upptäck</strong><small>Utmaningar utan betyg</small><b>Välj spel ›</b></a>
       </div>
       ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home ux-memory-nudge" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">En kort minnesfråga väntar.</div></div><span class="chev">${I.chev}</span></a>` : ''}
       ${rec.kind==="continue" ? hero : resumeOutside}
@@ -688,10 +688,10 @@ function boostCard() {
     nav: b => { closeSheet(); go(b.dataset.h); },
     exit: b => { UI.ex = null; go(b.dataset.h || '#/'); },
     search: () => openSheet({ type: 'search', q: '' }),
-    profile: () => openSheet({ type: 'profile' }),
+    profile: () => { if(window.MO_STUDY?.profile?.()?.role==='learner'){window.location.assign('study/');return;} openSheet({type:'profile'}); },
     closesheet: () => closeSheet(),
     scrim: (b, e) => { if (e.target === b) closeSheet(); },
-    pickprofile: b => { if (UI.run && UI.ex && !window.confirm("Du har en pågående uppgift. Byta profil och lämna den?")) return; E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go(/^#\/cup(\/|$)/.test(location.hash) ? location.hash : '#/'); render(); },
+    pickprofile: b => { if(window.MO_STUDY?.profile?.()?.role==='learner'){closeSheet();return;} if (UI.run && UI.ex && !window.confirm("Du har en pågående uppgift. Byta profil och lämna den?")) return; E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go(/^#\/cup(\/|$)/.test(location.hash) ? location.hash : '#/'); render(); },
     profilemanage: () => { if (!UI.sheet) openSheet({type:'profile-manage'}); else {UI.sheet={type:'profile-manage'};renderSheet();} },
     profileback: () => {UI.sheet={type:'profile'};renderSheet();},
     profilenew: () => {
@@ -805,6 +805,7 @@ function boostCard() {
   E.load();
   E.migrateV4().then(n => { if (n) { toast(`Tidigare framsteg flyttades över (${n} svar).`); render(); } });
   render();
+  let displayedLearner='';window.addEventListener('matte-study-status',()=>{const p=window.MO_STUDY?.profile?.();const next=p?.role==='learner'?p.user_id+':'+p.grade:'';if(next!==displayedLearner){displayedLearner=next;render();}});
   // A single consistent profile chooser across Maths and Lärande.
   if (pid() && new URLSearchParams(location.search).get('profiles') === '1') {
     openSheet({ type: 'profile' });

@@ -12,14 +12,19 @@ let state=load(),ui={route:'',phase:0,assist:false,show:false,answer:'',showMode
 // New learners start with the profile selected in original Matte OS. This app stores its own separate progress.
 const rp=rootProfile();if(rp)state.active=rp; // Follow deliberately selected maths grade without changing another profile's history.
 function save(){try{localStorage.setItem(M.STORE,JSON.stringify(state));window.MO_STUDY?.markDirty('learning');return true;}catch{ui.notice='Framstegen kunde inte sparas på den här enheten. Använd säkerhetskopian om det går.';return false;}}
-function syncRootProfile(p){try{const raw=localStorage.getItem('matteos.v5');if(!raw)return;const x=JSON.parse(raw);if(x&&x.v===5&&x.profiles?.grade8&&x.profiles?.grade9){x.active=p;localStorage.setItem('matteos.v5',JSON.stringify(x));}}catch{/* Fail closed: no maths progress mutation */}}
-const active=()=>state.active;
+function syncRootProfile(p){if(window.MO_STUDY?.profile?.()?.role==='learner')return;try{const raw=localStorage.getItem('matteos.v5');if(!raw)return;const x=JSON.parse(raw);if(x&&x.v===5&&x.profiles?.grade8&&x.profiles?.grade9){x.active=p;localStorage.setItem('matteos.v5',JSON.stringify(x));}}catch{/* Fail closed: no maths progress mutation */}}
+const active=()=>{const p=window.MO_STUDY?.profile?.();return p?.role==='learner'&&['grade8','grade9'].includes(p.grade)?p.grade:state.active;};
 const subjectLessons=s=>D.lessons.filter(l=>l.subject===s);
 function pct(n,all){return all?Math.round(n*100/all):0;}
 function h(s){location.hash=s;}
 function toast(msg){ui.notice=msg;render();}
 function banner(){return ui.notice?`<div class="notice" role="status">${esc(ui.notice)}<button data-a="dismiss" aria-label="Stäng meddelande">×</button></div>`:'';}
 function header(){
+  const auth=window.MO_STUDY?.profile?.();
+  if(auth?.role==='learner'){
+    const grade=auth.grade==='grade8'?'Åk 8':'Åk 9';
+    return '<header class="sitehead"><div class="headinner"><a class="brand" href="#/"><span class="mark">M</span><span>MATTE OS <small>LÄRANDE</small></span></a><button class="theme-toggle" data-a="appearance" aria-label="Växla dag- och kvällsläge">'+(mode()==='dark'?'☀':'☾')+'</button><a class="profile" href="../study/" aria-label="Mitt konto och synk">'+grade+' · Mitt konto</a></div></header>';
+  }
  const guests=window.MOTogether?.load()?.guests||[];
  const gradeCards=['grade9','grade8'].map(p=>{
    const is9=p==='grade9',chosen=active()===p;
@@ -131,8 +136,8 @@ function saveDuel(d){if(d.saved)return;d.saved=true;d.savedAt=Date.now();state.d
 const actions={
  'jump-level':b=>{const n=Number(b.dataset.level);if(![1,2,3].includes(n))return;const h=document.getElementById('wk-level-'+n);if(h){h.scrollIntoView({block:'start',behavior:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});h.focus({preventScroll:true});}},
  appearance:toggleMode,
- dismiss:()=>{ui.notice='';render();},'baseline-next':b=>{const v=document.querySelector('input[name=baselineAnswer]:checked')?.value;if(v==null){toast('Välj ett alternativ först.');return;}const question=D.baseline.find(x=>x.id===b.dataset.id);if(!question)return;M.recordBaseline(state,active(),question.id,M.checkChoice(question.q,v),D.baseline);save();render();},profile:()=>{ui.pickProfile=!ui.pickProfile;render();},
- 'choose-profile':b=>{const p=b.dataset.p;if(!['grade8','grade9'].includes(p))return;if(/\/verkstad\//.test(route())&&window.MO_WORKSHOP?._debug?.().ui?.view==='task'&&!window.confirm('Du har ett obesvarat steg. Byt profil och lämna det?'))return;state.active=p;save();syncRootProfile(p);ui.pickProfile=false;render();},
+ dismiss:()=>{ui.notice='';render();},'baseline-next':b=>{const v=document.querySelector('input[name=baselineAnswer]:checked')?.value;if(v==null){toast('Välj ett alternativ först.');return;}const question=D.baseline.find(x=>x.id===b.dataset.id);if(!question)return;M.recordBaseline(state,active(),question.id,M.checkChoice(question.q,v),D.baseline);save();render();},profile:()=>{if(window.MO_STUDY?.profile?.()?.role==='learner'){window.location.assign('../study/');return;}ui.pickProfile=!ui.pickProfile;render();},
+ 'choose-profile':b=>{if(window.MO_STUDY?.profile?.()?.role==='learner')return;const p=b.dataset.p;if(!['grade8','grade9'].includes(p))return;if(/\/verkstad\//.test(route())&&window.MO_WORKSHOP?._debug?.().ui?.view==='task'&&!window.confirm('Du har ett obesvarat steg. Byt profil och lämna det?'))return;state.active=p;save();syncRootProfile(p);ui.pickProfile=false;render();},
  'go-guided':()=>nextPhase(1),'go-solo':()=>nextPhase(2),'go-partner':()=>nextPhase(3),
  'back-phase':()=>nextPhase(Math.max(0,ui.phase-1)),hint:()=>{ui.assist=true;render();},
  transcript:()=>{ui.assist=true;render();},listen:()=>{const l=D.lessons.find(x=>route()==='/lektion/'+x.id);const a=ui.phase===2?l?.solo:l?.guided;if(a?.type==='listen')speak(a);},
@@ -154,6 +159,7 @@ document.addEventListener('change',e=>{if(e.target.name==='answer')ui.answer=e.t
   if(!save()){state=before;toast('Kunde inte återställa på den här enheten.');return;}if(obj.sprak)window.MO_WORKSHOP?.importData?.(obj.sprak);if(obj.ordlek)window.MO_ORDLEK?.importData?.(obj.ordlek);ui.pickProfile=false;toast('Lärandeframstegen återställda. Kontrollera att rätt elev är vald.');}).catch(()=>toast('Filen kunde inte läsas.'));}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ui.pickProfile){ui.pickProfile=false;render();}});
 window.addEventListener('hashchange',render);
+let displayedLearner='';window.addEventListener('matte-study-status',()=>{const p=window.MO_STUDY?.profile?.();const next=p?.role==='learner'?p.user_id+':'+p.grade:'';if(next!==displayedLearner){displayedLearner=next;render();}});
 window.addEventListener('beforeunload',()=>{if('speechSynthesis'in window)window.speechSynthesis.cancel();});
 window.MOL_RENDER=render;window.MOL_ACTIVE=active;window.MOL_DEBUG={getState:()=>structuredClone(state),getUi:()=>structuredClone(ui)};
 render();

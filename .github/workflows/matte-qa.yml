@@ -94,6 +94,7 @@ jobs:
           node --check foralder/cloud-parent.js
           node --check studera/app.js
           node tests/study-cloud-qa.js
+          node tests/workspace-guard-qa.js
           node tests/study-login-only-qa.js
           node --check tests/study-login-only-e2e.js
           node --check tests/study-cloud-e2e.js

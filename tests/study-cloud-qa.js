@@ -46,6 +46,7 @@ function harness(local,opts={}){
 }
 async function test(){
  let local=store({
+ 'matteos.study.workspace-owner.v1':user,
  'matteos.v5':JSON.stringify({v:5,active:'grade8',profiles:{
   grade8:{name:'Elev',attempts:[{s:'f8-fractions',x:'A',t:1762820000000,first:true,ok:true}],lessons:{},tests:[],tables:{facts:{},sessions:[]}},
   grade9:{name:'Privat syster',attempts:[{s:'s9-geometry',x:'B',t:1762820000000,ok:true}]}}}),
@@ -53,6 +54,7 @@ async function test(){
  });
  const {S,sent}=harness(local);
  await S.init();assert.equal(S.profile().grade,'grade8');n++;
+ S.syncAll(); // Only a previously verified owner can explicitly sync this workspace.
  assert.equal(S.capture({grade:'grade9',module:'reading',question_id:'blocked',answer:'Other pupil'}),false);n++;
  assert.equal(S.capture({grade:'grade8',module:'reading',question_id:'sv:buss:q1',
    answer:'Min text',question_text:'Vad hände?',passage_title:'Bussen 07.42',passage_text:'En liten text',solution_text:'Svar'}),true);n++;

@@ -22,7 +22,7 @@ const engine=process.argv[3]==='webkit'?'webkit':'chromium';
    assert.equal(await p.locator('nav.nav .ux-dock > *').count(),5);checks++;
    assert.equal(await p.locator('.ux-more').getAttribute('open'),null);checks++;
    const tiles=await p.locator('.ux-tiles .ux-tile strong').allInnerTexts();
-   assert.deepEqual(tiles,['Matte','Svenska','Engelska','Spela ihop']);checks++;
+   assert.deepEqual(tiles,['Matte','Svenska','Engelska','Spela & upptäck']);checks++;
    const sentinel=await p.evaluate(()=>{
      const s=window.MOEngine.state();
      s.profiles.grade9.rests.simpleUxSentinel='keep9';
