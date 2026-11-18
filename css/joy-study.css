@@ -102,15 +102,15 @@ html[data-mode="dark"] .ux-play{background:linear-gradient(145deg,#543044,#603B4
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition-duration:.01ms!important;transform:none!important;}}
 
 /* Account exit: prominent touch target at the top-right. */
-.quick-logout{
+.quick-logout,.quick-login{
  display:inline-flex;align-items:center;justify-content:center;flex:none;
  min-height:44px;min-width:79px;padding:0 11px;border:1px solid var(--ui-border-strong,#d9d3e5);
  border-radius:12px;background:var(--ui-surface,#fff);color:var(--ui-text,#24263a);
  font:750 13px/1.2 system-ui,-apple-system,sans-serif;text-decoration:none;
  white-space:nowrap;cursor:pointer;
 }
-.quick-logout:hover{background:var(--ui-primary-tint,#f4e9f4);color:var(--ui-on-tint,#602d56)}
-.quick-logout:focus-visible{outline:3px solid var(--ui-primary,#73345f);outline-offset:2px}
+.quick-logout:hover,.quick-login:hover{background:var(--ui-primary-tint,#f4e9f4);color:var(--ui-on-tint,#602d56)}
+.quick-logout:focus-visible,.quick-login:focus-visible{outline:3px solid var(--ui-primary,#73345f);outline-offset:2px}
 @media(max-width:399px){
  .top-in .brand-t{display:none}
  .topin .brand>span:last-child{display:none}
@@ -125,4 +125,17 @@ html[data-mode="dark"] .ux-play{background:linear-gradient(145deg,#543044,#603B4
  .sitehead .headinner>.brand,
  .top-in .brand,
  .topin .brand{min-width:44px;min-height:44px;justify-content:center}
+}
+
+/* Old work stays available, but the entry to learning remains first. */
+.ux-legacy-link{display:inline-flex;align-items:center;min-height:44px;padding:9px 4px;
+ margin:9px 0 0;color:var(--ui-muted);font-size:12px;font-weight:650;
+ text-decoration:underline;text-underline-offset:3px}
+.ux-legacy-link:hover{color:var(--ui-primary)}
+
+@media(max-height:700px) and (min-width:700px){
+ .ux-landing{padding:14px 20px 12px}
+ .ux-landing h1{font-size:clamp(28px,3.5vw,39px)}
+ .ux-landing .ux-tile{min-height:132px;padding:12px}
+ .ux-intro{margin-bottom:12px}
 }

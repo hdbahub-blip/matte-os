@@ -54,6 +54,6 @@ for(const [name,body] of [['HTML',html],['learning SW',childSW],['root SW',rootS
  ok(found===1,name+' includes anthology exactly once');
 }
 ok(html.indexOf('texts-immersive-20261116.js')<html.indexOf('texts-sv.js'),'new bank available before language aggregation');
-ok(childSW.includes('5.2.2-quick-logout')&&rootSW.includes('6.9.7-20261118-quick-logout'),'both PWA caches versioned');
+ok(childSW.includes('5.2.2-quick-logout')&&rootSW.includes('6.9.9-20261118-link-recovery-ui'),'both PWA caches versioned');
 ok(root('lara/sprak.js').includes('NEW_READINGS'),'new texts visibly discoverable');
 console.log('Immersive reading anthology regression PASS: '+checks+' checks, 11 original texts, 88 new tasks.');

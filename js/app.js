@@ -4,6 +4,14 @@
   const E = window.MOEngine, M = window.MOMath, V = window.MOVis, CORE = window.MO_CORE, T = window.MOTables;
   const esc = M.esc, R = M.rich, TX = M.texBlock, SIMPLE = window.MOSimple;
   const app = document.getElementById('app');
+  // Keep the canonical URL after a one-time cache-safe recovery navigation.
+  try {
+    const u=new URL(location.href);
+    if(u.searchParams.has('app_refresh')){
+      u.searchParams.delete('app_refresh');
+      history.replaceState(null,'',u.pathname+u.search+u.hash);
+    }
+  }catch(_){}
   const LOOK='matteos.appearance.v1';
   const mode=()=>{try{return localStorage.getItem(LOOK)==='dark'?'dark':'light'}catch{return 'light'}};
   const setMode=v=>{try{localStorage.setItem(LOOK,v)}catch{}document.documentElement.dataset.mode=v};
@@ -32,7 +40,7 @@
   /* ---------- hjälpare ---------- */
   const signedLearner=()=> (window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.())?.role==='learner';
   const pid = () => { const p=window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.(); return p?.role==='learner'&&['grade8','grade9'].includes(p.grade)?p.grade:E.state().active; };
-  const quickLogout = () => signedLearner() ? '<a class="quick-logout" href="study/?logout=1" aria-label="Logga ut från Matte OS">Logga ut</a>' : '';
+  const accountLink = () => signedLearner() ? '<a class="quick-logout" href="study/?logout=1" aria-label="Logga ut från Matte OS">Logga ut</a>' : '<a class="quick-login" href="study/" aria-label="Logga in på elevkonto">Logga in</a>';
   const P = () => CORE.profiles[pid()];
   const go = h => { if (location.hash === h) render(); else location.hash = h; };
   const chName = chId => { for (const p of Object.values(CORE.profiles)) { const c = p.chapters.find(c => c.id === chId); if (c) return c.name; } return ''; };
@@ -50,7 +58,7 @@
       <button class="brand" data-a="nav" data-h="#/" aria-label="Matte OS – start"><span class="brand-m">M</span><span class="brand-t">MATTE OS</span></button>
       <button class="icon-btn" data-a="appearance" title="Växla nattläge" aria-label="${mode()==="dark"?"Ljust läge":"Nattläge"}" aria-pressed="${mode()==="dark"}"><span aria-hidden="true">${mode()==="dark"?"☀":"☾"}</span></button>
       ${signedLearner() ? `<a class="chip-btn" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[p].short)}</span><span class="n">Mitt konto</span></a>` : `<button class="chip-btn" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[p].short)}</span>${E.prof(p).name ? `<span class="n">${esc(E.prof(p).name)}</span>` : ''}</button>`}
-      ${quickLogout()}
+      ${accountLink()}
     </div></header>
     <main id="main">${content}</main>
     <nav class="nav" aria-label="Välj ämne eller spel"><div class="nav-in ux-dock">
@@ -68,7 +76,7 @@
       <div class="ttl"><small>${esc(sub || '')}</small><b>${esc(title || '')}</b>${bar}</div>
       ${formula ? `<button class="icon-btn" data-a="formula" data-sid="${formula}" aria-label="Visa formelkort">${I.f}</button>` : ''}
       ${signedLearner() ? `<a class="chip-btn ux-focus-profile" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[pid()].short)}</span></a>` : `<button class="chip-btn ux-focus-profile" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[pid()].short)}</span></button>`}
-      ${quickLogout()}
+      ${accountLink()}
     </div></header><main id="main" class="focus">${content}</main>`;
   }
 
@@ -131,13 +139,13 @@
       <p class="ux-kicker">MATTE OS · ${esc(displayName(p))}</p>
       <h1>${nm ? `Hej, ${esc(nm)}!` : "Vad vill du studera?"}</h1>
       <p class="ux-intro">Några minuter räcker för att börja. Vad känns kul idag?</p>
-      ${window.MO_STUDY?.hasLegacy?.() ? `<a class="joy-legacy" href="study/" role="status"><strong>Äldre övningar finns kvar</strong><span>De är sparade separat för att skydda elevkonton. Visa vad som gäller.</span></a>` : ''}
       <div class="ux-tiles">
         <button class="ux-tile ux-math" data-a="startTrain" data-ch="${rec.chapter}"><span class="ux-tile-mark" aria-hidden="true">∑</span><strong>Matte</strong><small>Fem frågor · din takt · hjälp när du vill</small><b>Starta ›</b></button>
         <a class="ux-tile ux-swedish" href="lara/#/sv"><span class="ux-tile-mark" aria-hidden="true">S</span><strong>Svenska</strong><small>Läsa · förstå · ord</small><b>Välj text ›</b></a>
         <a class="ux-tile ux-english" href="lara/#/en"><span class="ux-tile-mark" aria-hidden="true">E</span><strong>Engelska</strong><small>Reading · words · stories</small><b>Välj text ›</b></a>
         <a class="ux-tile ux-play" href="tillsammans/?start=group&grade=${p}"><span class="ux-tile-mark" aria-hidden="true">◈</span><strong>Spela & upptäck</strong><small>Utmaningar utan betyg</small><b>Välj spel ›</b></a>
       </div>
+      ${window.MO_STUDY?.hasLegacy?.() ? `<a class="ux-legacy-link" href="study/">Tidigare övningar är säkert sparade separat. Läs mer.</a>` : ''}
       ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home ux-memory-nudge" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">En kort minnesfråga väntar.</div></div><span class="chev">${I.chev}</span></a>` : ''}
       ${rec.kind==="continue" ? hero : resumeOutside}
     </section>
@@ -151,6 +159,7 @@
         <button data-a="search"><strong>Sök i matten</strong><small>Hitta en regel eller formel</small></button>
       </div><details class="fold"><summary>Planering och prov</summary><div class="in">${progress}${restCards}${lookup}${planHtml}</div></details>
       <a class="ux-settings-link" href="#/installningar">Inställningar och säkerhetskopia</a>
+      <a class="ux-settings-link" href="uppdatera.html">Fortfarande gammal version? Uppdatera appen</a>
     </details>`, 'home');
   }
 
@@ -297,6 +306,7 @@ function boostCard() {
         <div class="actions"><button class="btn" data-a="export">Spara säkerhetskopia</button><button class="btn ghost" data-a="import">Återställ från fil</button><a class="btn ghost" href="foralder/#/dela/${p}">Dela framstegsrapport</a></div>
         <p class="mut small">Framstegsrapporten är avsedd för din lokala översikt på en annan telefon. Filen innehåller endast övningsresultat för vald årskurs, inte skrivna fritextsvar. Dela den privat.</p>
         <input type="file" id="importfile" accept=".json,application/json" hidden></div>
+      <div class="card"><h3>Uppdatera Matte OS</h3><p class="mut small">Om en gammal version visas kan du hämta de senaste appfilerna utan att radera svar eller konton.</p><a class="btn ghost" href="uppdatera.html">Uppdatera den här enheten</a></div>
       <div class="card"><h3>Börja om</h3><p class="mut small">Raderar svar och framsteg för ${esc(P().label)} på den här enheten.</p>
         <button class="btn ${UI.confirmReset ? '' : 'ghost'}" data-a="reset">${UI.confirmReset ? 'Tryck igen för att radera' : 'Nollställ framsteg'}</button></div>
       <details class="fold"><summary>Integritet och Cup</summary><div class="in"><p class="mut small">Dina matteframsteg sparas på den här enheten. I Cup lagrar spelservern tillfälligt smeknamn, tekniskt enhets-ID och spelpoäng. En saltad hash av nätverksadressen används för att hindra spam. Spelrum och utgångna tekniska uppgifter gallras automatiskt.</p></div></details><p class="mut small center">Matte OS ${CORE.version} · byggd ${CORE.build} · matteframsteg sparas på enheten. Cup använder en separat spelserver.</p>`, 'home');

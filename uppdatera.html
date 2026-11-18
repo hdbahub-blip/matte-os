@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#F8F7FE">
+<title>Uppdatera Matte OS</title>
+<style>
+:root{color-scheme:light dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f8f7fe;color:#24263a}
+*{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:20px}
+main{width:min(100%,510px);background:#fff;padding:clamp(22px,5vw,36px);border-radius:24px;border:1px solid #e7e3f0;box-shadow:0 12px 40px #24263a10}
+mark{background:#ede8fb;color:#633363;border-radius:12px;padding:6px 11px;font-weight:800;font-size:12px}
+h1{font-size:clamp(26px,6vw,35px);letter-spacing:-.035em;line-height:1.16;margin:22px 0 12px}
+p{line-height:1.65;color:#525872}button,.go{display:flex;justify-content:center;align-items:center;min-height:48px;width:100%;border-radius:13px;font-size:16px;font-weight:750;padding:10px 18px;text-decoration:none;cursor:pointer}
+button{background:#73345f;border:2px solid #73345f;color:#fff;margin-top:26px}button[disabled]{opacity:.65;cursor:progress}
+.go{color:#73345f;background:#fff;border:2px solid #d9d3e5;margin-top:10px}
+button:focus-visible,.go:focus-visible{outline:3px solid #655b97;outline-offset:3px}
+#status{min-height:25px;margin:16px 0 0;font-weight:650}
+small{display:block;font-size:13px;line-height:1.5;color:#616578;margin-top:16px}
+@media(prefers-color-scheme:dark){:root{background:#16131f;color:#f8f4ff}main{background:#251f32;border-color:#4b4059}p,small{color:#d6cfe0}mark{color:#f6d4ee;background:#45324c}.go{background:#251f32;color:#e3b4d6;border-color:#645371}button{background:#8b4a7c;border-color:#8b4a7c}}
+</style>
+</head>
+<body>
+<main>
+  <mark>MATTE OS · UPPDATERING</mark>
+  <h1>Får du fortfarande den gamla versionen?</h1>
+  <p>Den här sidan hämtar den senaste Matte OS-versionen från samma webbplats och byter ut gamla appfiler på din enhet.</p>
+  <p><strong>Dina konton, svar och sparade framsteg raderas inte.</strong> Du behöver vara ansluten till internet. Stäng gärna andra öppna Matte OS-flikar först.</p>
+  <button id="update" type="button">Uppdatera Matte OS</button>
+  <a class="go" href="./">Till Matte OS utan uppdatering</a>
+  <p id="status" role="status" aria-live="polite"></p>
+  <small>Enbart Matte OS webbcache och dess service workers uppdateras. Ingen inloggning, lokal studiehistorik eller databasinformation tas bort. Offlinefunktionen laddas ned igen när appen öppnas.</small>
+</main>
+<script>
+(function(){
+  'use strict';
+  const button=document.getElementById('update'),status=document.getElementById('status');
+  const site=new URL('./',location.href);
+  const say=(message)=>{status.textContent=message;};
+  button.addEventListener('click',async function(){
+    if(button.disabled)return;
+    button.disabled=true;
+    try{
+      say('Kontrollerar den senaste versionen …');
+      const url=new URL('index.html',site);
+      url.searchParams.set('matteos-check',String(Date.now()));
+      const response=await fetch(url,{cache:'no-store',credentials:'same-origin'});
+      if(!response.ok)throw Error('Webbplatsen kunde inte nås ('+response.status+'). Kontrollera internetanslutningen.');
+      const text=await response.text();
+      const marker=text.match(/<meta\s+name="matte-os-build"\s+content="([^"]+)"/i);
+      if(!marker||!/^7\.0\.(?:[2-9]|\d{2,})\b/.test(marker[1])){
+        throw Error('Kunde inte verifiera senaste versionen. Inga filer har ändrats.');
+      }
+      say('Version '+marker[1]+' hittad. Tar bort föråldrade appfiler …');
+      if('serviceWorker' in navigator){
+        const registrations=await navigator.serviceWorker.getRegistrations();
+        for(const registration of registrations){
+          const scope=new URL(registration.scope);
+          if(scope.origin===site.origin&&scope.pathname.startsWith(site.pathname)){
+            const success=await registration.unregister();
+            if(!success)throw Error('En äldre appversion kunde inte kopplas bort. Stäng andra Matte OS-flikar och prova igen.');
+          }
+        }
+      }
+      if('caches' in window){
+        const names=await caches.keys();
+        for(const name of names){
+          if(/^(matte-os-|matte-prov-)/.test(name)){
+            const success=await caches.delete(name);
+            if(!success)throw Error('En gammal appcache kunde inte rensas. Försök igen.');
+          }
+        }
+      }
+      // The version marker is validated before changing any cache. Persistent user data is untouched.
+      say('Klart! Öppnar senaste Matte OS …');
+      const dest=new URL('./',site);
+      dest.searchParams.set('app_refresh',String(Date.now()));
+      location.replace(dest.href);
+    }catch(e){
+      say('Uppdateringen slutfördes inte: '+String(e.message||'okänt fel')+'. Dina framsteg är kvar.');
+      button.disabled=false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
