@@ -11,7 +11,7 @@ Inloggad elev ska aldrig kunna växla skolidentitet genom en lokal profilväljar
 - Ägarbunden lokal arbetsyta för Study Cloud, uppdelad per användar-ID; omärkta gamla resultat karantänsätts utan automatiskt antagande om ägare.
 - Automatisk uppladdning av gamla lokala data vid första inloggningen borttagen. Utkö mot moln kräver rätt konto och arbetsyta.
 - Utloggning säkerhetskopierar kontots lokala kö och rensar dess globala arbetsyta.
-- Grundprofilväljaren och Lärandes motsvarighet visar elevens verifierade årskurs när hon är inloggad; elevens navigering visar Mitt konto.
+- Matematik, Lärande och Matte Prov visar elevens verifierade årskurs när hon är inloggad; skolprofilväxling och motstridiga `?g=`-parametrar kan inte ändra elevens identitet. Prov från annan eller okänd kontosession karantänsätts lokalt utan automatisk återupptagning. Gäster kan fortsatt välja årskurs som övningsnivå.
 - Skapande av elev/mentorroller från elevens webbläsare blockerat; administrativ tilldelning ska ske via säkert serverförfarande.
 - Databasmigration `matte_study_roles_admin_only_20261118` är applicerad i anslutet Supabase-projekt. Ny SQL-readback visar `authenticated INSERT=false`, 0 INSERT-policy, oförändrat 3 profiler/2 länkar/8 snapshots och kvarstående privilegierad adminväg. Koden under `study/supabase/0004_admin_owned_roles.sql` är motsvarande återuppbyggnadsunderlag.
 - Mentor-/föräldraöversikt spärras visuellt för inloggad elev, medan Supabase RLS fortsatt är servergränsen.

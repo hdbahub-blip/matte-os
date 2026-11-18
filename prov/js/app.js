@@ -11,7 +11,15 @@ let run=loadActive();
 const entryParams=new URLSearchParams(location.search);
 const entryGrade=entryParams.get('g');
 const entryChapter=entryParams.get('ch');
-if(!run && (entryGrade==='grade8'||entryGrade==='grade9')){
+const signedLearner=()=>{const p=window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.();return p?.role==='learner'&&['grade8','grade9'].includes(p.grade)?p:null;};
+const needsAccountCheck=()=>!!window.MO_STUDY?.needsAccountCheck?.();
+const cloudBlocked=()=>['workspace-blocked','workspace-changed','grade-mismatch'].includes(window.MO_STUDY?.info?.()?.status);
+function quarantineActive(){
+ if(!run)return;
+ try{sessionStorage.setItem('matte-prov-v1-active-quarantined.'+Date.now(),JSON.stringify(run));}catch{}
+ run=null;clearActive();
+}
+if(!run && !needsAccountCheck() && !signedLearner() && (entryGrade==='grade8'||entryGrade==='grade9')){
   store.grade=entryGrade;
   saveStore();
 }
@@ -40,12 +48,19 @@ function setTheme(){
 }
 function header(){
  const p=profile();
- return `<header class="top"><div class="topin"><a class="brand" href="../" aria-label="Tillbaka till Matematik"><span class="mark">P</span><span><b>MATTE PROV</b><small>Del av Matte OS · hem ↗</small></span></a><div class="spacer"></div><button type="button" class="mode-toggle" data-mode-toggle aria-label="${appearance()==='dark'?'Ljust läge':'Nattläge'}" aria-pressed="${appearance()==='dark'}">${appearance()==='dark'?'☀':'☾'}</button>${p?`<button class="grade" data-grade aria-label="Byt årskurs">Å${p.label.replace(/\D/g,'')}</button>`:''}</div></header>`;
+ return `<header class="top"><div class="topin"><a class="brand" href="../" aria-label="Tillbaka till Matematik"><span class="mark">P</span><span><b>MATTE PROV</b><small>Del av Matte OS · hem ↗</small></span></a><div class="spacer"></div><button type="button" class="mode-toggle" data-mode-toggle aria-label="${appearance()==='dark'?'Ljust läge':'Nattläge'}" aria-pressed="${appearance()==='dark'}">${appearance()==='dark'?'☀':'☾'}</button>${p?(signedLearner()?`<a class="grade" href="../study/" aria-label="Mitt konto och synk">Å${p.label.replace(/\D/g,'')} · Mitt konto</a>`:`<button class="grade" data-grade aria-label="Byt årskurs">Å${p.label.replace(/\D/g,'')}</button>`):''}</div></header>`;
 }
 function shell(content,focus=false){
  return `<div class="app">${focus?'':header()}<main class="wrap ${focus?'focus-wrap':''}">${content}</main></div>`;
 }
 function render(){
+ if(needsAccountCheck()){app.innerHTML='<main class="wrap" role="status"><section class="exam-card"><h1>Öppnar din studieprofil …</h1><p>Vi kontrollerar att provet hör till rätt elev.</p><a href="../study/">Mitt konto</a></section></main>';return;}
+ if(cloudBlocked()){app.innerHTML='<main class="wrap" role="alert"><section class="exam-card"><h1>Öppna rätt elevkonto</h1><p>Dina svar är bevarade, men vi måste bekräfta rätt arbetsyta innan provet fortsätter.</p><a href="../study/">Mitt konto</a></section></main>';return;}
+ const pupil=signedLearner();
+ if(pupil){
+  if(run&&(run.accountId!==pupil.user_id||run.grade!==pupil.grade))quarantineActive();
+  if(store.grade!==pupil.grade){store.grade=pupil.grade;try{saveStore()}catch(e){app.innerHTML='<main class="wrap" role="alert"><h1>Provet kunde inte öppnas säkert</h1><p>Kontrollera ditt konto och försök igen.</p><a href="../study/">Mitt konto</a></main>';return;}}
+ }else if(run?.accountId)quarantineActive();
  setTheme();
  if(!store.grade){app.innerHTML=shell(renderGradePick());bindHome();return}
  if(run){app.innerHTML=shell(run.review?renderReview():renderQuestion(),true);run.review?bindReview():bindQuestion();return}
@@ -85,7 +100,7 @@ function renderHome(){
 }
 function begin(mode,ch){
  store.attemptNo=(store.attemptNo||0)+1;saveStore();
- run={mode,chapter:ch,chapterName:chapter(ch).name,items:PC.selectRun(skills(),ch,mode,store.attemptNo),index:0,answers:{},flags:{},review:false,startedAt:Date.now()};
+ run={mode,grade:store.grade,accountId:signedLearner()?.user_id||null,chapter:ch,chapterName:chapter(ch).name,items:PC.selectRun(skills(),ch,mode,store.attemptNo),index:0,answers:{},flags:{},review:false,startedAt:Date.now()};
  saveActive();render();
 }
 function key(q){return q.sid+'|'+q.key}
@@ -185,8 +200,8 @@ function clearIncomingSelection(){
 }
 function bindHome(){
  document.querySelector('[data-mode-toggle]')?.addEventListener('click',toggleAppearance);
- document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{clearIncomingSelection();store.grade=b.dataset.pick;saveStore();render()});
- document.querySelector('button[data-grade]')?.addEventListener('click',()=>{clearIncomingSelection();store.grade=null;saveStore();render()});
+ document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{if(signedLearner()||needsAccountCheck())return;clearIncomingSelection();store.grade=b.dataset.pick;saveStore();render()});
+ document.querySelector('button[data-grade]')?.addEventListener('click',()=>{if(signedLearner()||needsAccountCheck())return;clearIncomingSelection();store.grade=null;saveStore();render()});
  document.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>begin(b.dataset.start,b.dataset.ch));
 }
 function bindQuestion(){
@@ -211,5 +226,7 @@ function bindResult(a){
 }
 
 render();
+let displayedIdentity='';
+window.addEventListener('matte-study-status',()=>{const p=signedLearner();const next=(p?.user_id||'')+':'+(p?.grade||'')+':'+String(window.MO_STUDY?.info?.()?.status||'');if(next!==displayedIdentity){displayedIdentity=next;render();}});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 })();
