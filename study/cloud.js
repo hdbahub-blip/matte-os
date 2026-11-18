@@ -129,7 +129,9 @@ async function signIn(email,password){
 }
 async function signOut(){
  if(!suspendWorkspace())throw Error('Kan inte bevara väntande svar. Utloggningen avbröts.');
- if(db)await db.auth.signOut();session=null;member=null;cache=null;try{root.localStorage?.removeItem(CACHE)}catch{}
+ if(db)await db.auth.signOut({scope:'local'});
+  else root.localStorage?.removeItem('matteos-study-auth-v1');
+  session=null;member=null;cache=null;try{root.localStorage?.removeItem(CACHE)}catch{}
  status='signed-out';dispatch();
 }
 async function enroll(){throw Error('Roll och årskurs får endast tilldelas av Matte OS-administratören.');}

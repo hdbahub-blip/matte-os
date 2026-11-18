@@ -24,7 +24,7 @@ function header(){
   const auth=window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.();
   if(auth?.role==='learner'){
     const grade=auth.grade==='grade8'?'Åk 8':'Åk 9';
-    return '<header class="sitehead"><div class="headinner"><a class="brand" href="#/"><span class="mark">M</span><span>MATTE OS <small>LÄRANDE</small></span></a><button class="theme-toggle" data-a="appearance" aria-label="Växla dag- och kvällsläge">'+(mode()==='dark'?'☀':'☾')+'</button><a class="profile" href="../study/" aria-label="Mitt konto och synk">'+grade+' · Mitt konto</a></div></header>';
+    return '<header class="sitehead"><div class="headinner"><a class="brand" href="#/"><span class="mark">M</span><span>MATTE OS <small>LÄRANDE</small></span></a><button class="theme-toggle" data-a="appearance" aria-label="Växla dag- och kvällsläge">'+(mode()==='dark'?'☀':'☾')+'</button><a class="profile" href="../study/" aria-label="Mitt konto och synk">'+grade+' · Mitt konto</a><a class="quick-logout" href="../study/?logout=1" aria-label="Logga ut från Matte OS">Logga ut</a></div></header>';
   }
  const guests=window.MOTogether?.load()?.guests||[];
  const gradeCards=['grade9','grade8'].map(p=>{

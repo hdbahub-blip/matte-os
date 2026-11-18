@@ -32,6 +32,7 @@
   /* ---------- hjälpare ---------- */
   const signedLearner=()=> (window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.())?.role==='learner';
   const pid = () => { const p=window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.(); return p?.role==='learner'&&['grade8','grade9'].includes(p.grade)?p.grade:E.state().active; };
+  const quickLogout = () => signedLearner() ? '<a class="quick-logout" href="study/?logout=1" aria-label="Logga ut från Matte OS">Logga ut</a>' : '';
   const P = () => CORE.profiles[pid()];
   const go = h => { if (location.hash === h) render(); else location.hash = h; };
   const chName = chId => { for (const p of Object.values(CORE.profiles)) { const c = p.chapters.find(c => c.id === chId); if (c) return c.name; } return ''; };
@@ -49,6 +50,7 @@
       <button class="brand" data-a="nav" data-h="#/" aria-label="Matte OS – start"><span class="brand-m">M</span><span class="brand-t">MATTE OS</span></button>
       <button class="icon-btn" data-a="appearance" title="Växla nattläge" aria-label="${mode()==="dark"?"Ljust läge":"Nattläge"}" aria-pressed="${mode()==="dark"}"><span aria-hidden="true">${mode()==="dark"?"☀":"☾"}</span></button>
       ${signedLearner() ? `<a class="chip-btn" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[p].short)}</span><span class="n">Mitt konto</span></a>` : `<button class="chip-btn" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[p].short)}</span>${E.prof(p).name ? `<span class="n">${esc(E.prof(p).name)}</span>` : ''}</button>`}
+      ${quickLogout()}
     </div></header>
     <main id="main">${content}</main>
     <nav class="nav" aria-label="Välj ämne eller spel"><div class="nav-in ux-dock">
@@ -66,6 +68,7 @@
       <div class="ttl"><small>${esc(sub || '')}</small><b>${esc(title || '')}</b>${bar}</div>
       ${formula ? `<button class="icon-btn" data-a="formula" data-sid="${formula}" aria-label="Visa formelkort">${I.f}</button>` : ''}
       ${signedLearner() ? `<a class="chip-btn ux-focus-profile" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[pid()].short)}</span></a>` : `<button class="chip-btn ux-focus-profile" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[pid()].short)}</span></button>`}
+      ${quickLogout()}
     </div></header><main id="main" class="focus">${content}</main>`;
   }
 
