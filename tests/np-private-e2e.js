@@ -215,7 +215,7 @@ async function answer(page,qi,t=text,b=better){
   const c4=await browser.newContext({viewport:{width:390,height:844}});const p4=await c4.newPage();p4.on('pageerror',e=>errors.push(String(e)));
   await p4.goto(URL);await p4.evaluate(()=>navigator.serviceWorker.ready);await p4.setInputFiles('#fileSource',{name:'x.json',mimeType:'application/json',buffer:buf(fixture)}).catch(()=>{});
   await p4.click('.np-top [data-a=sheet]');await p4.setInputFiles('#fileSource',{name:'x.json',mimeType:'application/json',buffer:buf(fixture)});await p4.waitForSelector('.station');
-  await p4.reload();await p4.waitForFunction(()=>caches.keys().then(k=>k.some(x=>x.includes('larande-4.9.0-np-rebuild'))));
+  await p4.reload();await p4.waitForFunction(()=>caches.keys().then(k=>k.some(x=>x.includes('larande-5.0.0-np-auto-source'))));
   await p4.waitForFunction(()=>caches.open(caches.keys?'':'').then(()=>true));
   const cached=await p4.evaluate(async()=>{const ks=await caches.keys();const out=[];for(const k of ks){const c=await caches.open(k);out.push(...(await c.keys()).map(r=>new URL(r.url).pathname.split('/').pop()));}return out;});
   ok(['np-app.js','np-core.js','np-content.js','np.css','np-muntligt.html'].every(f=>cached.includes(f)),'offline cache holds the NP app files');
