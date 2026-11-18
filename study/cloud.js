@@ -30,6 +30,13 @@ if(!Array.isArray(pending.dirty))pending.dirty=[];
 const OWNER='matteos.study.workspace-owner.v1', WORK='matteos.study.workspace.v1.', LEGACY='matteos.study.legacy-unclaimed.v1.';
 const WORK_KEYS=[...Object.values(PARTS),OUTBOX];
 let workspaceBound=false;
+function verifiedCachedOwner(){
+ const auth=safe(get('matteos-study-auth-v1'));
+ return !!cache&&cache.role==='learner'&&GRADES.includes(cache.grade)&&/^[0-9a-f-]{36}$/i.test(cache.user_id||'')&&get(OWNER)===cache.user_id&&auth?.user?.id===cache.user_id;
+}
+workspaceBound=verifiedCachedOwner();
+function offlineProfile(){return !member&&['no-sdk','offline','error'].includes(status)&&verifiedCachedOwner()?cache:null;}
+function needsAccountCheck(){return (get(OWNER)&&!get('matteos-study-auth-v1'))|| (!!get('matteos-study-auth-v1')&&!member&&!offlineProfile());}
 function workspaceSnapshot(){return Object.fromEntries(WORK_KEYS.map(k=>[k,get(k)]));}
 function restoreWorkspace(snapshot){
  for(const k of WORK_KEYS){
@@ -345,8 +352,12 @@ function onActiveGrade(grade){
 function start(){
  // Avoid a third-party network fetch in unauthenticated learner/Cup sessions.
  // Sign-in page explicitly calls init() and loads the pinned SDK itself.
- const shouldLoad=!!get('matteos-study-auth-v1')||!!get(CACHE);
- if(!shouldLoad&&get(OWNER)){
+ if(!get('matteos-study-auth-v1')){
+    if(!get(OWNER)||suspendWorkspace()){cache=null;try{root.localStorage?.removeItem(CACHE)}catch{}}
+    else{status='workspace-blocked';dispatch();}
+  }
+  const shouldLoad=!!get('matteos-study-auth-v1')||!!get(CACHE);
+  if(!shouldLoad&&get(OWNER)){
   if(suspendWorkspace()&&root.document&&typeof root.location?.reload==='function')root.location.reload();
  }
  if(shouldLoad&&validClient())initialize().catch(()=>{});
@@ -364,5 +375,5 @@ function start(){
  }
 }
 if(typeof root.document!=='undefined')start();
-return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,recover,onActiveGrade,hashCode,compact,canCapture,canWriteLocal,hasLegacy,mergeProfile};
+return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,recover,onActiveGrade,hashCode,compact,canCapture,canWriteLocal,hasLegacy,offlineProfile,needsAccountCheck,mergeProfile};
 });

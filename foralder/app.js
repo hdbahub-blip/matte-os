@@ -222,7 +222,7 @@ function sharePage(g){
  '<p class="note" style="margin-top:17px">Förälder: öppna <a href="./">Min översikt</a>, lås upp med din kod och välj Läs in rapportfil.</p>',{share:true});
 }
 function render(){
- if(window.MO_STUDY?.profile?.()?.role==='learner'){
+ if((window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.())?.role==='learner'){
   root.innerHTML=wrap('<section class="card"><h1>Det här är mentoröversikten.</h1><p>Du är inloggad som elev. Dina egna uppgifter finns i din lärmiljö.</p><a class="btn" href="../">Till mina studier</a></section>',{locked:true});return;
  }
  mode();const share=/^#\/dela\/(grade8|grade9)$/.exec(location.hash);

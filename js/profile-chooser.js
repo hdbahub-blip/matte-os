@@ -45,7 +45,7 @@
   }
 
   function render(opts) {
-    const auth=root.MO_STUDY?.profile?.();
+    const auth=root.MO_STUDY?.profile?.()||root.MO_STUDY?.offlineProfile?.();
     if(auth?.role==='learner'){
       const grade=auth.grade==='grade8'?'Årskurs 8':'Årskurs 9';
       return '<section class="pc-chooser"><div class="pc-heading"><h2 id="pc-title">Min studieprofil</h2><p>Du är inloggad i '+grade+'. Här visas bara din egen lärmiljö.</p></div><div class="pc-current-profile"><strong>'+grade+'</strong><span>Din privata lärmiljö</span></div><a class="btn" href="study/">Mitt konto och synk</a></section>';

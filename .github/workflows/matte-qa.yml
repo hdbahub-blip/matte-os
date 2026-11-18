@@ -99,6 +99,7 @@ jobs:
           node --check tests/study-login-only-e2e.js
           node --check tests/account-navigation-e2e.js
           node --check tests/workspace-cross-tab-e2e.js
+          node --check tests/offline-account-e2e.js
           node --check tests/study-cloud-e2e.js
           node --check lara/ordlek.js
           node --check tests/ordlek-night-e2e.js
@@ -132,6 +133,7 @@ jobs:
           node tests/study-login-only-e2e.js http://127.0.0.1:8765/ chromium
           node tests/account-navigation-e2e.js http://127.0.0.1:8765/
           node tests/workspace-cross-tab-e2e.js http://127.0.0.1:8765/
+          node tests/offline-account-e2e.js http://127.0.0.1:8765/
           node tests/sprak-e2e.js http://127.0.0.1:8765/
           node tests/np-private-e2e.js http://127.0.0.1:8765/
           node tests/np-cloud-e2e.js http://127.0.0.1:8765/

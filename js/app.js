@@ -30,7 +30,8 @@
   };
 
   /* ---------- hjälpare ---------- */
-  const pid = () => { const p=window.MO_STUDY?.profile?.(); return p?.role==='learner'&&['grade8','grade9'].includes(p.grade)?p.grade:E.state().active; };
+  const signedLearner=()=> (window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.())?.role==='learner';
+  const pid = () => { const p=window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.(); return p?.role==='learner'&&['grade8','grade9'].includes(p.grade)?p.grade:E.state().active; };
   const P = () => CORE.profiles[pid()];
   const go = h => { if (location.hash === h) render(); else location.hash = h; };
   const chName = chId => { for (const p of Object.values(CORE.profiles)) { const c = p.chapters.find(c => c.id === chId); if (c) return c.name; } return ''; };
@@ -47,7 +48,7 @@
     return `<header class="top"><div class="top-in">
       <button class="brand" data-a="nav" data-h="#/" aria-label="Matte OS – start"><span class="brand-m">M</span><span class="brand-t">MATTE OS</span></button>
       <button class="icon-btn" data-a="appearance" title="Växla nattläge" aria-label="${mode()==="dark"?"Ljust läge":"Nattläge"}" aria-pressed="${mode()==="dark"}"><span aria-hidden="true">${mode()==="dark"?"☀":"☾"}</span></button>
-      ${window.MO_STUDY?.profile?.()?.role==='learner' ? `<a class="chip-btn" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[p].short)}</span><span class="n">Mitt konto</span></a>` : `<button class="chip-btn" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[p].short)}</span>${E.prof(p).name ? `<span class="n">${esc(E.prof(p).name)}</span>` : ''}</button>`}
+      ${signedLearner() ? `<a class="chip-btn" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[p].short)}</span><span class="n">Mitt konto</span></a>` : `<button class="chip-btn" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[p].short)}</span>${E.prof(p).name ? `<span class="n">${esc(E.prof(p).name)}</span>` : ''}</button>`}
     </div></header>
     <main id="main">${content}</main>
     <nav class="nav" aria-label="Välj ämne eller spel"><div class="nav-in ux-dock">
@@ -64,7 +65,7 @@
       <button class="focus-back" data-a="exit" data-h="${exit}" aria-label="Avsluta och gå tillbaka">${I.back}<span>Tillbaka</span></button>
       <div class="ttl"><small>${esc(sub || '')}</small><b>${esc(title || '')}</b>${bar}</div>
       ${formula ? `<button class="icon-btn" data-a="formula" data-sid="${formula}" aria-label="Visa formelkort">${I.f}</button>` : ''}
-      ${window.MO_STUDY?.profile?.()?.role==='learner' ? `<a class="chip-btn ux-focus-profile" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[pid()].short)}</span></a>` : `<button class="chip-btn ux-focus-profile" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[pid()].short)}</span></button>`}
+      ${signedLearner() ? `<a class="chip-btn ux-focus-profile" href="study/" aria-label="Mitt konto och synk"><span class="av">${esc(CORE.profiles[pid()].short)}</span></a>` : `<button class="chip-btn ux-focus-profile" data-a="profile" aria-label="Välj lokal övningsprofil"><span class="av">${esc(CORE.profiles[pid()].short)}</span></button>`}
     </div></header><main id="main" class="focus">${content}</main>`;
   }
 
@@ -630,6 +631,9 @@ function boostCard() {
   /* ================= ROUTER ================= */
   let lastRoute = '';
   function render() {
+    if(window.MO_STUDY?.needsAccountCheck?.()){
+      app.innerHTML='<main class="container" id="main"><section class="card" aria-live="polite"><h1>Öppnar din studieprofil …</h1><p>Vi kontrollerar att framstegen hör till rätt elev. Dina tidigare svar är bevarade.</p><a class="btn" href="study/">Mitt konto</a></section></main>';return;
+    }
     const cloud=window.MO_STUDY?.info?.();
     if(['workspace-blocked','workspace-changed','grade-mismatch'].includes(cloud?.status)){
       app.innerHTML='<main id="main" class="container" style="padding:26px 16px"><section class="card" role="alert"><h1>Vi behöver bekräfta ditt konto</h1><p>En annan flik eller enhet kan ha ändrat studieprofilen. Vi skyddar dina sparade resultat tills du öppnar rätt konto igen.</p><a class="btn" href="study/">Öppna mitt konto</a></section></main>';return;
@@ -697,10 +701,10 @@ function boostCard() {
     nav: b => { closeSheet(); go(b.dataset.h); },
     exit: b => { UI.ex = null; go(b.dataset.h || '#/'); },
     search: () => openSheet({ type: 'search', q: '' }),
-    profile: () => { if(window.MO_STUDY?.profile?.()?.role==='learner'){window.location.assign('study/');return;} openSheet({type:'profile'}); },
+    profile: () => { if(signedLearner()){window.location.assign('study/');return;} openSheet({type:'profile'}); },
     closesheet: () => closeSheet(),
     scrim: (b, e) => { if (e.target === b) closeSheet(); },
-    pickprofile: b => { if(window.MO_STUDY?.profile?.()?.role==='learner'){closeSheet();return;} if (UI.run && UI.ex && !window.confirm("Du har en pågående uppgift. Byta profil och lämna den?")) return; E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go(/^#\/cup(\/|$)/.test(location.hash) ? location.hash : '#/'); render(); },
+    pickprofile: b => { if(signedLearner()){closeSheet();return;} if (UI.run && UI.ex && !window.confirm("Du har en pågående uppgift. Byta profil och lämna den?")) return; E.state().active = b.dataset.p; E.save(); UI.lesson = null; UI.run = null; UI.ex = null; UI.fch = null; closeSheet(); go(/^#\/cup(\/|$)/.test(location.hash) ? location.hash : '#/'); render(); },
     profilemanage: () => { if (!UI.sheet) openSheet({type:'profile-manage'}); else {UI.sheet={type:'profile-manage'};renderSheet();} },
     profileback: () => {UI.sheet={type:'profile'};renderSheet();},
     profilenew: () => {
@@ -814,7 +818,7 @@ function boostCard() {
   E.load();
   E.migrateV4().then(n => { if (n) { toast(`Tidigare framsteg flyttades över (${n} svar).`); render(); } });
   render();
-  let displayedLearner='';window.addEventListener('matte-study-status',()=>{const p=window.MO_STUDY?.profile?.();const next=(p?.role==='learner'?p.user_id+':'+p.grade:'')+'|'+(['workspace-blocked','workspace-changed','grade-mismatch'].includes(window.MO_STUDY?.info?.()?.status)?'blocked':'ok');if(next!==displayedLearner){displayedLearner=next;render();}});
+  let displayedLearner='';window.addEventListener('matte-study-status',()=>{const p=window.MO_STUDY?.profile?.();const next=(p?.role==='learner'?p.user_id+':'+p.grade:'')+'|'+String(window.MO_STUDY?.info?.()?.status||'');if(next!==displayedLearner){displayedLearner=next;render();}});
   // A single consistent profile chooser across Maths and Lärande.
   if (pid() && new URLSearchParams(location.search).get('profiles') === '1') {
     openSheet({ type: 'profile' });
