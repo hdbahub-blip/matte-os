@@ -1,5 +1,5 @@
 # Matte OS · Joy + kontosäkerhet: releasekandidat 2026-11-18
-Status: endast testgren; HOLD för produktionsmerge.
+Status: kod på testgren; produktionsdatabasens self-enrollment-spärr införd med verifierad readback. HOLD för produktionsmerge tills CI och slutliga regressionsgrindar är gröna.
 Källrepo: hdbahub-blip/matte-os
 Gren: audit/joy-safety-unified-20261118
 Bas: FULLSPEC-revision 2026-11-18 och verifierad befintlig matematik-/språkkod.
@@ -13,7 +13,7 @@ Inloggad elev ska aldrig kunna växla skolidentitet genom en lokal profilväljar
 - Utloggning säkerhetskopierar kontots lokala kö och rensar dess globala arbetsyta.
 - Grundprofilväljaren och Lärandes motsvarighet visar elevens verifierade årskurs när hon är inloggad; elevens navigering visar Mitt konto.
 - Skapande av elev/mentorroller från elevens webbläsare blockerat; administrativ tilldelning ska ske via säkert serverförfarande.
-- Databasfil för borttagning av authenticated INSERT och self-enrollment-policy är förberedd men INTE applicerad.
+- Databasmigration `matte_study_roles_admin_only_20261118` är applicerad i anslutet Supabase-projekt. Ny SQL-readback visar `authenticated INSERT=false`, 0 INSERT-policy, oförändrat 3 profiler/2 länkar/8 snapshots och kvarstående privilegierad adminväg. Koden under `study/supabase/0004_admin_owned_roles.sql` är motsvarande återuppbyggnadsunderlag.
 - Mentor-/föräldraöversikt spärras visuellt för inloggad elev, medan Supabase RLS fortsatt är servergränsen.
 - Ny gemensam CSS med blått/indigo, lila/berry, mint och mjukt rosa, korta responsanimationer, kontrast och reducerat rörelseläge.
 - Ursprungliga uppgiftsmotorer, lektionsinnehåll, årsgradernas progression, Cup och Joker lagras fortsatt separat.
@@ -50,7 +50,7 @@ https://www.w3.org/TR/WCAG22/
 7. **CI/rollout:** kör samtliga tester på samma commit SHA, kontrollera Pages-deploy SHA och offline-cache-färskhet.
 
 ## BLOCK / återstående begränsningar
-- Säkerhetsmigrationen för administrativ rolltilldelning måste godkännas, införas och verifieras innan produktionsrelease. Äldre live-API kan annars fortfarande möjliggöra self-enrollment.
+- Säkerhetsmigrationen är genomförd och verifierad; produktionsrelease kräver fortfarande gröna CI-grindar och slutlig synk-, flerfliks-, offline- och tillgänglighetskontroll. Ett oregistrerat konto får nu vänta på betrodd administrativ profilaktivering, inte välja mentorroll självt.
 - Workspace-isoleringen bör kompletteras med konfrontativa flerfliks- och strömavbrottstester; global browserlagring ersätts hellre långsiktigt med direkt kontonycklad lagring.
 - Äldre data ligger i karantän. Ingen automatisk migrering får ske utan belägg om ägare och återställningspunkt.
 - Skarpa elevkonton, privata inlämnade svar och fysisk mobil används inte i automatiska test.
