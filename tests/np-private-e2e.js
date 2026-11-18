@@ -33,7 +33,7 @@ async function answer(page,qi,t=text,b=better){
  await page.locator('[data-evq][data-i="0"]').check();await page.fill('#evwhy','Stället visar att hon inte ger upp.');
  await page.click('[data-a=qstep][data-s="3"]');await page.click('[data-a=pers][data-i="0"]');await page.fill('#pers','Hon skulle säga att det är ensamt att vänta.');
  await page.click('[data-a=qstep][data-s="4"]');
-  ok(await page.locator('[data-a=model]').count()===3,'three comparison levels are shown');
+  await page.waitForSelector('[data-a=model]');ok(await page.locator('[data-a=model]').count()===3,'three comparison levels are shown');
  ok(await page.locator('[data-a=qstep][data-s="5"]').isDisabled(),'cannot continue before comparing');
  await page.click('[data-a=model]:nth-of-type(1)');await page.waitForSelector('#h1,.fb');await page.click('[data-a=qstep][data-s="5"]');
  await page.fill('#a2',b);await page.locator('[data-better][data-id=because]').check();

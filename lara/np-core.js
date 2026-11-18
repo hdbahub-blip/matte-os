@@ -34,7 +34,7 @@ function normalize(o){
   note:typeof o.note==='string'?o.note.slice(0,600):'',questionHeading:o.questionHeading||'',discussionHeading:o.discussionHeading||'',discussionInstruction:o.discussionInstruction||'',
   paras:o.textParagraphs,sections:sections,questions:qs,
   supports:qs.map(function(_,i){var s=sup[i]||{};return {steps:Array.isArray(s.steps)?s.steps:[],evidence:s.evidence||'',perspective:s.perspective||'',stem:s.stem||'',
-   weak:s.weak||'',strong:s.strong||'',why:s.why||'',perspectives:Array.isArray(s.perspectives)?s.perspectives:[],evidenceParas:Array.isArray(s.evidenceParas)?s.evidenceParas:[]};}),
+   weak:s.weak||'',middle:s.middle||'',strong:s.strong||'',why:s.why||'',perspectives:Array.isArray(s.perspectives)?s.perspectives:[],evidenceParas:Array.isArray(s.evidenceParas)?s.evidenceParas:[]};}),
   fidelity:Array.isArray(o.fidelity)?o.fidelity:[]};
 }
 
