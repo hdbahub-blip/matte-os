@@ -36,6 +36,18 @@ function switchAccount(id){
  render();return true;
 }
 function lockAccount(){if(!accountId)return false;accountId='';ROOT='matteos.np.enstarknolla.grade9.';raw=null;doc=null;notes={};noteAt={};sourceAt=0;render();return true;}
+function installSource(o,sha){
+ if(!accountId||!K.sourceOK(o)||!(/^[a-f0-9]{64}$/).test(sha||''))return false;
+ if(raw&&load('canonicalSha','')===sha&&K.sourceOK(raw))return true;
+ var previous={raw:raw,doc:doc,sourceAt:sourceAt};
+ setSource(o);sourceAt=now();
+ if(!save('source',raw)||!save('sourceAt',sourceAt)||!save('canonicalSha',sha)){
+  raw=previous.raw;doc=previous.doc;sourceAt=previous.sourceAt;
+  ui.msg='Kunde inte lagra skoltexten på den här enheten. Frigör utrymme och försök igen.';
+  return false;
+ }
+ ui.msg='';softRender();return true;
+}
 function snapshot(){return {kind:'matteos-private-np-2',workId:'en-stark-nolla',source:raw,sourceAt:sourceAt,entries:K.snapshotEntries(notes,noteAt)};}
 function mergeCloud(rows){
  var changed=false;
@@ -59,7 +71,7 @@ function stepBar(n,cur,names){return '<ol class="steps" aria-label="Steg">'+name
 function schoolBlock(label,text,extra){return '<blockquote class="school"><span class="tag">'+esc(label)+'</span><p>'+esc(text)+'</p>'+(extra||'')+'</blockquote>';}
 function helpBlock(title,inner){return '<div class="help"><span class="tag help-tag">'+esc(title)+'</span>'+inner+'</div>';}
 function chips(an){return '<ul class="chips" aria-label="Textspaning">'+K.INGREDIENTS.map(function(i){var on=an.found.indexOf(i)>=0;return '<li class="'+(on?'on':'')+'"><span aria-hidden="true">'+(on?'✓':'○')+'</span> '+esc(C.ingredients[i].label)+'<small class="sr"> '+(on?'syns':'syns inte än')+'</small></li>';}).join('')+'</ul><p class="hint">Textspaning – ett stöd för dig, inte ett betyg. Du avgör själv om något saknas.</p>';}
-function noSource(){return '<div class="card warn"><h2>Lägg in ditt textpaket först</h2><p>Det här steget använder skolans text. Den finns bara på din enhet och i ditt skyddade konto – aldrig i appens öppna kod.</p>'+btn('Lägg in textpaket','sheet')+'</div>';}
+function noSource(){return '<div class="card warn"><h2>Skoltexten hämtas automatiskt</h2><p data-source-status>'+esc(window.MO_NP_SOURCE_STATUS||'Logga in med elevkonto årskurs 9. Ingen fil behöver laddas upp.')+'</p><div class="actions"><a class="btn" href="../study/">Logga in / skapa elevkonto</a>'+btn('Hämta skoltext igen','loadsource','','alt')+'</div></div>';}
 function needSource(){return !doc;}
 
 /* ---------- vyer ---------- */
@@ -71,7 +83,7 @@ function viewHome(){
  var retest=s.retestReady?'<div class="card note"><b>Återtest redo.</b> Det har gått minst 20 timmar sedan du förbättrade ett svar. <a href="#/think">Svara på nytt utan att titta på dina gamla svar.</a></div>':'';
  return '<section><p class="eyebrow">Åk 9 · Svenska · Muntlig övning</p><h1 id="h1" tabindex="-1">Din väg till att presentera, leda och delta – utan att läsa innantill</h1>'
   +'<p class="lead">Du övar på att förstå texten, hitta egna tankar, motivera dem, tala fritt och bidra i andras samtal. Ett steg i taget.</p>'
-  +(doc?'':'<div class="card warn"><b>Första gången på den här enheten?</b> Lägg in ditt privata textpaket – eller logga in på elevkontot så hämtas det. '+btn('Lägg in textpaket','sheet')+'</div>')
+  +(doc?'':'<div class="card warn"><b>Du behöver inte ladda upp någon text.</b><p data-source-status>'+esc(window.MO_NP_SOURCE_STATUS||'Logga in med elevkonto årskurs 9 för att hämta skoltexten automatiskt.')+'</p><div class="actions"><a class="btn" href="../study/">Elevkonto / logga in</a>'+btn('Hämta skoltext igen','loadsource','','alt')+'</div></div>')
   +'<a class="btn big" href="#/'+(next==='done'?'finish':next)+'">'+esc(cta)+' ›</a>'+retest
   +'<h2>Din väg</h2><ol class="stations">'+items+'</ol><h2>Din utveckling</h2>'+dev+'<p class="hint">Framsteg räknas när du försökt, hittat belägg, förbättrat, sagt högt och testat igen – inte när du skrivit mycket.</p></section>';
 }
@@ -268,12 +280,12 @@ function sheetHtml(){
  return '<div class="sheet-bg" data-a="sheetbg"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-h" tabindex="-1"><div class="sheet-head"><h2 id="sheet-h">Text, konto och säkerhet</h2>'+btn('Stäng','sheet','aria-label="Stäng"','alt sm')+'</div>'
   +'<div class="note" id="cloudStatus" role="status" aria-live="polite">'+esc(window.MO_NP_STATUS||'Kontrollerar elevkontots synkstatus …')+'</div>'
   +'<div class="actions"><a class="btn alt" href="../study/">Elevkonto / logga in</a><button type="button" class="btn alt" id="syncNow">Synka nu</button></div>'
-  +'<h3>Textpaket</h3><p class="small" id="status">'+(doc?'Textpaketet är inläst (version '+doc.v+'). Lokal kopia finns.':'Ingen skoltext ännu. Lägg in ditt privata paket, eller logga in så hämtas det.')+'</p>'
+  +'<h3>Skoltext och frågor</h3><p class="small" id="status">'+(doc?'Skoltext och samtliga frågor finns på enheten (version '+doc.v+').':'Skoltexten hämtas från skyddad molnlagring när eleven är inloggad och har aktiverat privat åtkomst.')+'</p><p class="small" data-source-status>'+esc(window.MO_NP_SOURCE_STATUS||'Kontrollerar skoltextens åtkomst …')+'</p>'
   +(fid.length?'<p class="small">Källstatus: '+(counts.VERBATIM_PHOTO||0)+' stycken lästa direkt från skolans foto'+(counts.PHOTO_PARTIAL?', '+counts.PHOTO_PARTIAL+' delvis läsbara':'')+(counts.EPUB_INFERRED?', '+counts.EPUB_INFERRED+' kompletterade ur romanen':'')+(counts.UNREADABLE?', '+counts.UNREADABLE+' oläsliga':'')+'. Osäkra stycken är märkta i texten.</p>':'')
-  +'<div class="actions">'+btn('Lägg in textpaket','pickimport','','alt')+btn('Exportera säkerhetskopia','export','','alt')+btn('Återställ säkerhetskopia','pickrestore','','alt')+'</div>'
+  +'<div class="actions">'+btn('Hämta skoltext från molnet','loadsource','','alt')+btn('Exportera säkerhetskopia','export','','alt')+btn('Återställ säkerhetskopia','pickrestore','','alt')+'</div><details class="small"><summary>Avancerad reservlösning</summary><p>Endast om molnåtkomsten inte fungerar kan en redan befintlig privat fil återställas manuellt.</p>'+btn('Importera reservfil','pickimport','','alt')+'</details>'
   +'<input type="file" id="fileSource" accept=".json,application/json" class="sr" tabindex="-1" aria-hidden="true"><input type="file" id="fileRestore" accept=".json,application/json" class="sr" tabindex="-1" aria-hidden="true">'
   +'<h3>Rensa</h3><p class="small">Rensar dina svar på den här enheten och i den synkade kopian. Exportera en säkerhetskopia först.</p>'+btn('Rensa mitt NP-arbete','clear','','alt danger')
-  +'<p class="small muted">Utan konto sparas allt bara på den här enheten. Med elevkonto (åk 9) synkas text och svar till din skyddade Study Cloud. En kopplad mentor kan läsa enligt ditt godkännande; materialet är inte end-to-end-krypterat. Säkerhetskopior innehåller text och svar – dela dem aldrig öppet. Använd aldrig ditt Gmail-lösenord här.</p></div></div>';
+  +'<p class="small muted">Texten hämtas automatiskt för ett aktiverat elevkonto i årskurs 9. Med kontot synkas även svar och övningsframsteg mellan enheter. Inga Gmail-lösenord används av Matte OS. Kontodata är åtkomstskyddad men inte end-to-end-krypterad. En kopplad mentor kan läsa synkade svar enligt elevens godkännande. Privata säkerhetskopior ska inte delas öppet.</p></div></div>';
 }
 function exportBackup(){
  var blob=new Blob([JSON.stringify({format:'matte-os-np-backup-v3',workId:'en-stark-nolla',grade:'grade9',source:raw,sourceAt:sourceAt,notes:notes,noteAt:noteAt,exportedAt:new Date(now()).toISOString()},null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');
@@ -298,7 +310,7 @@ function render(keep){
    default:html=viewHome();
   }
  }catch(e){console.error(e);html='<section><div class="card warn"><h2>Något gick fel</h2><p>Sidan kunde inte visas. Dina svar är sparade på enheten.</p><a class="btn" href="#/home">Till början</a></div></section>';}
- app.innerHTML=header()+(ui.msg?'<div class="notice" role="alert">'+esc(ui.msg)+'</div>':'')+'<main id="main">'+html+'</main><footer class="np-foot"><small>Matte OS · Privat övningsstöd, inte ett officiellt nationellt prov. Inga elevsvar eller ljud skickas till någon tjänst från den här sidan.</small></footer>'+(ui.sheet?sheetHtml():'');
+ app.innerHTML=header()+(ui.msg?'<div class="notice" role="alert">'+esc(ui.msg)+'</div>':'')+'<main id="main">'+html+'</main><footer class="np-foot"><small>Matte OS · Privat övningsstöd, inte ett officiellt nationellt prov. Med inloggning sparas svar i skyddad Study Cloud. Ingen ljudinspelning skickas från den här sidan.</small></footer>'+(ui.sheet?sheetHtml():'');
  refreshLive();
  if(keep){window.scrollTo(0,y);}
  else if(r.v!==lastView||r.a!==lastArg){window.scrollTo(0,0);var h=E('h1');if(h&&!ui.sheet)h.focus({preventScroll:true});}
@@ -385,6 +397,6 @@ try{var dark=localStorage.getItem('matteos.appearance.v1');if(dark==='dark'||(da
 loadScope();
 try{var cached=JSON.parse(localStorage.getItem('matteos-study-auth-v1')||'null'),recent=localStorage.getItem('matteos.np.last-user.v1');if(cached&&cached.user&&cached.user.id===recent&&/^[0-9a-f-]{36}$/i.test(recent||''))switchAccount(recent);}catch(e){}
 render();
-window.MO_NP_APP={switchAccount:switchAccount,snapshot:snapshot,mergeCloud:mergeCloud,hasSource:function(){return !!doc;},accountId:function(){return accountId;},lockAccount:lockAccount,_debug:function(){return {notes:notes,noteAt:noteAt,doc:doc};}};
+window.MO_NP_APP={switchAccount:switchAccount,snapshot:snapshot,mergeCloud:mergeCloud,installSource:installSource,hasSource:function(){return !!doc;},accountId:function(){return accountId;},lockAccount:lockAccount,_debug:function(){return {notes:notes,noteAt:noteAt,doc:doc};}};
 if(!window.MO_NP_SYNC)window.MO_NP_SYNC=null;
 })();

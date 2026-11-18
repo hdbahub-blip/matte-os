@@ -76,10 +76,12 @@ async function connect(force){
   if(error)throw error;
   if(member()?.user_id!==activeUser)throw Error('Kontot ändrades under synken.');
   const rows=(data||[]).filter(r=>(r.payload?.kind==='matteos-private-np-1'||r.payload?.kind==='matteos-private-np-2')&&r.payload?.workId==='en-stark-nolla');
-  APP.mergeCloud(rows);
+  const merged=APP.mergeCloud(rows);
+  root.MO_NP_SYNC_TRACE={rawRows:(data||[]).length,rawKind:(data||[]).map(x=>({kind:x.payload?.kind,workId:x.payload?.workId})),remoteRows:rows.length,remoteKeys:rows.map(x=>Object.keys(x.payload?.entries||{})),mergeChanged:merged,localKeys:Object.keys(APP.snapshot().entries||{})};
   lastRead=Date.now();connected=true;
   status('Privat studiepaket anslutet till elevkontot. Text, svar och framsteg sparas över enheter.');
   await push();
+  root.dispatchEvent(new Event('np-cloud-ready'));
   return true;
  }catch(e){
   connected=false;dirty=true;status('Lokalt sparat. Molnet kan inte läsas just nu: '+String(e?.message||e).slice(0,180));
@@ -87,7 +89,7 @@ async function connect(force){
  }finally{connecting=false;}
 }
 root.document.addEventListener('click',e=>{if(e.target&&e.target.id==='syncNow'){if(connected)connect(true);else connect(false)}});
-root.MO_NP_SYNC={schedule:schedule,connect:connect};
+root.MO_NP_SYNC={schedule:schedule,connect:connect,ready:()=>!!current()&&connected};
 root.addEventListener('matte-study-status',()=>{
  if(!member()&&activeUser){APP.lockAccount();activeUser='';connected=false;dirty=false;status('Elevkontot är utloggat. Privat studietext visas igen efter inloggning.');}
  else if(member()&&!connected&&!connecting)connect(false).catch(()=>{});

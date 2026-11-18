@@ -47,6 +47,13 @@ function memberView(){
   '<p class="note">Dina privata svar skickas bara när du är inloggad som rätt elev och skolanvändaren känner till delningen. Övningarna fortsätter fungera offline.</p></div>';
   s+='<div class="card"><h2>Se dina studiepass</h2><p><a class="btn" href="../studera/">Öppna Studera tillsammans</a></p><p class="note">Gemensamma pass kräver uppkoppling. Dina egna försök i Matte OS påverkas inte av mentorns svar.</p></div>';
  }
+ if(!isMentor&&u.grade==='grade9'){
+  let privateNP=false;try{privateNP=!!sessionStorage.getItem('matteos.np.private-claim.v1')}catch(e){}
+  s+='<div class="card"><h2>En stark nolla · muntliga NP</h2><p>'+(privateNP?
+   'Din privata aktiveringslänk är redo. Fortsätt så läses hela skoltexten och frågorna in automatiskt.':
+   'Öppna NP-övningen. Skoltexten hämtas automatiskt om kontot har tillgång; dina svar följer med mellan enheter.')+
+   '</p><p><a class="btn" href="../lara/np-muntligt.html#/home">Fortsätt till En stark nolla</a></p></div>';
+ }
  return s;
 }
 async function updateLinks(){

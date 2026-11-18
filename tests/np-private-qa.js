@@ -12,14 +12,18 @@ let scanned=0;
 for(const f of files){let t;try{t=read(f);}catch(e){continue;}scanned++;const w=words(t);for(let i=0;i+5<w.length;i++){const h=crypto.createHash('sha256').update(w.slice(i,i+6).join(' ')).digest('hex').slice(0,16);if(hashes.has(h))assert.fail('Skoltext/romantext hittad i spårad fil '+f+' nära ord '+i+': ('+w.slice(i,i+6).join(' ').slice(0,0)+'…)');}}
 ok(scanned>100&&hashes.size>500,'leak guard active over '+scanned+' files / '+hashes.size+' hashes');
 // 2. Öppna filer: ingen nätverksanvändning från NP-sidan, ingen inline-skoltext, giltig syntax.
-const app=read('lara/np-app.js'),core=read('lara/np-core.js'),content=read('lara/np-content.js'),html=read('lara/np-muntligt.html'),cloud=read('lara/np-cloud.js'),sw=read('lara/sw.js'),entry=read('lara/app.js');
+const app=read('lara/np-app.js'),core=read('lara/np-core.js'),content=read('lara/np-content.js'),html=read('lara/np-muntligt.html'),cloud=read('lara/np-cloud.js'),source=read('lara/np-source.js'),sw=read('lara/sw.js'),entry=read('lara/app.js');
 for(const [name,src] of [['np-app',app],['np-core',core],['np-content',content],['html',html]]){ok(!/\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|\.from\('study_/.test(src),name+': no network use');}
-for(const f of ['lara/np-app.js','lara/np-core.js','lara/np-content.js','lara/np-cloud.js'])new vm.Script(read(f),{filename:f});
+for(const f of ['lara/np-app.js','lara/np-core.js','lara/np-content.js','lara/np-cloud.js','lara/np-source.js'])new vm.Script(read(f),{filename:f});
 ok(html.includes('np-core.js')&&html.includes('np-content.js')&&html.includes('np-app.js')&&html.indexOf('np-core.js')<html.indexOf('np-app.js'),'scripts in order');
 ok(/localStorage/.test(app)&&app.includes('esc('),'local storage + output escaping');
 ok(!/innerHTML\s*=\s*[^;]*\bnotes\[/.test(app),'notes never injected raw');
 ok(entry.includes('np-muntligt.html')&&!entry.includes('np-muntligt.html?v=1.1.0'),'entry linked from Svenska');
-for(const f of ['np.css','np-core.js','np-content.js','np-app.js','np-cloud.js','np-muntligt.html'])ok(sw.includes('./'+f+'?v=2.0.0'),'offline cache lists '+f);
+for(const [f,v] of [['np.css','2.0.0'],['np-core.js','2.0.0'],['np-content.js','2.0.0'],['np-app.js','2.1.0'],['np-cloud.js','2.0.0'],['np-source.js','1.0.0'],['np-muntligt.html','2.1.0']])
+ ok(sw.includes('./'+f+'?v='+v),'offline cache lists '+f+' '+v);
+ok(html.includes('np-source.js?v=1.0.0')&&html.indexOf('np-cloud.js')<html.indexOf('np-source.js'),'source bootstrap follows Study Cloud');
+ok(source.includes("np_private_school_source")&&source.includes('np_claim_school_source')&&source.includes("sessionStorage")&&!/Texas|André|Amy|Lasse|Osman/.test(source),'private source is server-backed and has no public story content');
+ok(app.includes('installSource:installSource')&&app.includes('Du behöver inte ladda upp någon text'),'new learner receives automatic source flow');
 ok(/matteos-private-np-2/.test(app)&&/matteos-private-np-1/.test(cloud)&&/matteos-private-np-2/.test(cloud),'cloud accepts v1 and v2 snapshots');
 ok(!/study_snapshots[\s\S]{0,40}delete\(/.test(cloud),'cloud helper never deletes rows');
 // 3. Innehållskvalitet

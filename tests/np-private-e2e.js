@@ -52,7 +52,7 @@ async function answer(page,qi,t=text,b=better){
   ok(/Din väg till att presentera, leda och delta/.test(await page.locator('h1').innerText()),'home explains the goal');
   ok(await page.locator('.btn.big').count()===1,'one clear primary action');
   ok(await page.locator('.station').count()===7,'seven stations, not eight tabs');
-  ok(/Lägg in textpaket/.test(await page.locator('main').innerText()),'first run explains the private text package');
+  ok(/Du behöver inte ladda upp någon text/.test(await page.locator('main').innerText()),'first run clearly offers automatic source, not a manual upload');
   ok(await page.evaluate(()=>document.activeElement.id==='h1'),'heading receives focus on load (screen reader orientation)');
   await layout(page,'home-empty');
   // Steg 1 fungerar utan text.
@@ -215,7 +215,7 @@ async function answer(page,qi,t=text,b=better){
   const c4=await browser.newContext({viewport:{width:390,height:844}});const p4=await c4.newPage();p4.on('pageerror',e=>errors.push(String(e)));
   await p4.goto(URL);await p4.evaluate(()=>navigator.serviceWorker.ready);await p4.setInputFiles('#fileSource',{name:'x.json',mimeType:'application/json',buffer:buf(fixture)}).catch(()=>{});
   await p4.click('.np-top [data-a=sheet]');await p4.setInputFiles('#fileSource',{name:'x.json',mimeType:'application/json',buffer:buf(fixture)});await p4.waitForSelector('.station');
-  await p4.reload();await p4.waitForFunction(()=>caches.keys().then(k=>k.some(x=>x.includes('larande-4.9.0-np-rebuild'))));
+  await p4.reload();await p4.waitForFunction(()=>caches.keys().then(k=>k.some(x=>x.includes('larande-5.0.0-np-auto-source'))));
   await p4.waitForFunction(()=>caches.open(caches.keys?'':'').then(()=>true));
   const cached=await p4.evaluate(async()=>{const ks=await caches.keys();const out=[];for(const k of ks){const c=await caches.open(k);out.push(...(await c.keys()).map(r=>new URL(r.url).pathname.split('/').pop()));}return out;});
   ok(['np-app.js','np-core.js','np-content.js','np.css','np-muntligt.html'].every(f=>cached.includes(f)),'offline cache holds the NP app files');
