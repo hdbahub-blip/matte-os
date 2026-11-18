@@ -4,6 +4,8 @@ const fs=require('node:fs');
 const {chromium,devices}=require('playwright');
 const BASE=process.argv[2]||'http://127.0.0.1:8765/';
 const OUT=process.argv[3]||'test-screenshots';
+const CURRENT_SW_VERSION=fs.readFileSync('sw.js','utf8').match(/const VERSION = '([^']+)'/)?.[1];
+assert.ok(CURRENT_SW_VERSION,'root service worker cache version must be defined');
 fs.mkdirSync(OUT,{recursive:true});
 (async()=>{
   const browser=await chromium.launch({headless:true});
@@ -87,7 +89,7 @@ fs.mkdirSync(OUT,{recursive:true});
     await p.goto(BASE,{waitUntil:'networkidle'});
     await p.evaluate(()=>navigator.serviceWorker.ready);
     await p.waitForFunction(async()=>{const reg=await navigator.serviceWorker.ready;return !!reg.active;});
-    await p.waitForFunction(async()=>{const keys=await caches.keys();return keys.some(k=>k.includes('matte-os-5.4.8'));});
+    await p.waitForFunction(async(version)=>{const keys=await caches.keys();return keys.includes('matte-os-'+version);},CURRENT_SW_VERSION);
     await c.setOffline(true);
     await p.goto(BASE+'affischer/?visa=tabeller&ak=8',{waitUntil:'domcontentloaded'});
     assert.equal(await p.locator('body').getAttribute('data-grade'),'8','Offline grade8 table mode failed');checks++;

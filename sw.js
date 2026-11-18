@@ -2,7 +2,7 @@
    - Allt appinnehåll förcachas vid installation → fungerar offline.
    - Nätverk först för allt (färsk version när nätet finns), cache som reserv.
    - Ny version: CACHE-namnet byts → gamla cachar raderas vid aktivering. */
-const VERSION = '6.9.5-20261118-mentor-isolation';
+const VERSION = '6.9.6-20261118-poster-mobile';
 const CACHE = 'matte-os-' + VERSION;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-512.png',
   './css/joy-study.css?v=1.0.0', './css/app.css?v=5.5.9-fullspec', './css/atelier.css?v=6.2.0-parent', './css/color-system.css?v=6.1.0', './css/profile-chooser.css?v=1.0.0', './css/flow-home.css?v=1.0.0', './css/study-room-v2.css?v=1.0.0', './css/simple-navigation.css?v=1.0.0', './js/color-runtime.js?v=6.1.0', './js/math.js?v=5.5.6', './js/visuals.js?v=5.5.6', './js/core.js?v=5.5.6',
@@ -10,7 +10,7 @@ const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './i
   './tillsammans/', './tillsammans/index.html', './tillsammans/style.css?v=1.0.0', './tillsammans/flow.css?v=1.0.0', './tillsammans/model.js?v=2.0.0-dropin', './tillsammans/app.js?v=2.1.0-simple',
   './study/', './study/index.html', './css/ux-polish.css?v=5.6.0', './js/ux-nav.js?v=5.6.0', './study/style.css?v=1.0.0', './study/setup.js?v=1.1.0-admin-role',
   './studera/', './studera/index.html', './studera/app.js?v=1.0.2', './studera/style.css?v=1.0.1',
-  './foralder/', './foralder/index.html', './foralder/style.css?v=1.0.0', './foralder/model.js?v=1.0.0', './foralder/app.js?v=1.2.1-offline-account', './foralder/cloud-parent.js?v=1.0.1', './lara/content.js?v=1.1.0', './lara/texts-immersive-20261116.js?v=1.0.0', './lara/texts-extra-sv.js?v=4.0.1', './lara/texts-sv.js?v=4.0.2-immersive', './lara/texts-extra-en.js?v=4.0.1', './lara/texts-en.js?v=4.0.2-immersive', './lara/words-extra.js?v=1.1.0', './lara/ordlek.js?v=1.1.0', './affischer/', './affischer/index.html', './affischer/posters.css?v=1.1.0', './affischer/posters.js?v=1.1.0'];
+  './foralder/', './foralder/index.html', './foralder/style.css?v=1.0.0', './foralder/model.js?v=1.0.0', './foralder/app.js?v=1.2.1-offline-account', './foralder/cloud-parent.js?v=1.0.1', './lara/content.js?v=1.1.0', './lara/texts-immersive-20261116.js?v=1.0.0', './lara/texts-extra-sv.js?v=4.0.1', './lara/texts-sv.js?v=4.0.2-immersive', './lara/texts-extra-en.js?v=4.0.1', './lara/texts-en.js?v=4.0.2-immersive', './lara/words-extra.js?v=1.1.0', './lara/ordlek.js?v=1.1.0', './affischer/', './affischer/index.html', './affischer/posters.css?v=1.1.1-mobile', './affischer/posters.js?v=1.1.0'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
 });

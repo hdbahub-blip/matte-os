@@ -15,7 +15,7 @@ ok(page.includes('administratören i Supabase')&&page.includes('Allow new users 
 ok(!page.includes('id="create-profile"')&&!page.includes('S.enroll(')&&page.includes('Din profil väntar på aktivering'),'roles require administrator activation');
 ok(page.includes('data-action="invite"')&&page.includes('S.issueInvite(')&&page.includes('S.redeem('),'mentor consent-based linking preserved');
 ok(html.includes('setup.js?v=1.1.0-admin-role')&&sw.includes('./study/setup.js?v=1.1.0-admin-role'),'PWA pre-cache uses updated account UI');
-ok(sw.includes('6.9.5-20261118-mentor-isolation'),'old app cache invalidated');
+ok(sw.includes('6.9.6-20261118-poster-mobile'),'old app cache invalidated');
 ok(!/service_role|sb_secret_/.test(page),'no admin API secrets in public page');
 ok(page.includes("code==='email_not_confirmed'")&&page.includes('E-postadressen är inte bekräftad i Supabase.'),'user sees actionable email confirmation error');
 console.log('STUDY LOGIN-ONLY QA PASS '+checks+'/'+checks);
