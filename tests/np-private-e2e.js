@@ -52,7 +52,7 @@ async function answer(page,qi,t=text,b=better){
   ok(/Din väg till att presentera, leda och delta/.test(await page.locator('h1').innerText()),'home explains the goal');
   ok(await page.locator('.btn.big').count()===1,'one clear primary action');
   ok(await page.locator('.station').count()===7,'seven stations, not eight tabs');
-  ok(/Lägg in textpaket/.test(await page.locator('main').innerText()),'first run explains the private text package');
+  ok(/Du behöver inte ladda upp någon text/.test(await page.locator('main').innerText()),'first run clearly offers automatic source, not a manual upload');
   ok(await page.evaluate(()=>document.activeElement.id==='h1'),'heading receives focus on load (screen reader orientation)');
   await layout(page,'home-empty');
   // Steg 1 fungerar utan text.
