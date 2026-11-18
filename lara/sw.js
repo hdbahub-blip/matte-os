@@ -1,6 +1,6 @@
 /* Isolated offline cache. Does not intercept original Maths, Prov or Cup routes. */
-const VERSION='matte-os-larande-4.8.0-np-safe-cache';
-const FILES=['../css/ux-polish.css?v=5.6.0','./','./index.html','./style.css?v=1.0.3-fullspec','./atelier.css?v=4.1.0-parent','./color-system.css?v=6.1.0', '../css/profile-chooser.css?v=1.0.0','../css/study-room-v2.css?v=1.0.0','../css/simple-navigation.css?v=1.0.0', './flow.css?v=1.0.0','./color-runtime.js?v=6.1.0','./content.js?v=1.1.0','./logic.js?v=1.0.0','./app.js?v=4.5.1-np', '../tillsammans/model.js?v=2.0.0-dropin','./study-model.js?v=1.0.0','./study-cloud.js?v=1.0.0','./texts-immersive-20261116.js?v=1.0.0','./texts-extra-sv.js?v=4.0.1','./texts-sv.js?v=4.0.2-immersive','./texts-extra-en.js?v=4.0.1','./texts-en.js?v=4.0.2-immersive','./sprak.js?v=3.4.0-simple','./words-extra.js?v=1.1.0','./ordlek.js?v=1.1.0','./sprak.css?v=3.2.0-immersive','./np-muntligt.html?v=1.1.0','./np-cloud.js?v=1.0.0'];
+const VERSION='matte-os-larande-4.9.0-np-rebuild';
+const FILES=['../css/ux-polish.css?v=5.6.0','./','./index.html','./style.css?v=1.0.3-fullspec','./atelier.css?v=4.1.0-parent','./color-system.css?v=6.1.0', '../css/profile-chooser.css?v=1.0.0','../css/study-room-v2.css?v=1.0.0','../css/simple-navigation.css?v=1.0.0', './flow.css?v=1.0.0','./color-runtime.js?v=6.1.0','./content.js?v=1.1.0','./logic.js?v=1.0.0','./app.js?v=4.5.1-np', '../tillsammans/model.js?v=2.0.0-dropin','./study-model.js?v=1.0.0','./study-cloud.js?v=1.0.0','./texts-immersive-20261116.js?v=1.0.0','./texts-extra-sv.js?v=4.0.1','./texts-sv.js?v=4.0.2-immersive','./texts-extra-en.js?v=4.0.1','./texts-en.js?v=4.0.2-immersive','./sprak.js?v=3.4.0-simple','./words-extra.js?v=1.1.0','./ordlek.js?v=1.1.0','./sprak.css?v=3.2.0-immersive','./np-muntligt.html?v=2.0.0','./np.css?v=2.0.0','./np-core.js?v=2.0.0','./np-content.js?v=2.0.0','./np-app.js?v=2.0.0','./np-cloud.js?v=2.0.0'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(VERSION).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('matte-os-larande-')&&k!==VERSION).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
@@ -8,7 +8,7 @@ self.addEventListener('fetch',e=>{
  const sharedAssets=['../css/profile-chooser.css','../css/study-room-v2.css','../css/simple-navigation.css','../tillsammans/model.js'].map(p=>new URL(p,scope).pathname);
  if(e.request.method!=='GET'||u.origin!==location.origin||(!u.pathname.startsWith(learningScope)&&!sharedAssets.includes(u.pathname)))return;
  const isNP=e.request.mode==='navigate'&&u.pathname===new URL('./np-muntligt.html',scope).pathname;
- const key=e.request.mode==='navigate'?(isNP?'./np-muntligt.html?v=1.1.0':'./index.html'):e.request;
+ const key=e.request.mode==='navigate'?(isNP?'./np-muntligt.html?v=2.0.0':'./index.html'):e.request;
  e.respondWith(fetch(e.request).then(r=>{if(r.ok){const copy=r.clone();caches.open(VERSION).then(c=>c.put(key,copy));}return r;})
  .catch(async()=>{const c=await caches.open(VERSION);return (await c.match(key,{ignoreSearch:e.request.mode==='navigate'}))||Response.error();}));
 });

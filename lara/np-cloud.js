@@ -6,11 +6,13 @@
 'use strict';
 const S=root.MO_STUDY, APP=root.MO_NP_APP;
 if(!S||!APP)return;
-const label=root.document.getElementById('cloudStatus');
-const syncButton=root.document.getElementById('syncNow');
 const DEVICE_KEY='matteos.np.enstarknolla.cloud-device.v1';
 let activeUser='',connecting=false,saving=false,dirty=false,connected=false,queued=null,lastRead=0,changedWhileSaving=false;
-function status(message){if(label)label.textContent=message;}
+function status(message){
+ root.MO_NP_STATUS=message;
+ const a=root.document.getElementById('cloudStatus');if(a)a.textContent=message;
+ const b=root.document.getElementById('syncMini');if(b)b.textContent=message.split(/(?<=[.!?])\s/)[0];
+}
 function newUuid(){
  if(root.crypto?.randomUUID)return root.crypto.randomUUID();
  if(!root.crypto?.getRandomValues)return '';
@@ -73,7 +75,7 @@ async function connect(force){
    .eq('learner_id',activeUser).eq('module','reading').order('updated_at',{ascending:true}).limit(250);
   if(error)throw error;
   if(member()?.user_id!==activeUser)throw Error('Kontot ändrades under synken.');
-  const rows=(data||[]).filter(r=>r.payload?.kind==='matteos-private-np-1'&&r.payload?.workId==='en-stark-nolla');
+  const rows=(data||[]).filter(r=>(r.payload?.kind==='matteos-private-np-1'||r.payload?.kind==='matteos-private-np-2')&&r.payload?.workId==='en-stark-nolla');
   APP.mergeCloud(rows);
   lastRead=Date.now();connected=true;
   status('Privat studiepaket anslutet till elevkontot. Text, svar och framsteg sparas över enheter.');
@@ -84,7 +86,7 @@ async function connect(force){
   return false;
  }finally{connecting=false;}
 }
-if(syncButton)syncButton.addEventListener('click',()=>{if(connected)connect(true);else connect(false)});
+root.document.addEventListener('click',e=>{if(e.target&&e.target.id==='syncNow'){if(connected)connect(true);else connect(false)}});
 root.MO_NP_SYNC={schedule:schedule,connect:connect};
 root.addEventListener('matte-study-status',()=>{
  if(!member()&&activeUser){APP.lockAccount();activeUser='';connected=false;dirty=false;status('Elevkontot är utloggat. Privat studietext visas igen efter inloggning.');}
