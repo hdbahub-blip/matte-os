@@ -66,6 +66,12 @@ async function load(force){
   claimed=true;clearPending();
   notify('Skoltext och samtliga frågor är klara. Dina svar och framsteg synkas med samma elevkonto på andra enheter.');
   root.MO_NP_SYNC?.schedule();
+  // A Study Cloud session may become ready before the initial remote snapshot
+  // list is populated. After a fresh private-source install, reconcile again;
+  // per-field timestamp merge preserves new local edits and old cloud answers.
+  if(!Object.keys(APP.snapshot().entries||{}).length&&root.MO_NP_SYNC?.connect){
+   root.setTimeout(()=>{if(eligible()?.user_id===uid)root.MO_NP_SYNC.connect(true).catch(()=>{})},1800);
+  }
   return true;
  }catch(e){
   claimed=false;
