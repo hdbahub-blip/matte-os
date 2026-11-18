@@ -69,6 +69,7 @@ function suspendWorkspace(){
  pending={events:[],dirty:[]};workspaceBound=false;return true;
 }
 function ownWorkspace(){const p=member||cache;return !!p&&p.role==='learner'&&workspaceBound&&get(OWNER)===p.user_id;}
+function canWriteLocal(){const p=member||cache;const owner=get(OWNER);if(owner&&(!p||p.role!=='learner'))return false;return p?.role==='learner'?ownWorkspace():true;}
 
 function dispatch(){try{root.dispatchEvent(new CustomEvent('matte-study-status',{detail:info()}))}catch{}}
 function info(){return {online:!!session,role:member?.role||cache?.role||null,grade:member?.grade||cache?.grade||null,userId:member?.user_id||cache?.user_id||null,status,error:lastError,waiting:pending.events.length,connected:!!member};}
@@ -361,5 +362,5 @@ function start(){
  }
 }
 if(typeof root.document!=='undefined')start();
-return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,recover,onActiveGrade,hashCode,compact,canCapture,mergeProfile};
+return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,recover,onActiveGrade,hashCode,compact,canCapture,canWriteLocal,mergeProfile};
 });

@@ -18,7 +18,7 @@ if(!run && (entryGrade==='grade8'||entryGrade==='grade9')){
 
 function emptyStore(){return {grade:null,attempts:[],attemptNo:0}}
 function loadStore(){try{return {...emptyStore(),...(JSON.parse(localStorage.getItem(STORE_KEY))||{})}}catch{return emptyStore()}}
-function saveStore(){localStorage.setItem(STORE_KEY,JSON.stringify(store));window.MO_STUDY?.markDirty('exam')}
+function saveStore(){if(window.MO_STUDY?.canWriteLocal?.()===false)throw Error('Öppna rätt elevkonto innan du sparar provet.');localStorage.setItem(STORE_KEY,JSON.stringify(store));window.MO_STUDY?.markDirty('exam')}
 function loadActive(){try{const x=JSON.parse(sessionStorage.getItem(ACTIVE_KEY));return x&&Array.isArray(x.items)?x:null}catch{return null}}
 function saveActive(){if(run)sessionStorage.setItem(ACTIVE_KEY,JSON.stringify(run))}
 function clearActive(){sessionStorage.removeItem(ACTIVE_KEY)}

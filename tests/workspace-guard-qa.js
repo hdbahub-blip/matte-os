@@ -50,5 +50,6 @@ function client(user){
  ok(!b.sent.some(x=>JSON.stringify(x).includes('A answer')),'B did not upload A answer');
  local.setItem('matteos.study.workspace-owner.v1',A);
  ok(b.S.capture({grade:'grade8',module:'math',question_id:'b:2',answer:'fail'})===false,'owner mismatch denies capture');
+ ok(b.S.canWriteLocal()===false,'owner mismatch blocks local module writes as well as cloud');
  console.log('WORKSPACE GUARD QA '+checks+'/'+checks+' PASS');
 })().catch(e=>{console.error(e);process.exit(1)});

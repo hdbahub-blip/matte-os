@@ -13,7 +13,7 @@ function sanitized(raw){const out=startData();if(raw?.v!==1)return out;for(const
 function store(){try{return root.localStorage}catch{return null}}
 function load(){try{return sanitized(JSON.parse(store()?.getItem(KEY)||'null'))}catch{return startData()}}
 let state=load(),session=null,error='';
-function save(){try{store().setItem(KEY,JSON.stringify(state));root.MO_STUDY?.markDirty('vocab');error='';return true}catch{error='Kunde inte spara här. Gör en säkerhetskopia.';return false}}
+function save(){if(root.MO_STUDY?.canWriteLocal?.()===false){error='Öppna ditt eget konto igen innan du fortsätter.';return false;}try{store().setItem(KEY,JSON.stringify(state));root.MO_STUDY?.markDirty('vocab');error='';return true}catch{error='Kunde inte spara här. Gör en säkerhetskopia.';return false}}
 function profile(){const p=root.MOL_ACTIVE?.()||'grade9';return GRADES.includes(p)?p:'grade9'}
 function hash(s){let x=2166136261>>>0;for(let i=0;i<s.length;i++)x=Math.imul(x^s.charCodeAt(i),16777619)>>>0;return x;}
 function shuffled(a,seed){const out=a.slice();let h=hash(seed);for(let i=out.length-1;i>0;i--){h=(Math.imul(1664525,h)+1013904223)>>>0;const j=h%(i+1);[out[i],out[j]]=[out[j],out[i]];}return out}

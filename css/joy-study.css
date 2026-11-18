@@ -85,6 +85,9 @@ html[data-mode="dark"] .ux-play{background:linear-gradient(145deg,#543044,#603B4
 .card.hero,.recommended,.wk-feature{border-radius:22px;}
 .done-mark svg{transform-origin:center;animation:joy-success .52s cubic-bezier(.2,.9,.25,1) both;}
 .feedback.ok,.wk-feedback.good{animation:joy-appear .30s ease both;}
+.joy-reflect{margin:16px 0;padding:17px 19px;border:1.5px solid var(--ui-border-strong);border-radius:19px;background:var(--ui-primary-tint);color:var(--ui-on-tint);}
+.joy-reflect strong{font-weight:800;letter-spacing:-.015em;}
+.joy-reflect p{margin:8px 0 0;line-height:1.55;}
 .pc-current-profile{display:flex;flex-direction:column;gap:7px;border:1.5px solid var(--ui-border-strong);border-radius:18px;background:var(--ui-primary-tint);color:var(--ui-on-tint);padding:22px;margin:12px 0 20px;}
 .pc-current-profile strong{font-size:19px;}
 .pc-current-profile span{font-size:14px;}

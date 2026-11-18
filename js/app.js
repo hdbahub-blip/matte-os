@@ -578,13 +578,17 @@ function boostCard() {
     const rows = Object.entries(by).map(([sid, rs]) => {
       const s = E.SKILLS[sid], good = rs.every(r => test ? r.ok : r.first && !r.h);
       const mcs = [...new Set(rs.map(r => r.mc).filter(Boolean))];
-      return `<div><span class="mark ${good ? 'ok' : 'no'}">${good ? '✓' : '!'}</span><div><b>${esc(s.title)}</b>${good ? '<div class="mut small">Klarade du själv.</div>' : mcs.length ? mcs.map(m => `<div class="small">${R(m)}</div>`).join('') : `<div class="small mut">${test ? 'Fel svar – repetera metoden.' : 'Behövde stöd.'}</div>`}</div></div>`;
+      return `<div><span class="mark ${good ? 'ok' : 'no'}">${good ? '✓' : '!'}</span><div><b>${esc(s.title)}</b>${good ? '<div class="mut small">Klarade du själv.</div>' : mcs.length ? mcs.map(m => `<div class="small">${R(m)}</div>`).join('') : `<div class="small mut">${test ? 'Fel svar – repetera metoden.' : 'Vi tränar vidare här.'}</div>`}</div></div>`;
     }).join('');
     const wrong = run.res.filter(r => !(test ? r.ok : r.first && !r.h)).map(r => ({ s: r.s, key: r.key }));
+    const nextStep = wrong.length
+      ? 'En bra plan: titta på förklaringen för en svår fråga, säg metoden med egna ord och prova igen. Ett försök räcker som nästa steg.'
+      : 'Du tog dig igenom passet. Prova att förklara ett av dina svar med egna ord, och testa igen en annan dag för att stärka minnet.';
     const save = run.kind === 'test' && !run.saved; if (save) { run.saved = true; E.prof(pid()).tests.push({ ch: run.chapter, n, ok, t: Date.now() }); E.save(); }
     const c = `<div class="center"><div class="done-mark">${I.check}</div><p class="eyebrow">${test ? 'Provläge klart' : 'Passet klart'}</p>
       <h1>${test ? `${ok} av ${n} rätt` : `${firstOk} av ${n} helt själv`}</h1>
       <p class="mut">${test ? 'Här är analysen per moment – det är den som är viktig, inte poängen.' : `${ok} av ${n} rätt till slut.`}</p></div>
+      <div class="joy-reflect" role="note"><strong>En liten sak till</strong><p>${esc(nextStep)}</p></div>
       <div class="card analysis"><h3>Analys</h3>${rows}</div>
       <div class="actions">${wrong.length ? `<button class="btn block" data-a="retrywrong">Öva på det som gick fel (${wrong.length})</button>` : `<button class="btn block" data-a="again">Ett pass till</button>`}<button class="btn ghost block" data-a="nav" data-h="#/">Till start</button></div>`;
     UI.runWrong = wrong;
@@ -625,6 +629,10 @@ function boostCard() {
   /* ================= ROUTER ================= */
   let lastRoute = '';
   function render() {
+    const cloud=window.MO_STUDY?.info?.();
+    if(['workspace-blocked','workspace-changed','grade-mismatch'].includes(cloud?.status)){
+      app.innerHTML='<main id="main" class="container" style="padding:26px 16px"><section class="card" role="alert"><h1>Vi behöver bekräfta ditt konto</h1><p>En annan flik eller enhet kan ha ändrat studieprofilen. Vi skyddar dina sparade resultat tills du öppnar rätt konto igen.</p><a class="btn" href="study/">Öppna mitt konto</a></section></main>';return;
+    }
     applyTheme();
     if (!pid()) { app.innerHTML = viewOnboarding(); return; }
     const h = location.hash.replace(/^#\/?/, '');
@@ -805,7 +813,7 @@ function boostCard() {
   E.load();
   E.migrateV4().then(n => { if (n) { toast(`Tidigare framsteg flyttades över (${n} svar).`); render(); } });
   render();
-  let displayedLearner='';window.addEventListener('matte-study-status',()=>{const p=window.MO_STUDY?.profile?.();const next=p?.role==='learner'?p.user_id+':'+p.grade:'';if(next!==displayedLearner){displayedLearner=next;render();}});
+  let displayedLearner='';window.addEventListener('matte-study-status',()=>{const p=window.MO_STUDY?.profile?.();const next=(p?.role==='learner'?p.user_id+':'+p.grade:'')+'|'+(['workspace-blocked','workspace-changed','grade-mismatch'].includes(window.MO_STUDY?.info?.()?.status)?'blocked':'ok');if(next!==displayedLearner){displayedLearner=next;render();}});
   // A single consistent profile chooser across Maths and Lärande.
   if (pid() && new URLSearchParams(location.search).get('profiles') === '1') {
     openSheet({ type: 'profile' });
