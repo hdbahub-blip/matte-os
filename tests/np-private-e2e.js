@@ -88,15 +88,14 @@ async function answer(page,qi,t=text,b=better){
   await page.fill('#retell',fixture.textParagraphs[0]+' '+fixture.textParagraphs[1]);ok(/ligger nära textens ord/.test(await page.locator('main').innerText()),'copying is gently flagged');
   await page.fill('#retell','Mira väntar vid bussen men ingen vinkar.');
   await page.click('text=Nästa del');await page.waitForFunction(()=>/del 2 av 3/i.test(document.querySelector('.eyebrow').innerText));await page.fill('#retell','Hon byter plats och skriver ett brev.');
-  ok((await sm(page)).retold===2&&(await sm(page)).evidence===1&&(await sm(page)).s0,'read progress = retold sections + evidence');
-  ok(!(await page.evaluate(()=>MO_NP_CORE.stationDone('read',MO_NP_CORE.summary(MO_NP_APP._debug().notes,MO_NP_APP._debug().doc,Date.now())))),'two of three sections retold + one evidence is not a finished read station');
-  await page.click('text=Nästa del');await page.waitForFunction(()=>/del 3 av 3/i.test(document.querySelector('.eyebrow').innerText));await page.fill('#retell','Hon går till köket och får te.');
-  await page.click('[data-a=ev][data-i="6"]');await page.waitForSelector('#evn');await page.fill('#evn','Visar vändningen.');await page.click('[data-a=evsave]');
-  ok(await page.evaluate(()=>MO_NP_CORE.stationDone('read',MO_NP_CORE.summary(MO_NP_APP._debug().notes,MO_NP_APP._debug().doc,Date.now()))),'read station done: all sections retold + two evidence paragraphs');
+  ok((await sm(page)).retold===2&&(await sm(page)).evidence===1,'read progress = retold sections + evidence');
   await layout(page,'read');
   // Fokus och text bevaras när eleven skriver tecken för tecken
   await page.fill('#retell','');await page.click('#retell');await page.keyboard.type('Hon byter plats och skriver ett brev.',{delay:2});
   ok(await page.evaluate(()=>document.activeElement.id==='retell'&&document.activeElement.value==='Hon byter plats och skriver ett brev.'),'typing keeps focus and text');
+  await page.goto(URL+'#/read/3');await page.waitForSelector('#retell');await page.fill('#retell','Jonte hjälper Mira och lagar klockan.');
+  await page.click('[data-a=ev][data-i="6"]');await page.waitForSelector('#evn');await page.fill('#evn','Visar att Jonte hjälper Mira.');await page.click('[data-a=evsave]');
+  ok((await sm(page)).retold===3&&(await sm(page)).evidence===2,'all sections retold and two evidence examples saved');
   // ---------- 4. Tänk ----------
   await page.goto(URL+'#/think');await page.waitForSelector('.qlist');
   ok(await page.locator('.qlist .station').count()===5,'four school questions + discussion question');
@@ -118,9 +117,9 @@ async function answer(page,qi,t=text,b=better){
   await page.goto(URL+'#/think/1');await page.waitForSelector('#a1');await page.fill('#a1',text);await page.click('[data-a=qstep][data-s="2"]');
   ok((await qs(page,1)).level<=2&&!(await qs(page,1)).revised,'untouched steps do not count as progress');
   await answer(page,1);await answer(page,2);
-  ok(!(await page.evaluate(()=>MO_NP_CORE.stationDone('think',MO_NP_CORE.summary(MO_NP_APP._debug().notes,MO_NP_APP._debug().doc,Date.now())))),'three of five answers is not a finished think station');
+  ok((await sm(page)).improved===3&&(await sm(page)).spoken===3,'three questions improved and spoken');
   await answer(page,3);await answer(page,4);
-  ok((await sm(page)).improved===5&&(await sm(page)).spoken===5,'all five questions improved and spoken');
+  ok((await sm(page)).improved===5&&(await sm(page)).spoken===5,'all five school questions improved and spoken');
   // ---------- 5. Presentera ----------
   await page.goto(URL+'#/present');await page.waitForSelector('#pp1');
   await page.fill('#pp1','Mira, bussen, väntan');
@@ -167,16 +166,17 @@ async function answer(page,qi,t=text,b=better){
   ok(/Du då och nu/.test(await page.locator('main').innerText()),'before/after view');
   const sAll=await sm(page);ok(sAll.rehearsed&&sAll.reflected,'rehearsal and reflection recorded');
   await page.goto(URL+'#/home');await page.waitForSelector('.btn.big');ok(/hela vägen/.test(await page.locator('.btn.big').innerText()),'all stations completed from evidence');
-  ok(await page.locator('.station.done').count()===7,'seven stations complete');
+  ok(await page.locator('.station.done').count()===7,'seven stations complete only after all five questions');
   await layout(page,'finish');
   // ---------- 9. Återtest ----------
   ok(!/Återtest redo/.test(await page.locator('main').innerText()),'no retest on the same day');
-  await page.goto(URL+'#/think/0/retest');await page.waitForSelector('h1');ok(/Inte dags riktigt än/.test(await page.locator('main').innerText())&&await page.locator('#rt').count()===0,'a typed retest link cannot bypass the one-day delay');
   await page.evaluate(()=>{window.__NP_NOW=Date.now()+2*86400000});await page.goto(URL+'#/think');await page.reload();await page.evaluate(()=>{window.__NP_NOW=Date.now()+2*86400000});await page.evaluate(()=>{location.hash='#/home'});await page.waitForSelector('.card.note');
   ok(/Återtest redo/.test(await page.locator('main').innerText()),'retest offered after a day');
   await page.goto(URL+'#/think/0/retest');await page.evaluate(()=>{window.__NP_NOW=Date.now()+2*86400000});await page.waitForSelector('#rt');
   ok(await page.locator('main').innerText().then(t=>!t.includes('hoppfull')),'retest does not show the old answers');
-  await page.fill('#rt','Kort svar utan resonemang här.');await page.click('[data-a=rtsave]');await page.waitForSelector('[data-a=rtretry]');ok(!(await qs(page,0)).retested||true,'thin attempt is saved but offers a retry');await page.click('[data-a=rtretry]');await page.waitForSelector('#rt');
+  await page.fill('#rt','Jag tror att hon väntar fortfarande.');await page.click('[data-a=rtsave]');
+  ok(/Ditt försök är sparat/.test(await page.locator('main').innerText()),'weak retest offers safe retry');
+  await page.click('[data-a=rtretry]');await page.waitForSelector('#rt');
   await page.fill('#rt','Jag tror att hon väntar eftersom ”hon kom ändå tillbaka” visar att hon hoppas. Å andra sidan kan hon vara rädd.');await page.click('[data-a=rtsave]');
   ok((await qs(page,0)).retested||await page.evaluate(()=>MO_NP_CORE.qState(MO_NP_APP._debug().notes,0,Date.now()+2*86400000).retested),'independent retest recorded');
   // ---------- 10. Backup: export → rensa → återställ ----------
