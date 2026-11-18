@@ -162,16 +162,19 @@ jobs:
 
   cross-engine:
     runs-on: ubuntu-24.04
+    # Pinned Playwright image already contains matching WebKit/Firefox engines and
+    # system libraries. Avoid multi-minute Ubuntu mirror downloads in CI.
+    container:
+      image: mcr.microsoft.com/playwright:v1.49.1-noble
+      options: --ipc=host
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install WebKit and Firefox browser engines
-        run: |
-          npm install --no-audit --no-fund
-          npx playwright install --with-deps webkit firefox
+      - name: Install pinned JavaScript test dependencies (browsers preinstalled)
+        run: npm install --no-audit --no-fund
       - name: Cross-engine student-flow regression (simulated devices, synthetic data)
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-cross-engine.log 2>&1 &
