@@ -10,6 +10,9 @@ async function context(browser,role){
  await ctx.route('https://cdn.jsdelivr.net/**',r=>r.fulfill({status:200,contentType:'application/javascript',body:'/* Supabase stubbed for synthetic QA */'}));
  await ctx.addInitScript(({role,mentor,pupil})=>{
   const me=role==='mentor'?mentor:pupil;
+  // Mock the persisted Supabase Auth session as well as getSession().
+  // Without this, a cross-page navigation falsely resembles a lost-sign-in device.
+  localStorage.setItem('matteos-study-auth-v1',JSON.stringify({user:{id:me},access_token:'synthetic-test-only'}));
   const identity={user:{id:me}};
   const profile={user_id:me,role,grade:role==='mentor'?null:'grade8',display_name:role==='mentor'?'Mentor':'Åk 8'};
   const linked=[{learner_id:pupil,mentor_id:mentor,grade:'grade8',linked_at:'2026-11-10T17:00:00Z'}];

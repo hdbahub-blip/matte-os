@@ -12,10 +12,10 @@ ok(!page.includes('S.signUp('),'public user registration removed from account pa
 ok(!page.includes('data-mode="signup"')&&!page.includes("data-mode="),'no alternate public signup mode');
 ok(!page.includes("form==='signup'")&&!page.includes("password.length<10"),'no signup-only password policy blocking existing accounts');
 ok(page.includes('administratören i Supabase')&&page.includes('Allow new users to sign up'),'admin-created account instructions distinguish UI from server security');
-ok(page.includes('id="create-profile"')&&page.includes('S.enroll('),'first-login role setup still works');
+ok(!page.includes('id="create-profile"')&&!page.includes('S.enroll(')&&page.includes('Din profil väntar på aktivering'),'roles require administrator activation');
 ok(page.includes('data-action="invite"')&&page.includes('S.issueInvite(')&&page.includes('S.redeem('),'mentor consent-based linking preserved');
-ok(html.includes('setup.js?v=1.0.3')&&sw.includes('./study/setup.js?v=1.0.3'),'PWA pre-cache uses updated account UI');
-ok(sw.includes('6.9.2-20261118-auth-errors'),'old app cache invalidated');
+ok(html.includes('setup.js?v=1.1.0-admin-role')&&sw.includes('./study/setup.js?v=1.1.0-admin-role'),'PWA pre-cache uses updated account UI');
+ok(sw.includes('6.9.6-20261118-poster-mobile'),'old app cache invalidated');
 ok(!/service_role|sb_secret_/.test(page),'no admin API secrets in public page');
 ok(page.includes("code==='email_not_confirmed'")&&page.includes('E-postadressen är inte bekräftad i Supabase.'),'user sees actionable email confirmation error');
 console.log('STUDY LOGIN-ONLY QA PASS '+checks+'/'+checks);

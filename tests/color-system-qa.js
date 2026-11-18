@@ -2,9 +2,9 @@
 /* Grade-specific visual-token contract. No private data or network calls. */
 const fs=require('node:fs'),assert=require('node:assert/strict'),path=require('node:path');
 const read=p=>fs.readFileSync(path.join(__dirname,'..',p),'utf8');
-const css=read('css/color-system.css');
-assert.equal(css,read('lara/color-system.css'),'Lärande must mirror exact theme data');
-assert.equal(css,read('prov/css/color-system.css'),'Prov must mirror exact theme data');
+const css=read('css/color-system.css').replace(/\r\n/g,'\n');
+assert.equal(css,read('lara/color-system.css').replace(/\r\n/g,'\n'),'Lärande must mirror exact theme data');
+assert.equal(css,read('prov/css/color-system.css').replace(/\r\n/g,'\n'),'Prov must mirror exact theme data');
 const blocks=[...css.matchAll(/(?:^|\n)([^\n{}]+)\{\n([\s\S]*?)\n\}/g)].filter(x=>x[2].includes('--ui-canvas:'));
 assert.equal(blocks.length,4,'Four color schemes exactly: grade8/9 × light/dark');
 const value=(body,key)=>body.match(new RegExp('--ui-'+key+':(#[0-9A-Fa-f]{6})'))?.[1];

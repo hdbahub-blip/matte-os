@@ -94,8 +94,13 @@ jobs:
           node --check foralder/cloud-parent.js
           node --check studera/app.js
           node tests/study-cloud-qa.js
+          node tests/workspace-guard-qa.js
           node tests/study-login-only-qa.js
           node --check tests/study-login-only-e2e.js
+          node --check tests/account-navigation-e2e.js
+          node --check tests/workspace-cross-tab-e2e.js
+          node --check tests/offline-account-e2e.js
+          node --check tests/exam-auth-grade-e2e.js
           node --check tests/study-cloud-e2e.js
           node --check lara/ordlek.js
           node --check tests/ordlek-night-e2e.js
@@ -127,6 +132,10 @@ jobs:
           node tests/parent-dashboard-e2e.js http://127.0.0.1:8765/
           node tests/study-cloud-e2e.js http://127.0.0.1:8765/ chromium
           node tests/study-login-only-e2e.js http://127.0.0.1:8765/ chromium
+          node tests/account-navigation-e2e.js http://127.0.0.1:8765/
+          node tests/workspace-cross-tab-e2e.js http://127.0.0.1:8765/
+          node tests/offline-account-e2e.js http://127.0.0.1:8765/
+          node tests/exam-auth-grade-e2e.js http://127.0.0.1:8765/ chromium
           node tests/sprak-e2e.js http://127.0.0.1:8765/
           node tests/np-private-e2e.js http://127.0.0.1:8765/
           node tests/np-cloud-e2e.js http://127.0.0.1:8765/
@@ -188,6 +197,7 @@ jobs:
           node tests/cross-engine-e2e.js http://127.0.0.1:8765/
           node tests/sprak-cross-engine.js http://127.0.0.1:8765/
           node tests/study-cloud-e2e.js http://127.0.0.1:8765/ webkit
+          node tests/exam-auth-grade-e2e.js http://127.0.0.1:8765/ webkit
           node tests/study-login-only-e2e.js http://127.0.0.1:8765/ webkit
           node tests/ordlek-night-e2e.js http://127.0.0.1:8765/ webkit
           node tests/ordlek-night-e2e.js http://127.0.0.1:8765/ firefox

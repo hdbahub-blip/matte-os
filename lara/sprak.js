@@ -102,7 +102,7 @@ function storage(){try{return root.localStorage;}catch{return null;}}
 function load(){try{const s=storage();return sanitize(JSON.parse(s?.getItem(STORE)||'null'));}catch{return empty();}}
 let store=load();
 let saveError=false;
-function save(){try{storage().setItem(STORE,JSON.stringify(store));root.MO_STUDY?.markDirty('reading');saveError=false;return true;}catch{saveError=true;return false;}}
+function save(){if(root.MO_STUDY?.canWriteLocal?.()===false){saveError=true;return false;}try{storage().setItem(STORE,JSON.stringify(store));root.MO_STUDY?.markDirty('reading');saveError=false;return true;}catch{saveError=true;return false;}}
 function profileData(p){return store.profiles[PROFILES.includes(p)?p:'grade9'];}
 function oldCount(p){try{const raw=JSON.parse(storage()?.getItem(OLD_STORE)||'null');return raw&&raw.v===2?Object.keys(raw.profiles?.[p]?.done||{}).length:0;}catch{return 0;}}
 /* Only the first individual attempt per task counts as evidence; repeats only raise the counter. */

@@ -222,6 +222,9 @@ function sharePage(g){
  '<p class="note" style="margin-top:17px">Förälder: öppna <a href="./">Min översikt</a>, lås upp med din kod och välj Läs in rapportfil.</p>',{share:true});
 }
 function render(){
+ if((window.MO_STUDY?.profile?.()||window.MO_STUDY?.offlineProfile?.())?.role==='learner'){
+  root.innerHTML=wrap('<section class="card"><h1>Det här är mentoröversikten.</h1><p>Du är inloggad som elev. Dina egna uppgifter finns i din lärmiljö.</p><a class="btn" href="../">Till mina studier</a></section>',{locked:true});return;
+ }
  mode();const share=/^#\/dela\/(grade8|grade9)$/.exec(location.hash);
  if(share){root.innerHTML=sharePage(share[1]);return;}
  if(!state.pin||!unlocked()){root.innerHTML=access();return;}
@@ -326,6 +329,7 @@ document.addEventListener('change',async e=>{
  }catch(err){note(err.message||'Kunde inte läsa filen. Inga data ändrades.',true)}
 });
 window.addEventListener('hashchange',()=>{ui.notice='';render()});
+window.addEventListener('matte-study-status',render);
 window.addEventListener('matte-study-parent-updated',()=>{if(unlocked())render();});
 window.addEventListener('storage',e=>{if(e.key===K){state=getState();render();}});
 render();

@@ -24,6 +24,67 @@ let db=null,session=null,member=null,status='offline',lastError='',flushing=fals
 let cache=safe(get(CACHE)),pending=safe(get(OUTBOX))||{events:[],dirty:[]};
 if(!Array.isArray(pending.events))pending.events=[];
 if(!Array.isArray(pending.dirty))pending.dirty=[];
+
+// Ownership boundary: local browser progress has no authenticated owner until
+// explicitly connected. Keep legacy content in a reversible quarantine.
+const OWNER='matteos.study.workspace-owner.v1', WORK='matteos.study.workspace.v1.', LEGACY='matteos.study.legacy-unclaimed.v1.';
+const WORK_KEYS=[...Object.values(PARTS),OUTBOX];
+let workspaceBound=false;
+function verifiedCachedOwner(){
+ const auth=safe(get('matteos-study-auth-v1'));
+ return !!cache&&cache.role==='learner'&&GRADES.includes(cache.grade)&&/^[0-9a-f-]{36}$/i.test(cache.user_id||'')&&get(OWNER)===cache.user_id&&auth?.user?.id===cache.user_id;
+}
+workspaceBound=verifiedCachedOwner();
+function offlineProfile(){return !member&&['no-sdk','offline','error'].includes(status)&&verifiedCachedOwner()?cache:null;}
+function needsAccountCheck(){return (get(OWNER)&&!get('matteos-study-auth-v1'))|| (!!get('matteos-study-auth-v1')&&!member&&!offlineProfile());}
+function workspaceSnapshot(){return Object.fromEntries(WORK_KEYS.map(k=>[k,get(k)]));}
+function restoreWorkspace(snapshot){
+ for(const k of WORK_KEYS){
+  const val=snapshot?.[k];
+  if(val===null||val===undefined){try{root.localStorage?.removeItem(k)}catch{throw Error('Kunde inte frigöra lokala svar.');}}
+  else if(!set(k,val))throw Error('Lagringen är full: kontobytet avbröts.');
+ }
+}
+function activateWorkspace(p){
+ if(p?.role!=='learner'){
+  const hadOwner=!!get(OWNER);
+  if(hadOwner&&!suspendWorkspace()){status='workspace-blocked';lastError='Kan inte skydda tidigare elevresultat på enheten.';dispatch();return {ok:false,changed:false};}
+  workspaceBound=false;return {ok:true,changed:hadOwner};
+ }
+ const user=p.user_id,owner=get(OWNER);
+ if(!/^[0-9a-f-]{36}$/i.test(user||''))return {ok:false,changed:false};
+ if(owner===user){workspaceBound=true;return {ok:true,changed:false};}
+ const before=workspaceSnapshot(),hasLegacy=Object.values(before).some(v=>v!==null);
+ try{
+  if(owner&&hasLegacy){
+   if(!set(WORK+owner,JSON.stringify(before)))throw Error('Det gamla kontot kunde inte säkerhetskopieras.');
+  }else if(!owner&&hasLegacy){
+   if(!set(LEGACY+Date.now(),JSON.stringify(before)))throw Error('Tidigare lokala resultat kunde inte bevaras.');
+  }
+  restoreWorkspace(safe(get(WORK+user)));
+  if(!set(OWNER,user))throw Error('Den nya elevens arbetsyta kunde inte aktiveras.');
+  pending=safe(get(OUTBOX))||{events:[],dirty:[]};
+  if(!Array.isArray(pending.events))pending.events=[];
+  if(!Array.isArray(pending.dirty))pending.dirty=[];
+  workspaceBound=true;return {ok:true,changed:true};
+ }catch(e){
+  try{restoreWorkspace(before);if(owner)set(OWNER,owner);else root.localStorage?.removeItem(OWNER)}catch{}
+  workspaceBound=false;status='workspace-blocked';lastError=e.message;dispatch();
+  return {ok:false,changed:false};
+ }
+}
+function suspendWorkspace(){
+ const owner=get(OWNER);if(!owner){workspaceBound=false;return true;}
+ const knownOwner=member?.role==='learner'?member.user_id:cache?.role==='learner'?cache.user_id:null;
+ if(knownOwner!==owner){workspaceBound=false;return false;}
+ if(!set(WORK+owner,JSON.stringify(workspaceSnapshot())))return false;
+ try{restoreWorkspace(null);root.localStorage?.removeItem(OWNER)}catch{return false;}
+ pending={events:[],dirty:[]};workspaceBound=false;return true;
+}
+function ownWorkspace(){const p=member||cache;return !!p&&p.role==='learner'&&workspaceBound&&get(OWNER)===p.user_id;}
+function hasLegacy(){try{for(let i=0;i<(root.localStorage?.length||0);i++){if(String(root.localStorage.key(i)||'').startsWith(LEGACY))return true;}}catch{}return false;}
+function canWriteLocal(){const p=member||cache;const owner=get(OWNER);if(owner&&(!p||p.role!=='learner'))return false;return p?.role==='learner'?ownWorkspace():true;}
+
 function dispatch(){try{root.dispatchEvent(new CustomEvent('matte-study-status',{detail:info()}))}catch{}}
 function info(){return {online:!!session,role:member?.role||cache?.role||null,grade:member?.grade||cache?.grade||null,userId:member?.user_id||cache?.user_id||null,status,error:lastError,waiting:pending.events.length,connected:!!member};}
 function client(){return db;}
@@ -44,7 +105,13 @@ async function refresh(){
  const {data,error}=await db.from('study_profiles').select('user_id,role,grade,display_name').eq('user_id',session.user.id).maybeSingle();
  if(error){status='error';lastError=error.message;dispatch();return null;}
  member=data||null;
- if(member){cache=member;set(CACHE,JSON.stringify(member));status='connected';lastError='';dispatch();if(member.role==='learner'&&firstSyncFor!==member.user_id){firstSyncFor=member.user_id;syncAll();}scheduleFlush();}else{status='needs-profile';dispatch();}
+ if(member){
+  const ws=activateWorkspace(member);
+  if(!ws.ok){status='workspace-blocked';dispatch();return member;}
+  cache=member;set(CACHE,JSON.stringify(member));status='connected';lastError='';dispatch();
+  if(ws.changed&&root.document&&typeof root.location?.reload==='function'&&!/\/study\/?$/i.test(root.location?.pathname||'')){root.location.reload();return member;}
+  scheduleFlush();
+ }else{status='needs-profile';dispatch();}
  return member;
 }
 async function signUp(email,password){
@@ -61,17 +128,11 @@ async function signIn(email,password){
  session=data.session;await refresh();return member;
 }
 async function signOut(){
+ if(!suspendWorkspace())throw Error('Kan inte bevara väntande svar. Utloggningen avbröts.');
  if(db)await db.auth.signOut();session=null;member=null;cache=null;try{root.localStorage?.removeItem(CACHE)}catch{}
  status='signed-out';dispatch();
 }
-async function enroll(role,grade,name){
- await initialize();
- if(!db||!session?.user)throw Error('Logga in först.');
- if(!['mentor','learner'].includes(role)||role==='learner'&&!GRADES.includes(grade))throw Error('Ogiltig profil.');
- const {error}=await db.from('study_profiles').insert({user_id:session.user.id,role,grade:role==='mentor'?null:grade,display_name:short(name,48)});
- if(error)throw error;
- return await refresh();
-}
+async function enroll(){throw Error('Roll och årskurs får endast tilldelas av Matte OS-administratören.');}
 async function hashCode(code){
  const bytes=new TextEncoder().encode(code.toLowerCase());
  const h=await root.crypto.subtle.digest('SHA-256',bytes);
@@ -103,7 +164,7 @@ async function unlink(learnerId){
 function canCapture(grade){
  const p=member||cache;
  // Cached role is only used for offline queueing: the server still enforces authenticated identity and grade.
- return p?.role==='learner'&&p.grade===grade&&/^[0-9a-f-]{36}$/i.test(p.user_id||'');
+ return ownWorkspace()&&p?.role==='learner'&&p.grade===grade&&/^[0-9a-f-]{36}$/i.test(p.user_id||'');
 }
 function saveQueue(){
  if(!set(OUTBOX,JSON.stringify(pending))){lastError='Lagringen är full. Exportera en säkerhetskopia och frigör plats.';status='storage-full';dispatch();return false;}
@@ -132,12 +193,12 @@ function capture(a){
 }
 function markDirty(part){
  if(!PARTS[part])return false;
- const p=member||cache;if(p?.role!=='learner')return false;
+ const p=member||cache;if(p?.role!=='learner'||!ownWorkspace())return false;
  if(!pending.dirty.includes(part))pending.dirty.push(part);
  if(!saveQueue())return false;scheduleFlush();return true;
 }
 function compact(part){
- if(!member||member.role!=='learner')return null;
+ if(!member||member.role!=='learner'||!ownWorkspace())return null;
  const raw=safe(get(PARTS[part]));
  if(!raw)return null;
  const m=root.MO_PARENT_MODEL;
@@ -162,7 +223,7 @@ function scheduleFlush(){
  timer=setTimeout(()=>{timer=null;flush().catch(()=>{})},1000);
 }
 async function flush(){
- if(flushing||!db||!session?.user||member?.role!=='learner'||!root.navigator?.onLine)return false;
+ if(flushing||!db||!session?.user||member?.role!=='learner'||!ownWorkspace()||!root.navigator?.onLine)return false;
  if(member.user_id!==session.user.id)return false;
  flushing=true;
  try{
@@ -194,7 +255,7 @@ async function flush(){
  finally{flushing=false;}
 }
 function syncAll(){
- if(member?.role!=='learner')return false;
+ if(member?.role!=='learner'||!ownWorkspace())return false;
  Object.keys(PARTS).forEach(part=>{if(get(PARTS[part]))markDirty(part)});
  scheduleFlush();return true;
 }
@@ -248,7 +309,7 @@ function mergeProfile(part,local,cloud){
  return {...b,...a};
 }
 async function recover(){
- if(!db||member?.role!=='learner'||session?.user?.id!==member.user_id)throw Error('Logga in som rätt elev.');
+ if(!db||member?.role!=='learner'||!ownWorkspace()||session?.user?.id!==member.user_id)throw Error('Logga in som rätt elev.');
  if(pending.events.some(x=>x.learner_id===member.user_id))throw Error('Synka väntande lokala svar innan återställning.');
  const {data,error}=await db.from('study_snapshots').select('module,grade,payload,updated_at').eq('learner_id',member.user_id).order('updated_at',{ascending:true}).limit(250);
  if(error)throw error;
@@ -296,7 +357,14 @@ function onActiveGrade(grade){
 function start(){
  // Avoid a third-party network fetch in unauthenticated learner/Cup sessions.
  // Sign-in page explicitly calls init() and loads the pinned SDK itself.
- const shouldLoad=!!get('matteos-study-auth-v1')||!!get(CACHE);
+ if(!get('matteos-study-auth-v1')){
+    if(!get(OWNER)||suspendWorkspace()){cache=null;try{root.localStorage?.removeItem(CACHE)}catch{}}
+    else{status='workspace-blocked';dispatch();}
+  }
+  const shouldLoad=!!get('matteos-study-auth-v1')||!!get(CACHE);
+  if(!shouldLoad&&get(OWNER)){
+  if(suspendWorkspace()&&root.document&&typeof root.location?.reload==='function')root.location.reload();
+ }
  if(shouldLoad&&validClient())initialize().catch(()=>{});
  else if(shouldLoad&&root.document){const el=root.document.createElement('script');
   el.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.min.js';
@@ -308,8 +376,9 @@ function start(){
  root.addEventListener('online',()=>scheduleFlush());
  root.addEventListener('focus',()=>{refresh().catch(()=>{});scheduleFlush()});
  root.addEventListener('matte-study-saved',e=>markDirty(e.detail?.part));
+  root.addEventListener('storage',e=>{if(e.key===OWNER&&get(OWNER)!==(member||cache)?.user_id){workspaceBound=false;status='workspace-changed';dispatch();}});
  }
 }
 if(typeof root.document!=='undefined')start();
-return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,recover,onActiveGrade,hashCode,compact,canCapture,mergeProfile};
+return {CONFIG,PARTS,VERSION,init:initialize,client,info,profile,refresh,signUp,signIn,signOut,enroll,issueInvite,redeem,links,unlink,capture,markDirty,flush,syncAll,recover,onActiveGrade,hashCode,compact,canCapture,canWriteLocal,hasLegacy,offlineProfile,needsAccountCheck,mergeProfile};
 });

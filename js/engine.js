@@ -67,6 +67,7 @@
   }
   let storageWarningSent = false;
   function save() {
+    if(root.MO_STUDY?.canWriteLocal?.()===false){if(root.document&&typeof root.CustomEvent==='function')root.document.dispatchEvent(new root.CustomEvent('matte-os-storage-error'));return false;}
     if (!mem) return false;
     const ok = safeSet(JSON.stringify(mem));
     if (ok) { storageWarningSent = false; root.MO_STUDY?.markDirty('math'); }

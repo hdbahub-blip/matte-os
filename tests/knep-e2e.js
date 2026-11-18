@@ -4,6 +4,8 @@ const assert = require('node:assert/strict'), fs = require('node:fs');
 const { chromium, devices } = require('playwright');
 const BASE = (process.argv[2] || 'http://127.0.0.1:8765/').replace(/\/?$/, '/');
 const OUT = process.argv[3] || 'test-screenshots'; fs.mkdirSync(OUT, { recursive: true });
+const SW_VERSION=fs.readFileSync('sw.js','utf8').match(/const VERSION = '([^']+)'/)?.[1];
+assert.ok(SW_VERSION,'root service worker version is required for offline QA');
 let n = 0; const ok = (c, m) => { n++; assert(c, m); };
 async function noOverflow(page, label) { const w = await page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]); ok(w[0] <= w[1] + 1, label + ': horizontal overflow ' + w); }
 async function notCovered(page, sel, label) {
@@ -94,8 +96,10 @@ async function notCovered(page, sel, label) {
     // 7. Offline with the real service worker: Minnesknep loads from cache.
     const ctx = await browser.newContext({ ...devices['iPhone 13'] }); const page = await ctx.newPage();
     await page.goto(BASE, { waitUntil: 'networkidle' });
-    await page.evaluate(() => navigator.serviceWorker.ready); await page.reload({ waitUntil: 'networkidle' });
-    await page.waitForFunction(() => caches.keys().then(k => k.some(x => x.includes('5.5.6'))));
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(v => caches.keys().then(keys => keys.includes('matte-os-'+v)),SW_VERSION);
     await page.locator('[data-p="grade9"]').click();
     await ctx.setOffline(true);
     await page.goto(BASE + '#/knep'); await page.reload(); await page.waitForSelector('.knep-item');

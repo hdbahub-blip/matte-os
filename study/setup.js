@@ -19,23 +19,19 @@ function authView(){
  const help='<aside class="card"><h2>Så kommer du igång</h2>'
   +'<ol class="study-steps"><li>Administratören skapar ett eget konto för varje person i Supabase.</li>'
   +'<li>Öppna Matte OS och logga in med din e-postadress och ditt Matte OS-lösenord.</li>'
-  +'<li>Första gången väljer du <b>Mentor</b> eller <b>Elev</b> med rätt årskurs och sparar profilen.</li>'
+  +'<li>Administratören tilldelar rätt roll och årskurs. Du ska inte själv välja elev- eller mentorbehörighet.</li>'
   +'<li>Mentorn skickar en privat inbjudan som eleven godkänner. Sedan följer resultaten med mellan enheter.</li></ol>'
   +'<details><summary>Information för den som administrerar kontona</summary>'
   +'<p>Öppna kontohanteringen i Supabase:</p><p><a class="btn secondary" href="https://supabase.com/dashboard/project/bjyahpcpthumpbktrxnc/auth/users" target="_blank" rel="noopener noreferrer">Öppna Supabase – användare</a></p>'
-  +'<p>Välj <b>Add user → Create new user</b>. Ange personens egen e-postadress, ett separat starkt lösenord och välj e-postbekräftelse enligt projektets inställningar.</p>'
+  +'<p>Skapa användaren i Authentication → Users. Tilldela därefter kontots rätta <b>study_profiles</b>-roll och årskurs via en betrodd administrativ process (inte elevens webbläsare). Aktiveringen kräver att säkerhetsmigrationen för administratörsstyrda roller har införts.</p>'
   +'<p>Varje elev får ett eget konto. Lägg aldrig till eleverna som projektmedlemmar i Supabase Dashboard. Dela inloggningen privat.</p>'
   +'<p>För att hindra självregistrering även genom Auth-API:t måste administratören också stänga <b>Allow new users to sign up</b> under Supabase Authentication → Sign In / Providers. Att dölja registrering här räcker inte som serverbaserad spärr.</p></details>'
   +'<p class="note"><b>Viktigt om gamla resultat:</b> Om du redan tränat på en annan telefon eller installerad ikon, synka först därifrån innan du raderar den gamla installationen.</p></aside>';
  return intro+'<div class="auth-layout"><div>'+form+'</div>'+help+'</div>';
 }
 function createProfile(){
- return '<section class="hero"><span class="eyebrow">Nästa steg</span><h1>Ställ in din profil.</h1><p>Ditt konto finns redan i Supabase. Här väljer du hur du ska använda Matte OS. Rollen och årskursen låses för att skydda separata elevuppgifter.</p></section>'+
- '<div class="card"><form id="create-profile"><h2>Vem ska använda det här kontot?</h2><div class="field"><label for="role">Profil</label><select id="role" name="role" required><option value="">Välj ...</option><option value="mentor">Min Marble Green-mentorprofil</option><option value="learner">Elevprofil</option></select></div>'+
- '<div class="field" id="grade-field"><label for="grade">Årskurs (för elev)</label><select id="grade" name="grade"><option value="">Ingen vald</option><option value="grade8">Årskurs 8</option><option value="grade9">Årskurs 9</option></select></div>'+
- field('Visningsnamn (valfritt alias)','name','text','maxlength="48" value="Elev"')+
- '<label class="checkbox-row"><input type="checkbox" required><span>Jag väljer min egen profil. Jag förstår att den här rollen/årskursen inte går att byta till en annan persons profil.</span></label>'+
- '<button type="submit" class="btn">Spara min profil</button></form></div>';
+ return '<section class="hero setup-hero"><span class="eyebrow">Nästan klart</span><h1>Din profil väntar på aktivering.</h1><p>Du är inloggad, men en ansvarig administratör behöver koppla rätt roll och årskurs till ditt konto. Du ska aldrig behöva välja någon annans profil.</p></section>'+
+ '<div class="card"><h2>Vad händer nu?</h2><p>Be Matte OS-administratören aktivera din personliga elev- eller mentorprofil. Logga sedan in igen. Dina tidigare svar och konton raderas inte.</p><button type="button" class="btn secondary" data-action="logout">Logga ut</button></div>';
 }
 function memberView(){
  const u=S.profile(),inf=S.info(),isMentor=u.role==='mentor';
@@ -119,18 +115,13 @@ document.addEventListener('click',async e=>{
  finally{busy=false;render();}
 });
 document.addEventListener('submit',async e=>{
- if(!['auth','create-profile','redeem'].includes(e.target.id))return;e.preventDefault();if(busy)return;busy=true;error='';notice='';
+ if(!['auth','redeem'].includes(e.target.id))return;e.preventDefault();if(busy)return;busy=true;error='';notice='';
  try{
   const f=new FormData(e.target);
   if(e.target.id==='auth'){
    const email=String(f.get('email')||''),password=String(f.get('password')||'');
    if(!email||!password)throw Error('Ange både e-postadress och lösenord.');
    await S.signIn(email,password);notice='Du är inloggad.';
-  }
-  if(e.target.id==='create-profile'){
-   const role=String(f.get('role')||''),grade=String(f.get('grade')||'');
-   if(role==='learner'&&!['grade8','grade9'].includes(grade))throw Error('Välj årskurs för elevprofilen.');
-   await S.enroll(role,grade,String(f.get('name')||''));notice='Profilen är skapad. Detta konto har en egen säker datagräns.';
   }
   if(e.target.id==='redeem'){
    const code=String(f.get('invite-code')||'').replace(/\s/g,'');
