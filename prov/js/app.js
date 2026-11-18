@@ -48,7 +48,7 @@ function setTheme(){
 }
 function header(){
  const p=profile();
- return `<header class="top"><div class="topin"><a class="brand" href="../" aria-label="Tillbaka till Matematik"><span class="mark">P</span><span><b>MATTE PROV</b><small>Del av Matte OS · hem ↗</small></span></a><div class="spacer"></div><button type="button" class="mode-toggle" data-mode-toggle aria-label="${appearance()==='dark'?'Ljust läge':'Nattläge'}" aria-pressed="${appearance()==='dark'}">${appearance()==='dark'?'☀':'☾'}</button>${p?(signedLearner()?`<a class="grade" href="../study/" aria-label="Mitt konto och synk">Å${p.label.replace(/\D/g,'')} · Mitt konto</a>`:`<button class="grade" data-grade aria-label="Byt årskurs">Å${p.label.replace(/\D/g,'')}</button>`):''}</div></header>`;
+ return `<header class="top"><div class="topin"><a class="brand" href="../" aria-label="Tillbaka till Matematik"><span class="mark">P</span><span><b>MATTE PROV</b><small>Del av Matte OS · hem ↗</small></span></a><div class="spacer"></div><button type="button" class="mode-toggle" data-mode-toggle aria-label="${appearance()==='dark'?'Ljust läge':'Nattläge'}" aria-pressed="${appearance()==='dark'}">${appearance()==='dark'?'☀':'☾'}</button>${p?(signedLearner()?`<a class="grade" href="../study/" aria-label="Mitt konto och synk">Å${p.label.replace(/\D/g,'')} · Mitt konto</a>`:`<button class="grade" data-grade aria-label="Byt årskurs">Å${p.label.replace(/\D/g,'')}</button>`):''}${signedLearner()?'<a class="quick-logout" href="../study/?logout=1" aria-label="Logga ut från Matte OS">Logga ut</a>':''}</div></header>`;
 }
 function shell(content,focus=false){
  return `<div class="app">${focus?'':header()}<main class="wrap ${focus?'focus-wrap':''}">${content}</main></div>`;

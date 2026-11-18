@@ -100,3 +100,29 @@ html[data-mode="dark"] .ux-play{background:linear-gradient(145deg,#543044,#603B4
 @media(min-width:760px){.ux-landing{padding:26px 24px 14px;}.ux-tile{min-height:176px;}}
 @media(max-width:360px){.ux-landing{padding:12px 8px;}.ux-tiles{gap:9px;}.ux-tile{min-height:145px;}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition-duration:.01ms!important;transform:none!important;}}
+
+/* Account exit: prominent touch target at the top-right. */
+.quick-logout{
+ display:inline-flex;align-items:center;justify-content:center;flex:none;
+ min-height:44px;min-width:79px;padding:0 11px;border:1px solid var(--ui-border-strong,#d9d3e5);
+ border-radius:12px;background:var(--ui-surface,#fff);color:var(--ui-text,#24263a);
+ font:750 13px/1.2 system-ui,-apple-system,sans-serif;text-decoration:none;
+ white-space:nowrap;cursor:pointer;
+}
+.quick-logout:hover{background:var(--ui-primary-tint,#f4e9f4);color:var(--ui-on-tint,#602d56)}
+.quick-logout:focus-visible{outline:3px solid var(--ui-primary,#73345f);outline-offset:2px}
+@media(max-width:399px){
+ .top-in .brand-t{display:none}
+ .topin .brand>span:last-child{display:none}
+ .sitehead .headinner>.brand>span:last-child{display:none}
+ .topbar .topinner>a.tiny[href="../foralder/"]{display:none}
+}
+
+@media(max-width:349px){.top-in .chip-btn .n{display:none}}
+
+/* Keep the logo itself a full-size keyboard/touch target when its text is hidden. */
+@media(max-width:399px){
+ .sitehead .headinner>.brand,
+ .top-in .brand,
+ .topin .brand{min-width:44px;min-height:44px;justify-content:center}
+}

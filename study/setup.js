@@ -5,7 +5,7 @@ const S=window.MO_STUDY,app=document.getElementById('app');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const gradeText=g=>g==='grade8'?'Årskurs 8':'Årskurs 9';
 let error='',notice='',invitation='',invitations=[],links=[],busy=false,ready=false,updating=false;
-function header(){return '<header class="topbar"><div class="topinner"><a class="brand" href="../"><span class="monogram">M</span><span><b>MATTE OS</b><small>STUDY CLOUD · MINA KONTON</small></span></a><a class="tiny" href="../foralder/">Min översikt</a></div></header>'}
+function header(){return '<header class="topbar"><div class="topinner"><a class="brand" href="../"><span class="monogram">M</span><span><b>MATTE OS</b><small>STUDY CLOUD · MINA KONTON</small></span></a><a class="tiny" href="../foralder/">Min översikt</a>'+(S.info().online?'<button type="button" class="quick-logout" data-action="logout">Logga ut</button>':'')+'</div></header>'}
 function field(label,name,type='text',extra=''){return '<div class="field"><label for="'+name+'">'+label+'</label><input id="'+name+'" name="'+name+'" type="'+type+'" '+extra+' required></div>'}
 function alerts(){return (error?'<div class="notice error" role="alert">'+esc(error)+'</div>':'')+(notice?'<div class="notice" role="status">'+esc(notice)+'</div>':'')}
 function shell(inner){app.innerHTML=header()+'<main class="container study-main study-bottom">'+alerts()+inner+'<footer>Matte OS Study Cloud. Elevsvar delas endast med en kopplad mentorprofil. Ingen offentlig elevlista, inga anonyma profiler eller dold insamling. Vid frånkoppling upphör mentoråtkomst till elevens privata svar. Kopior du redan har exporterat påverkas inte. <a href="../">Till elevappen</a>.</footer></main>'}
@@ -80,7 +80,17 @@ function render(){
  }
 }
 async function initial(){
- try{await S.init();await updateLinks();}catch(e){error=e.message}finally{ready=true;render()}
+ try{
+  await S.init();
+  // Logout links from other rooms route here, where the Supabase SDK is loaded.
+  const url=new URL(location.href);
+  if(url.searchParams.get('logout')==='1'){
+   url.searchParams.delete('logout');
+   history.replaceState(null,'',url.pathname+url.search+url.hash);
+   await S.signOut();
+   links=[];notice='Du har loggat ut.';
+  }else await updateLinks();
+ }catch(e){error=e.message}finally{ready=true;render()}
 }
 document.addEventListener('click',async e=>{
  const el=e.target.closest('[data-action]');if(!el)return;
