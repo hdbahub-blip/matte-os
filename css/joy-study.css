@@ -119,3 +119,10 @@ html[data-mode="dark"] .ux-play{background:linear-gradient(145deg,#543044,#603B4
 }
 
 @media(max-width:349px){.top-in .chip-btn .n{display:none}}
+
+/* Keep the logo itself a full-size keyboard/touch target when its text is hidden. */
+@media(max-width:399px){
+ .sitehead .headinner>.brand,
+ .top-in .brand,
+ .topin .brand{min-width:44px;min-height:44px;justify-content:center}
+}
