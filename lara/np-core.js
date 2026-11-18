@@ -5,6 +5,7 @@
 (function(root,factory){var o=factory();if(typeof module==='object'&&module.exports)module.exports=o;root.MO_NP_CORE=o;})(typeof window!=='undefined'?window:globalThis,function(){
 'use strict';
 var DAY=86400000;
+var RETEST_DELAY=20*3600*1000;
 var QKEYS=['q0','q1','q2','q3','q4'];
 
 /* ---------- källpaket (privat) ---------- */
@@ -114,11 +115,14 @@ function qState(notes,qi,now){
  var revised=!!(attempted&&words5(a2t)>=3&&a2t.trim()!==a1t.trim()&&Array.isArray(better)&&better.length>=1);
  var spoken=Array.isArray(oral)&&oral.some(function(r){return r&&r.lvl>=2&&(r.rate==='free'||r.rate==='partly');});
  var spokenFree=Array.isArray(oral)&&oral.some(function(r){return r&&r.lvl>=3&&r.rate==='free';});
- var rtOK=!!(rt&&rt.t&&analyse(rt.t,{}).count>=3&&!rt.help);
- var revAt=a2&&a2.at||0;
- var retestReady=revised&&revAt>0&&(now-revAt)>=20*3600*1000;
+ var revAt=Number(a2&&a2.at)||0;
+ var eligible=revised&&revAt>0&&(now-revAt)>=RETEST_DELAY;
+ // A typed deep link cannot bypass the delay or reuse a stale/old attempt.
+ var rtAt=Number(rt&&rt.at)||0;
+ var rtOK=!!(eligible&&rt&&rt.t&&!rt.help&&rtAt>=revAt+RETEST_DELAY&&rtAt<=now&&analyse(rt.t,{}).count>=3);
+ var retestReady=eligible&&!rtOK;
  var level=!attempted?0:revised?(spoken?4:3):(ev.length||(perspective&&perspective.t))?2:1;
- return {attempted:attempted,evidence:ev.length,help:help,perspective:!!(perspective&&perspective.t),revised:revised,spoken:spoken,spokenFree:spokenFree,retested:rtOK,retestReady:retestReady&&!rt,level:level,
+ return {attempted:attempted,evidence:ev.length,help:help,perspective:!!(perspective&&perspective.t),revised:revised,spoken:spoken,spokenFree:spokenFree,retested:rtOK,retestReady:retestReady,level:level,
   independent:attempted&&help<=1};
 }
 function summary(notes,doc,now){
@@ -150,8 +154,8 @@ var STATIONS=['start','read','think','present','lead','join','finish'];
 function stationDone(s,sm){
  switch(s){
   case 'start':return sm.s0;
-  case 'read':return sm.sections>0&&sm.retold>=Math.min(sm.sections,2)&&sm.evidence>=1;
-  case 'think':return sm.improved>=3;
+  case 'read':return sm.sections>0&&sm.retold>=sm.sections&&sm.evidence>=2;
+  case 'think':return sm.improved>=5&&sm.spoken>=2;
   case 'present':return sm.presParts>=5&&sm.talkedFree;
   case 'lead':return sm.leadSims>=3&&sm.leadCards>=3&&sm.opening;
   case 'join':return sm.joinN>=3&&sm.joinIndep;
@@ -163,8 +167,8 @@ function nextStation(sm){for(var i=0;i<STATIONS.length;i++){if(!stationDone(STAT
 function stationProgress(s,sm){
  switch(s){
   case 'start':return {done:sm.s0?1:0,of:1};
-  case 'read':return {done:Math.min(sm.retold,2)+Math.min(sm.evidence,1),of:3};
-  case 'think':return {done:Math.min(sm.improved,3),of:3};
+  case 'read':return {done:Math.min(sm.retold,sm.sections)+Math.min(sm.evidence,2),of:sm.sections+2};
+  case 'think':return {done:Math.min(sm.improved,5)+Math.min(sm.spoken,2),of:7};
   case 'present':return {done:sm.presParts+(sm.talkedFree?1:0),of:6};
   case 'lead':return {done:Math.min(sm.leadSims,3)+Math.min(sm.leadCards,3)+(sm.opening?1:0),of:7};
   case 'join':return {done:Math.min(sm.joinN,3)+(sm.joinIndep?1:0),of:4};
