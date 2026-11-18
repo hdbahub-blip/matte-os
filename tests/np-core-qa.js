@@ -38,16 +38,21 @@ notes['ans.q0.oral']=J([{lvl:2,rate:'read',at:t0}]);ok(!K.qState(notes,0,t0).spo
 notes['ans.q0.oral']=J([{lvl:2,rate:'partly',at:t0}]);ok(K.qState(notes,0,t0).spoken&&K.qState(notes,0,t0).level===4,'faded practice counts');
 ok(!K.qState(notes,0,t0+19*3600e3).retestReady&&K.qState(notes,0,t0+21*3600e3).retestReady,'retest unlocks after ~20 h');
 notes['ans.q0.rt']=J({t:'Svar.',at:t0,help:0});ok(!K.qState(notes,0,t0+9e7).retested,'thin retest does not count');
-notes['ans.q0.rt']=J({t:'Jag tror att hon väntar eftersom hon hoppas. ”Hon kommer tillbaka” visar det. Å andra sidan kan hon vara envis.',at:t0,help:0});ok(K.qState(notes,0,t0+9e7).retested,'full retest counts');
-notes['ans.q0.rt']=J({t:'Jag tror att hon väntar eftersom hon hoppas. ”Hon kommer tillbaka” visar det. Å andra sidan kan hon vara envis.',at:t0,help:1});ok(!K.qState(notes,0,t0+9e7).retested,'retest with help does not count as independent');
+notes['ans.q0.rt']=J({t:'Jag tror att hon väntar eftersom hon hoppas. ”Hon kommer tillbaka” visar det. Å andra sidan kan hon vara envis.',at:t0,help:0});ok(!K.qState(notes,0,t0+9e7).retested,'stale retest cannot count');
+notes['ans.q0.rt']=J({t:'Jag tror att hon väntar eftersom hon hoppas. ”Hon kommer tillbaka” visar det. Å andra sidan kan hon vara envis.',at:t0+21*3600e3,help:0});ok(K.qState(notes,0,t0+9e7).retested,'delayed retest counts');
+notes['ans.q0.rt']=J({t:'Jag tror att hon väntar eftersom hon hoppas. ”Hon kommer tillbaka” visar det. Å andra sidan kan hon vara envis.',at:t0+21*3600e3,help:1});ok(!K.qState(notes,0,t0+9e7).retested,'retest with help does not count as independent');
 // stationer
 const doc=K.normalize(f);let sm=K.summary({},doc,t0);ok(K.nextStation(sm)==='start','new student starts at 1');
 let sn={'quiz.pass':'1'};sm=K.summary(sn,doc,t0);ok(K.nextStation(sm)==='read','after quiz: read');
 sn['read.s0']=J({t:'Mira väntar vid bussen',kp:[]});sn['read.s1']=J({t:'Hon byter plats i klassrummet',kp:[]});ok(K.nextStation(K.summary(sn,doc,t0))==='read','retelling without evidence is not enough');
-sn['ev.p0']=J({kind:'says',note:'visar att hon väntar'});ok(K.nextStation(K.summary(sn,doc,t0))==='think','read done with retell + evidence');
+sn['ev.p0']=J({kind:'says',note:'visar att hon väntar'});ok(K.nextStation(K.summary(sn,doc,t0))==='read','retell all sections');sn['read.s2']=J({t:'Jonte hjälper Mira med klockan',kp:[]});ok(K.nextStation(K.summary(sn,doc,t0))==='read','add another evidence');sn['ev.p1']=J({kind:'reads',note:'visar tidens gång'});ok(K.nextStation(K.summary(sn,doc,t0))==='think','read complete after all parts and two text examples');
 for(let i=0;i<3;i++){sn['ans.q'+i+'.a1']='Mitt första svar nummer '+i;sn['ans.q'+i+'.a2']=J({t:'Mitt bättre svar nummer '+i+' eftersom',at:t0});sn['ans.q'+i+'.better']=J(['because']);}
-ok(K.nextStation(K.summary(sn,doc,t0))==='present','three improved answers complete Tänk');
-ok(K.stationProgress('think',K.summary(sn,doc,t0)).done===3,'progress counts');
+ok(K.nextStation(K.summary(sn,doc,t0))==='think','three answers cannot complete all five school questions');
+for(let i=3;i<5;i++){sn['ans.q'+i+'.a1']='Mitt första svar nummer '+i;sn['ans.q'+i+'.a2']=J({t:'Mitt bättre svar nummer '+i+' eftersom',at:t0});sn['ans.q'+i+'.better']=J(['because']);}
+ok(K.nextStation(K.summary(sn,doc,t0))==='think','spoken exercises also needed');
+for(let i=0;i<2;i++)sn['ans.q'+i+'.oral']=J([{lvl:2,rate:'partly',at:t0}]);
+ok(K.nextStation(K.summary(sn,doc,t0))==='present','all five questions revised and at least two spoken');
+ok(K.stationProgress('think',K.summary(sn,doc,t0)).done===7,'complete progress denominator');
 // ledar-övning: öppna frågor krävs
 sn['lead.sims']=J({a:{good:true},b:{good:false},c:{good:true}});sn['lead.cards']=J([1,2,3]);sn['lead.followup1']='Är det bra?';sn['lead.followup2']='Varför då?';sn['lead.invite']='Vad tänker du?';
 ok(!K.summary(sn,doc,t0).opening,'closed follow-up question is not an opening');sn['lead.followup1']='Hur skulle du ha gjort?';ok(K.summary(sn,doc,t0).opening,'two open questions + invitation = opening');
