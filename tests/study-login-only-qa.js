@@ -1,0 +1,20 @@
+'use strict';
+const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
+const page=fs.readFileSync('study/setup.js','utf8');
+const html=fs.readFileSync('study/index.html','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+let checks=0;
+function ok(condition,message){assert(condition,message);checks++;}
+new vm.Script(page,{filename:'study/setup.js'});checks++;
+ok(page.includes('id="auth"'),'login form exists');
+ok(page.includes("await S.signIn(email,password)"),'login action remains');
+ok(!page.includes('S.signUp('),'public user registration removed from account page');
+ok(!page.includes('data-mode="signup"')&&!page.includes("data-mode="),'no alternate public signup mode');
+ok(!page.includes("form==='signup'")&&!page.includes("password.length<10"),'no signup-only password policy blocking existing accounts');
+ok(page.includes('administratören i Supabase')&&page.includes('Allow new users to sign up'),'admin-created account instructions distinguish UI from server security');
+ok(page.includes('id="create-profile"')&&page.includes('S.enroll('),'first-login role setup still works');
+ok(page.includes('data-action="invite"')&&page.includes('S.issueInvite(')&&page.includes('S.redeem('),'mentor consent-based linking preserved');
+ok(html.includes('setup.js?v=1.0.2')&&sw.includes('./study/setup.js?v=1.0.2'),'PWA pre-cache uses updated account UI');
+ok(sw.includes('6.9.1-20261118-admin-login'),'old app cache invalidated');
+ok(!/service_role|sb_secret_/.test(page),'no admin API secrets in public page');
+console.log('STUDY LOGIN-ONLY QA PASS '+checks+'/'+checks);

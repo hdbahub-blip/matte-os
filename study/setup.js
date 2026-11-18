@@ -4,27 +4,38 @@
 const S=window.MO_STUDY,app=document.getElementById('app');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const gradeText=g=>g==='grade8'?'Årskurs 8':'Årskurs 9';
-let error='',notice='',invitation='',invitations=[],links=[],form='login',busy=false,ready=false,showReset=false,updating=false;
+let error='',notice='',invitation='',invitations=[],links=[],busy=false,ready=false,updating=false;
 function header(){return '<header class="topbar"><div class="topinner"><a class="brand" href="../"><span class="monogram">M</span><span><b>MATTE OS</b><small>STUDY CLOUD · MINA KONTON</small></span></a><a class="tiny" href="../foralder/">Min översikt</a></div></header>'}
 function field(label,name,type='text',extra=''){return '<div class="field"><label for="'+name+'">'+label+'</label><input id="'+name+'" name="'+name+'" type="'+type+'" '+extra+' required></div>'}
 function alerts(){return (error?'<div class="notice error" role="alert">'+esc(error)+'</div>':'')+(notice?'<div class="notice" role="status">'+esc(notice)+'</div>':'')}
 function shell(inner){app.innerHTML=header()+'<main class="container study-main study-bottom">'+alerts()+inner+'<footer>Matte OS Study Cloud. Elevsvar delas endast med en kopplad mentorprofil. Ingen offentlig elevlista, inga anonyma profiler eller dold insamling. Vid frånkoppling upphör mentoråtkomst till elevens privata svar. Kopior du redan har exporterat påverkas inte. <a href="../">Till elevappen</a>.</footer></main>'}
 function authView(){
- let intro='<section class="hero setup-hero"><span class="eyebrow">Synk och privat familjestöd</span><h1>Studera tryggt, tillsammans.</h1><p>Eleverna får egna konton och kan arbeta på sina telefoner. En mentor kan se svar först efter att eleven godkänt en privat inbjudan.</p></section>';
- let nav='<div class="seg"><button data-mode="login" aria-pressed="'+(form==='login')+'">Logga in</button><button data-mode="signup" aria-pressed="'+(form==='signup')+'">Skapa konto</button></div>';
- let forms='<form id="auth" class="card"><h2>'+(form==='login'?'Välkommen tillbaka':'Skapa ditt konto')+'</h2>'+field('Din e-post','email','email','autocomplete="email" maxlength="180"')+field('Lösenord (minst 10 tecken)','password','password','passwordlength="10" minlength="10" autocomplete="'+(form==='login'?'current-password':'new-password')+'"')+
- (form==='signup'?'<label class="checkbox-row"><input name="consent" type="checkbox" required><span>Jag förstår att jag skapar mitt eget konto och att mina studieresultat kan delas med kopplad mentor efter att jag själv löst in en inbjudan.</span></label>':'')+
- '<button type="submit" class="btn">'+(busy?'Kontrollerar …':form==='login'?'Logga in':'Skapa konto')+'</button></form>'+
- (form==='signup'?'<div class="warning"><b>Viktigt om kontoskapande</b><p>Supabases inbyggda e-posttjänst skickar normalt bara till projektteamets adresser och har låg gräns. För tre separata familjekonton krävs egen SMTP för e-postbekräftelse, alternativt att kontoägaren skapar och bekräftar kontona direkt under Supabase Authentication → Users → Add user → Create new user. Det senare kräver inga utgående e-postmeddelanden. Då använder ni fliken Logga in här.</p><p class="help">Behåll Confirm email för självregistrering med SMTP. Dela aldrig lösenord i gruppchattar. Lägg inte till barn som medlemmar i Supabase-projektets team.</p></div>':'');
- return intro+'<div class="auth-layout"><div>'+nav+forms+'</div><div class="card"><h2>Varför behövs konto?</h2><p>Utan inloggning finns resultaten bara på den aktuella telefonen. Med konto sparas nya inlämnade svar automatiskt i en skyddad databas, även efter att du byter enhet.</p><p>Det som gjorts innan aktiveringen kan synkroniseras som sammanfattade framsteg. Äldre skrivna svar som aldrig sparats kan inte återställas.</p><p class="note">Bekräftelse till e-posten kan krävas. Använd en egen e-postadress som du har tillgång till. Konton delas inte mellan personer.</p><p class="note"><strong>iPhone:</strong> Använd en och samma installerade Matte OS-ikon för matte, språk, prov och mentorsvy. Separat installerade webbappar kan ha åtskild lokal lagring. Ta säkerhetskopia av äldre framsteg i varje separat installerad app innan du byter, och radera aldrig en gammal ikon förrän uppgifterna kontrollerats.</p></div></div>';
+ const intro='<section class="hero setup-hero"><span class="eyebrow">Study Cloud · Privata elevkonton</span><h1>Logga in i Matte OS.</h1><p>Samma konto på telefon, surfplatta och dator. Dina uppgifter och framsteg synkas när du är inloggad och har internet.</p></section>';
+ const form='<form id="auth" class="card"><span class="eyebrow">Ett kontosystem</span><h2>Välkommen tillbaka</h2>'
+  +field('E-postadressen för ditt Matte OS-konto','email','email','autocomplete="username" maxlength="180"')
+  +field('Lösenord','password','password','autocomplete="current-password"')
+  +'<button type="submit" class="btn">'+(busy?'Kontrollerar …':'Logga in')+'</button>'
+  +'<p class="note">Har du inget konto än? Konton skapas av Matte OS-administratören i Supabase. Be ansvarig mentor om inloggningsuppgifter. Använd inte ditt privata Gmail-lösenord.</p></form>';
+ const help='<aside class="card"><h2>Så kommer du igång</h2>'
+  +'<ol class="study-steps"><li>Administratören skapar ett eget konto för varje person i Supabase.</li>'
+  +'<li>Öppna Matte OS och logga in med din e-postadress och ditt Matte OS-lösenord.</li>'
+  +'<li>Första gången väljer du <b>Mentor</b> eller <b>Elev</b> med rätt årskurs och sparar profilen.</li>'
+  +'<li>Mentorn skickar en privat inbjudan som eleven godkänner. Sedan följer resultaten med mellan enheter.</li></ol>'
+  +'<details><summary>Information för den som administrerar kontona</summary>'
+  +'<p>Öppna kontohanteringen i Supabase:</p><p><a class="btn secondary" href="https://supabase.com/dashboard/project/bjyahpcpthumpbktrxnc/auth/users" target="_blank" rel="noopener noreferrer">Öppna Supabase – användare</a></p>'
+  +'<p>Välj <b>Add user → Create new user</b>. Ange personens egen e-postadress, ett separat starkt lösenord och välj e-postbekräftelse enligt projektets inställningar.</p>'
+  +'<p>Varje elev får ett eget konto. Lägg aldrig till eleverna som projektmedlemmar i Supabase Dashboard. Dela inloggningen privat.</p>'
+  +'<p>För att hindra självregistrering även genom Auth-API:t måste administratören också stänga <b>Allow new users to sign up</b> under Supabase Authentication → Sign In / Providers. Att dölja registrering här räcker inte som serverbaserad spärr.</p></details>'
+  +'<p class="note"><b>Viktigt om gamla resultat:</b> Om du redan tränat på en annan telefon eller installerad ikon, synka först därifrån innan du raderar den gamla installationen.</p></aside>';
+ return intro+'<div class="auth-layout"><div>'+form+'</div>'+help+'</div>';
 }
 function createProfile(){
- return '<section class="hero"><span class="eyebrow">Nästa steg</span><h1>Välj din roll.</h1><p>Din roll låses vid skapandet så att elever och mentorer inte kan ta över varandras data.</p></section>'+
+ return '<section class="hero"><span class="eyebrow">Nästa steg</span><h1>Ställ in din profil.</h1><p>Ditt konto finns redan i Supabase. Här väljer du hur du ska använda Matte OS. Rollen och årskursen låses för att skydda separata elevuppgifter.</p></section>'+
  '<div class="card"><form id="create-profile"><h2>Vem ska använda det här kontot?</h2><div class="field"><label for="role">Profil</label><select id="role" name="role" required><option value="">Välj ...</option><option value="mentor">Min Marble Green-mentorprofil</option><option value="learner">Elevprofil</option></select></div>'+
  '<div class="field" id="grade-field"><label for="grade">Årskurs (för elev)</label><select id="grade" name="grade"><option value="">Ingen vald</option><option value="grade8">Årskurs 8</option><option value="grade9">Årskurs 9</option></select></div>'+
  field('Visningsnamn (valfritt alias)','name','text','maxlength="48" value="Elev"')+
  '<label class="checkbox-row"><input type="checkbox" required><span>Jag väljer min egen profil. Jag förstår att den här rollen/årskursen inte går att byta till en annan persons profil.</span></label>'+
- '<button type="submit" class="btn">Skapa min profil</button></form></div>';
+ '<button type="submit" class="btn">Spara min profil</button></form></div>';
 }
 function memberView(){
  const u=S.profile(),inf=S.info(),isMentor=u.role==='mentor';
@@ -76,8 +87,7 @@ async function initial(){
  try{await S.init();await updateLinks();}catch(e){error=e.message}finally{ready=true;render()}
 }
 document.addEventListener('click',async e=>{
- const el=e.target.closest('[data-action],[data-mode]');if(!el)return;
- if(el.dataset.mode){form=el.dataset.mode;error='';notice='';render();return;}
+ const el=e.target.closest('[data-action]');if(!el)return;
  const action=el.dataset.action;
  if(busy)return;
  try{
@@ -114,9 +124,8 @@ document.addEventListener('submit',async e=>{
   const f=new FormData(e.target);
   if(e.target.id==='auth'){
    const email=String(f.get('email')||''),password=String(f.get('password')||'');
-   if(password.length<10)throw Error('Lösenordet behöver minst 10 tecken.');
-   if(form==='login'){await S.signIn(email,password);notice='Du är inloggad.';}
-   else{const v=await S.signUp(email,password);notice=v.confirmationNeeded?'Bekräfta e-postmeddelandet och logga sedan in. Om ingen bekräftelse kommer: se informationen om e-postleverans på den här sidan.':'Kontot är registrerat. Välj din profil.';}
+   if(!email||!password)throw Error('Ange både e-postadress och lösenord.');
+   await S.signIn(email,password);notice='Du är inloggad.';
   }
   if(e.target.id==='create-profile'){
    const role=String(f.get('role')||''),grade=String(f.get('grade')||'');
@@ -131,9 +140,7 @@ document.addEventListener('submit',async e=>{
  }catch(ex){
   const m=String(ex.message||'');
   const code=String(ex.code||'');
-  error=/email_address_not_authorized|Email address not authorized|not authorized|email rate limit|over_email_send_rate_limit/i.test(m+' '+code)
-   ?'Supabase kan inte skicka bekräftelse till den här adressen. Använd administratörsskapade konton eller konfigurera egen SMTP. Inga elevresultat ändrades.'
-   :m||'Något gick fel. Inga elevdata ändrades.';
+  error=e.target.id==='auth'?'Kunde inte logga in. Kontrollera e-post och lösenord samt att administratören har skapat ditt konto i Supabase. Inga elevresultat ändrades.':m||'Något gick fel. Inga elevdata ändrades.';
  }
  finally{busy=false;render()}
 });
