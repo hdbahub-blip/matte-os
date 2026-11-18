@@ -140,7 +140,15 @@ document.addEventListener('submit',async e=>{
  }catch(ex){
   const m=String(ex.message||'');
   const code=String(ex.code||'');
-  error=e.target.id==='auth'?'Kunde inte logga in. Kontrollera e-post och lösenord samt att administratören har skapat ditt konto i Supabase. Inga elevresultat ändrades.':m||'Något gick fel. Inga elevdata ändrades.';
+  if(e.target.id==='auth'){
+   if(code==='email_not_confirmed'||/email not confirmed/i.test(m))
+    error='E-postadressen är inte bekräftad i Supabase. Be administratören öppna Authentication → Users, välja ditt konto och bekräfta adressen. Försök sedan logga in igen. Skapa inte ett nytt konto.';
+   else if(code==='invalid_credentials'||/invalid login credentials/i.test(m))
+    error='E-post eller lösenord stämmer inte. Använd e-postadressen och det separata Matte OS-lösenordet som skapades i Supabase.';
+   else if(code==='over_request_rate_limit'||code==='over_email_send_rate_limit')
+    error='För många inloggningsförsök. Försök igen senare; ditt konto och dina resultat finns kvar.';
+   else error='Inloggningen misslyckades. Kontrollera kontot i Supabase Authentication → Users och försök igen. Inga elevresultat ändrades.';
+  }else error=m||'Något gick fel. Inga elevdata ändrades.';
  }
  finally{busy=false;render()}
 });
