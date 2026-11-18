@@ -51,6 +51,7 @@ async function run(browser,role){
   await p.locator('form#auth button[type="submit"]').click();
   await p.getByText('E-postadressen är inte bekräftad i Supabase.',{exact:false}).waitFor({timeout:12000});
   ok(await p.locator('form#auth').count()===1,'unconfirmed account remains on login screen and receives recovery instructions');
+  await p.locator('#email').fill(role+'@example.test');
   await p.locator('#password').fill('test1234'); // existing admin-created credentials shorter than new-registration policy
   await p.locator('form#auth button[type="submit"]').click();
   await p.locator('form#create-profile').waitFor({timeout:12000});
