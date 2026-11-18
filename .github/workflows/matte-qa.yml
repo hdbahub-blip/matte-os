@@ -176,6 +176,9 @@ jobs:
       - name: Install pinned JavaScript test dependencies (browsers preinstalled)
         run: npm install --no-audit --no-fund
       - name: Cross-engine student-flow regression (simulated devices, synthetic data)
+        # Firefox refuses root sessions when HOME belongs to the image's pwuser.
+        env:
+          HOME: /root
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/matte-cross-engine.log 2>&1 &
           sleep 2
