@@ -48,7 +48,12 @@ try{
  await a.waitForFunction(async()=>!!(await window.__privateSnapshots()).find(r=>r.payload?.entries?.['ans.q0.a1']?.value==='Min första reflektion med flera egna ord.'),null,{timeout:12000});
  B=await browser.newContext({serviceWorkers:'block'});const b=await B.newPage();await attach(b,alice);
  b.on('pageerror',e=>failures.push('B:'+e.message));
- await b.goto(url+'#/think/0');await wait(b,()=>window.MO_NP_APP?.hasSource()&&!!MO_NP_APP._debug().notes['ans.q0.a1']);
+ await b.goto(url+'#/think/0');
+ try{await wait(b,()=>window.MO_NP_APP?.hasSource()&&!!MO_NP_APP._debug().notes['ans.q0.a1']);}
+ catch(e){
+  console.error('Second device diagnostics',JSON.stringify(await b.evaluate(()=>({study:MO_STUDY?.info(),profile:MO_STUDY?.profile(),np:window.MO_NP_STATUS,source:window.MO_NP_SOURCE_STATUS,ready:window.MO_NP_SYNC?.ready?.(),account:window.MO_NP_APP?.accountId(),hasSource:window.MO_NP_APP?.hasSource(),noteKeys:Object.keys(window.MO_NP_APP?._debug()?.notes||{}).slice(0,12)}))));
+  throw e;
+ }
  ok(await b.locator('blockquote.school').first().innerText().then(t=>t.includes(fixture.questions[0])),'same account on device B retrieves exact synthetic question without uploading file');
  ok((await b.locator('#a1').inputValue()).includes('första reflektion'),'answers follow learner A to device B');
  ok(claimCount===1,'claim only attempted once; other device reads entitled source directly');
