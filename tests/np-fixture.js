@@ -18,6 +18,6 @@ function make(){
   sections:[{title:'Del A',paras:[0,1,2],keyPoints:['Mira väntar vid bussen.','Klockan har stannat.']},{title:'Del B',paras:[3,4,5],keyPoints:['Hon byter plats.']},{title:'Del C',paras:[6,7],keyPoints:[]}],
   fidelity:[{i:0,status:'VERBATIM_PHOTO'},{i:1,status:'PHOTO_PARTIAL'},{i:2,status:'VERBATIM_PHOTO'}],
   supports:Array.from({length:5},(_,i)=>({steps:['Syntetisk tankefråga '+i],evidence:'Syntetiskt belägg',perspective:'Syntetiskt perspektiv',stem:'Jag anser (syntetisk)',
-   weak:i<2?'Syntetiskt svagt svar.':'',strong:i<2?'Syntetiskt starkt svar med eftersom och å andra sidan.':'',why:i<2?'Syntetisk förklaring.':'',evidenceParas:[0,1],perspectives:[{who:'Syntetisk person',prompt:'Vad skulle hen säga?'}]}))};
+   weak:i<2?'Syntetiskt svagt svar.':'',middle:i<2?'Syntetiskt mellanläge med viss förklaring men utan belägg.':'',strong:i<2?'Syntetiskt starkt svar med eftersom och å andra sidan.':'',why:i<2?'Syntetisk förklaring.':'',evidenceParas:[0,1],perspectives:[{who:'Syntetisk person',prompt:'Vad skulle hen säga?'}]}))};
 }
 module.exports={make};
