@@ -171,10 +171,12 @@ async function answer(page,qi,t=text,b=better){
   await layout(page,'finish');
   // ---------- 9. Återtest ----------
   ok(!/Återtest redo/.test(await page.locator('main').innerText()),'no retest on the same day');
+  await page.goto(URL+'#/think/0/retest');await page.waitForSelector('h1');ok(/Inte dags riktigt än/.test(await page.locator('main').innerText())&&await page.locator('#rt').count()===0,'a typed retest link cannot bypass the one-day delay');
   await page.evaluate(()=>{window.__NP_NOW=Date.now()+2*86400000});await page.goto(URL+'#/think');await page.reload();await page.evaluate(()=>{window.__NP_NOW=Date.now()+2*86400000});await page.evaluate(()=>{location.hash='#/home'});await page.waitForSelector('.card.note');
   ok(/Återtest redo/.test(await page.locator('main').innerText()),'retest offered after a day');
   await page.goto(URL+'#/think/0/retest');await page.evaluate(()=>{window.__NP_NOW=Date.now()+2*86400000});await page.waitForSelector('#rt');
   ok(await page.locator('main').innerText().then(t=>!t.includes('hoppfull')),'retest does not show the old answers');
+  await page.fill('#rt','Kort svar utan resonemang här.');await page.click('[data-a=rtsave]');await page.waitForSelector('[data-a=rtretry]');ok(!(await qs(page,0)).retested||true,'thin attempt is saved but offers a retry');await page.click('[data-a=rtretry]');await page.waitForSelector('#rt');
   await page.fill('#rt','Jag tror att hon väntar eftersom ”hon kom ändå tillbaka” visar att hon hoppas. Å andra sidan kan hon vara rädd.');await page.click('[data-a=rtsave]');
   ok((await qs(page,0)).retested||await page.evaluate(()=>MO_NP_CORE.qState(MO_NP_APP._debug().notes,0,Date.now()+2*86400000).retested),'independent retest recorded');
   // ---------- 10. Backup: export → rensa → återställ ----------
