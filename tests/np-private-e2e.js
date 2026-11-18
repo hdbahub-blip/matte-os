@@ -88,7 +88,11 @@ async function answer(page,qi,t=text,b=better){
   await page.fill('#retell',fixture.textParagraphs[0]+' '+fixture.textParagraphs[1]);ok(/ligger nära textens ord/.test(await page.locator('main').innerText()),'copying is gently flagged');
   await page.fill('#retell','Mira väntar vid bussen men ingen vinkar.');
   await page.click('text=Nästa del');await page.waitForFunction(()=>/del 2 av 3/i.test(document.querySelector('.eyebrow').innerText));await page.fill('#retell','Hon byter plats och skriver ett brev.');
-  ok((await sm(page)).retold===2&&(await sm(page)).evidence===1,'read progress = retold sections + evidence');
+  ok((await sm(page)).retold===2&&(await sm(page)).evidence===1&&(await sm(page)).s0,'read progress = retold sections + evidence');
+  ok(!(await page.evaluate(()=>MO_NP_CORE.stationDone('read',MO_NP_CORE.summary(MO_NP_APP._debug().notes,MO_NP_APP._debug().doc,Date.now())))),'two of three sections retold + one evidence is not a finished read station');
+  await page.click('text=Nästa del');await page.waitForFunction(()=>/del 3 av 3/i.test(document.querySelector('.eyebrow').innerText));await page.fill('#retell','Hon går till köket och får te.');
+  await page.click('[data-a=ev][data-i="6"]');await page.waitForSelector('#evn');await page.fill('#evn','Visar vändningen.');await page.click('[data-a=evsave]');
+  ok(await page.evaluate(()=>MO_NP_CORE.stationDone('read',MO_NP_CORE.summary(MO_NP_APP._debug().notes,MO_NP_APP._debug().doc,Date.now()))),'read station done: all sections retold + two evidence paragraphs');
   await layout(page,'read');
   // Fokus och text bevaras när eleven skriver tecken för tecken
   await page.fill('#retell','');await page.click('#retell');await page.keyboard.type('Hon byter plats och skriver ett brev.',{delay:2});
@@ -114,7 +118,9 @@ async function answer(page,qi,t=text,b=better){
   await page.goto(URL+'#/think/1');await page.waitForSelector('#a1');await page.fill('#a1',text);await page.click('[data-a=qstep][data-s="2"]');
   ok((await qs(page,1)).level<=2&&!(await qs(page,1)).revised,'untouched steps do not count as progress');
   await answer(page,1);await answer(page,2);
-  ok((await sm(page)).improved===3&&(await sm(page)).spoken===3,'three questions improved and spoken');
+  ok(!(await page.evaluate(()=>MO_NP_CORE.stationDone('think',MO_NP_CORE.summary(MO_NP_APP._debug().notes,MO_NP_APP._debug().doc,Date.now())))),'three of five answers is not a finished think station');
+  await answer(page,3);await answer(page,4);
+  ok((await sm(page)).improved===5&&(await sm(page)).spoken===5,'all five questions improved and spoken');
   // ---------- 5. Presentera ----------
   await page.goto(URL+'#/present');await page.waitForSelector('#pp1');
   await page.fill('#pp1','Mira, bussen, väntan');
@@ -181,7 +187,7 @@ async function answer(page,qi,t=text,b=better){
   await page.evaluate(()=>{});await page.setInputFiles('#fileRestore',{name:'b.json',mimeType:'application/json',buffer:fs.readFileSync(path)});await page.waitForTimeout(400);
   ok(await page.evaluate(()=>!!MO_NP_APP._debug().notes['ans.q0.a2']),'restore brings answers back');
   // ---------- 11. Reload, dag/kväll, kontrast, bredder ----------
-  await page.reload();await page.waitForSelector('.station');ok((await sm(page)).improved===3,'persists across reload');
+  await page.reload();await page.waitForSelector('.station');ok((await sm(page)).improved===5,'persists across reload');
   for(const w of [320,390,430,1280]){await page.setViewportSize({width:w,height:w>600?900:800});
    for(const v of ['home','start','read','think','think/0','present','lead','join','join/t1','finish']){await page.goto(URL+'#/'+v);await page.waitForSelector('main');await layout(page,w+' '+v);}}
   await page.setViewportSize({width:390,height:844});

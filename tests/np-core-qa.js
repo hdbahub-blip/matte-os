@@ -37,17 +37,25 @@ ok(!K.qState(notes,0,t0).spoken,'not spoken yet');notes['ans.q0.oral']=J([{lvl:1
 notes['ans.q0.oral']=J([{lvl:2,rate:'read',at:t0}]);ok(!K.qState(notes,0,t0).spoken,'reading aloud does not count');
 notes['ans.q0.oral']=J([{lvl:2,rate:'partly',at:t0}]);ok(K.qState(notes,0,t0).spoken&&K.qState(notes,0,t0).level===4,'faded practice counts');
 ok(!K.qState(notes,0,t0+19*3600e3).retestReady&&K.qState(notes,0,t0+21*3600e3).retestReady,'retest unlocks after ~20 h');
-notes['ans.q0.rt']=J({t:'Svar.',at:t0,help:0});ok(!K.qState(notes,0,t0+9e7).retested,'thin retest does not count');
-notes['ans.q0.rt']=J({t:'Jag tror att hon väntar eftersom hon hoppas. ”Hon kommer tillbaka” visar det. Å andra sidan kan hon vara envis.',at:t0,help:0});ok(K.qState(notes,0,t0+9e7).retested,'full retest counts');
-notes['ans.q0.rt']=J({t:'Jag tror att hon väntar eftersom hon hoppas. ”Hon kommer tillbaka” visar det. Å andra sidan kan hon vara envis.',at:t0,help:1});ok(!K.qState(notes,0,t0+9e7).retested,'retest with help does not count as independent');
+const full='Jag tror att hon väntar eftersom hon hoppas. ”Hon kommer tillbaka” visar det. Å andra sidan kan hon vara envis.',tN=t0+22*3600e3,tR=t0+21*3600e3;
+notes['ans.q0.rt']=J({t:'Svar.',at:tR,help:0});ok(!K.qState(notes,0,tN).retested,'thin retest does not count');
+notes['ans.q0.rt']=J({t:full,at:tR,help:0});ok(K.qState(notes,0,tN).retested&&!K.qState(notes,0,tN).retestReady,'full retest counts and closes the offer');
+notes['ans.q0.rt']=J({t:full,at:tR,help:1});ok(!K.qState(notes,0,tN).retested,'retest with help does not count as independent');
+notes['ans.q0.rt']=J({t:full,at:t0+3600e3,help:0});ok(!K.qState(notes,0,tN).retested&&K.qState(notes,0,tN).retestReady,'a retest saved before the delay (e.g. via a typed link) does not count');
+notes['ans.q0.rt']=J({t:full,at:tN+9e9,help:0});ok(!K.qState(notes,0,tN).retested,'a retest dated in the future does not count');
+notes['ans.q0.rt']=J({t:full,at:tR,help:0});ok(!K.qState(notes,0,t0+3600e3).retested,'no retest counts before the delay has passed');
 // stationer
 const doc=K.normalize(f);let sm=K.summary({},doc,t0);ok(K.nextStation(sm)==='start','new student starts at 1');
 let sn={'quiz.pass':'1'};sm=K.summary(sn,doc,t0);ok(K.nextStation(sm)==='read','after quiz: read');
 sn['read.s0']=J({t:'Mira väntar vid bussen',kp:[]});sn['read.s1']=J({t:'Hon byter plats i klassrummet',kp:[]});ok(K.nextStation(K.summary(sn,doc,t0))==='read','retelling without evidence is not enough');
-sn['ev.p0']=J({kind:'says',note:'visar att hon väntar'});ok(K.nextStation(K.summary(sn,doc,t0))==='think','read done with retell + evidence');
-for(let i=0;i<3;i++){sn['ans.q'+i+'.a1']='Mitt första svar nummer '+i;sn['ans.q'+i+'.a2']=J({t:'Mitt bättre svar nummer '+i+' eftersom',at:t0});sn['ans.q'+i+'.better']=J(['because']);}
-ok(K.nextStation(K.summary(sn,doc,t0))==='present','three improved answers complete Tänk');
-ok(K.stationProgress('think',K.summary(sn,doc,t0)).done===3,'progress counts');
+sn['ev.p0']=J({kind:'says',note:'visar att hon väntar'});sn['ev.p1']=J({kind:'reads',note:'klockan'});ok(K.nextStation(K.summary(sn,doc,t0))==='read','two sections of three retold is not enough');
+sn['read.s2']=J({t:'Hon går till köket och får te',kp:[]});ok(K.nextStation(K.summary(sn,doc,t0))==='think','read done: every section retold + two evidence paragraphs');
+for(let i=0;i<4;i++){sn['ans.q'+i+'.a1']='Mitt första svar nummer '+i;sn['ans.q'+i+'.a2']=J({t:'Mitt bättre svar nummer '+i+' eftersom',at:t0});sn['ans.q'+i+'.better']=J(['because']);if(i===0)sn['ans.q0.oral']=J([{lvl:2,rate:'free',at:t0}]);}
+ok(K.nextStation(K.summary(sn,doc,t0))==='think','four of five improved answers is not enough');
+sn['ans.q4.a1']='Mitt första svar nummer 4';sn['ans.q4.a2']=J({t:'Mitt bättre svar nummer 4 eftersom',at:t0});sn['ans.q4.better']=J(['because']);
+ok(K.nextStation(K.summary(sn,doc,t0))==='think','improved without speaking aloud is not enough');
+sn['ans.q1.oral']=J([{lvl:2,rate:'free',at:t0}]);ok(K.nextStation(K.summary(sn,doc,t0))==='present','all five improved + two spoken complete Tänk');
+ok(K.stationProgress('think',K.summary(sn,doc,t0)).done===7,'progress counts (5 improved + 2 spoken)');
 // ledar-övning: öppna frågor krävs
 sn['lead.sims']=J({a:{good:true},b:{good:false},c:{good:true}});sn['lead.cards']=J([1,2,3]);sn['lead.followup1']='Är det bra?';sn['lead.followup2']='Varför då?';sn['lead.invite']='Vad tänker du?';
 ok(!K.summary(sn,doc,t0).opening,'closed follow-up question is not an opening');sn['lead.followup1']='Hur skulle du ha gjort?';ok(K.summary(sn,doc,t0).opening,'two open questions + invitation = opening');
