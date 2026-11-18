@@ -15,19 +15,10 @@ function authView(){
   +field('E-postadressen för ditt Matte OS-konto','email','email','autocomplete="username" maxlength="180"')
   +field('Lösenord','password','password','autocomplete="current-password"')
   +'<button type="submit" class="btn">'+(busy?'Kontrollerar …':'Logga in')+'</button>'
-  +'<p class="note">Har du inget konto än? Konton skapas av Matte OS-administratören i Supabase. Be ansvarig mentor om inloggningsuppgifter. Använd inte ditt privata Gmail-lösenord.</p></form>';
- const help='<aside class="card"><h2>Så kommer du igång</h2>'
-  +'<ol class="study-steps"><li>Administratören skapar ett eget konto för varje person i Supabase.</li>'
-  +'<li>Öppna Matte OS och logga in med din e-postadress och ditt Matte OS-lösenord.</li>'
-  +'<li>Administratören tilldelar rätt roll och årskurs. Du ska inte själv välja elev- eller mentorbehörighet.</li>'
-  +'<li>Mentorn skickar en privat inbjudan som eleven godkänner. Sedan följer resultaten med mellan enheter.</li></ol>'
-  +'<details><summary>Information för den som administrerar kontona</summary>'
-  +'<p>Öppna kontohanteringen i Supabase:</p><p><a class="btn secondary" href="https://supabase.com/dashboard/project/bjyahpcpthumpbktrxnc/auth/users" target="_blank" rel="noopener noreferrer">Öppna Supabase – användare</a></p>'
-  +'<p>Skapa användaren i Authentication → Users. Tilldela därefter kontots rätta <b>study_profiles</b>-roll och årskurs via en betrodd administrativ process (inte elevens webbläsare). Aktiveringen kräver att säkerhetsmigrationen för administratörsstyrda roller har införts.</p>'
-  +'<p>Varje elev får ett eget konto. Lägg aldrig till eleverna som projektmedlemmar i Supabase Dashboard. Dela inloggningen privat.</p>'
-  +'<p>För att hindra självregistrering även genom Auth-API:t måste administratören också stänga <b>Allow new users to sign up</b> under Supabase Authentication → Sign In / Providers. Att dölja registrering här räcker inte som serverbaserad spärr.</p></details>'
-  +'<p class="note"><b>Viktigt om gamla resultat:</b> Om du redan tränat på en annan telefon eller installerad ikon, synka först därifrån innan du raderar den gamla installationen.</p></aside>';
- return intro+'<div class="auth-layout"><div>'+form+'</div>'+help+'</div>';
+  +'<p class="note">Har du inget konto? Be den som ansvarar för Matte OS om dina inloggningsuppgifter. Använd inte lösenordet till din privata e-post.</p></form>';
+  // Keep the learner sign-in focused; administrative instructions belong outside this public flow.
+  return intro+'<div class="auth-layout">'+form+'</div>';
+
 }
 function createProfile(){
  return '<section class="hero setup-hero"><span class="eyebrow">Nästan klart</span><h1>Din profil väntar på aktivering.</h1><p>Du är inloggad, men en ansvarig administratör behöver koppla rätt roll och årskurs till ditt konto. Du ska aldrig behöva välja någon annans profil.</p></section>'+
