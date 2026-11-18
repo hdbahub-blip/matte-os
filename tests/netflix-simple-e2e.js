@@ -38,7 +38,7 @@ const engine=process.argv[3]==='webkit'?'webkit':'chromium';
    assert.equal(await p.evaluate(()=>window.MOEngine.state().active),'grade8');checks++;
    assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('matteos.v5')).profiles.grade9.rests.simpleUxSentinel),'keep9');checks++;
    assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('matteos.v5')).profiles.grade8.rests.simpleUxSentinel),'keep8');checks++;
-   await p.locator('nav.nav a[href="lara/#/sv"]').click();
+   await p.locator('.ux-tile.ux-swedish').click();
    await p.locator('nav.bottom a[href="#/sv"][aria-current=page]').waitFor();checks++;
    assert.equal(await p.evaluate(()=>window.MOL_ACTIVE()),'grade8');checks++;
    assert.equal(await p.locator('.ux-reading-level').count(),3);checks++;

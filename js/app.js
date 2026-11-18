@@ -136,14 +136,14 @@
       : '';
     const recommendedHero=resumeOutside?hero.replace('class="card hero"','class="card suggested"'):hero;
     return shell(`<section class="ux-landing" aria-label="Välj vad du vill studera">
-      <p class="ux-kicker">MATTE OS · ${esc(displayName(p))}</p>
-      <h1>${nm ? `Hej, ${esc(nm)}!` : "Vad vill du studera?"}</h1>
-      <p class="ux-intro">Några minuter räcker för att börja. Vad känns kul idag?</p>
+      <p class="ux-kicker">Årskurs ${p==="grade8"?"8":"9"} · ${signedLearner()?"Elevkonto":"Utan konto"}</p>
+      <h1>${nm ? `Hej, ${esc(nm)}!` : "Vad vill du göra?"}</h1>
+      <p class="ux-intro">Välj ett ämne och börja direkt.</p>
       <div class="ux-tiles">
-        <button class="ux-tile ux-math" data-a="startTrain" data-ch="${rec.chapter}"><span class="ux-tile-mark" aria-hidden="true">∑</span><strong>Matte</strong><small>Fem frågor · din takt · hjälp när du vill</small><b>Starta ›</b></button>
-        <a class="ux-tile ux-swedish" href="lara/#/sv"><span class="ux-tile-mark" aria-hidden="true">S</span><strong>Svenska</strong><small>Läsa · förstå · ord</small><b>Välj text ›</b></a>
-        <a class="ux-tile ux-english" href="lara/#/en"><span class="ux-tile-mark" aria-hidden="true">E</span><strong>Engelska</strong><small>Reading · words · stories</small><b>Välj text ›</b></a>
-        <a class="ux-tile ux-play" href="tillsammans/?start=group&grade=${p}"><span class="ux-tile-mark" aria-hidden="true">◈</span><strong>Spela & upptäck</strong><small>Utmaningar utan betyg</small><b>Välj spel ›</b></a>
+        <button class="ux-tile ux-math" data-a="startTrain" data-ch="${rec.chapter}"><span class="ux-tile-mark" aria-hidden="true">∑</span><strong>Matte</strong><small>Träna och få hjälp</small></button>
+        <a class="ux-tile ux-swedish" href="lara/#/sv"><span class="ux-tile-mark" aria-hidden="true">S</span><strong>Svenska</strong><small>Läs och öva</small></a>
+        <a class="ux-tile ux-english" href="lara/#/en"><span class="ux-tile-mark" aria-hidden="true">E</span><strong>Engelska</strong><small>Read and practice</small></a>
+        <a class="ux-tile ux-play" href="tillsammans/?start=group&grade=${p}"><span class="ux-tile-mark" aria-hidden="true">◈</span><strong>Spela & upptäck</strong><small>Spela och lär</small></a>
       </div>
       ${window.MO_STUDY?.hasLegacy?.() ? `<a class="ux-legacy-link" href="study/">Tidigare övningar är säkert sparade separat. Läs mer.</a>` : ''}
       ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home ux-memory-nudge" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">En kort minnesfråga väntar.</div></div><span class="chev">${I.chev}</span></a>` : ''}

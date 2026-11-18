@@ -2,11 +2,11 @@
    - Allt appinnehåll förcachas vid installation → fungerar offline.
    - Nätverk först för allt (färsk version när nätet finns), cache som reserv.
    - Ny version: CACHE-namnet byts → gamla cachar raderas vid aktivering. */
-const VERSION = '6.9.9-20261118-link-recovery-ui';
+const VERSION = '6.9.10-20261118-simple-entry';
 const CACHE = 'matte-os-' + VERSION;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-512.png',
-  './css/joy-study.css?v=1.0.3-compact', './css/app.css?v=5.5.9-fullspec', './css/atelier.css?v=6.2.0-parent', './css/color-system.css?v=6.1.0', './css/profile-chooser.css?v=1.0.2-compact', './css/flow-home.css?v=1.0.0', './css/study-room-v2.css?v=1.0.0', './css/simple-navigation.css?v=1.0.0', './js/color-runtime.js?v=6.1.0', './js/math.js?v=5.5.6', './js/visuals.js?v=5.5.6', './js/core.js?v=5.5.6',
-  './js/content9.js?v=5.5.6', './js/content8.js?v=5.5.6', './js/engine.js?v=5.5.6', './js/tables.js?v=5.5.6', './js/tabell-arena.js?v=5.5.9-fullspec', './css/tabell-arena.css?v=5.5.9-fullspec', './css/atelier-arena.css?v=6.0.0', './css/color-arena.css?v=6.1.0', './js/teach-simple.js?v=5.5.6', './js/knep.js?v=5.5.6', './js/qr.js?v=5.5.6', './js/cup-config.js?v=5.5.6', './js/cup-api.js?v=5.5.6', './js/cup.js?v=5.6.0-one-tap', './css/cup.css?v=5.6.0-one-tap', './js/app.js?v=7.0.4-link-recovery-ui', './js/profile-chooser.js?v=1.2.1-offline-account', './study/cloud.js?v=1.2.2-local-signout',
+  './css/joy-study.css?v=1.0.4-simple-entry', './css/app.css?v=5.5.9-fullspec', './css/atelier.css?v=6.2.0-parent', './css/color-system.css?v=6.1.0', './css/profile-chooser.css?v=1.0.3-simple-entry', './css/flow-home.css?v=1.0.0', './css/study-room-v2.css?v=1.0.0', './css/simple-navigation.css?v=1.0.0', './js/color-runtime.js?v=6.1.0', './js/math.js?v=5.5.6', './js/visuals.js?v=5.5.6', './js/core.js?v=5.5.6',
+  './js/content9.js?v=5.5.6', './js/content8.js?v=5.5.6', './js/engine.js?v=5.5.6', './js/tables.js?v=5.5.6', './js/tabell-arena.js?v=5.5.9-fullspec', './css/tabell-arena.css?v=5.5.9-fullspec', './css/atelier-arena.css?v=6.0.0', './css/color-arena.css?v=6.1.0', './js/teach-simple.js?v=5.5.6', './js/knep.js?v=5.5.6', './js/qr.js?v=5.5.6', './js/cup-config.js?v=5.5.6', './js/cup-api.js?v=5.5.6', './js/cup.js?v=5.6.0-one-tap', './css/cup.css?v=5.6.0-one-tap', './js/app.js?v=7.0.5-simple-entry', './js/profile-chooser.js?v=1.2.2-simple-entry', './study/cloud.js?v=1.2.2-local-signout',
   './tillsammans/', './tillsammans/index.html', './tillsammans/style.css?v=1.0.0', './tillsammans/flow.css?v=1.0.0', './tillsammans/model.js?v=2.0.0-dropin', './tillsammans/app.js?v=2.1.0-simple',
   './study/', './study/index.html', './css/ux-polish.css?v=5.6.0', './js/ux-nav.js?v=5.6.0', './study/style.css?v=1.0.0', './study/setup.js?v=1.1.1-quick-logout',
   './studera/', './studera/index.html', './studera/app.js?v=1.0.2', './studera/style.css?v=1.0.1',
