@@ -63,6 +63,7 @@
       + (closable ? '<button class="pc-close" type="button" data-a="closesheet" aria-label="Stäng profilväljaren">×</button>' : '')
       + '</div><div class="pc-grid" role="group" aria-label="Tillgängliga profiler">'
       + cards + '</div>'
+      + '<a class="pc-account-link" href="study/">Har du ett elevkonto? Logga in här</a>'
       + '<div class="pc-controls"><button class="pc-manage" type="button" data-a="profilemanage">'
       + '<span aria-hidden="true">✎</span><span><strong>Hantera profiler</strong><small>Byt namn och färger</small></span></button>'
       + '<button class="pc-add" type="button" data-a="profilenew"' + (guests.length >= limit ? ' disabled' : '')

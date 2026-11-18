@@ -23,5 +23,5 @@ ok(prov.includes('filter(a=>a.grade===store.grade)'),'Exam history isolated by g
 ok(provhtml.includes('1.2.5')&&provsw.includes('1.2.5')&&provhtml.includes('5.5.6')&&provsw.includes('5.5.6'),'Exam build uses current shared math resources');
 ok(file('lara/sprak.js').includes('SPRÅKVERKSTAD 3.3'),'Language heading tracks content release');
 ok(file('index.html').includes('5.5.9')&&sw.includes('5.5.9'),'UI assets get fresh service worker version');
-ok(file('index.html').includes('<meta name="matte-os-build" content="7.0.2-quick-logout">')&&file('lara/index.html').includes('<meta name="matte-larande-build" content="5.0.2-quick-logout">'),'Both release metadata attributes are valid and closed');
+ok(file('index.html').includes('<meta name="matte-os-build" content="7.0.4-link-recovery-ui">')&&file('lara/index.html').includes('<meta name="matte-larande-build" content="5.0.2-quick-logout">'),'Both release metadata attributes are valid and closed');
 console.log('FULLSPEC static regressions: '+n+'/'+n+' PASS');

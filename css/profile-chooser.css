@@ -276,3 +276,41 @@
 @media (max-width:360px) { .pc-sheet{padding:13px;border-radius:22px;} .pc-grid{gap:8px;} .pc-card{min-height:157px;border-radius:17px;padding:12px 4px;} .pc-avatar{width:55px;height:55px;border-radius:17px;} .pc-jester svg{width:43px;height:43px;} .pc-controls {gap:7px;} .pc-controls button{font-size:12px;} .pc-manage {padding:6px;} .pc-footnote{font-size:10px;} }
 @media (max-height:630px) { .pc-sheet {max-height:calc(100dvh - 8px);} .pc-grid{gap:8px;} .pc-card {min-height:145px;} .pc-avatar{width:54px;height:54px;margin-bottom:2px;} .pc-jester svg{width:42px;height:42px;} .pc-heading{margin-bottom:12px;} }
 @media (prefers-reduced-motion:reduce){ .pc-sheet {animation:none;} .pc-card{transition:none;} .pc-card:hover{transform:none;} }
+
+
+/* Compact at normal and zoomed desktop sizes; all identities remain available. */
+.pc-sheet{padding:clamp(14px,2.5vw,22px);border-radius:22px;}
+.pc-heading{margin-bottom:14px;align-items:center;}
+.pc-heading h2{font-size:clamp(23px,4vw,30px);}
+.pc-heading p{font-size:13px;}
+.pc-grid{gap:9px;}
+.pc-card{min-height:119px;padding:12px 8px;gap:3px;border-radius:15px;justify-content:center;}
+.pc-avatar{width:47px;height:47px;margin:0 auto 3px;border-radius:14px;font-size:19px;}
+.pc-jester svg{width:35px;height:35px;}
+.pc-name{font-size:clamp(14px,2.2vw,18px);}
+.pc-sub{font-size:11px;line-height:1.25;}
+.pc-spark{font-size:20px;right:9px;top:6px;}
+.pc-controls{margin-top:10px;}
+.pc-controls button{min-height:48px;border-radius:12px;}
+.pc-footnote{margin-top:8px;}
+@media(min-width:550px){
+ .pc-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+ .pc-card{min-height:116px;padding:10px 8px;}
+ .pc-avatar{width:50px;height:50px;border-radius:15px;}
+ .pc-jester svg{width:38px;height:38px;}
+}
+@media(max-width:360px){
+ .pc-card{min-height:115px;padding:8px 4px;}
+ .pc-avatar{width:43px;height:43px;border-radius:13px;}
+ .pc-jester svg{width:33px;height:33px;}
+ .pc-grid{gap:7px;}
+}
+@media(max-height:630px){
+ .pc-card{min-height:106px;}
+ .pc-heading{margin-bottom:8px;}
+}
+
+.pc-account-link{display:flex;min-height:44px;align-items:center;justify-content:center;
+ margin:5px 0 0;color:#ffe5f3;font:700 13px/1.4 system-ui,-apple-system,sans-serif;
+ text-decoration:underline;text-underline-offset:3px}
+.pc-account-link:focus-visible{outline:3px solid #ffdf83;outline-offset:2px;border-radius:8px}
