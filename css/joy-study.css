@@ -27,7 +27,7 @@ html[data-theme="navy"],html[data-profile="grade8"],html[data-exam-grade="grade8
  --muted:var(--ui-muted);--line:var(--ui-border);--line2:var(--ui-border-strong);
  --acc:var(--ui-primary);--acc-soft:var(--ui-primary-tint);--acc-ink:var(--ui-on-tint);
 }
-html[data-mode="dark"]{
+html[data-mode="dark"],html[data-mode="dark"]:not([data-theme="navy"]):not([data-profile="grade8"]):not([data-exam-grade="grade8"]){
  --ui-canvas:#16131F;--ui-surface:#251F32;--ui-surface-2:#31283F;--ui-text:#F8F4FF;
  --ui-text-2:#E7DDEE;--ui-muted:#C6BCD1;--ui-border:#4B4059;--ui-border-strong:#645371;
  --ui-primary:#E3B4D6;--ui-cta:#8B4A7C;--ui-on-cta:#FFFFFF;--ui-on-primary:#1E1626;

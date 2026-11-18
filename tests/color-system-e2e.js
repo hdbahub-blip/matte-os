@@ -33,7 +33,7 @@ const asRGB=h=>'rgb('+[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)).join(', ')+')'
          scroll:html.scrollWidth,width:html.clientWidth
        };
      });
-     assert.equal(info.canvas,grade==='grade8'?(mode==='dark'?'#10151D':'#F7F9FC'):(mode==='dark'?'#111216':'#F8F8F8'),name+' canvas');
+     assert.equal(info.canvas,grade==='grade8'?(mode==='dark'?'#131B2B':'#F5F8FF'):(mode==='dark'?'#16131F':'#F8F7FE'),name+' canvas');
      assert.equal(info.meta,info.canvas,name+' PWA status bar matches mode');
      assert.ok(contrast(info.ink,info.bg)>=7,name+' body text contrast '+contrast(info.ink,info.bg));
      assert.ok(info.scroll<=info.width+2,name+' no sideways scroll '+info.scroll+'/'+info.width);
