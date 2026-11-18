@@ -10,7 +10,7 @@ const PENDING='matteos.np.private-claim.v1', COURSE='en-stark-nolla';
 let inflight=false,claimed=false,attemptUser='',lastAttempt=0,lastStatus='';
 function notify(message){
  lastStatus=message;root.MO_NP_SOURCE_STATUS=message;
- const element=root.document.getElementById('sourceStatus');if(element)element.textContent=message;
+ root.document.querySelectorAll('[data-source-status]').forEach(element=>{element.textContent=message});
 }
 function takePrivateLink(){
  const hash=root.location.hash||'';
