@@ -27,7 +27,8 @@ async function run(browser,role){
     async getSession(){return {data:{session},error:null}},
     async signInWithPassword({email,password}){
      loginCalls++;
-     if(!email.includes('@')||password!=='test1234')return {data:{session:null},error:{message:'invalid credentials'}};
+     if(password==='unconfirmed')return {data:{session:null},error:{message:'Email not confirmed',code:'email_not_confirmed'}};
+     if(!email.includes('@')||password!=='test1234')return {data:{session:null},error:{message:'invalid credentials',code:'invalid_credentials'}};
      session={user:{id:uid}};return {data:{session},error:null};
     },
     async signUp(){signupCalls++;throw new Error('PUBLIC SIGNUP MUST NOT BE CALLED');},
@@ -46,6 +47,10 @@ async function run(browser,role){
   ok(await p.locator('[data-mode="signup"]').count()===0,'no signup selector');
   ok(await p.getByText('Har du inget konto än?').count()===1,'admin-created account explanation');
   await p.locator('#email').fill(role+'@example.test');
+  await p.locator('#password').fill('unconfirmed');
+  await p.locator('form#auth button[type="submit"]').click();
+  await p.getByText('E-postadressen är inte bekräftad i Supabase.',{exact:false}).waitFor({timeout:12000});
+  ok(await p.locator('form#auth').count()===1,'unconfirmed account remains on login screen and receives recovery instructions');
   await p.locator('#password').fill('test1234'); // existing admin-created credentials shorter than new-registration policy
   await p.locator('form#auth button[type="submit"]').click();
   await p.locator('form#create-profile').waitFor({timeout:12000});
@@ -59,7 +64,7 @@ async function run(browser,role){
   if(role==='mentor')ok(await p.locator('[data-action="invite"]').count()===2,'mentor can issue grade-based invitations');
   else ok(await p.locator('form#redeem').count()===1,'learner can consent to mentor connection');
   const fixture=await p.evaluate(()=>({signupCalls:__loginOnlyTest.signupCalls,loginCalls:__loginOnlyTest.loginCalls,profile:__loginOnlyTest.profile}));
-  ok(fixture.signupCalls===0&&fixture.loginCalls===1,'login only, never calls Supabase signup');
+  ok(fixture.signupCalls===0&&fixture.loginCalls===2,'login only, never calls Supabase signup');
   ok(fixture.profile?.role===role,'role persisted via existing study_profiles');
   ok(errors.length===0,'no runtime exceptions: '+errors.join('|'));
   console.log('PASS '+role+' 390px study login-only onboarding');
