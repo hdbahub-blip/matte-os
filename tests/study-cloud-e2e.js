@@ -74,12 +74,14 @@ async function assertVisible(page,locator,label){
  await locator.waitFor({timeout:20000});assert.ok(await locator.isVisible(),label);checks++;
 }
 (async()=>{
- const browser=await (process.argv[3]==='webkit'?webkit:chromium).launch({headless:true,args:process.argv[3]==='webkit'?[]:['--no-sandbox']});
+ const browser=await (process.argv[3]==='webkit'?webkit:chromium).launch({headless:true,args:process.argv[3]==='webkit'?[]:['--no-sandbox'],...(process.argv[3]!=='webkit'&&process.env.MATTE_BROWSER_EXE?{executablePath:process.env.MATTE_BROWSER_EXE}:{})});
  try{
   const c=await context(browser,'mentor'),p=await c.newPage();
   const errors=[];p.on('pageerror',e=>errors.push(e.message));
   await p.goto(new URL('study/',base).href);
-  await assertVisible(p,p.getByText('Koppla en elev',{exact:false}).first(),'mentor setup');
+  await assertVisible(p,p.getByText('Dina elever',{exact:false}).first(),'mentor existing student overview');
+  assert.equal(await p.locator('.study-grade .done').count(),1,'existing linked learner is shown without setup');checks++;
+  await p.locator('.study-advanced > summary').click();
   await p.locator('[data-action="invite"][data-grade="grade8"]').click();
   await assertVisible(p,p.locator('#invite-code'),'grade8 invite');
   assert.equal((await p.locator('#invite-code').innerText()).length,32);checks++;
@@ -148,7 +150,10 @@ async function assertVisible(page,locator,label){
   const pupilContext=await context(browser,'learner'),e=await pupilContext.newPage();
   const errorsP=[];e.on('pageerror',x=>errorsP.push(x.message));
   await e.goto(new URL('study/',base).href);
-  await assertVisible(e,e.getByText('Dela dina studieresultat',{exact:false}).first(),'linked pupil consent view');
+  await assertVisible(e,e.locator('.study-quick-grid'),'linked learner gets subject-first entry');
+  assert.equal(await e.locator('form#redeem').count(),0,'already linked student needs no invitation or consent form');checks++;
+  await e.locator('.study-advanced > summary').click();
+  await assertVisible(e,e.getByText('Din redan kopplade mentor',{exact:false}).first(),'revocation remains accessible privately');
   await e.goto(new URL('studera/',base).href);
   await assertVisible(e,e.getByText('Dina gemensamma studiepass',{exact:false}).first(),'learner view');
   assert.equal(errorsP.length,0,'no student JavaScript exceptions: '+errorsP.join('\n'));checks++;

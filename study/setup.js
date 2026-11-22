@@ -35,7 +35,7 @@ function memberView(){
   s+='<section class="card study-main-card"><h2>Dina elever</h2><p class="study-note">Du behöver inte skapa inbjudningar eller klicka på uppdatera för redan kopplade konton.</p>'+
   '<div class="study-grade-grid">'+['grade8','grade9'].map(g=>'<div class="study-grade"><strong>'+gradeText(g)+'</strong><span class="'+(gradeStatus(g)?'state done':'state')+'">'+(gradeStatus(g)?'Ansluten':'Inte ansluten')+'</span></div>').join('')+'</div>'+
   '<a class="btn study-cta" href="../foralder/">Se deras framsteg</a><a class="btn secondary" href="../studera/">Studera tillsammans</a></section>';
-  s+='<details class="study-advanced"><summary>Hantera nya elever (senare)</summary><div class="card"><p>Endast för nya elevkonton. De befintliga årskurserna behöver ingen ny inbjudan.</p>'+
+  s+='<details class="study-advanced"'+(invitation?' open':'')+'><summary>Hantera nya elever (senare)</summary><div class="card"><p>Endast för nya elevkonton. De befintliga årskurserna behöver ingen ny inbjudan.</p>'+
   '<div class="setup-actions"><button class="btn secondary" data-action="invite" data-grade="grade8">Ny elev · åk 8</button><button class="btn secondary" data-action="invite" data-grade="grade9">Ny elev · åk 9</button></div>'+
   (invitation?'<div class="code" id="invite-code">'+esc(invitation)+'</div><button class="btn secondary" data-action="copy">Kopiera privat länk</button>':'')+'</div></details>';
  }else{

@@ -5,7 +5,7 @@ const {chromium,devices}=require('playwright');
 const assert=require('node:assert/strict');
 const BASE=process.argv[2]||'http://127.0.0.1:8765/';
 (async()=>{
-  const browser=await chromium.launch({headless:true});let n=0;
+  const browser=await chromium.launch({headless:true,...(process.env.MATTE_BROWSER_EXE?{executablePath:process.env.MATTE_BROWSER_EXE}:{})});let n=0;
   try{
     for(const [deviceName,device] of [['small',devices['iPhone SE']],['mobile',devices['iPhone 13']],['desktop',{viewport:{width:1280,height:800}}]]){
       for(const [grade,sid] of [['grade8','f8-area'],['grade9','s9-powers']]){
@@ -13,8 +13,13 @@ const BASE=process.argv[2]||'http://127.0.0.1:8765/';
         page.setDefaultTimeout(12000);
         const errors=[];page.on('pageerror',e=>errors.push(e.message));
         await page.goto(BASE,{waitUntil:'networkidle'});
-        assert.match(await page.locator('#main').innerText(),/Cup skickar tillfälliga speluppgifter/);n++;
+        assert.match(await page.locator('#main').innerText(),/Dina övningar sparas medan du tränar/);n++;
         await page.locator('[data-p="'+grade+'"]').click();
+        // Privacy disclosure remains available in Settings, not on the young learner's first screen.
+        await page.goto(BASE+'#/installningar');
+        await page.locator('details.fold:has-text("Integritet och Cup") > summary').click();
+        assert.match(await page.locator('details.fold:has-text("Integritet och Cup")').innerText(),/Cup lagrar spelservern tillfälligt/);n++;
+        await page.goto(BASE+'#/');
         await page.locator('.ux-more > summary').click();
         await page.waitForSelector('.ux-more-grid');
         for(const [route,text] of [['formler','Lär dig matte'],['tabell/home','Tabellarenan'],['trana','Välj matteuppgift']]){
