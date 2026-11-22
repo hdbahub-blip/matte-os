@@ -149,13 +149,12 @@ function attemptsHTML(){
 }
 function panel(){
  const p=S.profile();
- if(p?.role!=='mentor')return '<section class="card" style="margin-top:22px"><h2>Automatisk synk</h2><p>För att aktivera automatisk uppdatering: <a href="../study/">logga in med din mentorprofil</a> och koppla elevernas egna konton.</p><p class="note">Din lokala föräldraöversikt fungerar fortfarande utan inloggning.</p></section>';
+ if(p?.role!=='mentor')return '<section class="card" style="margin-top:22px"><h2>Automatisk synk</h2><p><a href="../study/">Logga in som mentor</a> för att se redan kopplade elevers uppdaterade framsteg.</p><p class="note">Din lokala föräldraöversikt fungerar fortfarande utan inloggning.</p></section>';
  const counts=state.links.map(l=>school(l.grade)).join(' · ');
  return '<section class="card" id="cloud-mentor" style="margin-top:22px"><div class="card-head"><div><h2>Molnöversikt · synkar automatiskt</h2><p>Senast uppdaterad: '+escape(state.lastLoad?stamp(state.lastLoad):'Väntar på elevdata')+' · '+escape(counts||'Inga kopplade elevkonton')+'</p></div></div>'+
   (state.error?'<p class="notice error">'+escape(state.error)+'</p>':'')+
   '<p>Studiehistoriken visar de faktiska, inlämnade svaren – även hur eleven valde eller vad hon skrev. Ny information hämtas automatiskt när en elev skickar in sina svar och genom en regelbunden reservkontroll.</p>'+
-  '<div class="actions"><a class="btn" href="../study/">Hantera elevkopplingar</a><button class="btn secondary" data-cloud="refresh">Uppdatera nu</button>'+
-  '<a class="btn secondary" href="../studera/">Studera tillsammans</a></div>'+
+  '<div class="actions"><a class="btn secondary" href="../studera/">Studera tillsammans</a></div>'+
   '<h3 style="margin-top:20px">Starta pass eller öva på egen hand</h3>'+
   '<div class="grid2">'+['grade8','grade9'].map(g=>'<div class="card"><b>'+school(g)+'</b><p class="note">'+(has(g)?'Elevkonto kopplat':'Inväntar koppling')+'</p>'+
   '<a class="btn secondary" href="../studera/?grade='+g+'">'+(has(g)?'Starta gemensamt pass':'Öva själv eller förbered')+'</a></div>').join('')+'</div>'+

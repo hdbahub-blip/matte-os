@@ -104,6 +104,7 @@ jobs:
           node --check tests/account-navigation-e2e.js
           node --check tests/workspace-cross-tab-e2e.js
           node --check tests/offline-account-e2e.js
+          node --check tests/student-first-e2e.js
           node --check tests/simple-entry-e2e.js
           node --check tests/language-studio-e2e.js
           node --check tests/quick-logout-e2e.js
@@ -144,6 +145,7 @@ jobs:
           node tests/account-navigation-e2e.js http://127.0.0.1:8765/
           node tests/workspace-cross-tab-e2e.js http://127.0.0.1:8765/
           node tests/offline-account-e2e.js http://127.0.0.1:8765/
+          node tests/student-first-e2e.js http://127.0.0.1:8765/
           node tests/simple-entry-e2e.js http://127.0.0.1:8765/ chromium
           node tests/language-studio-e2e.js http://127.0.0.1:8765/ chromium
           node tests/quick-logout-e2e.js http://127.0.0.1:8765/ chromium

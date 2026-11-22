@@ -5,12 +5,12 @@ const S=window.MO_STUDY,app=document.getElementById('app');
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const gradeText=g=>g==='grade8'?'Årskurs 8':'Årskurs 9';
 let error='',notice='',invitation='',invitations=[],links=[],busy=false,ready=false,updating=false;
-function header(){return '<header class="topbar"><div class="topinner"><a class="brand" href="../"><span class="monogram">M</span><span><b>MATTE OS</b><small>STUDY CLOUD · MINA KONTON</small></span></a><a class="tiny" href="../foralder/">Min översikt</a>'+(S.info().online?'<button type="button" class="quick-logout" data-action="logout">Logga ut</button>':'')+'</div></header>'}
+function header(){return '<header class="topbar"><div class="topinner"><a class="brand" href="../"><span class="monogram">M</span><span><b>MATTE OS</b><small>MINA STUDIER</small></span></a>'+(S.profile()?.role==='mentor'?'<a class="tiny" href="../foralder/">Mentoröversikt</a>':'')+''+(S.info().online?'<button type="button" class="quick-logout" data-action="logout">Logga ut</button>':'')+'</div></header>'}
 function field(label,name,type='text',extra=''){return '<div class="field"><label for="'+name+'">'+label+'</label><input id="'+name+'" name="'+name+'" type="'+type+'" '+extra+' required></div>'}
 function alerts(){return (error?'<div class="notice error" role="alert">'+esc(error)+'</div>':'')+(notice?'<div class="notice" role="status">'+esc(notice)+'</div>':'')}
-function shell(inner){app.innerHTML=header()+'<main class="container study-main study-bottom">'+alerts()+inner+'<footer>Matte OS Study Cloud. Elevsvar delas endast med en kopplad mentorprofil. Ingen offentlig elevlista, inga anonyma profiler eller dold insamling. Vid frånkoppling upphör mentoråtkomst till elevens privata svar. Kopior du redan har exporterat påverkas inte. <a href="../">Till elevappen</a>.</footer></main>'}
+function shell(inner){app.innerHTML=header()+'<main class="container study-main study-bottom">'+alerts()+inner+'<footer>Dina elevsvar är privata och delas endast med en befintligt kopplad mentor. Delning kan avslutas under Integritet och hjälp. Tidigare exporterade kopior påverkas inte. <a href="../">Till elevappen</a>.</footer></main>'}
 function authView(){
- const intro='<section class="hero setup-hero"><span class="eyebrow">Study Cloud · Privata elevkonton</span><h1>Logga in i Matte OS.</h1><p>Samma konto på telefon, surfplatta och dator. Dina uppgifter och framsteg synkas när du är inloggad och har internet.</p></section>';
+ const intro='<section class="hero setup-hero"><span class="eyebrow">MATTE OS · VÄLKOMMEN</span><h1>Logga in i Matte OS.</h1><p>Logga in en gång och gå direkt till dina ämnen.</p></section>';
  const form='<form id="auth" class="card"><span class="eyebrow">Ett kontosystem</span><h2>Välkommen tillbaka</h2>'
   +field('E-postadressen för ditt Matte OS-konto','email','email','autocomplete="username" maxlength="180"')
   +field('Lösenord','password','password','autocomplete="current-password"')
@@ -26,31 +26,31 @@ function createProfile(){
 }
 function memberView(){
  const u=S.profile(),inf=S.info(),isMentor=u.role==='mentor';
- let s='<section class="hero"><span class="eyebrow">Kontot är anslutet</span><h1>'+(isMentor?'Min mentorprofil':gradeText(u.grade))+'.</h1><p>'+(isMentor?'Följ elever efter att de använt din privata inbjudan.':'Dina inlämnade svar och framsteg kan sparas automatiskt. En mentor kan bara se dem efter att du själv kopplat profilen.')+'</p></section>';
- s+='<div class="card"><div class="card-head"><div><h2>Konto och synk</h2><p>Inloggat som '+esc(u.display_name||gradeText(u.grade)||'Mentor')+'</p></div><button data-action="logout" class="btn secondary">Logga ut</button></div><p class="study-status">Status: '+esc(inf.status)+'</p>'+
- (isMentor?'<p class="note">Din profil läser elevers resultat. Den kan inte skriva över deras enskilda framsteg.</p>':
- '<p class="note">Väntande svar: '+inf.waiting+'. Ditt arbete sparas också lokalt. Om du är offline skickas det vid nästa uppkoppling.</p><div class="actions"><button class="btn" data-action="sync">Synkronisera nu</button><button class="btn secondary" data-action="recover">Återställ framsteg från molnet</button></div><p class="note">Återställning gör först en lokal säkerhetskopia och slår samman bara din egen årskurs. Gör detta först när väntande svar är synkade; öppna därefter elevappen på nytt.</p>')+'</div>';
+ const linked=links.some(l=>l.learner_id===u.user_id);
+ let s='<section class="hero study-welcome"><span class="eyebrow">'+(isMentor?'MENTOR · PRIVAT ÖVERSIKT':esc(gradeText(u.grade))+' · MINA STUDIER')+'</span>'+
+ '<h1>'+(isMentor?'Följ deras lärande.':'Vad vill du lära dig idag?')+'</h1>'+
+ '<p>'+(isMentor?'Dina två befintliga elevkopplingar och deras sparade framsteg hämtas automatiskt.':'Välj ett ämne och fortsätt direkt. Dina framsteg sparas automatiskt när du är inloggad.')+'</p></section>';
  if(isMentor){
-  s+='<div class="card"><h2>Koppla en elev</h2><p>Skapa en engångsinbjudan för rätt årskurs. Eleven öppnar sin egen inloggning och skriver in koden. Efter godkännandet börjar din översikt uppdateras.</p>'+
-  '<div class="setup-actions"><button class="btn" data-action="invite" data-grade="grade8">Bjud in årskurs 8</button><button class="btn" data-action="invite" data-grade="grade9">Bjud in årskurs 9</button></div>'+
-  (invitation?'<div class="code" id="invite-code">'+esc(invitation)+'</div><div class="actions"><button class="btn secondary" data-action="copy">Kopiera inbjudningslänk</button></div><p class="note">Koden gäller i 48 timmar och fungerar bara en gång. Dela den privat, inte i offentliga grupper.</p>':'')+
-  '<h3>Kopplade elevkonton</h3>'+(links.length?links.map(l=>'<div class="rowline"><strong>'+gradeText(l.grade)+'</strong><span class="state done">Kopplad</span></div>').join(''):'<p class="note">Inget elevkonto har ännu godkänt en inbjudan.</p>')+
-  '<button data-action="reload" class="btn secondary">Uppdatera kopplingar</button><p style="margin-top:16px"><a class="btn" href="../foralder/">Öppna min Marble Green-översikt</a></p></div>';
+  const gradeStatus=g=>links.some(l=>l.grade===g);
+  s+='<section class="card study-main-card"><h2>Dina elever</h2><p class="study-note">Du behöver inte skapa inbjudningar eller klicka på uppdatera för redan kopplade konton.</p>'+
+  '<div class="study-grade-grid">'+['grade8','grade9'].map(g=>'<div class="study-grade"><strong>'+gradeText(g)+'</strong><span class="'+(gradeStatus(g)?'state done':'state')+'">'+(gradeStatus(g)?'Ansluten':'Inte ansluten')+'</span></div>').join('')+'</div>'+
+  '<a class="btn study-cta" href="../foralder/">Se deras framsteg</a><a class="btn secondary" href="../studera/">Studera tillsammans</a></section>';
+  s+='<details class="study-advanced"'+(invitation?' open':'')+'><summary>Hantera nya elever (senare)</summary><div class="card"><p>Endast för nya elevkonton. De befintliga årskurserna behöver ingen ny inbjudan.</p>'+
+  '<div class="setup-actions"><button class="btn secondary" data-action="invite" data-grade="grade8">Ny elev · åk 8</button><button class="btn secondary" data-action="invite" data-grade="grade9">Ny elev · åk 9</button></div>'+
+  (invitation?'<div class="code" id="invite-code">'+esc(invitation)+'</div><button class="btn secondary" data-action="copy">Kopiera privat länk</button>':'')+'</div></details>';
  }else{
-  s+='<div class="card"><h2>Dela dina studieresultat med din mentor</h2>'+
-  (links.length?'<div class="notice">Kopplad! Din mentor kan nu se sparade svar och framsteg. <button data-action="unlink" class="btn warning">Koppla bort</button></div>':
-  '<p class="note">Du bestämmer vilken mentor som får läsa dina inlämnade svar. Den 32 tecken långa engångskoden kommer från mentorns profil.</p><form id="redeem">'+field('Engångskod','invite-code','text','maxlength="32" minlength="32" inputmode="text" autocapitalize="off" autocomplete="off" spellcheck="false"')+
-  '<label class="checkbox-row"><input type="checkbox" required><span>Jag godkänner att mentorn får se mina inlämnade svar, texter, resultat och framsteg i Matte OS. Jag kan senare koppla bort mentorn.</span></label>'+
-  '<button class="btn" type="submit">Koppla min profil</button></form>')+
-  '<p class="note">Dina privata svar skickas bara när du är inloggad som rätt elev och skolanvändaren känner till delningen. Övningarna fortsätter fungera offline.</p></div>';
-  s+='<div class="card"><h2>Se dina studiepass</h2><p><a class="btn" href="../studera/">Öppna Studera tillsammans</a></p><p class="note">Gemensamma pass kräver uppkoppling. Dina egna försök i Matte OS påverkas inte av mentorns svar.</p></div>';
- }
- if(!isMentor&&u.grade==='grade9'){
-  let privateNP=false;try{privateNP=!!sessionStorage.getItem('matteos.np.private-claim.v1')}catch(e){}
-  s+='<div class="card"><h2>En stark nolla · muntliga NP</h2><p>'+(privateNP?
-   'Din privata aktiveringslänk är redo. Fortsätt så läses hela skoltexten och frågorna in automatiskt.':
-   'Öppna NP-övningen. Skoltexten hämtas automatiskt om kontot har tillgång; dina svar följer med mellan enheter.')+
-   '</p><p><a class="btn" href="../lara/np-muntligt.html#/home">Fortsätt till En stark nolla</a></p></div>';
+  s+='<div class="study-quick-grid">'+
+  '<a class="study-subject study-math" href="../#/trana"><span class="study-subject-icon">∑</span><strong>Matematik</strong><small>Förstå · Träna · Klara själv</small></a>'+
+  '<a class="study-subject study-sv" href="../lara/#/studio/sv"><span class="study-subject-icon">S</span><strong>Svenska</strong><small>Läsa · Skriva · Tala</small></a>'+
+  '<a class="study-subject study-en" href="../lara/#/studio/en"><span class="study-subject-icon">E</span><strong>Engelska</strong><small>Read · Write · Speak</small></a>'+
+  '<a class="study-subject study-play" href="../lara/#/spel"><span class="study-subject-icon">✦</span><strong>Spela</strong><small>Öva själv eller tillsammans</small></a></div>';
+  s+='<p class="study-autosave" role="status">'+(inf.waiting?'Dina senaste svar skickas automatiskt när internet fungerar.':'Dina framsteg sparas i bakgrunden. Du behöver inte synkronisera manuellt.')+'</p>';
+  s+='<details class="study-advanced"><summary>Integritet och hjälp</summary><div class="card">'+
+  (linked?'<p>Din redan kopplade mentor kan se dina inlämnade svar. Du kan när som helst avsluta den delningen.</p><button class="btn secondary" data-action="unlink">Avsluta mentordelning</button>':
+  '<p>Du kan lära dig direkt. Ingen mentor kan läsa dina svar förrän en privat koppling har gjorts.</p><details><summary>Har du fått en privat inbjudan?</summary><form id="redeem">'+field('Engångskod','invite-code','text','maxlength="32" minlength="32" inputmode="text" autocapitalize="off" autocomplete="off" spellcheck="false"')+
+  '<label class="checkbox-row"><input type="checkbox" required><span>Jag godkänner att den inbjudande mentorn får läsa mina inskickade svar och framsteg. Jag kan avsluta delningen senare.</span></label><button class="btn" type="submit">Aktivera mentordelning</button></form></details>')+
+  '<hr><p>För felsökning kan du återställa tidigare resultat från ditt eget konto. Först skapas en lokal säkerhetskopia.</p><button class="btn secondary" data-action="recover">Återställ mina egna framsteg</button></div></details>';
+  if(u.grade==='grade9')s+='<div class="study-next-card"><strong>Muntlig träning · Årskurs 9</strong><span>Öva på presentation och diskussion.</span><a href="../lara/np-muntligt.html#/home">Börja öva ›</a></div>';
  }
  return s;
 }
@@ -122,7 +122,7 @@ document.addEventListener('submit',async e=>{
   if(e.target.id==='auth'){
    const email=String(f.get('email')||''),password=String(f.get('password')||'');
    if(!email||!password)throw Error('Ange både e-postadress och lösenord.');
-   await S.signIn(email,password);notice='Du är inloggad.';
+   await S.signIn(email,password);await updateLinks();S.syncAll();S.flush().catch(()=>{});notice='Välkommen tillbaka!';
   }
   if(e.target.id==='redeem'){
    const code=String(f.get('invite-code')||'').replace(/\s/g,'');
