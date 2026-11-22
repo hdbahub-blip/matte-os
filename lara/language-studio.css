@@ -28,6 +28,8 @@ body:has([data-ls-screen="game-select"]) #main{padding-bottom:calc(30px + env(sa
 .ls-hero:before{position:absolute;content:"";top:0;bottom:0;left:0;width:7px;background:var(--ls-accent)}
 .ls-hero:after{position:absolute;content:"";right:-50px;top:-80px;width:180px;height:180px;border:20px solid var(--ls-accent-soft);border-radius:50%;pointer-events:none}
 .ls-hero h1{margin:6px 0 12px;position:relative}
+.ls-hero .ls-eyebrow,.ls-hero h1,.ls-hero p{position:relative;z-index:1}
+.ls-hero:after{z-index:0;opacity:.46}
 .ls-hero p{margin:0;color:var(--ls-sub);font-size:16px;max-width:55ch;position:relative}
 .ls-eyebrow{font-size:11px;font-weight:850;letter-spacing:.12em;color:var(--ls-accent);text-transform:uppercase}
 .ls-dot{padding:0 6px}
