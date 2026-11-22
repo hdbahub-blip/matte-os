@@ -41,7 +41,7 @@ const engines=process.argv[3]==='chromium'?[['Chromium',chromium]]:process.argv[
    ok((await p.locator('main').innerText()).includes('sparade framsteg raderas inte'),name+' clear non-deletion copy');
    await p.locator('#update').click();
    await p.waitForURL(u=>u.pathname===new URL(base).pathname,{timeout:30000});
-   await p.waitForFunction(()=>document.querySelector('meta[name="matte-os-build"]')?.content==='7.0.6-language-studio',{timeout:30000});
+   await p.waitForFunction(()=>document.querySelector('meta[name="matte-os-build"]')?.content==='7.0.7-student-first',{timeout:30000});
    ok(new URL(p.url()).search==='',name+' finishes at canonical original URL');
    const state=await p.evaluate(async()=>({
     sentinel:localStorage.getItem('matteos.recovery.qa-sentinel'),
@@ -52,7 +52,7 @@ const engines=process.argv[3]==='chromium'?[['Chromium',chromium]]:process.argv[
    ok(state.sentinel==='PRESERVED',name+' unrelated local state untouched');
    ok(state.archive==='{"keep":"result"}',name+' archived study workspace untouched');
    ok(!state.caches.some(k=>k.includes('legacy-synthetic')),name+' old release cache removed');
-   ok(state.version==='7.0.6-language-studio',name+' new build is loaded');
+   ok(state.version==='7.0.7-student-first',name+' new build is loaded');
    ok(errors.length===0,name+' no unhandled browser errors: '+errors.join(' | '));
    await context.close();
   }finally{await browser.close()}
