@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/$/,'');
 const engine=process.argv[3]||'chromium';
 (async()=>{
- const b=await ({chromium,webkit,firefox})[engine].launch({headless:true});let n=0;
+ const b=await ({chromium,webkit,firefox})[engine].launch({headless:true,...(engine==='chromium'&&process.env.MATTE_BROWSER_EXE?{executablePath:process.env.MATTE_BROWSER_EXE}:{})});let n=0;
  try{
   const d=engine==='firefox'?{viewport:{width:390,height:844},deviceScaleFactor:2}:devices['iPhone 13'];
   const ctx=await b.newContext({...d,serviceWorkers:'block'}),p=await ctx.newPage();
@@ -15,7 +15,8 @@ const engine=process.argv[3]||'chromium';
   assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;
   assert.equal(await p.locator('html').getAttribute('data-theme'),'navy');n++;
   const mathVars=await p.evaluate(()=>({bg:getComputedStyle(document.body).backgroundColor,text:getComputedStyle(document.body).color}));
-  assert.equal(mathVars.bg,'rgb(23, 30, 37)');n++; // New unified night canvas, retained across learning rooms.
+  assert.equal(mathVars.bg,'rgb(21, 27, 42)');n++; // Student-first clarity canvas in dark mode, shared across rooms.
+  assert.equal(mathVars.text,'rgb(246, 248, 255)');n++; // Strong dark-mode text contrast.
   await p.goto(base+'/lara/',{waitUntil:'domcontentloaded'});
   await p.locator('.theme-toggle').waitFor();
   assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;
