@@ -9,8 +9,8 @@ Play route: choose language > game type (five questions, match pairs, order idea
 
 ## Official source scope
 Sweden Lgr22 Swedish and English, years 7-9:
-- Svenska: https://syllabuswebb.skolverket.se/compulsorycw/jsp/subject.htm?subjectCode=GRGRSVE01&tos=gr
-- Engelska: https://syllabuswebb.skolverket.se/compulsorycw/jsp/subject.htm?subjectCode=GRGREN01&tos=gr
+- Svenska: https://www.skolverket.se/undervisning/grundskolan/laroplan-lgr22-for-grundskolan-samt-for-forskoleklassen-och-fritidshemmet/curriculums/LGR22/GRGRSVE01
+- Engelska: https://www.skolverket.se/undervisning/grundskolan/kursplaner-for-grundskolan/subjects/GRGRENG01
 
 New bank comprises 19 Swedish and 20 English original lessons, each with grade-adapted questions. This is broad strand coverage, not a guarantee of every school's local plan or every possible text or assessment.
 Swedish:
@@ -28,7 +28,7 @@ English:
 - Language: tense, connectors, modals, vocabulary nuance, pronunciation.
 - Sources: evaluating evidence and media messages.
 - Culture: respectful comparison of perspectives.
-The previously published longer reading workshop and 30 legacy short lessons remain available.
+The previously published longer reading workshop and 30 legacy short lessons remain available. English listening lessons include optional on-device text-to-speech playback with a human-reader fallback; no audio is recorded or uploaded.
 
 ## Learning and design research, with limits
 - Duolingo: voluntary short rounds with clear feedback — https://blog.duolingo.com/

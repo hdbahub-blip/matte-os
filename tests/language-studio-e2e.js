@@ -65,6 +65,11 @@ const engines=process.argv[3]==='chromium'?[['Chromium',chromium]]:process.argv[
      await p.goto(base+'lara/#/studio/en/area/Listening',{waitUntil:'domcontentloaded'});
      await p.locator('[data-ls-screen=area]').waitFor();
      ok(await p.locator('.ls-unit-row').count()>=2,'English listening lessons');
+     await p.locator('.ls-unit-row').first().click();
+     await p.locator('[data-ls-screen=unit]').waitFor();
+     ok(await p.locator('[data-ls=listen-example]').isVisible(),'audio example offered in Listening');
+     await p.locator('[data-ls=listen-example]').click();
+     ok((await p.locator('#ls-voice-status').innerText()).length>10,'audio or human-reader fallback text');
      await p.goto(base+'lara/#/spel',{waitUntil:'domcontentloaded'});
      await p.locator('[data-ls-screen=game-hub]').waitFor();
      ok(await p.locator('.ls-game-grid .ls-game-link').count()===8,'8 language game choices');

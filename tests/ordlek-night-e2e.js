@@ -15,7 +15,7 @@ const engine=process.argv[3]||'chromium';
   assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;
   assert.equal(await p.locator('html').getAttribute('data-theme'),'navy');n++;
   const mathVars=await p.evaluate(()=>({bg:getComputedStyle(document.body).backgroundColor,text:getComputedStyle(document.body).color}));
-  assert.equal(mathVars.bg,'rgb(19, 27, 43)');n++; // Grade 8 navy night, new student-first token.
+  assert.equal(mathVars.bg,'rgb(23, 30, 37)');n++; // New unified night canvas, retained across learning rooms.
   await p.goto(base+'/lara/',{waitUntil:'domcontentloaded'});
   await p.locator('.theme-toggle').waitFor();
   assert.equal(await p.locator('html').getAttribute('data-mode'),'dark');n++;

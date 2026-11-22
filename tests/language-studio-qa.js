@@ -52,6 +52,7 @@ for(const lang of ['sv','en']){
 ok(answerPositionCounts.every(x=>x>15),'Answer positions dispersed across all choices '+JSON.stringify(answerPositionCounts));
 ok(d.units.some(x=>x.quiz.grade8.prompt!==x.quiz.grade9.prompt),'grade variation');
 ok(d.units.every(x=>x.quiz.grade8.prompt!==x.quiz.grade9.prompt),'every module grade-aware question');
+ok(app.render('#/studio/en/unit/en-listen-gist','grade8').includes('data-ls="listen-example"'),'English listening offers playable example');
 ok(app.render('#/spel','grade9').includes('ls-game-grid'),'common games hub');
 ok(!/NP-|nationella prov|national test/i.test(d.units.map(x=>x.title+' '+x.teach).join(' ')),'student-facing lessons are ordinary curriculum');
 ok(!/localStorage|sessionStorage|fetch\(|XMLHttpRequest|WebSocket|indexedDB/.test(fs.readFileSync(path.join(__dirname,'../lara/language-studio.js'),'utf8')),'new games leave account/personal answers untouched');

@@ -86,7 +86,7 @@ function unitView(lang,grade,id){
  return '<div class="ls-root" data-ls-screen="unit">'
  +back(base(lang)+'/area/'+encodeURIComponent(u.group),lang==='sv'?'Till '+u.group:'Back to '+u.group)
  +backdrop(lang,grade,u.title,u.teach)
- +panel(lang==='sv'?'Så fungerar det':'How it works','<p class="ls-explain">'+E(u.teach)+'</p><div class="ls-example"><strong>'+(lang==='sv'?'Exempel':'Example')+'</strong><p>'+E(u.example)+'</p></div>','ls-guide-panel')
+ +panel(lang==='sv'?'Så fungerar det':'How it works','<p class="ls-explain">'+E(u.teach)+'</p><div class="ls-example"><strong>'+(lang==='sv'?'Exempel':'Example')+'</strong><p>'+E(u.example)+'</p></div>'+(lang==='en'&&u.group==='Listening'?'<button class="ls-button ls-outline" type="button" data-ls="listen-example">Listen to the example</button><p id="ls-voice-status" class="ls-quiet" role="status">You can listen again, or read it together with a partner.</p>':''),'ls-guide-panel')
  +'<div class="ls-action-stack">'
  +plainLink(base(lang)+'/quiz/'+u.id,lang==='sv'?'Prova två frågor':'Try two questions',lang==='sv'?'Du får förklaringar efter varje fråga':'Explanations after each answer','1','ls-primary-link')
  +plainLink(base(lang)+'/write/'+u.id,lang==='sv'?'Skriv med egna ord':'Write in your own words',lang==='sv'?'En uppgift med checklista':'One task with a checklist','✎')
@@ -276,6 +276,22 @@ function click(event){
  if(cmd==='undo-order'&&!ui.orderChecked&&ui.picks.length){ui.picks.pop();changed=true;}
  if(cmd==='check-order'&&!ui.orderChecked){const deck=orderDeck(lang,grade),q=deck[ui.qIndex];if(q&&ui.picks.length===q.items.length){ui.orderChecked=true;if(q.items.every((v,i)=>v===ui.picks[i]))ui.score++;changed=true;}}
  if(cmd==='checklist'){ui.draft=root.document?.getElementById('ls-draft')?.value?.slice(0,4000)||'';ui.showChecklist=!ui.showChecklist;changed=true;}
+ if(cmd==='listen-example'){
+  const u=findUnit(lang,r.id);
+  const msg=root.document?.getElementById('ls-voice-status');
+  if(u&&'speechSynthesis' in root&&'SpeechSynthesisUtterance' in root){
+   try{
+    root.speechSynthesis.cancel();
+    const voice=new root.SpeechSynthesisUtterance(u.example);
+    voice.lang='en-GB';voice.rate=.85;
+    root.speechSynthesis.speak(voice);
+    if(msg)msg.textContent='Playing. Tap again to listen once more.';
+   }catch{
+    if(msg)msg.textContent='Sound is unavailable on this device. Read the example with a partner.';
+   }
+  }else if(msg)msg.textContent='Sound is unavailable on this device. Read the example with a partner.';
+  return true;
+ }
  if(cmd==='speak'){
   const u=findUnit(lang,r.id);
   if(u&&'speechSynthesis' in root&&'SpeechSynthesisUtterance' in root){try{root.speechSynthesis.cancel();const utterance=new root.SpeechSynthesisUtterance(u.talk);utterance.lang=lang==='sv'?'sv-SE':'en-GB';utterance.rate=.9;root.speechSynthesis.speak(utterance);}catch{}}
