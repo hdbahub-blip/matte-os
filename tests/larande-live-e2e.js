@@ -21,12 +21,12 @@ const {chromium} = require('playwright');
   });
   const res=await page.goto(base,{waitUntil:'networkidle'});
   assert(res?.ok(),`Matte OS root HTTP ${res?.status()}`);
-  const entry=page.locator('.ux-swedish[href="lara/#/sv"]');
+  const entry=page.locator('.ux-swedish[href="lara/#/studio/sv"]');
   await entry.waitFor({state:'visible'});
   assert.match(await entry.innerText(),/Svenska/);
   await entry.click();
-  await page.waitForURL(/\/lara\/#\/sv$/);
-  await page.getByRole('heading',{name:/Svenska.*läsa.*förstå/i}).waitFor();
+  await page.waitForURL(/\/lara\/#\/studio\/sv$/);
+  await page.locator('[data-ls-screen="hub"]').waitFor();
   assert.equal((await page.locator('a[href="#/korta/sv"]').count())>0,true);
   const firstMath=await page.evaluate(()=>localStorage.getItem('matteos.v5'));
   // The subject entry now opens the full reading workshop; legacy mini-lessons remain under Snabbövningar.

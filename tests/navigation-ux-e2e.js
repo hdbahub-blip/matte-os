@@ -17,10 +17,10 @@ const engine=process.argv[3]||'chromium';
    await p.locator('[data-p="'+grade+'"]').click();
    await p.locator('.ux-tiles').waitFor();
    assert.equal(await p.locator('nav.nav [data-h="#/trana"]').count(),1);checks++;
-   assert.equal(await p.locator('nav.nav a[href="lara/#/sv"]').count(),1);checks++;
+   assert.equal(await p.locator('nav.nav a[href="lara/#/studio/sv"]').count(),1);checks++;
    const cards=p.locator('.ux-tiles .ux-tile');
    assert.equal(await cards.count(),4);checks++;
-   for(const href of ['lara/#/sv','lara/#/en','tillsammans/?start=group&grade='+grade]){
+   for(const href of ['lara/#/studio/sv','lara/#/studio/en','lara/#/spel']){
     assert.equal(await p.locator('.ux-tiles .ux-tile[href="'+href+'"]').count(),1,'home choice '+href);checks++;
    }
    assert.equal(await p.locator('.ux-more').getAttribute('open'),null);checks++;

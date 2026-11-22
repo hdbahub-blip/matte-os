@@ -78,6 +78,9 @@ jobs:
           node --check lara/logic.js
           node --check lara/sw.js
           node tests/larande-qa.js
+          node --check lara/language-studio-content.js
+          node --check lara/language-studio.js
+          node tests/language-studio-qa.js
           node tests/fullspec-release-qa.js
           node --check lara/sprak.js
           node --check lara/texts-sv.js
@@ -102,6 +105,7 @@ jobs:
           node --check tests/workspace-cross-tab-e2e.js
           node --check tests/offline-account-e2e.js
           node --check tests/simple-entry-e2e.js
+          node --check tests/language-studio-e2e.js
           node --check tests/quick-logout-e2e.js
           node --check tests/legacy-link-recovery-e2e.js
           node --check tests/exam-auth-grade-e2e.js
@@ -141,6 +145,7 @@ jobs:
           node tests/workspace-cross-tab-e2e.js http://127.0.0.1:8765/
           node tests/offline-account-e2e.js http://127.0.0.1:8765/
           node tests/simple-entry-e2e.js http://127.0.0.1:8765/ chromium
+          node tests/language-studio-e2e.js http://127.0.0.1:8765/ chromium
           node tests/quick-logout-e2e.js http://127.0.0.1:8765/ chromium
           node tests/legacy-link-recovery-e2e.js http://127.0.0.1:8765/ chromium
           node tests/exam-auth-grade-e2e.js http://127.0.0.1:8765/ chromium
@@ -218,6 +223,7 @@ jobs:
           node tests/together-e2e.js http://127.0.0.1:8765/ webkit
           node tests/profile-chooser-e2e.js http://127.0.0.1:8765/ webkit
           node tests/simple-entry-e2e.js http://127.0.0.1:8765/ webkit
+          node tests/language-studio-e2e.js http://127.0.0.1:8765/ webkit
           node tests/one-tap-journeys-e2e.js http://127.0.0.1:8765/ webkit
           node tests/netflix-simple-e2e.js http://127.0.0.1:8765/ webkit
           node tests/ux-polish-e2e.js http://127.0.0.1:8765/ webkit

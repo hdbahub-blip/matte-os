@@ -30,7 +30,7 @@ async function answer(page,info){
   /* ---- A. solo flow, grade 9 ---- */
   const ctx=await browser.newContext(phone),page=await ctx.newPage();watch(page);page.setDefaultTimeout(10000);
   await page.goto(base,{waitUntil:'domcontentloaded'});await page.locator('.homegrid').waitFor();
-  await page.locator('a[href="#/sv"]').first().click();await page.locator('.wk-book').first().waitFor();
+  await page.goto(base+'#/sv',{waitUntil:'domcontentloaded'});await page.locator('.wk-book').first().waitFor();
   ok(await page.locator('.wk-book').count()===18,'eighteen Swedish texts listed across three levels (11 existing + 7 new)');
   ok((await page.locator('main').innerText()).includes('Nivå 3 · Utmaning'),'levels shown');
   await page.locator('a.wk-book[href="#/verkstad/sv/buss"]').click();

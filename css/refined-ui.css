@@ -1,0 +1,61 @@
+/* Matte OS 7.1 — human-scaled, quiet visual system across the main entrance.
+   High-contrast neutral surfaces; grade identity is an accent, not a rainbow.
+   Does not change authenticated role rules, state or progress. */
+:root{--os-canvas:#f6f7f5;--os-paper:#fff;--os-ink:#24323a;--os-sub:#53636a;--os-line:#dce2df;--os-accent:#655067;--os-soft:#f1eaf0;--os-warm:#e7d4b6}
+html[data-theme="navy"],html[data-profile="grade8"]{--os-accent:#294f70;--os-soft:#eaf0f6;--os-warm:#ded7ec}
+html[data-theme="burgundy"],html[data-profile="grade9"]{--os-accent:#754657;--os-soft:#f3e9ec;--os-warm:#e9d6be}
+html[data-mode="dark"]{--os-canvas:#171e25;--os-paper:#222e36;--os-ink:#f2f6f5;--os-sub:#c9d6d4;--os-line:#43535c;--os-accent:#d4c7df;--os-soft:#384251;--os-warm:#4b4543}
+html[data-mode="dark"][data-theme="navy"],html[data-mode="dark"][data-profile="grade8"]{--os-accent:#bfdcf2;--os-soft:#2c4055}
+html[data-mode="dark"][data-theme="burgundy"],html[data-mode="dark"][data-profile="grade9"]{--os-accent:#f0cbd5;--os-soft:#49343d}
+body{background:var(--os-canvas)!important;color:var(--os-ink)}
+body .top,body .topbar,body .sitehead{background:var(--os-paper);border-color:var(--os-line)}
+.top-in,.topin,.topinner{max-width:1060px}
+.ux-landing{background:var(--os-paper)!important;color:var(--os-ink)!important;border:1px solid var(--os-line)!important;border-radius:23px!important;box-shadow:none!important}
+.ux-landing h1{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:clamp(29px,5vw,42px);font-weight:850;letter-spacing:-.04em;color:var(--os-ink);line-height:1.15}
+.ux-landing .ux-kicker{color:var(--os-accent)!important;letter-spacing:.11em;font-weight:800}
+.ux-landing .ux-intro{color:var(--os-sub)!important;font-size:15px}
+.ux-tiles .ux-tile{position:relative;min-height:127px;background:var(--os-paper)!important;
+ border:1px solid var(--os-line)!important;box-shadow:0 2px 8px #0f26300b!important;
+ padding:17px;border-radius:17px!important;color:var(--os-ink)!important;
+ text-decoration:none;transition:transform .16s,border-color .16s}
+.ux-tiles .ux-tile:hover{border-color:var(--os-accent)!important;transform:translateY(-2px)}
+.ux-tiles .ux-tile:before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:4px;background:var(--os-accent);border-radius:0 4px 4px 0}
+.ux-tiles .ux-play:before{background:#b48b50}
+.ux-tiles .ux-tile strong{font-size:clamp(18px,2.8vw,21px);color:var(--os-ink)!important;letter-spacing:-.025em}
+.ux-tiles .ux-tile small{color:var(--os-sub)!important;font-size:13px}
+.ux-tiles .ux-tile .ux-tile-mark{background:var(--os-soft)!important;color:var(--os-accent)!important;
+ border-radius:12px;font-family:Georgia,serif}
+.ux-tiles .ux-play .ux-tile-mark{background:var(--os-warm)!important;color:var(--os-ink)!important}
+.ux-tiles .ux-tile b{display:none}
+.pc-onboarding{background:var(--os-canvas)!important;color:var(--os-ink)!important}
+.pc-onboarding .pc-chooser,.pc-sheet,.pc-learning-modal{background:var(--os-paper)!important;
+ color:var(--os-ink)!important;border:1px solid var(--os-line)!important;box-shadow:0 12px 28px #12212512!important}
+.pc-onboarding .pc-heading h2,.pc-sheet .pc-heading h2{color:var(--os-ink)!important}
+.pc-onboarding .pc-heading p,.pc-sheet .pc-heading p{color:var(--os-sub)!important}
+.pc-simple .pc-try-label,.pc-sheet .pc-try-label{color:var(--os-ink)!important}
+.pc-primary-login{background:var(--os-accent)!important;color:var(--os-paper)!important;border-color:var(--os-accent)!important}
+html[data-mode="dark"] .pc-primary-login{color:#172028!important}
+.pc-simple .pc-grade8,.pc-simple .pc-grade9{background:var(--os-paper)!important;color:var(--os-ink)!important;border:2px solid var(--os-line)!important;box-shadow:none!important}
+.pc-simple .pc-grade[aria-current="true"]{border-color:var(--os-accent)!important}
+.pc-simple .pc-grade8 .pc-avatar,.pc-simple .pc-grade9 .pc-avatar{background:var(--os-soft)!important;color:var(--os-accent)!important}
+.pc-simple .pc-grade .pc-name{color:var(--os-ink)!important}
+.pc-simple .pc-grade .pc-picked{color:var(--os-accent)!important}
+.pc-simple .pc-advanced{border-color:var(--os-line)!important}
+.pc-simple .pc-advanced>summary{color:var(--os-accent)!important}
+.pc-simple .pc-privacy,.pc-onboarding .pc-onboard-privacy,.pc-sheet .pc-footnote{color:var(--os-sub)!important}
+.pc-simple .pc-advanced .pc-card{filter:saturate(.62);box-shadow:none!important}
+.pc-simple .pc-advanced .pc-dropin{filter:saturate(.68)}
+.ux-dock,.nav{background:var(--os-paper);border-color:var(--os-line)}
+.ux-dock a,.ux-dock button,.nav a,.nav button{color:var(--os-sub)}
+.ux-dock [aria-current="page"],.nav [aria-current="page"]{color:var(--os-accent)}
+.quick-login,.quick-logout{min-height:44px!important;border-radius:13px;background:var(--os-paper)!important;
+ color:var(--os-accent)!important;border-color:var(--os-line)!important}
+.ux-more{background:var(--os-paper);color:var(--os-ink);border-color:var(--os-line)}
+html[data-mode="dark"] .ux-tiles .ux-tile{box-shadow:none!important}
+@media(max-width:430px){
+ .ux-landing{padding:20px 14px!important;margin-top:7px}
+ .ux-tiles .ux-tile{padding:13px;min-height:119px}
+ .ux-tiles .ux-tile strong{font-size:17px}
+ .ux-landing .ux-intro{margin-bottom:12px}
+}
+@media(prefers-reduced-motion:reduce){.ux-tiles .ux-tile{transition:none}.ux-tiles .ux-tile:hover{transform:none}}

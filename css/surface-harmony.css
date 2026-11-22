@@ -1,0 +1,24 @@
+/* Matte OS common finishing layer — quiet surfaces across existing independent rooms.
+   Conservatively harmonizes hierarchy without changing any role, content or data logic. */
+:root{--os-shadow:0 5px 18px rgba(19,34,42,.055);--os-radius:19px;--os-focus:#315f85}
+html[data-mode="dark"],html.dark{--os-shadow:0 5px 18px rgba(0,0,0,.16);--os-focus:#c5ddef}
+body{font-kerning:normal;text-rendering:optimizeLegibility}
+header.sitehead,header.topbar,header.top,header.np-top{box-shadow:none}
+.card,.panel,.question-box,.subjectCard,.teamCard,.study-banner,.study-figure,
+.ux-together-home,.np-panel,.np-card,.ux-card{border-radius:var(--os-radius)}
+.card,.panel,.question-box,.subjectCard,.study-banner{box-shadow:var(--os-shadow)}
+button,a,input,textarea,select,summary{-webkit-tap-highlight-color:transparent}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,
+textarea:focus-visible,select:focus-visible{outline:3px solid var(--os-focus);outline-offset:3px}
+button[disabled]{cursor:not-allowed}
+button:not([disabled]),a,summary{touch-action:manipulation}
+main h1,main h2{letter-spacing:-.028em}
+footer{overflow-wrap:anywhere}
+@media(max-width:390px){
+ main .card,main .panel,main .question-box{padding-inline:clamp(13px,4vw,19px)}
+ header .brand,header .logo{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:0.01ms!important;
+ transition-duration:0.01ms!important}
+}
