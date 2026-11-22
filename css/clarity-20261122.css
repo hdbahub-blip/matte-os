@@ -130,7 +130,7 @@ body:has(.homegrid) .lead{color:var(--cl-sub)!important}
 
 /* Keep accounts focused: subject shortcuts replace the redundant dock. */
 body:has(.study-main) nav.bottom,body:has(.study-main) nav.ux-dock,
-body:has(.study-main) .ux-dock{display:none!important}
+body:has(.study-main) .ux-dock,body:has(.study-main) .mo-dock{display:none!important}
 body:has(.study-main) .study-bottom{padding-bottom:40px!important}
 .study-welcome h1,.study-main-card h2,.study-next-card strong{
  font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
