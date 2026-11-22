@@ -122,7 +122,7 @@ document.addEventListener('submit',async e=>{
   if(e.target.id==='auth'){
    const email=String(f.get('email')||''),password=String(f.get('password')||'');
    if(!email||!password)throw Error('Ange både e-postadress och lösenord.');
-   await S.signIn(email,password);await updateLinks();S.syncAll();S.flush().catch(()=>{});notice='Välkommen tillbaka!';if(S.profile()?.role==='learner')location.assign('../');
+   await S.signIn(email,password);await updateLinks();S.syncAll();S.flush().catch(()=>{});notice='Välkommen tillbaka!';
   }
   if(e.target.id==='redeem'){
    const code=String(f.get('invite-code')||'').replace(/\s/g,'');

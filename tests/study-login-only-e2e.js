@@ -51,9 +51,15 @@ async function run(browser,role,provisioned){
   await p.locator('#password').fill('test1234');
   await p.locator('#auth button[type=submit]').click();
   if(provisioned){
-   await p.getByText('Konto och synk',{exact:true}).waitFor();
-   if(role==='mentor')ok(await p.locator('[data-action="invite"]').count()===2,'preprovisioned mentor has invitation controls');
-   else ok(await p.locator('#redeem').count()===1,'preprovisioned learner may redeem mentor invite');
+   if(role==='mentor'){
+    await p.getByText('Dina elever',{exact:true}).waitFor();
+    ok(await p.locator('.study-advanced > summary').count()===1,'mentor invitations safely tucked under advanced controls');
+    ok(await p.locator('[data-action="invite"]').count()===2,'preprovisioned mentor can add future pupils');
+   }else{
+    await p.locator('.study-quick-grid').waitFor();
+    ok(await p.locator('.study-subject').count()===4,'preprovisioned learner sees four immediate subjects');
+    ok(await p.locator('#redeem').count()===1,'new/unlinked learner can use a private invite from advanced help');
+   }
   }else{
    await p.getByText('Din profil väntar på aktivering.',{exact:true}).waitFor();
    ok(await p.locator('#role,#grade,#create-profile').count()===0,'unprovisioned account cannot elect role or grade');
@@ -65,7 +71,7 @@ async function run(browser,role,provisioned){
  }finally{await context.close();}
 }
 (async()=>{
- const browser=await engine.launch({headless:true});
+ const browser=await engine.launch({headless:true,...(process.argv[3]!=='webkit'&&process.env.MATTE_BROWSER_EXE?{executablePath:process.env.MATTE_BROWSER_EXE}:{})});
  try{
   for(const role of ['mentor','learner'])for(const p of [false,true])await run(browser,role,p);
   console.log('STUDY AUTH ROLE E2E PASS '+checks+'/'+checks);
