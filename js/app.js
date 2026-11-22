@@ -64,9 +64,9 @@
     <nav class="nav" aria-label="Välj ämne eller spel"><div class="nav-in ux-dock">
       <button data-a="nav" data-h="#/" ${tab==='home'?'aria-current="page"':''}><span class="ux-nav-icon">⌂</span><span>Start</span></button>
       <button data-a="nav" data-h="#/trana" ${tab!=='home'?'aria-current="page"':''}><span class="ux-nav-icon">∑</span><span>Matte</span></button>
-      <a href="lara/#/sv"><span class="ux-nav-icon">S</span><span>Svenska</span></a>
-      <a href="lara/#/en"><span class="ux-nav-icon">E</span><span>Engelska</span></a>
-      <a href="tillsammans/"><span class="ux-nav-icon">◈</span><span>Spela</span></a>
+      <a href="lara/#/studio/sv"><span class="ux-nav-icon">S</span><span>Svenska</span></a>
+      <a href="lara/#/studio/en"><span class="ux-nav-icon">E</span><span>Engelska</span></a>
+      <a href="lara/#/spel"><span class="ux-nav-icon">◈</span><span>Spela</span></a>
     </div></nav>`;
   }
   function focusShell(content, { title, sub, steps, cur, exit = '#/', formula }) {
@@ -141,9 +141,9 @@
       <p class="ux-intro">Välj ett ämne och börja direkt.</p>
       <div class="ux-tiles">
         <button class="ux-tile ux-math" data-a="startTrain" data-ch="${rec.chapter}"><span class="ux-tile-mark" aria-hidden="true">∑</span><strong>Matte</strong><small>Träna och få hjälp</small></button>
-        <a class="ux-tile ux-swedish" href="lara/#/sv"><span class="ux-tile-mark" aria-hidden="true">S</span><strong>Svenska</strong><small>Läs och öva</small></a>
-        <a class="ux-tile ux-english" href="lara/#/en"><span class="ux-tile-mark" aria-hidden="true">E</span><strong>Engelska</strong><small>Read and practice</small></a>
-        <a class="ux-tile ux-play" href="tillsammans/?start=group&grade=${p}"><span class="ux-tile-mark" aria-hidden="true">◈</span><strong>Spela & upptäck</strong><small>Spela och lär</small></a>
+        <a class="ux-tile ux-swedish" href="lara/#/studio/sv"><span class="ux-tile-mark" aria-hidden="true">S</span><strong>Svenska</strong><small>Läs och öva</small></a>
+        <a class="ux-tile ux-english" href="lara/#/studio/en"><span class="ux-tile-mark" aria-hidden="true">E</span><strong>Engelska</strong><small>Read and practice</small></a>
+        <a class="ux-tile ux-play" href="lara/#/spel"><span class="ux-tile-mark" aria-hidden="true">◈</span><strong>Spela & upptäck</strong><small>Spela och lär</small></a>
       </div>
       ${window.MO_STUDY?.hasLegacy?.() ? `<a class="ux-legacy-link" href="study/">Tidigare övningar är säkert sparade separat. Läs mer.</a>` : ''}
       ${KNEP && KNEP.dueCount() ? `<a class="tap knep-home ux-memory-nudge" href="#/knep"><div><div class="t">Minnesknep · ${KNEP.dueCount()} att minnas</div><div class="s">En kort minnesfråga väntar.</div></div><span class="chev">${I.chev}</span></a>` : ''}
