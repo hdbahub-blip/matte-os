@@ -21,7 +21,7 @@ Nobody wins points over the other: skills are ticked by the listener, stars are 
 
 ## Navigation changes in this release
 * Svenska/Engelska pages: removed the duplicate back links and the version label, added the debate game as the primary activity after "next step", and show three texts per level with "Show all N texts" (page height at 390 px: 3,359 → about 2,480).
-* Studio hub, game hub and the "Spela" page link to the game.
+* Studio hub and game hub link to the game; on "Spela" it sits at the end of "Fler spel och profiler" so the existing start layout is unchanged.
 
 ## Tests
 `tests/debatt-core-qa.js` (409 checks: content parity and quality, rules, jokers incl. swap/voice/fact/opponent scope, solo, help levels, storage sanitising, hostile saves, determinism) and `tests/debatt-e2e.js` (107 checks: full two-player match with a seeded swap joker, pause/resume across reload, solo with fact joker, English UI, keyboard use of the joker dialog, AA contrast day and night, widths 320–1280, 44 px targets, reduced motion, offline). `tests/np-private-qa.js` also scans the new files for school/novel text.

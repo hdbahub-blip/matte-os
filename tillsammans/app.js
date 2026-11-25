@@ -249,14 +249,13 @@
       +'<div class="flow-choices" role="group" aria-label="Välj hur ni vill spela">'
       +'<button class="flow-choice flow-choice-solo" data-action="quick-solo"><span class="flow-glyph" aria-hidden="true">✎</span><strong>Jag kör själv</strong><span>5 frågor · '+esc(selected.name)+'</span><b>Starta ›</b></button>'
       +'<button class="flow-choice flow-choice-group" data-action="setup"><span class="flow-glyph" aria-hidden="true">◈</span><strong>Vi kör ihop</strong><span>Välj deltagare · 5 frågor</span><b>Välj spelare ›</b></button>'
-      +'</div>'
-      +'<a class="flow-choice flow-choice-debate" href="../lara/debatt.html"><span class="flow-glyph" aria-hidden="true">⚖</span><strong>Debattspelet</strong><span>För och emot · byt sida · joker</span><b>Spela ›</b></a>'
-      +'</section>'
+      +'</div></section>'
       +'<details class="ux-more-games"><summary>Fler spel och profiler</summary><div class="ux-more-games-in">'
       +'<h2>På varsin mobil?</h2><p class="help">Cup fungerar utan konto. Privat Live kräver konto.</p>'
       +'<div class="flow-option-links"><a class="button secondary" href="../#/cup">Spela Cup</a><a class="button secondary" href="./live.html">Privat Live</a><button class="button secondary" data-action="share-setup">Dela lästext</button></div>'
       +'<h2>Jokrar</h2><button class="button secondary" data-action="guests">Hantera Jokerprofiler</button>'
       +'<details class="flow-guest-fold"><summary>Visa Jokrar</summary>'+guestTiles(false)+'</details>'
+      +'<h2>Debatt</h2><a class="button secondary" href="../lara/debatt.html">Debattspelet – för och emot</a>'
       +'</div></details>';
   }
   function guestTiles(editable) {
