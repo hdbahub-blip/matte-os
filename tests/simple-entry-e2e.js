@@ -15,7 +15,7 @@ for(const [engineName,engine] of modes){
    await p.goto(base,{waitUntil:'domcontentloaded'});
    await p.locator('.pc-onboarding #pc-title').waitFor();
    ok(await p.locator('.pc-primary-login').isVisible(),engineName+' '+width+' has prominent account sign in');
-   ok((await p.locator('.pc-primary-login').getAttribute('href'))==='study/',engineName+' '+width+' login uses existing account');
+   ok(await p.locator('#pc-login #pc-email').isVisible()&&await p.locator('#pc-login #pc-pass').isVisible(),engineName+' '+width+' login-first: inline account sign in (same account system)');
    ok(await p.locator('.pc-school-grid .pc-grade').count()===2,engineName+' '+width+' two local school choices');
    ok(await p.locator('.pc-advanced .pc-guest').first().isHidden(),engineName+' '+width+' joker extras collapsed');
    const first=await p.evaluate(()=>({

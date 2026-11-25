@@ -252,7 +252,7 @@
       +'</div></section>'
       +'<details class="ux-more-games"><summary>Fler spel och profiler</summary><div class="ux-more-games-in">'
       +'<h2>På varsin mobil?</h2><p class="help">Cup fungerar utan konto. Privat Live kräver konto.</p>'
-      +'<div class="flow-option-links"><a class="button secondary" href="../#/cup">Spela Cup</a><a class="button secondary" href="./live.html">Privat Live</a><button class="button secondary" data-action="share-setup">Dela lästext</button></div>'
+      +'<div class="flow-option-links"><a class="button secondary" href="../#/cup">Spela Cup</a><a class="button secondary" href="./live.html">Spela med kod (två inloggade)</a><button class="button secondary" data-action="share-setup">Bjud in Joker med länk</button></div>'
       +'<h2>Jokrar</h2><button class="button secondary" data-action="guests">Hantera Jokerprofiler</button>'
       +'<details class="flow-guest-fold"><summary>Visa Jokrar</summary>'+guestTiles(false)+'</details>'
       +'<h2>Debatt</h2><a class="button secondary" href="../lara/debatt.html">Debattspelet – för och emot</a>'

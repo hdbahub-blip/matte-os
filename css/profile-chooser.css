@@ -353,3 +353,10 @@
 .pc-onboarding .pc-chooser{width:min(100%,590px);padding:clamp(18px,4vw,27px)}
 .pc-onboarding .pc-onboard-privacy{width:min(100%,590px);text-align:left;font-size:11px;margin:14px 0 0}
 @media(max-width:359px){.pc-simple .pc-grade{gap:5px;padding:8px 4px}.pc-simple .pc-grade .pc-name{font-size:16px}}
+
+/* Login-first entry */
+.pc-login{display:grid;gap:8px;margin:6px 0 4px}
+.pc-login label{font:700 14px/1.3 system-ui,sans-serif}
+.pc-login input{min-height:48px;padding:10px 14px;border-radius:12px;border:2px solid #c9b6d6;font:16px system-ui,sans-serif;color:#1d1226;background:#fff;width:100%;box-sizing:border-box}
+.pc-login button.pc-primary-login{border:0;cursor:pointer;margin-top:6px;font:800 17px system-ui,sans-serif}
+.pc-login-msg{min-height:1.2em;margin:0;font:700 14px/1.4 system-ui,sans-serif}
