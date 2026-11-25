@@ -28,6 +28,8 @@
   function apply() {
     const de = document.documentElement, s = subject(root.location);
     if (de.dataset.subject !== s) de.dataset.subject = s;
+    // Pages with their own night palette keep their own label colours.
+    if (/(np-muntligt|debatt)\.html$/.test(root.location.pathname)) de.dataset.wfOwn = '1';
     // Pages without their own appearance switch follow the app's choice.
     if (/\/(study|studera)\//.test(root.location.pathname) && !de.dataset.mode) {
       try { if (localStorage.getItem(LOOK) === 'dark') de.dataset.mode = 'dark'; } catch (_) {}

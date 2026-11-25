@@ -25,8 +25,8 @@
 :root[data-subject] nav.bottom [aria-current="page"] *{color:inherit!important}
 
 /* 3. Small "where am I" labels above headings use the same colour. */
-:root[data-subject] .eyebrow,:root[data-subject] .ux-kicker,:root[data-subject] .ls-kicker,
-:root[data-subject] .studykicker,:root[data-subject] .kicker{color:var(--wf)!important}
+:root[data-subject]:not([data-wf-own]) .eyebrow,:root[data-subject]:not([data-wf-own]) .ux-kicker,:root[data-subject]:not([data-wf-own]) .ls-kicker,
+:root[data-subject]:not([data-wf-own]) .studykicker,:root[data-subject]:not([data-wf-own]) .kicker{color:var(--wf)!important}
 
 /* 4. Headings focused by the router for screen readers must not look like a selected box. */
 h1:focus,h2:focus,main:focus,[tabindex="-1"]:focus{outline:none!important;box-shadow:none!important}
