@@ -72,7 +72,8 @@ const engines=process.argv[3]==='chromium'?[['Chromium',chromium]]:process.argv[
      ok((await p.locator('#ls-voice-status').innerText()).length>10,'audio or human-reader fallback text');
      await p.goto(base+'lara/#/spel',{waitUntil:'domcontentloaded'});
      await p.locator('[data-ls-screen=game-hub]').waitFor();
-     ok(await p.locator('.ls-game-grid .ls-game-link').count()===8,'8 language game choices');
+     ok(await p.locator('.ls-game-grid .ls-game-link').count()===10,'8 language game choices plus the two debate-game entries (sv, en)');
+     ok(await p.locator('.ls-game-grid .ls-game-link[href^="debatt.html"]').count()===2,'debate game linked in both languages');
      ok(await p.locator('a[href^="../tillsammans/"]').count()>=1,'existing group games remain available');
      await p.goto(base+'lara/#/studio-game/sv/quiz/solo',{waitUntil:'domcontentloaded'});
      await p.locator('[data-ls-screen=game-quiz]').waitFor();

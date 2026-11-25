@@ -1,0 +1,30 @@
+/* Debattspelet – bygger på np.css. FÖR = grön med ✓, EMOT = orange med ✕ (aldrig bara färg). */
+:root{--for:#17604f;--for-ink:#fff;--for-soft:#e3f2ec;--against:#8a3b00;--against-ink:#fff;--against-soft:#fbeadb}
+html.dark{--for:#7fd1ae;--for-ink:#0e2a22;--for-soft:#183329;--against:#f6b26b;--against-ink:#2a1500;--against-soft:#3a2714}
+.side{display:inline-flex;align-items:center;gap:4px;font-weight:800;font-size:13px;letter-spacing:.05em;padding:3px 10px;border-radius:999px}
+.side.for{background:var(--for);color:var(--for-ink)}.side.against{background:var(--against);color:var(--against-ink)}
+.bigopt{flex-direction:column;align-items:flex-start;text-align:left;gap:2px;min-height:68px}.bigopt small{font-weight:400;opacity:.92}
+.topics{list-style:none;padding:0;margin:10px 0;display:grid;gap:8px}.topic{width:100%;min-height:52px;text-align:left;padding:12px 14px;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:inherit;cursor:pointer}
+.topic[aria-pressed=true]{border-color:var(--accent);background:var(--soft);font-weight:700}
+.topicbox{margin:12px 0;padding:12px 14px;background:var(--school);border-left:5px solid var(--school-line);border-radius:0 12px 12px 0}.topicbox p{font-family:Georgia,serif;font-size:19px;margin:.2em 0}
+.names input{margin-bottom:6px}.sidesrow{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}
+.matchbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}.chip{background:var(--soft);padding:4px 12px;border-radius:999px;font-size:14px}.topicmini{font-size:14px;color:var(--muted)}
+.turncard{margin:10px 0;padding:16px;border-radius:18px;border:2px solid var(--line)}.turncard.for{background:var(--for-soft);border-color:var(--for)}.turncard.against{background:var(--against-soft);border-color:var(--against)}
+.turncard h1{font-size:clamp(22px,5.5vw,30px);margin:.3em 0}.who{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.oppcard{margin:10px 0;padding:12px;background:var(--card);border-radius:12px;border:1px dashed var(--line)}.oppcard p{font-size:18px;font-family:Georgia,serif;margin:.3em 0}
+.banner{margin:8px 0;padding:8px 12px;border-radius:10px;background:var(--soft);font-weight:700}.banner.joke{background:var(--help);color:var(--ink)}
+.timerbox{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}.bar{flex-basis:100%;height:8px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent);transition:width 1s linear}
+.chipsel{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.chipcheck{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border:2px solid var(--line);border-radius:999px;font-weight:700;cursor:pointer}
+.chipcheck:has(input:checked){background:var(--ok-bg);color:var(--ok-ink);border-color:transparent}
+.ideabtns{display:flex}.lessons{padding-left:20px}.lessons li{margin:12px 0}.ex{margin:6px 0;padding:8px 12px;background:var(--soft);border-radius:10px;font-style:italic}
+.qcards,.args,.skills{list-style:none;padding:0;margin:8px 0}.qcards li,.args li{padding:10px 12px;margin:6px 0;border:1px solid var(--line);border-radius:12px;background:var(--card)}.qcards small{display:block;color:var(--muted);font-weight:400}
+.args.for li{border-left:5px solid var(--for)}.args.against li{border-left:5px solid var(--against)}
+.skills li{display:flex;align-items:center;gap:10px;min-height:36px}.sk-name{flex:1}.dots{display:inline-flex;gap:4px}.dots i{width:12px;height:12px;border-radius:50%;border:2px solid var(--line)}.dots i.on{background:var(--accent);border-color:var(--accent)}
+.jcard{display:block;width:100%;min-height:210px;margin:8px 0;padding:0;border:0;background:none;perspective:900px;cursor:pointer;position:relative;color:var(--ink)}
+.jface{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center;border-radius:18px;backface-visibility:hidden;transition:transform .5s}
+.jback{background:var(--accent);color:var(--on-accent);font-size:64px;font-weight:800}.jfront{background:var(--card);border:3px solid var(--accent);transform:rotateY(180deg);font-size:18px}.jfront b{font-size:21px}.jicon{font-size:42px}
+.jcard.flipped .jback{transform:rotateY(180deg)}.jcard.flipped .jfront{transform:rotateY(360deg)}
+@media(prefers-reduced-motion:reduce){.jface{transition:none}.bar i{transition:none}.jcard{perspective:none}.jcard .jface{backface-visibility:visible}.jcard:not(.flipped) .jfront{display:none}.jcard.flipped .jback{display:none}.jcard .jfront{transform:none}}
+.sheet .jcard{min-height:230px}
+.grid2 h3{margin-top:0}
+.listencheck{display:block}

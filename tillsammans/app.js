@@ -255,6 +255,7 @@
       +'<div class="flow-option-links"><a class="button secondary" href="../#/cup">Spela Cup</a><a class="button secondary" href="./live.html">Privat Live</a><button class="button secondary" data-action="share-setup">Dela lästext</button></div>'
       +'<h2>Jokrar</h2><button class="button secondary" data-action="guests">Hantera Jokerprofiler</button>'
       +'<details class="flow-guest-fold"><summary>Visa Jokrar</summary>'+guestTiles(false)+'</details>'
+      +'<h2>Debatt</h2><a class="button secondary" href="../lara/debatt.html">Debattspelet – för och emot</a>'
       +'</div></details>';
   }
   function guestTiles(editable) {
