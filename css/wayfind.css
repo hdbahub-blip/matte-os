@@ -3,20 +3,20 @@
    Åk 9 "Burgundy Atelier": burgundy first, with plum, rosé-terracotta and antique gold.
    Åk 8 "Marin Midnight": navy, blue and violet first, with a touch of burgundy.
    Every --wf-* colour is AA as small text on the page background (tests/wayfind-e2e.js). */
-:root,:root[data-grade="grade9"]{
+:root,:root[data-palette="grade9"]{
  --g-math-a:#6E1A3A;--g-math-b:#9E2F5A;--g-sv-a:#4E2358;--g-sv-b:#7A3D86;
  --g-en-a:#8A3B2E;--g-en-b:#B0574A;--g-play-a:#6B4A12;--g-play-b:#9A6B1F;
  --g-glow1:#E9B7CB;--g-glow2:#F4DDB8;--g-glow3:#D3BCE3;
  --g-c1:#B0305E;--g-c2:#E9A23B;--g-c3:#8E4FA0;--g-c4:#E57A8E;--g-c5:#F3D9B1;
  --wf-math:#7A1E42;--wf-sv:#5E2A6B;--wf-en:#953C2E;--wf-play:#74510F;--wf-smart:#5B2A6E;--wf-home:#7A1E42;--wf-account:#2F5D4B}
-:root[data-grade="grade8"]{
+:root[data-palette="grade8"]{
  --g-math-a:#1B2F5E;--g-math-b:#2C4F95;--g-sv-a:#164C86;--g-sv-b:#2667AE;
  --g-en-a:#3E2A85;--g-en-b:#6247B8;--g-play-a:#6A1B3D;--g-play-b:#963055;
  --g-glow1:#B9CCF2;--g-glow2:#D4C6F4;--g-glow3:#F1C3D3;
  --g-c1:#2C4F95;--g-c2:#7C5CE0;--g-c3:#4FA3E8;--g-c4:#B0305E;--g-c5:#C9D8F7;
  --wf-math:#23407A;--wf-sv:#1A5A9A;--wf-en:#4F3699;--wf-play:#7A2245;--wf-smart:#3A3290;--wf-home:#23407A}
 :root[data-mode="dark"]{--wf-math:#F4A9C6;--wf-sv:#DDB8EC;--wf-en:#F3B6A2;--wf-play:#F0CE85;--wf-smart:#D9BFF0;--wf-home:#F4A9C6;--wf-account:#A4D2B6}
-:root[data-mode="dark"][data-grade="grade8"]{--wf-math:#A9C3F4;--wf-sv:#93CBF3;--wf-en:#C7B5F6;--wf-play:#F4A9C6;--wf-smart:#C3BEF6;--wf-home:#A9C3F4}
+:root[data-mode="dark"][data-palette="grade8"]{--wf-math:#A9C3F4;--wf-sv:#93CBF3;--wf-en:#C7B5F6;--wf-play:#F4A9C6;--wf-smart:#C3BEF6;--wf-home:#A9C3F4}
 :root[data-subject="math"]{--wf:var(--wf-math)}
 :root[data-subject="sv"]{--wf:var(--wf-sv)}
 :root[data-subject="en"]{--wf:var(--wf-en)}

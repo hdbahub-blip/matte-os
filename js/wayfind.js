@@ -58,7 +58,7 @@
   }
   function apply() {
     const de = document.documentElement, s = subject(root.location), g = grade();
-    if (de.dataset.grade !== g) de.dataset.grade = g;
+    if (de.dataset.palette !== g) de.dataset.palette = g;
     if (de.dataset.subject !== s) de.dataset.subject = s;
     // Pages with their own night palette keep their own label colours.
     if (/(np-muntligt|debatt)\.html$/.test(root.location.pathname)) de.dataset.wfOwn = '1';
