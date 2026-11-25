@@ -6,7 +6,7 @@ const engines=process.argv[3]==='chromium'?[['Chromium',chromium]]:process.argv[
  let checks=0;
  const ok=(x,msg)=>{assert(x,msg);checks++};
  for(const [engineName,engine] of engines){
-  const browser=await engine.launch({headless:true});
+  const browser=await engine.launch({headless:true,...(engineName==='Chromium'&&process.env.MATTE_BROWSER_EXE?{executablePath:process.env.MATTE_BROWSER_EXE}:{})});
   try{
    for(const width of [320,390]){
     for(const grade of ['grade8','grade9']){
@@ -72,7 +72,8 @@ const engines=process.argv[3]==='chromium'?[['Chromium',chromium]]:process.argv[
      ok((await p.locator('#ls-voice-status').innerText()).length>10,'audio or human-reader fallback text');
      await p.goto(base+'lara/#/spel',{waitUntil:'domcontentloaded'});
      await p.locator('[data-ls-screen=game-hub]').waitFor();
-     ok(await p.locator('.ls-game-grid .ls-game-link').count()===10,'8 language game choices plus the two debate-game entries (sv, en)');
+     ok(await p.locator('.ls-game-grid .ls-game-link').count()===11,'8 language games, 2 debate modes and 1 speaking lab');
+     ok(await p.locator('.ls-game-grid .ls-game-link[href="speaking-lab.html"]').count()===1,'Speaking Lab is available from the games hub');
      ok(await p.locator('.ls-game-grid .ls-game-link[href^="debatt.html"]').count()===2,'debate game linked in both languages');
      ok(await p.locator('a[href^="../tillsammans/"]').count()>=1,'existing group games remain available');
      await p.goto(base+'lara/#/studio-game/sv/quiz/solo',{waitUntil:'domcontentloaded'});

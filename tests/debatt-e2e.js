@@ -93,7 +93,7 @@ const lumJS=`(function(sel){function lum(c){var m=c.match(/[\\d.]+/g).map(Number
   ok(await rp.locator('.jfront').isVisible()&&!(await rp.locator('.jback').isVisible()),'reduced motion: front shown without animation');
   // ---------- Offline ----------
   const oc=await browser.newContext({viewport:{width:390,height:844}}),op=await oc.newPage();op.on('pageerror',e=>errors.push(String(e)));
-  await op.goto(URL);await op.evaluate(()=>navigator.serviceWorker.ready);await op.reload();await op.waitForFunction(()=>caches.keys().then(k=>k.some(x=>x.includes('larande-5.3.0-debate'))));
+  await op.goto(URL);await op.evaluate(()=>navigator.serviceWorker.ready);await op.reload();await op.waitForFunction(()=>caches.keys().then(k=>k.some(x=>x.includes('larande-5.3.1-speaking-lab'))));
   const cached=await op.evaluate(async()=>{const o=[];for(const k of await caches.keys()){const c=await caches.open(k);o.push(...(await c.keys()).map(r=>new URL(r.url).pathname.split('/').pop()));}return o;});
   ok(['debatt.html','debatt-app.js','debatt-core.js','debatt-content.js','debatt.css'].every(f=>cached.includes(f)),'offline cache holds the game');
   await oc.setOffline(true);await op.goto(URL);await op.waitForSelector('h1');ok(/Debattspelet/.test(await op.locator('h1').innerText()),'works offline');
