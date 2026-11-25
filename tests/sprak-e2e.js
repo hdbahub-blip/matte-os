@@ -1,4 +1,6 @@
 'use strict';
+// 2026-11-25: library shows three texts per level and the rest behind "Visa alla"; open them before picking a specific text.
+async function bus(page,suffix=''){await page.evaluate(()=>document.querySelectorAll('details.wk-more,details.ux-reading-level').forEach(d=>{d.open=true;}));return page.locator('a.wk-book[href="#/verkstad/sv/buss"]'+suffix);}
 // Språkverkstad 3.0 browser acceptance on a phone-sized viewport (Chromium; WebKit/Firefox via cross-engine-e2e).
 // Solo flow with real answers, hint = support, profile separation, two devices with identical questions,
 // pass-and-play with locked answers, listen mode without visible text, backup round trip, offline, touch targets.
@@ -33,7 +35,7 @@ async function answer(page,info){
   await page.goto(base+'#/sv',{waitUntil:'domcontentloaded'});await page.locator('.wk-book').first().waitFor();
   ok(await page.locator('.wk-book').count()===18,'eighteen Swedish texts listed across three levels (11 existing + 7 new)');
   ok((await page.locator('main').innerText()).includes('Nivå 3 · Utmaning'),'levels shown');
-  await page.locator('a.wk-book[href="#/verkstad/sv/buss"]').click();
+  await (await bus(page)).click();
   await page.locator('.wk-challenge').waitFor();ok((await page.locator('.wk-challenge strong').innerText())==='SV-BUSS · v1','challenge code shown');
   await page.locator('[data-mode=solo]').click();await page.locator('.wk-reading').waitFor();
   ok(await page.locator('.wk-reading p').count()===6,'whole text with numbered paragraphs');
@@ -62,18 +64,18 @@ async function answer(page,info){
   ok(!raw.includes(SECRET)&&!raw.includes('vågar sätta'),'free-text answer is never stored');
   ok(Object.keys(st.profiles.grade8.tasks).length===0,'other profile untouched');
   /* restart the same text: first attempt stays the evidence */
-  await page.goto(base+'#/sv');await page.locator('a.wk-book[href="#/verkstad/sv/buss"]').click();await page.locator('[data-mode=solo]').click();await page.locator('[data-w=start-tasks]').click();
+  await page.goto(base+'#/sv');await (await bus(page)).click();await page.locator('[data-mode=solo]').click();await page.locator('[data-w=start-tasks]').click();
   const w=await solveCurrent(page,{wrong:true});await answer(page,w);await page.locator('[data-w=check]').click();await page.locator('.wk-feedback.try').waitFor();
   const again=JSON.parse(await page.evaluate(()=>localStorage.getItem('matteos.sprak.v3'))).profiles.grade9.tasks['sv:buss:t1'];
   ok(again.ok===true&&again.n===2,'repeat does not overwrite the first individual result');
   ok((await page.locator('.wk-feedback.try').innerText()).includes('Rätt svar'),'wrong answer shows the correct one with reason');
-  await page.goto(base+'#/sv');ok((await page.locator('a.wk-book[href="#/verkstad/sv/buss"] .wk-chip').innerText()).includes('Klarad själv'),'library shows independent result');
+  await page.goto(base+'#/sv');ok((await (await bus(page,' .wk-chip')).innerText()).includes('Klarad själv'),'library shows independent result');
   ok((await page.locator('.wk-feature h2').innerText())==='Regler för lån av skoldator','next recommendation is a NEW text on the same level');
   ok((await page.locator('.wk-skilllist li').count())>=4,'skill evidence listed');
 
   /* ---- B. profile switch ---- */
   await page.locator('[data-a="profile"]').click();await page.locator('[data-a="choose-profile"][data-p="grade8"]').click();
-  await page.goto(base+'#/sv');ok((await page.locator('a.wk-book[href="#/verkstad/sv/buss"] .wk-chip').innerText())==='Ny','grade 8 sees its own (empty) progress');
+  await page.goto(base+'#/sv');ok((await (await bus(page,' .wk-chip')).innerText())==='Ny','grade 8 sees its own (empty) progress');
   await page.goto(base+'#/verkstad/sv/buss');ok(await page.locator('[data-mode=solo]').count()===1,'switching profile starts the text afresh');
   ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),'no horizontal overflow');
 

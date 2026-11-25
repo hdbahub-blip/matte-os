@@ -83,3 +83,5 @@
 @media(max-width:370px){.flow-choices{gap:8px;}.flow-choice{padding:12px 10px;min-height:170px;border-radius:15px;}.flow-choice strong{font-size:17px;}.flow-glyph{width:40px;height:40px;}.flow-players{grid-template-columns:1fr;}}
 @media(prefers-reduced-motion:reduce){.flow-choice{transition:none;}.flow-choice:hover{transform:none;}}
 @media(prefers-contrast:more){.flow-choice{border-width:2px;}.flow-choice:focus-visible{outline:3px solid var(--focus);outline-offset:3px;}}
+.flow-choice-debate{--flow-ink:#5a3a00;--flow-bg:#fbeedb;--flow-border:#e0b980;display:block;margin-top:10px;text-decoration:none;}
+[data-mode=dark] .flow-choice-debate{--flow-ink:#ffe9c7;--flow-bg:#3b2a12;--flow-border:#a37a3b;}

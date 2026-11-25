@@ -19,3 +19,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{o
 @media(prefers-color-scheme:dark){html[data-mode="dark"] .mo-dock{background:#1b1b22;border-color:#34343f}html[data-mode="dark"] .mo-dock a{color:#e6e1da}}
 footer a{display:inline-block;min-height:44px;line-height:44px;padding-inline:4px}
 body:has(.mo-dock) main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+/* Svenska/Engelska-bibliotek: debattkortet är huvudval efter nästa steg; dubbla nivårubriker göms visuellt (summary räcker). */
+.wk-quick.wk-debate{border:2px solid var(--accent,#6b2140);background:var(--soft,#f6e4eb)}
+.ux-reading-level>.wk-section{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wk-more>summary{min-height:44px;display:flex;align-items:center;font-weight:700;color:var(--accent,#6b2140);cursor:pointer}
