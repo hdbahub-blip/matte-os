@@ -50,15 +50,24 @@
       const grade=auth.grade==='grade8'?'Årskurs 8':'Årskurs 9';
       return '<section class="pc-chooser"><div class="pc-heading"><div><h2 id="pc-title">Mitt konto</h2><p>Du är inloggad i '+grade+'.</p></div></div><div class="pc-current-profile"><strong>'+grade+'</strong><span>Dina egna övningar och framsteg</span></div><a class="btn" href="study/">Konto och synk</a></section>';
     }
+    if(auth?.role==='mentor'){
+      const active=opts&&opts.active;
+      return '<section class="pc-chooser pc-simple"><div class="pc-heading"><div><span class="pc-kicker">MENTOR</span><h2 id="pc-title">Välkommen!</h2><p>Samma vy som eleverna – välj årskurs. Resultat finns separat.</p></div></div>'
+        + '<div class="pc-grid pc-school-grid" role="group" aria-label="Välj årskurs">'+gradeCard('grade8',active)+gradeCard('grade9',active)+'</div>'
+        + '<a class="pc-primary-login" href="foralder/">Se resultat</a>'
+        + '<a class="pc-dropin" href="studera/"><span><strong>Följ med en elev</strong><small>Samma frågor – du ser facit, eleven svarar</small></span><span aria-hidden="true">›</span></a>'
+        + '<p class="pc-privacy"><a href="study/?logout=1">Logga ut</a></p></section>';
+    }
     const active=opts&&opts.active;
     const closable=!!(opts&&opts.closable);
     const store=root.MOTogether,guests=store?store.load().guests:[],limit=store?store.GUEST_LIMIT:0;
     return '<section class="pc-chooser pc-simple">'
       + '<div class="pc-heading"><div><span class="pc-kicker">MATTE OS</span><h2 id="pc-title">'+(closable?'Byt profil':'Välkommen!')+'</h2>'
-      + '<p>Logga in med ditt elevkonto, eller prova utan konto.</p></div>'
+      + '<p>Logga in så sparas dina framsteg. Du kan också prova utan konto.</p></div>'
       + (closable?'<button class="pc-close" type="button" data-a="closesheet" aria-label="Stäng profilväljaren">×</button>':'')
       + '</div>'
-      + '<a class="pc-primary-login" href="study/">Logga in på elevkonto</a>'
+      + (closable?'':'<form class="pc-login" id="pc-login" novalidate><label for="pc-email">E-post</label><input id="pc-email" type="email" autocomplete="username" maxlength="180" required><label for="pc-pass">Lösenord</label><input id="pc-pass" type="password" autocomplete="current-password" required><button class="pc-primary-login" type="submit">Logga in</button><p class="pc-login-msg" id="pc-login-msg" role="alert"></p></form>')
+      + (closable?'<a class="pc-primary-login" href="study/">Logga in på elevkonto</a>':'')
       + '<p class="pc-try-label">Prova utan konto</p>'
       + '<div class="pc-grid pc-school-grid" role="group" aria-label="Välj årskurs för lokal övning">'
       + gradeCard('grade8',active)+gradeCard('grade9',active)
@@ -96,6 +105,16 @@
       + (store && store.status().storageOk ? '' : '<p class="pc-warning" role="alert">Lokal lagring är inte tillgänglig. Ändringar kanske inte sparas.</p>')
       + '</section>';
   }
+
+  if (typeof document !== 'undefined') document.addEventListener('submit', async e => {
+    if (!e.target || e.target.id !== 'pc-login') return;
+    e.preventDefault();
+    const msg = document.getElementById('pc-login-msg'), em = document.getElementById('pc-email').value.trim(), pw = document.getElementById('pc-pass').value;
+    if (!em || !pw) { msg.textContent = 'Ange e-post och lösenord.'; return; }
+    const btn = e.target.querySelector('button'); btn.disabled = true; msg.textContent = 'Loggar in …';
+    try { await root.MO_STUDY.signIn(em, pw); location.reload(); }
+    catch (_) { msg.textContent = 'E-post eller lösenord stämmer inte. Inga resultat ändrades.'; btn.disabled = false; }
+  });
 
   root.MOProfileChooser = Object.freeze({ render, manage });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -140,13 +140,15 @@ function sessionPage(){
  '<div class="actions"><button class="btn secondary" data-action="back">Alla pass</button><button class="btn secondary" data-action="refresh">Uppdatera</button></div>'+
  '<div class="card" style="margin-top:15px"><h2>Framsteg</h2><p>'+finished+' av '+required+' inlämnade svar</p><div class="study-progress"><i style="width:'+Math.round(finished/required*100)+'%"></i></div>'+
  (isParent&&s.phase==='answering'?'<button class="btn" data-action="reveal" style="margin-top:12px" '+(finished<required?'disabled':'')+'>Visa och jämför svaren</button>':'')+
- (isParent&&s.phase==='review'?'<button class="btn secondary" data-action="close">Avsluta studiepasset</button>':'')+'</div>';
+ (isParent&&s.phase==='review'?'<button class="btn secondary" data-action="close">Avsluta studiepasset</button>':'')+
+ (isParent&&s.phase==='answering'?'<p class="note" style="margin-top:12px">Följ med: du ser facit under varje fråga och behöver inte välja något. Eleven svarar själv.</p><button class="btn secondary" data-action="readalong" '+(finished>=required?'disabled':'')+'>Jag har följt med – markera mina som klara</button>':'')+'</div>';
  for(const [i,q] of s.questions.entries()){
   const own=ownAnswer(q),other=otherAnswer(q);
   html+='<section class="question-box"><span class="studykicker">Fråga '+(i+1)+' av '+s.questions.length+'</span>'+
    questionHTML(q,own?.answer?.value||null,false)+
    (own?'<div class="tutorresult"><strong>Ditt inlämnade svar</strong><p>'+esc(text(own.answer.value))+'</p></div>':
    s.phase==='answering'?'<form class="session-answer" data-q="'+esc(q.id)+'">'+inputHTML(q)+'<button type="submit" class="btn">Lämna in mitt svar</button></form>':'<p class="note">Du lämnade inte in något svar.</p>')+
+   (isParent&&!review?'<details class="tutorresult" open><summary><strong>Facit – bara du ser det</strong></summary><p>'+esc(Q(s.grade,q.subject).find(x=>x.id===q.id)?.correct||'Öppen fråga – använd bedömningskriterier')+'</p><small>'+esc(Q(s.grade,q.subject).find(x=>x.id===q.id)?.explanation||'')+'</small></details>':'')+
    (review?'<div class="tutorresult" style="margin-top:10px"><strong>'+ (isParent?'Elevens':'Mentorns')+' svar</strong><p>'+esc(other?.answer?.value?text(other.answer.value):'Inget svar inlämnat')+'</p>'+
    '<strong>Facit eller exempelsvar</strong><p>'+esc(Q(s.grade,q.subject).find(x=>x.id===q.id)?.correct||'Öppen fråga – använd bedömningskriterier')+'</p>'+
    '<small>'+esc(Q(s.grade,q.subject).find(x=>x.id===q.id)?.explanation||'')+'</small></div>':'<p class="note">Den andras svar och förklaringen visas först när ni båda är färdiga.</p>')+
@@ -214,6 +216,7 @@ document.addEventListener('click',async e=>{
   if(action==='back'){current=null;answers=[];await load();}
   if(action==='refresh')await load();
   if(action==='reveal'){const {data,error:e}=await db().rpc('study_advance',{p_session:current.id,p_phase:'review'});if(e)throw e;if(!data)throw Error('Det saknas svar från någon deltagare.');await load();}
+  if(action==='readalong'){for(const q of current.questions){if(!ownAnswer(q))await send(current,q,'Följde med (såg facit)');}await load();notice='Du följer med. Eleven svarar själv.';}
   if(action==='close'){const {data,error:e}=await db().rpc('study_advance',{p_session:current.id,p_phase:'closed'});if(e)throw e;if(!data)throw Error('Passet kunde inte avslutas.');await load();}
  }catch(x){error=x.message||'Det gick inte att genomföra åtgärden.';}
  finally{busy=false;stateScreen();}
