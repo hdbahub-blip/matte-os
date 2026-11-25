@@ -158,6 +158,7 @@ jobs:
           node tests/debatt-e2e.js http://127.0.0.1:8765/
           node tests/login-first-e2e.js http://127.0.0.1:8765/
           node tests/play-e2e.js http://127.0.0.1:8765/
+          node tests/wayfind-e2e.js http://127.0.0.1:8765/
           node tests/ordlek-night-e2e.js http://127.0.0.1:8765/ chromium
           node tests/knep-e2e.js http://127.0.0.1:8765/ test-screenshots
           node tests/np-private-e2e.js http://127.0.0.1:8765/ test-screenshots

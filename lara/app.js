@@ -58,7 +58,7 @@ function bottom(){return `<nav class="bottom" aria-label="Välj ämne eller spel
  <a href="../#/trana"><span aria-hidden="true">∑</span>Matte</a>
  <a href="#/studio/sv" ${activeNav()==='sv'?'aria-current="page"':''}><span aria-hidden="true">S</span>Svenska</a>
  <a href="#/studio/en" ${activeNav()==='en'?'aria-current="page"':''}><span aria-hidden="true">E</span>Engelska</a>
- <a href="#/spel"><span aria-hidden="true">◈</span>Spela</a></nav>`;}
+ <a href="#/spel" ${route().startsWith('/spel')?'aria-current="page"':''}><span aria-hidden="true">◈</span>Spela</a></nav>`;}
 function shell(body){app.innerHTML=header()+banner()+`<main id="main" tabindex="-1">${body}</main>`+bottom();document.title='Matte OS · Lärande';}
 function route(){return decodeURIComponent(location.hash.replace(/^#/,''))||'/';}
 function activeNav(){

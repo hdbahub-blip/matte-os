@@ -20,11 +20,13 @@
   function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (_) {} }
 
   let combo = 0;
-  const COLORS = ['#FFC83D', '#FF5C8A', '#8B5CF6', '#4DA3FF', '#2ED3A5'];
+  const FALLBACK = ['#FFC83D', '#FF5C8A', '#8B5CF6', '#4DA3FF', '#2ED3A5'];
+  function palette() { try { const cs = getComputedStyle(document.documentElement); const c = [1, 2, 3, 4, 5].map(i => cs.getPropertyValue('--g-c' + i).trim()).filter(Boolean); return c.length === 5 ? c : FALLBACK; } catch (_) { return FALLBACK; } }
   function burst(x, y) {
     if (reduce()) return;
     const wrap = document.createElement('div'); wrap.className = 'pl-burst'; wrap.setAttribute('aria-hidden', 'true');
     wrap.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+    const COLORS = palette();
     for (let i = 0; i < 18; i++) {
       const a = (Math.PI * 2 * i) / 18 + Math.random() * .3, d = 60 + Math.random() * 70;
       const p = document.createElement('i');
@@ -58,17 +60,18 @@
   function ringHTML(n) {
     const c = 2 * Math.PI * 26, f = Math.min(1, n / GOAL);
     return '<div class="pl-today' + (n >= GOAL ? ' pl-full' : '') + '" role="img" aria-label="Idag: ' + n + ' av ' + GOAL + ' frågor">'
-      + '<div class="pl-dial"><svg viewBox="0 0 62 62" aria-hidden="true"><defs><linearGradient id="pl-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8B5CF6"/><stop offset=".5" stop-color="#FF5C8A"/><stop offset="1" stop-color="#FFC83D"/></linearGradient></defs>'
+      + '<div class="pl-dial"><svg viewBox="0 0 62 62" aria-hidden="true"><defs><linearGradient id="pl-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--g-c1,#8B5CF6)"/><stop offset=".5" style="stop-color:var(--g-c3,#FF5C8A)"/><stop offset="1" style="stop-color:var(--g-c2,#FFC83D)"/></linearGradient></defs>'
       + '<circle class="pl-track" cx="31" cy="31" r="26" fill="none" stroke-width="6"/>'
       + '<circle class="pl-fill" cx="31" cy="31" r="26" fill="none" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + (c * (1 - f)).toFixed(1) + '"/></svg>'
       + '<span class="pl-num">' + (n >= GOAL ? '✓' : n) + '</span></div><span>' + (n >= GOAL ? 'Klart idag' : 'Idag ' + n + '/' + GOAL) + '</span></div>';
   }
   function updateRing() { const r = document.querySelector('.pl-today'); if (r) r.outerHTML = ringHTML(load().n); }
+  const TONES = ['math', 'sv', 'en', 'play'];
   function stripHTML() {
     const st = root.MOSmart ? root.MOSmart.STORIES : [], s = load();
     return '<div class="pl-strip" role="list" aria-label="Plugga smart – korta tips">' + ringHTML(s.n)
-      + st.map(x => '<a role="listitem" class="pl-bubble' + (s.seen.includes(x.id) ? ' pl-seen' : '') + '" href="smart/#' + x.id + '">'
-        + '<span class="pl-ring"><span class="pl-face" style="background:linear-gradient(145deg,' + x.a + ',' + x.b + ')" aria-hidden="true">' + x.icon + '</span></span>'
+      + st.map((x, i) => '<a role="listitem" class="pl-bubble' + (s.seen.includes(x.id) ? ' pl-seen' : '') + '" href="smart/#' + x.id + '">'
+        + '<span class="pl-ring"><span class="pl-face" style="background:linear-gradient(145deg,var(--g-' + TONES[i % 4] + '-a,' + x.a + '),var(--g-' + TONES[i % 4] + '-b,' + x.b + '))" aria-hidden="true">' + x.icon + '</span></span>'
         + '<span>' + x.title + '</span></a>').join('') + '</div>';
   }
 

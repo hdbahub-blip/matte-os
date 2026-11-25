@@ -1,0 +1,64 @@
+/* Matte OS · wayfinding + cross-app consistency (loaded last on every page). */
+/* ---------- Grade palettes ----------
+   Åk 9 "Burgundy Atelier": burgundy first, with plum, rosé-terracotta and antique gold.
+   Åk 8 "Marin Midnight": navy, blue and violet first, with a touch of burgundy.
+   Every --wf-* colour is AA as small text on the page background (tests/wayfind-e2e.js). */
+:root,:root[data-palette="grade9"]{
+ --g-math-a:#6E1A3A;--g-math-b:#9E2F5A;--g-sv-a:#4E2358;--g-sv-b:#7A3D86;
+ --g-en-a:#8A3B2E;--g-en-b:#B0574A;--g-play-a:#6B4A12;--g-play-b:#9A6B1F;
+ --g-glow1:#E9B7CB;--g-glow2:#F4DDB8;--g-glow3:#D3BCE3;
+ --g-c1:#B0305E;--g-c2:#E9A23B;--g-c3:#8E4FA0;--g-c4:#E57A8E;--g-c5:#F3D9B1;
+ --wf-math:#7A1E42;--wf-sv:#5E2A6B;--wf-en:#953C2E;--wf-play:#74510F;--wf-smart:#5B2A6E;--wf-home:#7A1E42;--wf-account:#2F5D4B}
+:root[data-palette="grade8"]{
+ --g-math-a:#1B2F5E;--g-math-b:#2C4F95;--g-sv-a:#164C86;--g-sv-b:#2667AE;
+ --g-en-a:#3E2A85;--g-en-b:#6247B8;--g-play-a:#6A1B3D;--g-play-b:#963055;
+ --g-glow1:#B9CCF2;--g-glow2:#D4C6F4;--g-glow3:#F1C3D3;
+ --g-c1:#2C4F95;--g-c2:#7C5CE0;--g-c3:#4FA3E8;--g-c4:#B0305E;--g-c5:#C9D8F7;
+ --wf-math:#23407A;--wf-sv:#1A5A9A;--wf-en:#4F3699;--wf-play:#7A2245;--wf-smart:#3A3290;--wf-home:#23407A}
+:root[data-mode="dark"]{--wf-math:#F4A9C6;--wf-sv:#DDB8EC;--wf-en:#F3B6A2;--wf-play:#F0CE85;--wf-smart:#D9BFF0;--wf-home:#F4A9C6;--wf-account:#A4D2B6}
+:root[data-mode="dark"][data-palette="grade8"]{--wf-math:#A9C3F4;--wf-sv:#93CBF3;--wf-en:#C7B5F6;--wf-play:#F4A9C6;--wf-smart:#C3BEF6;--wf-home:#A9C3F4}
+:root[data-subject="math"]{--wf:var(--wf-math)}
+:root[data-subject="sv"]{--wf:var(--wf-sv)}
+:root[data-subject="en"]{--wf:var(--wf-en)}
+:root[data-subject="play"]{--wf:var(--wf-play)}
+:root[data-subject="smart"]{--wf:var(--wf-smart)}
+:root[data-subject="home"]{--wf:var(--wf-home)}
+:root[data-subject="account"]{--wf:var(--wf-account)}
+
+/* 1. A coloured line under the top bar = the area you are in. */
+:root[data-subject] #app > header:first-of-type,
+:root[data-subject] body > header:first-of-type,
+:root[data-subject] .sitehead,
+:root[data-subject] .topbar{box-shadow:inset 0 -3px 0 var(--wf)!important}
+
+/* 2. Active tab in the bottom bar takes the area colour, with a soft pill. */
+:root[data-subject] nav.nav [aria-current="page"],
+:root[data-subject] nav.bottom [aria-current="page"]{color:var(--wf)!important;position:relative}
+:root[data-subject] nav.nav [aria-current="page"]::before,
+:root[data-subject] nav.bottom [aria-current="page"]::before{content:"";position:absolute;left:50%;top:3px;width:46px;height:30px;transform:translateX(-50%);
+  border-radius:999px;background:color-mix(in srgb,var(--wf) 15%,transparent);z-index:-1}
+:root[data-subject] nav.nav [aria-current="page"] *,
+:root[data-subject] nav.bottom [aria-current="page"] *{color:inherit!important}
+
+/* 3. Small "where am I" labels above headings use the same colour. */
+:root[data-subject]:not([data-wf-own]) .eyebrow,:root[data-subject]:not([data-wf-own]) .ux-kicker,:root[data-subject]:not([data-wf-own]) .ls-kicker,
+:root[data-subject]:not([data-wf-own]) .studykicker,:root[data-subject]:not([data-wf-own]) .kicker{color:var(--wf)!important}
+
+/* 4. Headings focused by the router for screen readers must not look like a selected box. */
+h1:focus,h2:focus,main:focus,[tabindex="-1"]:focus{outline:none!important;box-shadow:none!important}
+
+/* 5. One typeface family across the whole app (account/overview used a serif). */
+:root{--serif:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.brand b,.brand span,.study-main h1,.study-main h2,.hero h1{letter-spacing:-.015em}
+
+@media (prefers-reduced-motion:reduce){:root[data-subject] nav [aria-current="page"]::before{transition:none}}
+
+/* 6. Language studio hero and side marks follow the area colour (Svenska blå, Engelska röd). */
+:root[data-subject="sv"] .ls-hero:before,:root[data-subject="en"] .ls-hero:before,:root[data-subject="play"] .ls-hero:before{background:var(--wf)!important}
+:root[data-subject="sv"] .ls-hero:after,:root[data-subject="en"] .ls-hero:after,:root[data-subject="play"] .ls-hero:after{border-color:color-mix(in srgb,var(--wf) 14%,transparent)!important}
+:root[data-subject] .ls-eyebrow{color:var(--wf)!important}
+
+/* 7. Icons drawn by js/wayfind.js replace letter glyphs in tabs and tiles. */
+.mo-ic{width:22px;height:22px;display:block;margin:0 auto;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ux-tile-mark .mo-ic{width:22px;height:22px;color:#fff}
+nav.nav [aria-current="page"] .mo-ic,nav.bottom [aria-current="page"] .mo-ic{stroke-width:2.3}

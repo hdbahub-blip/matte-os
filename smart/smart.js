@@ -12,6 +12,7 @@
     try { const s = JSON.parse(localStorage.getItem(KEY) || '{}'); const list = Array.isArray(s.seen) ? s.seen : [];
       if (!list.includes(id)) { list.push(id); s.seen = list.slice(-40); localStorage.setItem(KEY, JSON.stringify(s)); } } catch (_) {}
   }
+  const TONES = ['math', 'sv', 'en', 'play'];
   let si = -1, ci = 0, timer = null, lastFocus = null;
 
   function home() {
@@ -20,7 +21,7 @@
     root.innerHTML = '<main class="sm-home" id="main"><div class="sm-top"><a class="sm-back" href="../">‹ Matte OS</a></div>'
       + '<header class="sm-hero"><p class="sm-kicker">Plugga smart</p><h1>Hjärnhacks som <span>funkar</span>.</h1>'
       + '<p>Korta tips. En minut var. Testa direkt.</p></header>'
-      + '<div class="sm-grid">' + ST.map((x, i) => '<button type="button" class="sm-tile" data-s="' + i + '" style="--a:' + x.a + ';--b:' + x.b + ';--i:' + i + '">'
+      + '<div class="sm-grid">' + ST.map((x, i) => '<button type="button" class="sm-tile" data-s="' + i + '" style="--a:var(--g-' + TONES[i % 4] + '-a,' + x.a + ');--b:var(--g-' + TONES[i % 4] + '-b,' + x.b + ');--i:' + i + '">'
         + (s.includes(x.id) ? '' : '<span class="sm-new">NY</span>')
         + '<span class="sm-ic" aria-hidden="true">' + esc(x.icon) + '</span><span><strong>' + esc(x.title) + '</strong><small>' + x.cards.length + ' kort · ' + esc(x.cards[0].big) + '</small></span></button>').join('')
       + '</div><p class="sm-note">Tipsen bygger på forskning om hur minnet fungerar: testa dig själv, sprid ut, blanda, förklara och sov. Inget sparas utom vilka tips du har sett.</p></main>';
@@ -30,7 +31,7 @@
   function player() {
     const x = ST[si], c = x.cards[ci];
     const bars = x.cards.map((_, i) => '<i class="' + (i < ci ? 'done' : i === ci ? 'now' : '') + '"><b></b></i>').join('');
-    root.innerHTML = '<section class="sm-player" role="dialog" aria-modal="true" aria-label="' + esc(x.title) + '" style="--a:' + x.a + ';--b:' + x.b + '">'
+    root.innerHTML = '<section class="sm-player" role="dialog" aria-modal="true" aria-label="' + esc(x.title) + '" style="--a:var(--g-' + TONES[si % 4] + '-a,' + x.a + ');--b:var(--g-' + TONES[si % 4] + '-b,' + x.b + ')">'
       + '<div class="sm-bars" aria-hidden="true">' + bars + '</div>'
       + '<div class="sm-head"><span class="sm-ic" aria-hidden="true">' + esc(x.icon) + '</span><strong>' + esc(x.title) + '</strong><small>· Plugga smart</small>'
       + '<button type="button" class="sm-x" data-a="close" aria-label="Stäng">×</button></div>'

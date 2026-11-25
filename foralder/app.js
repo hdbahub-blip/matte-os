@@ -8,7 +8,7 @@ const safeParse=(s,fallback)=>{try{return JSON.parse(s)||fallback}catch{return f
 const getState=()=>{try{const a=safeParse(localStorage.getItem(K),null);return a?.v===1&&a?.snapshots?{v:1,pin:a.pin||null,snapshots:a.snapshots}:newState()}catch{return newState()}};
 const newState=()=>({v:1,pin:null,snapshots:{}});
 let state=getState(),ui={view:'both',sources:{},notice:'',error:false,pending:null,preview:{},theme:readTheme(),busy:false,confirmReset:false};
-function readTheme(){try{return localStorage.getItem(PREF)==='dark'?'dark':'light'}catch{return 'light'}}
+function readTheme(){try{const v=localStorage.getItem(PREF)||localStorage.getItem('matteos.appearance.v1');return v==='dark'?'dark':'light'}catch{return 'light'}}
 const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const pct=(n,d)=>d?Math.round(100*n/d):0;
 const digits=n=>new Intl.NumberFormat('sv-SE').format(n);
