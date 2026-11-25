@@ -405,6 +405,7 @@ function boostCard() {
       question_text:String(x.q||''),answer:raw,solution_text:answerText(x),
       is_correct:!!r.ok,help_used:!!ex.hints||!!ex.sol,type:x.type||'num',mode:ex.mode,
       content_version:CORE.version});
+    try { window.dispatchEvent(new CustomEvent('mo:answer', { detail: { ok: !!r.ok, mode: ex.mode } })); } catch (_) {}
     if (ex.mode === 'test') {
       ex.done = true; ex.ok = r.ok; ex.first = r.ok; ex.mc = r.ok ? null : r.msg; finishEx(ex); return;
     }
