@@ -23,16 +23,29 @@
   border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 65%);z-index:-1;
   transition:transform .4s var(--pl-ease)}
 .ux-landing .ux-tiles .ux-tile:hover::after{transform:scale(1.25) translate(-8px,-8px)}
-.ux-landing .ux-tiles .ux-math{background:linear-gradient(145deg,var(--pl-math-a),var(--pl-math-b))!important}
-.ux-landing .ux-tiles .ux-swedish{background:linear-gradient(145deg,var(--pl-sv-a),var(--pl-sv-b))!important}
-.ux-landing .ux-tiles .ux-english{background:linear-gradient(145deg,var(--pl-en-a),var(--pl-en-b))!important}
-.ux-landing .ux-tiles .ux-play{background:linear-gradient(145deg,var(--pl-play-a),var(--pl-play-b))!important}
+.ux-landing .ux-tiles .ux-math{background:linear-gradient(145deg,var(--g-math-a,var(--pl-math-a)),var(--g-math-b,var(--pl-math-b)))!important}
+.ux-landing .ux-tiles .ux-swedish{background:linear-gradient(145deg,var(--g-sv-a,var(--pl-sv-a)),var(--g-sv-b,var(--pl-sv-b)))!important}
+.ux-landing .ux-tiles .ux-english{background:linear-gradient(145deg,var(--g-en-a,var(--pl-en-a)),var(--g-en-b,var(--pl-en-b)))!important}
+.ux-landing .ux-tiles .ux-play{background:linear-gradient(145deg,var(--g-play-a,var(--pl-play-a)),var(--g-play-b,var(--pl-play-b)))!important}
 .ux-landing .ux-tiles .ux-tile strong,.ux-landing .ux-tiles .ux-tile small{color:#fff!important}
 .ux-landing .ux-tiles .ux-tile small{opacity:.95}
 .ux-landing .ux-tiles .ux-tile .ux-tile-mark{background:rgba(255,255,255,.18)!important;color:#fff!important;
   border:1px solid rgba(255,255,255,.28)!important;transition:transform .3s var(--pl-ease)}
 .ux-landing .ux-tiles .ux-tile:hover .ux-tile-mark{transform:rotate(-8deg) scale(1.08)}
 .ux-landing .ux-tiles .ux-tile:active{transform:scale(.96)!important}
+
+/* ---------- Aurora: a slow, soft glow in the pupil's own colours behind the home card ---------- */
+.ux-landing{position:relative;isolation:isolate;overflow:hidden}
+.ux-landing::before{content:"";position:absolute;inset:-40% -30% auto -30%;height:120%;z-index:-1;pointer-events:none;opacity:.55;
+  background:radial-gradient(40% 45% at 20% 30%,var(--g-glow1),transparent 70%),radial-gradient(38% 40% at 80% 20%,var(--g-glow2),transparent 70%),radial-gradient(45% 50% at 60% 75%,var(--g-glow3),transparent 70%);
+  filter:blur(18px);animation:pl-aurora 22s ease-in-out infinite alternate}
+:root[data-mode="dark"] .ux-landing::before{opacity:.22}
+.ux-landing h1{background:linear-gradient(100deg,var(--ui-text,#24232A) 30%,var(--g-math-b) 85%);-webkit-background-clip:text;background-clip:text;color:transparent!important}
+:root[data-mode="dark"] .ux-landing h1{background:linear-gradient(100deg,#fff 35%,var(--wf-math) 90%);-webkit-background-clip:text;background-clip:text}
+@keyframes pl-aurora{0%{transform:translate3d(0,0,0) rotate(0)}50%{transform:translate3d(4%,3%,0) rotate(6deg)}100%{transform:translate3d(-3%,5%,0) rotate(-4deg)}}
+
+/* ---------- Glass top bar ---------- */
+#app > header.top{backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px)}
 
 /* ---------- Tactile buttons everywhere ---------- */
 .btn,.button,.tap,.pc-card,.pl-bubble{transition:transform .14s var(--pl-ease),box-shadow .2s ease,background-color .2s ease}
@@ -46,7 +59,7 @@
   background:none;border:0;padding:0;color:var(--ui-text,#24232A);text-decoration:none;
   font:700 11.5px/1.2 system-ui,-apple-system,sans-serif;text-align:center;cursor:pointer}
 .pl-bubble .pl-ring{width:62px;height:62px;border-radius:50%;padding:3px;display:grid;place-items:center;
-  background:conic-gradient(from 210deg,var(--pl-gold),var(--pl-pop),#8B5CF6,var(--pl-sky),var(--pl-mint),var(--pl-gold))}
+  background:conic-gradient(from 210deg,var(--g-c1),var(--g-c2),var(--g-c3),var(--g-c4),var(--g-c5),var(--g-c1))}
 .pl-bubble.pl-seen .pl-ring{background:var(--ui-border-strong,#cfc8d6)}
 .pl-bubble .pl-face{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;
   border:3px solid var(--ui-surface,#fff);font:900 22px/1 system-ui,sans-serif;color:#fff}
@@ -67,10 +80,10 @@
   animation:pl-fly .75s cubic-bezier(.15,.7,.3,1) forwards}
 .pl-burst i:nth-child(3n){border-radius:50%}
 .pl-burst i:nth-child(4n){width:6px;height:14px}
-.pl-toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 74px);z-index:9998;
+.pl-toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 104px);z-index:9998;
   transform:translateX(-50%);padding:10px 18px;border-radius:999px;color:#fff;pointer-events:none;
   font:900 16px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.01em;white-space:nowrap;
-  background:linear-gradient(120deg,#5B21D6,#C2185B);box-shadow:0 12px 30px -8px rgba(60,20,120,.55);
+  background:linear-gradient(120deg,var(--g-math-a,#5B21D6),var(--g-en-b,#C2185B));box-shadow:0 12px 30px -8px rgba(60,20,120,.55);
   animation:pl-toast 1.6s var(--pl-ease) forwards}
 .feedback.ok,.feedback.good{animation:pl-pop .42s var(--pl-ease) both!important}
 .feedback.bad,.feedback.wrong,.feedback.err{animation:pl-nudge .38s ease both}
@@ -89,7 +102,7 @@
   background:var(--ui-primary-tint,#f6eef2);animation:pl-rise .4s var(--pl-ease) both}
 .pl-steps li:nth-child(2){animation-delay:.06s}.pl-steps li:nth-child(3){animation-delay:.12s}.pl-steps li:nth-child(4){animation-delay:.18s}
 .pl-steps b.pl-n{flex:0 0 32px;height:32px;border-radius:10px;display:grid;place-items:center;color:#fff;
-  background:linear-gradient(145deg,var(--pl-math-a),var(--pl-math-b));font:900 16px/1 system-ui,sans-serif}
+  background:linear-gradient(145deg,var(--g-math-a,var(--pl-math-a)),var(--g-math-b,var(--pl-math-b)));font:900 16px/1 system-ui,sans-serif}
 .pl-steps strong{display:block;font-size:16px}
 .pl-steps span{font-size:14px;line-height:1.4;color:var(--ui-text-muted,#5c5a66)}
 .pl-sheet .pl-close{width:100%;min-height:50px;margin-top:16px;border:0;border-radius:16px;cursor:pointer;color:#fff;
@@ -99,7 +112,7 @@
 @keyframes pl-rise{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes pl-fly{0%{transform:translate(0,0) rotate(0) scale(1);opacity:1}
   100%{transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(.4);opacity:0}}
-@keyframes pl-toast{0%{opacity:0;transform:translate(-50%,-14px) scale(.8)}14%{opacity:1;transform:translate(-50%,0) scale(1.06)}
+@keyframes pl-toast{0%{opacity:0;transform:translate(-50%,14px) scale(.8)}14%{opacity:1;transform:translate(-50%,0) scale(1.06)}
   24%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-8px)}}
 @keyframes pl-pop{0%{transform:scale(.92);opacity:.4}60%{transform:scale(1.03);opacity:1}100%{transform:none}}
 @keyframes pl-nudge{0%,100%{transform:none}25%{transform:translateX(-5px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
@@ -109,5 +122,6 @@
 @media (prefers-reduced-motion:reduce){
   .ux-landing .ux-tiles .ux-tile,.pl-steps li,.pl-sheet,.pl-sheet-bg,.feedback.ok,.feedback.good,.feedback.bad,.feedback.wrong{animation:none!important}
   .pl-burst,.pl-toast{display:none!important}
+  .ux-landing::before{animation:none!important}
   .btn:active,.button:active,.tap:active,.pc-card:active,.ux-landing .ux-tiles .ux-tile:active{transform:none!important}
 }

@@ -8,14 +8,19 @@ const cr=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,
 (async()=>{
  // Colour tokens readable as small text on light (#FFFFFF/#F6F4F8) and dark (#1D1E24/#141018) surfaces.
  const css=require('fs').readFileSync(__dirname+'/../css/wayfind.css','utf8');
- const light=css.match(/:root\{--wf-math[^}]+\}/)[0],dark=css.match(/\[data-mode="dark"\]\{[^}]+\}/)[0];
- for(const [blk,bgs] of [[light,['#FFFFFF','#F6F4F8']],[dark,['#1D1E24','#141018']]])
-  for(const [,k,v] of blk.matchAll(/--wf-([a-z]+):(#[0-9A-Fa-f]{6})/g))for(const bg of bgs)ok(cr(v,bg)>=4.5,k+' '+v+' AA on '+bg+' ('+cr(v,bg).toFixed(2)+')');
+ for(const [,sel,body] of css.matchAll(/(:root[^{]*)\{([^}]*)\}/g)){
+  const isDark=/data-mode="dark"/.test(sel),bgs=isDark?['#1D1E24','#141018']:['#FFFFFF','#F6F4F8'];
+  for(const [,k,v] of body.matchAll(/--wf-([a-z]+):(#[0-9A-Fa-f]{6})/g))for(const bg of bgs)ok(cr(v,bg)>=4.5,sel+' '+k+' '+v+' AA on '+bg+' ('+cr(v,bg).toFixed(2)+')');
+  for(const [,k,v] of body.matchAll(/--g-((?:math|sv|en|play)-[ab]):(#[0-9A-Fa-f]{6})/g))ok(cr(v,'#FFFFFF')>=4.5,sel+' white text on tile '+k+' '+v+' ('+cr(v,'#FFFFFF').toFixed(2)+')');
+ }
+ ok(/data-grade="grade8"/.test(css)&&/--g-math-a:#1B2F5E/.test(css),'grade 8 has its own navy palette');
  const browser=await chromium.launch({headless:true,...(exe?{executablePath:exe}:{})});
  const ctx=await browser.newContext({viewport:{width:390,height:844}}),p=await ctx.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));
  await p.goto(base);await p.click('.pc-grade9');await p.waitForSelector('.pl-strip');
  const subj=()=>p.evaluate(()=>document.documentElement.dataset.subject);
  ok(await subj()==='home','home area');
+ ok(await p.evaluate(()=>document.documentElement.dataset.grade)==='grade9','grade 9 palette active');
+ ok(await p.locator('nav.nav .mo-ic').count()>=5&&await p.locator('.ux-tile .mo-ic').count()===4,'icons replace letter glyphs');
  await p.goto(base+'#/trana');await p.waitForSelector('h1');ok(await subj()==='math','math area on Träna');
  ok(await p.evaluate(()=>getComputedStyle(document.querySelector('#app > header')).boxShadow.includes('inset')),'coloured line under top bar');
  ok(await p.locator('nav.nav [aria-current="page"]').innerText().then(t=>/Matte/.test(t)),'Matte tab active');
@@ -33,6 +38,8 @@ const cr=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,
   await p.goto(base+url,{waitUntil:'domcontentloaded'});await p.waitForTimeout(400);ok(await subj()===want,url+' → '+want);
  }
  const fam=await p.evaluate(()=>getComputedStyle(document.querySelector('h1')).fontFamily);ok(!/Iowan|Baskerville|Georgia/.test(fam),'overview uses the app typeface: '+fam);
+ await p.goto(base);await p.evaluate(()=>{const s=JSON.parse(localStorage.getItem('matteos.v5'));s.active='grade8';localStorage.setItem('matteos.v5',JSON.stringify(s));});
+ await p.goto(base+'smart/');await p.waitForTimeout(300);ok(await p.evaluate(()=>document.documentElement.dataset.grade)==='grade8','grade 8 palette follows the chosen profile on other pages');
  ok(errs.length===0,'no errors '+errs.join('|'));await ctx.close();
  // Dark mode follows the app on account pages.
  const c2=await browser.newContext({viewport:{width:390,height:844}});await c2.addInitScript(()=>localStorage.setItem('matteos.appearance.v1','dark'));
