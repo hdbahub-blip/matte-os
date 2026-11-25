@@ -63,7 +63,7 @@
     <main id="main">${content}</main>
     <nav class="nav" aria-label="Välj ämne eller spel"><div class="nav-in ux-dock">
       <button data-a="nav" data-h="#/" ${tab==='home'?'aria-current="page"':''}><span class="ux-nav-icon">⌂</span><span>Start</span></button>
-      <button data-a="nav" data-h="#/trana" ${tab!=='home'?'aria-current="page"':''}><span class="ux-nav-icon">∑</span><span>Matte</span></button>
+      <button data-a="nav" data-h="#/trana" ${tab!=='home'&&!/^#\/installningar/.test(location.hash)?'aria-current="page"':''}><span class="ux-nav-icon">∑</span><span>Matte</span></button>
       <a href="lara/#/studio/sv"><span class="ux-nav-icon">S</span><span>Svenska</span></a>
       <a href="lara/#/studio/en"><span class="ux-nav-icon">E</span><span>Engelska</span></a>
       <a href="lara/#/spel"><span class="ux-nav-icon">◈</span><span>Spela</span></a>

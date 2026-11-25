@@ -1,0 +1,43 @@
+/* Matte OS · wayfinding + cross-app consistency (loaded last on every page). */
+:root{--wf-math:#5B2BD6;--wf-sv:#0A6697;--wf-en:#A3214F;--wf-play:#0E6B63;--wf-smart:#6D28D9;--wf-home:#722B45;--wf-account:#2F5D4B}
+:root[data-mode="dark"]{--wf-math:#BBA6FF;--wf-sv:#7CC7F0;--wf-en:#FF9DBB;--wf-play:#6FD8C6;--wf-smart:#C4B5FD;--wf-home:#F0B6CF;--wf-account:#A4D2B6}
+:root[data-subject="math"]{--wf:var(--wf-math)}
+:root[data-subject="sv"]{--wf:var(--wf-sv)}
+:root[data-subject="en"]{--wf:var(--wf-en)}
+:root[data-subject="play"]{--wf:var(--wf-play)}
+:root[data-subject="smart"]{--wf:var(--wf-smart)}
+:root[data-subject="home"]{--wf:var(--wf-home)}
+:root[data-subject="account"]{--wf:var(--wf-account)}
+
+/* 1. A coloured line under the top bar = the area you are in. */
+:root[data-subject] #app > header:first-of-type,
+:root[data-subject] body > header:first-of-type,
+:root[data-subject] .sitehead,
+:root[data-subject] .topbar{box-shadow:inset 0 -3px 0 var(--wf)!important}
+
+/* 2. Active tab in the bottom bar takes the area colour, with a soft pill. */
+:root[data-subject] nav.nav [aria-current="page"],
+:root[data-subject] nav.bottom [aria-current="page"]{color:var(--wf)!important;position:relative}
+:root[data-subject] nav.nav [aria-current="page"]::before,
+:root[data-subject] nav.bottom [aria-current="page"]::before{content:"";position:absolute;left:50%;top:3px;width:46px;height:30px;transform:translateX(-50%);
+  border-radius:999px;background:color-mix(in srgb,var(--wf) 15%,transparent);z-index:-1}
+:root[data-subject] nav.nav [aria-current="page"] *,
+:root[data-subject] nav.bottom [aria-current="page"] *{color:inherit!important}
+
+/* 3. Small "where am I" labels above headings use the same colour. */
+:root[data-subject] .eyebrow,:root[data-subject] .ux-kicker,:root[data-subject] .ls-kicker,
+:root[data-subject] .studykicker,:root[data-subject] .kicker{color:var(--wf)!important}
+
+/* 4. Headings focused by the router for screen readers must not look like a selected box. */
+h1:focus,h2:focus,main:focus,[tabindex="-1"]:focus{outline:none!important;box-shadow:none!important}
+
+/* 5. One typeface family across the whole app (account/overview used a serif). */
+:root{--serif:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.brand b,.brand span,.study-main h1,.study-main h2,.hero h1{letter-spacing:-.015em}
+
+@media (prefers-reduced-motion:reduce){:root[data-subject] nav [aria-current="page"]::before{transition:none}}
+
+/* 6. Language studio hero and side marks follow the area colour (Svenska blå, Engelska röd). */
+:root[data-subject="sv"] .ls-hero:before,:root[data-subject="en"] .ls-hero:before,:root[data-subject="play"] .ls-hero:before{background:var(--wf)!important}
+:root[data-subject="sv"] .ls-hero:after,:root[data-subject="en"] .ls-hero:after,:root[data-subject="play"] .ls-hero:after{border-color:color-mix(in srgb,var(--wf) 14%,transparent)!important}
+:root[data-subject] .ls-eyebrow{color:var(--wf)!important}

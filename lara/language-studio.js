@@ -44,7 +44,7 @@ function hub(lang,grade){
   {id:'talk',title:lang==='sv'?'Samtalskort':'Talk cards',detail:lang==='sv'?'Svara, fråga och förklara tillsammans':'Speak, ask and explain',icon:'◎'}
  ];
  return '<div class="ls-root" data-ls-screen="hub">'
- +back('#/',lang==='sv'?'Tillbaka till Lärande':'Back to learning')
+ +back('../#/',lang==='sv'?'Start':'Start')
  +backdrop(lang,grade,W.title,lang==='sv'?'Välj vad du vill öva. Börja enkelt, få stöd och prova själv.':'Choose a skill. Learn it, try it and make it your own.')
  +'<div class="ls-start-now">'+plainLink(base(lang)+'/area/'+encodeURIComponent(learning[0].name),lang==='sv'?'Börja här: första uppgiften':'Start here: first skill',lang==='sv'?'Ett lugnt steg i taget':'One clear step at a time','→','ls-feature')+plainLink('debatt.html?lang='+lang,lang==='sv'?'Debattspelet – för och emot':'The Debate Game – for and against',lang==='sv'?'Ta ett ämne, växla sida och dra jokern':'Pick a topic, switch sides, draw the joker','⚖','ls-feature ls-debate')+'</div>'
  +'<h2 class="ls-section-heading">'+(lang==='sv'?'Vad vill du lära dig?':'What do you want to learn?')+'</h2>'
@@ -61,7 +61,7 @@ function gamesHub(grade){
  const t=['sv','en'].map(lang=>plainLink(base(lang),lang==='sv'?'Svenska':'English',lang==='sv'?'Ord, texter, meningar och samtal':'Words, reading, writing and speaking',lang==='sv'?'S':'E')).join('');
  const modes=['quiz','match','order','talk'];
  const labels={sv:['Fem snabba','Para ihop','Rätt ordning','Samtalskort'],en:['Quick five','Match it','Put in order','Talk cards']};
- return '<div class="ls-root" data-ls-screen="game-hub">'+back('#/','Till Lärande')
+ return '<div class="ls-root" data-ls-screen="game-hub">'+back('../#/','Start')
  +backdrop('sv',grade,'Välj ett spel','Träna genom att spela. Du kan välja ämne, spel och om ni vill vara två.')
  +'<h2 class="ls-section-heading">Debatt</h2><div class="ls-game-grid">'+plainLink('debatt.html?lang=sv','Debattspelet','För och emot, bemöt och joker','⚖','ls-game-link')+plainLink('debatt.html?lang=en','The Debate Game','For and against, answer back, joker','⚖','ls-game-link')+'</div>'
  +'<h2 class="ls-section-heading">Välj språk</h2><div class="ls-shelf-grid">'+t+'</div>'
