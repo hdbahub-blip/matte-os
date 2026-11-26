@@ -102,6 +102,22 @@ await page.locator('.sp-wordboost-trigger').click();
 ok(await page.locator('.sp-wordboost-item').count()===2,'stage-specific words work offline');
 ok(await page.locator('.sp-choices').count()===1,'offline still shows normal interactive answer');
 await context.setOffline(false);await context.close();
+
+// Dark-mode contrast: stage letters, the short conversational cue and the "Try saying" label are small text.
+const darkContext=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'});
+await darkContext.addInitScript(()=>localStorage.setItem('matteos.appearance.v1','dark'));
+const darkPage=await darkContext.newPage();
+await darkPage.goto(visit(),{waitUntil:'domcontentloaded'});
+await darkPage.locator('.sp-wordboost-trigger').click();
+const contrasts=await darkPage.evaluate(()=>{
+ const lum=c=>{const [r,g,b]=(c.match(/\d+/g)||[]).slice(0,3).map(v=>{const x=Number(v)/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;});return r*.2126+g*.7152+b*.0722;};
+ const cr=(f,b)=>{const a=lum(f),z=lum(b);return (Math.max(a,z)+.05)/(Math.min(a,z)+.05);};
+ const get=s=>document.querySelector(s);
+ const stage=get('.sp-wordboost-step'),example=get('.sp-wordboost-example span'),cue=get('.sp-wordboost-connector b');
+ return {stage:cr(getComputedStyle(stage).color,getComputedStyle(stage).backgroundColor),example:cr(getComputedStyle(example).color,getComputedStyle(get('.sp-wordboost-item')).backgroundColor),cue:cr(getComputedStyle(cue).color,getComputedStyle(cue.parentElement).backgroundColor)};
+});
+ok(Object.values(contrasts).every(x=>x>=4.5),'dark mode small-label contrast >=4.5: '+JSON.stringify(contrasts));
+await darkContext.close();
 console.log('SPEAK WORD BOOST E2E '+n+'/'+n+' PASS · '+(engine===webkit?'WebKit':'Chromium')+' 320/390/980 responsive PACE & offline PWA');
 }finally{await browser.close()}
 })().catch(err=>{console.error(err);process.exit(1)});
