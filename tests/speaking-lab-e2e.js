@@ -22,7 +22,7 @@ for(const width of [320,390,980]){
  ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no mobile horizontal overflow initially '+width);
  if(width===390&&process.env.MATTE_SCREENSHOTS){await page.screenshot({path:'speaking-play-home-390.png',fullPage:true});}
  await page.locator('.sp-choices [data-action="choose"][data-choice="0"]').click();
- ok((await page.locator('.sp-progress-head strong').innerText()).includes('2 av 4'),'automatic step after first choice '+width);
+ ok((await page.locator('.sp-progress-head strong').innerText()).includes('2 of 4'),'automatic step after first choice '+width);
  await page.locator('[data-action="help"]').click();
  ok(await page.locator('.sp-help-line').count()===1,'on-demand, topic-based help '+width);
  ok((await page.locator('.sp-help-line').innerText()).length>25,'help is a meaningful sentence '+width);
@@ -30,8 +30,8 @@ for(const width of [320,390,980]){
  ok((await page.locator('.sp-help-line').innerText()).includes('?'),'over-talking help ends with question '+width);
  await page.locator('[data-action="help"]').click();
  await page.locator('.sp-choices [data-action="choose"][data-choice="1"]').click();
- ok((await page.locator('.sp-feedback').innerText()).includes('andra exemplet'),'mixed opposing arguments do not silently create contradictions '+width);
- ok((await page.locator('.sp-progress-head strong').innerText()).includes('2 av 4'),'nonmatching reason does not advance '+width);
+ ok((await page.locator('.sp-feedback').innerText()).includes('other point of view'),'mixed opposing arguments do not silently create contradictions '+width);
+ ok((await page.locator('.sp-progress-head strong').innerText()).includes('2 of 4'),'nonmatching reason does not advance '+width);
  await page.locator('.sp-choices [data-action="choose"][data-choice="0"]').click();
  await page.locator('.sp-choices [data-action="choose"][data-choice="0"]').click();
  await page.locator('.sp-choices [data-action="choose"][data-choice="0"]').click();
@@ -48,7 +48,7 @@ for(const width of [320,390,980]){
  await page.locator('[data-action="mode"][data-mode="pair"]').click();
  ok(await page.locator('.sp-turn').count()===1,'pair play shows current turn '+width);
  await page.locator('[data-action="next-person"]').click();
- ok((await page.locator('.sp-turn').innerText()).includes('PERSON 2'),'one click hands off to partner '+width);
+ ok((await page.locator('.sp-turn').innerText()).includes('PLAYER 2'),'one click hands off to partner '+width);
  ok((await page.locator('.sp-question h1').innerText())===first,'same question for speaking partner '+width);
  await page.locator('[data-action="next-person"]').click();
  ok((await page.locator('.sp-question h1').innerText())!==first,'second click advances to a new topic '+width);
@@ -61,7 +61,7 @@ for(const width of [320,390,980]){
  ok(await page.locator('.sp-guide').count()===1,'short guide replaces, does not stack on main '+width);
  ok(await page.locator('.sp-guide-example').count()===1,'one worked example visible at a time '+width);
  await page.locator('[data-action="guide-topic"][data-topic="crime"]').click();
- ok((await page.locator('.sp-guide-question').innerText()).includes('Kriminalitet'),'real second topic example '+width);
+ ok((await page.locator('.sp-guide-question').innerText()).includes('Crime'),'real second topic example '+width);
  await page.locator('[data-action="guide-example"][data-ex="1"]').click();
  ok((await page.locator('.sp-guide-example').innerText()).includes('Rules and consequences'),'contrasting perspective in guide '+width);
  await page.locator('[data-action="close-guide"]').last().click();
@@ -80,7 +80,7 @@ ok(await p.locator('.sp-choices').count()===1,'free mode resets on new card '+39
 await p.locator('[data-action="settings"]').click();
 await p.locator('[data-action="mode"][data-mode="group"]').click();
 const q=await p.locator('.sp-question h1').innerText();
-for(let i=1;i<=4;i++){ok((await p.locator('.sp-turn').innerText()).includes('PERSON '+i),'school group turn '+i);await p.locator('[data-action="next-person"]').click();}
+for(let i=1;i<=4;i++){ok((await p.locator('.sp-turn').innerText()).includes('PLAYER '+i),'school group turn '+i);await p.locator('[data-action="next-person"]').click();}
 ok((await p.locator('.sp-question h1').innerText())!==q,'group only advances after 4 people');
 await ctx.close();
 const deep=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'}),dg=await deep.newPage();

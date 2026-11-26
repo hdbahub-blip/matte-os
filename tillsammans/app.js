@@ -226,7 +226,7 @@
       +'<footer>Gästprofilernas framsteg sparas bara på den här enheten. Gruppresultat räknas inte som skolprov. Ingen automatisk molnöverföring.</footer>'
       +'</main><nav class="bottom" aria-label="Välj ämne eller spel">'
       +'<a href="../"><span aria-hidden="true">⌂</span>Start</a><a href="../#/trana"><span aria-hidden="true">∑</span>Matte</a>'
-      +'<a href="../lara/#/sv"><span aria-hidden="true">S</span>Svenska</a><a href="../lara/#/en"><span aria-hidden="true">E</span>Engelska</a>'
+      +'<a href="../lara/#/studio/sv"><span aria-hidden="true">S</span>Svenska</a><a href="../lara/#/studio/en"><span aria-hidden="true">E</span>Engelska</a>'
       +'<a href="./" aria-current="page"><span aria-hidden="true">◈</span>Spela</a></nav>'+(ui.pickProfiles?profileOverlay():'');
     document.title='Matte OS · Tillsammans';
     if(!S.status().storageOk){
@@ -386,6 +386,7 @@
   function render() {
     const builders={home:welcome,guests:guestsPage,setup:()=>setupPage(false),share:()=>setupPage(true),read:readPage,session:sessionPage};
     shell((builders[ui.page]||welcome)());
+    window.MO_ENGLISH_CONTEXT?.apply(app,ui.topic);
   }
   function page(next) {
     ui.page=next;ui.notice='';ui.answer=null;

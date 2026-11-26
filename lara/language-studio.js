@@ -19,11 +19,11 @@ function resetFor(path){if(ui.key===path)return;ui.key=path;ui.qIndex=0;ui.selec
 function list(lang){return DATA.units.filter(u=>u.lang===lang);}
 function groupUnits(lang,group){return list(lang).filter(u=>u.group===group);}
 function findUnit(lang,id){return list(lang).find(u=>u.id===id);}
-function gradeName(grade){return grade==='grade9'?'Årskurs 9':'Årskurs 8';}
+function gradeName(grade,lang){return lang==='en'?(grade==='grade9'?'Year 9':'Year 8'):(grade==='grade9'?'Årskurs 9':'Årskurs 8');}
 function base(lang){return '#/studio/'+lang;}
 function gameBase(lang){return '#/studio-game/'+lang;}
 function backdrop(lang,grade,title,description){
- return '<header class="ls-hero"><div class="ls-eyebrow">MATTE OS <span class="ls-dot">•</span> '+E(gradeName(grade))+'</div><h1>'+E(title)+'</h1><p>'+E(description)+'</p></header>';
+ return '<header class="ls-hero"><div class="ls-eyebrow">MATTE OS <span class="ls-dot">•</span> '+E(gradeName(grade,lang))+'</div><h1>'+E(title)+'</h1><p>'+E(description)+'</p></header>';
 }
 function back(href,label){return '<a class="ls-back" href="'+E(href)+'"><span aria-hidden="true">‹</span> '+E(label)+'</a>';}
 function panel(title,body,kind=''){return '<section class="ls-panel '+E(kind)+'"><h2>'+E(title)+'</h2>'+body+'</section>';}
@@ -46,16 +46,18 @@ function hub(lang,grade){
  return '<div class="ls-root" data-ls-screen="hub">'
  +back('../#/',lang==='sv'?'Start':'Start')
  +backdrop(lang,grade,W.title,lang==='sv'?'Välj vad du vill öva. Börja enkelt, få stöd och prova själv.':'Choose a skill. Learn it, try it and make it your own.')
- +'<div class="ls-start-now">'+(lang==='en'&&grade==='grade9'?plainLink('speaking-lab.html','Speak Quest – spela och prata','Välj en tanke, bygg fyra steg och prata med egna ord.','◎','ls-feature ls-speaking'):plainLink(base(lang)+'/area/'+encodeURIComponent(learning[0].name),'Börja här: första uppgiften','Ett lugnt steg i taget','→','ls-feature'))+'</div>'
+ +'<div class="ls-start-now">'+(lang==='en'&&grade==='grade9'?plainLink('speaking-lab.html','Speak Quest – play and speak','Pick one idea. Build four steps. Then speak in your own words.','◎','ls-feature ls-speaking'):plainLink(base(lang)+'/area/'+encodeURIComponent(learning[0].name),lang==='en'?'Start here – first skill':'Börja här: första uppgiften',lang==='en'?'One clear step at a time.':'Ett lugnt steg i taget','→','ls-feature'))+'</div>'
  +'<h2 class="ls-section-heading">'+(lang==='sv'?'Vad vill du lära dig?':'What do you want to learn?')+'</h2>'
  +'<div class="ls-shelf-grid">'+sections+'</div>'
+ +'<div class="ls-coop-shortcut"><details><summary>'+(lang==='en'?'Want to play with a friend?':'Vill ni spela två?')+'</summary><div class="ls-pair-shortcut">'+plainLink(gameBase(lang)+'/quiz/pair',lang==='en'?'Two-player challenge':'Utmaning för två',lang==='en'?'Take turns on one phone.':'Turas om på en mobil.','2','ls-game-link')+'</div></details></div>'
  +'<h2 class="ls-section-heading">'+(lang==='sv'?'Lär genom att spela':'Learn by playing')+'</h2>'
- +'<div class="ls-game-grid">'+gameCards.map(x=>plainLink(gameBase(lang)+'/'+x.id,x.title,x.detail,x.icon,'ls-game-link')).join('')+'</div>'
- +panel(lang==='sv'?'Fler sätt att öva':'More ways to practise',
-   plainLink('#/texter/'+lang,lang==='sv'?'Läs berättelser och saktexter':'Read stories and articles',lang==='sv'?'Nivåer, frågor och texter i eget tempo':'Levels and reading tasks','▤')
-  +plainLink('#/korta/'+lang,lang==='sv'?'Korta språklektioner':'Short lessons',lang==='sv'?'Förstå, prova, förklara':'Learn, practise, explain','◉')
-  +plainLink('#/tillsammans',lang==='sv'?'Fler spel tillsammans':'More games together',lang==='sv'?'Lagtävling och samarbete':'Team challenges and cooperation','✦'))
- +'<p class="ls-quiet">Ingen tidspress. Du kan alltid gå tillbaka. Spelresultaten stannar bara i det här spelpasset.</p></div>';
+ +'<div class="ls-game-grid">'+gameCards.map(x=>plainLink(gameBase(lang)+'/'+x.id+'/solo',x.title,x.detail,x.icon,'ls-game-link')).join('')+'</div>'
+ +'<details class="ls-more"><summary>'+(lang==='sv'?'Fler sätt att öva':'More ways to practise')+'</summary><div class="ls-more-body">'
+ +plainLink('#/texter/'+lang,lang==='sv'?'Läs berättelser och saktexter':'Read stories and articles',lang==='sv'?'Nivåer, frågor och texter i eget tempo':'Levels and reading tasks','▤')
+ +plainLink('#/korta/'+lang,lang==='sv'?'Korta språklektioner':'Short lessons',lang==='sv'?'Förstå, prova, förklara':'Learn, practise, explain','◉')
+ +plainLink('#/tillsammans',lang==='sv'?'Fler spel tillsammans':'More games together',lang==='sv'?'Lagtävling och samarbete':'Team challenges and cooperation','✦')
+ +'</div></details>'
+ +'<p class="ls-quiet">'+(lang==='en'?'No timer. You can try again at any time. Game results stay in this practice session.':'Ingen tidspress. Du kan alltid gå tillbaka. Spelresultaten stannar bara i det här spelpasset.')+'</p></div>';
 }
 function gamesHub(grade){
  const t=['sv','en'].map(lang=>plainLink(base(lang),lang==='sv'?'Svenska':'English',lang==='sv'?'Ord, texter, meningar och samtal':'Words, reading, writing and speaking',lang==='sv'?'S':'E')).join('');
@@ -66,9 +68,9 @@ function gamesHub(grade){
  +'<h2 class="ls-section-heading">Engelska muntligt</h2><div class="ls-game-grid">'+plainLink('speaking-lab.html','Speak Quest','Spela fyra steg eller prata helt fritt','✦','ls-game-link')+'</div>'+'<h2 class="ls-section-heading">Debatt</h2><div class="ls-game-grid">'+plainLink('debatt.html?lang=sv','Debattspelet','För och emot, bemöt och joker','⚖','ls-game-link')+plainLink('debatt.html?lang=en','The Debate Game','For and against, answer back, joker','⚖','ls-game-link')+'</div>'
  +'<h2 class="ls-section-heading">Välj språk</h2><div class="ls-shelf-grid">'+t+'</div>'
  +'<h2 class="ls-section-heading">Spel på svenska</h2><div class="ls-game-grid">'
- +modes.map((m,i)=>plainLink(gameBase('sv')+'/'+m,labels.sv[i],['Korta frågor','Begrepp och ord','Bygg en tydlig ordning','Prata med en vän'][i],['5','↔','≡','◎'][i],'ls-game-link')).join('')+'</div>'
+ +modes.map((m,i)=>plainLink(gameBase('sv')+'/'+m+'/solo',labels.sv[i],['Korta frågor','Begrepp och ord','Bygg en tydlig ordning','Prata med en vän'][i],['5','↔','≡','◎'][i],'ls-game-link')).join('')+'</div>'
  +'<h2 class="ls-section-heading">Games in English</h2><div class="ls-game-grid">'
- +modes.map((m,i)=>plainLink(gameBase('en')+'/'+m,labels.en[i],['Questions and feedback','Match words','Order the steps','Talk together'][i],['5','↔','≡','◎'][i],'ls-game-link')).join('')+'</div>'
+ +modes.map((m,i)=>plainLink(gameBase('en')+'/'+m+'/solo',labels.en[i],['Questions and feedback','Match words','Order the steps','Talk together'][i],['5','↔','≡','◎'][i],'ls-game-link')).join('')+'</div>'
  +panel('Andra spel som redan finns',plainLink('../tillsammans/?start=group&grade='+grade,'Lära tillsammans','Samarbeta, spela som Joker och välj laguppgifter','✦')
  +plainLink('../#/cup','Matte OS Cup','Matematikspel med kompisar','∑'))
  +'<p class="ls-quiet">Du får prova igen hur många gånger du vill. Inga nya spelpoäng sparas till elevkonton.</p></div>';
@@ -117,7 +119,7 @@ function gradeQuiz(lang,grade,id){
  +'<div class="ls-finish"><span class="ls-celebrate" aria-hidden="true">✦</span><h1>'+W.finished+'</h1><p>'+(lang==='sv'?'Du har tränat två olika sätt att tänka.':'You practised two different ways to think.')+'</p><strong>'+ui.score+' / '+qs.length+'</strong></div>'
  +'<div class="ls-action-stack">'+plainLink(base(lang)+'/write/'+u.id,lang==='sv'?'Använd kunskapen i en egen text':'Use the skill in writing','✎','✎')
  +plainLink(base(lang)+'/unit/'+u.id,lang==='sv'?'Till momentet':'Back to the skill','↶')+'</div>'
- +'<button class="ls-button ls-quiet-button" type="button" data-ls="restart">Öva igen</button></div>';
+ +'<button class="ls-button ls-quiet-button" type="button" data-ls="restart">'+(lang==='en'?'Try again':'Öva igen')+'</button></div>';
  const q=qs[ui.qIndex],right=ui.selected===q.answer;
  return '<div class="ls-root" data-ls-screen="quiz">'+back(base(lang)+'/unit/'+u.id,W.back)
  +'<div class="ls-step">'+(lang==='sv'?'Fråga ':'Question ')+(ui.qIndex+1)+' / '+qs.length+'<div class="ls-step-bar"><span style="width:'+((ui.qIndex+1)/qs.length*100)+'%"></span></div></div>'
@@ -223,6 +225,21 @@ function orderScreen(lang,grade,pair){
  +'<div class="ls-row-actions"><button class="ls-button ls-outline" data-ls="undo-order"'+(ui.picks.length?'':' disabled')+'>'+(lang==='sv'?'Ångra sista':'Undo last')+'</button><button class="ls-button" data-ls="check-order"'+(remaining.length?' disabled':'')+'>'+(lang==='sv'?'Kontrollera':'Check')+'</button></div>')
  +'</div>';
 }
+const EN_SOLO_TALK=Object.freeze({
+ 'en-read-gist':'In your own words, state the main idea. Then give one detail that supports your summary.',
+ 'en-talk-turns':'Give your opinion in two sentences. Imagine someone disagrees: ask them one clear follow-up question.',
+ 'en-talk-opinion':'State your position, then give one fair reason why someone might disagree with you.',
+ 'en-talk-present':'Say your main point clearly, give an example, then imagine one question your audience might ask.',
+ 'en-write-story':'Tell your story in four sentences. Name one detail you would make clearer if someone asked.',
+ 'en-write-message':'Read your message aloud. Say what the reader should do next and what detail might be missing.',
+ 'en-grammar-link':'Finish a short sentence using because. Now change it using although and explain the difference.',
+ 'en-grammar-modals':'Imagine a friend is nervous about a test. Give gentle advice with could and stronger advice with should.',
+ 'en-words-nuance':'Describe how someone feels without naming the emotion. Give two clues someone could use to guess it.',
+ 'en-sources':'Imagine a social media post makes a big claim. Ask two polite questions about the evidence behind it.',
+ 'en-culture':'Choose a tradition from a culture you want to understand. Ask one thoughtful, respectful question about it.',
+ 'en-revise':'Read a paragraph you have written. Choose one sentence, improve its clarity and explain the change.'
+});
+function talkPrompt(u,lang,pair){return lang==='en'&&!pair&&EN_SOLO_TALK[u.id]?EN_SOLO_TALK[u.id]:u.talk;}
 function talkDeck(lang,grade){return shuffle(list(lang),lang+grade+'talk2026').slice(0,6);}
 function gameTalk(lang,grade,pair){
  const deck=talkDeck(lang,grade);
@@ -231,7 +248,7 @@ function gameTalk(lang,grade,pair){
  return '<div class="ls-root" data-ls-screen="talk-game">'+back(gameBase(lang)+'/talk',words[lang].back)
  +'<div class="ls-game-head"><span>'+E(playerLabel(pair,ui.qIndex,lang))+'</span><span>'+(ui.qIndex+1)+' / '+deck.length+'</span></div>'
  +backdrop(lang,grade,lang==='sv'?'Samtalskort':'Talk cards',u.title)
- +panel(lang==='sv'?'Prata om detta':'Talk about this','<p class="ls-talk-prompt">'+E(u.talk)+'</p><div class="ls-talk-steps"><span>1. '+(lang==='sv'?'Tänk':'Think')+'</span><span>2. '+(lang==='sv'?'Förklara':'Explain')+'</span><span>3. '+(lang==='sv'?'Fråga vidare':'Ask why')+'</span></div>')
+ +panel(lang==='sv'?'Prata om detta':'Talk about this','<p class="ls-talk-prompt">'+E(talkPrompt(u,lang,pair))+'</p><div class="ls-talk-steps"><span>1. '+(lang==='sv'?'Tänk':'Think')+'</span><span>2. '+(lang==='sv'?'Förklara':'Explain')+'</span><span>3. '+(lang==='sv'?'Fråga vidare':'Ask why')+'</span></div>')
  +'<button class="ls-button" data-ls="next">'+(lang==='sv'?'Klart, nästa kort':'Done, next card')+'</button>'
  +'<p class="ls-quiet">'+(lang==='sv'?'Inget spelas in eller poängsätts automatiskt.':'Nothing is recorded or automatically scored.')+'</p></div>';
 }
@@ -295,7 +312,7 @@ function click(event){
  }
  if(cmd==='speak'){
   const u=findUnit(lang,r.id);
-  if(u&&'speechSynthesis' in root&&'SpeechSynthesisUtterance' in root){try{root.speechSynthesis.cancel();const utterance=new root.SpeechSynthesisUtterance(u.talk);utterance.lang=lang==='sv'?'sv-SE':'en-GB';utterance.rate=.9;root.speechSynthesis.speak(utterance);}catch{}}
+  if(u&&'speechSynthesis' in root&&'SpeechSynthesisUtterance' in root){try{root.speechSynthesis.cancel();const utterance=new root.SpeechSynthesisUtterance(talkPrompt(u,lang,false));utterance.lang=lang==='sv'?'sv-SE':'en-GB';utterance.rate=.9;root.speechSynthesis.speak(utterance);}catch{}}
   else if(root.document){const msg=root.document.getElementById('ls-voice-status');if(msg)msg.textContent=lang==='sv'?'Uppläsning saknas på den här enheten.':'Speech is unavailable on this device.';}
   return true;
  }

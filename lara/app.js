@@ -59,7 +59,51 @@ function bottom(){return `<nav class="bottom" aria-label="Välj ämne eller spel
  <a href="#/studio/sv" ${activeNav()==='sv'?'aria-current="page"':''}><span aria-hidden="true">S</span>Svenska</a>
  <a href="#/studio/en" ${activeNav()==='en'?'aria-current="page"':''}><span aria-hidden="true">E</span>Engelska</a>
  <a href="#/spel" ${route().startsWith('/spel')?'aria-current="page"':''}><span aria-hidden="true">◈</span>Spela</a></nav>`;}
-function shell(body){app.innerHTML=header()+banner()+`<main id="main" tabindex="-1">${body}</main>`+bottom();document.title='Matte OS · Lärande';}
+function localizeEnglishChrome(){
+  const en=activeNav()==='en';
+  document.documentElement.lang=en?'en':'sv';
+  document.documentElement.dataset.studyLanguage=en?'en':'sv';
+  if(!en)return;
+  const header=app.querySelector('.sitehead');
+  if(header){
+    const small=header.querySelector('.brand small');
+    if(small)small.textContent='LEARNING';
+    const brand=header.querySelector('.brand');
+    if(brand)brand.setAttribute('aria-label','Back to the learning home');
+    const toggle=header.querySelector('.theme-toggle');
+    if(toggle)toggle.setAttribute('aria-label',mode()==='dark'?'Switch to light mode':'Switch to dark mode');
+    const profile=header.querySelector('.profile');
+    if(profile){
+      profile.setAttribute('aria-label','Choose or open your learning profile');
+      for(const node of profile.childNodes)if(node.nodeType===3){
+        node.textContent=node.textContent.replace(/Åk 8/g,'Year 8').replace(/Åk 9/g,'Year 9').replace('Mitt konto','My account');
+      }
+    }
+    const signout=header.querySelector('.quick-logout');
+    if(signout){signout.textContent='Sign out';signout.setAttribute('aria-label','Sign out of Matte OS');}
+    const modal=app.querySelector('.pc-learning-overlay');
+    if(modal){
+      const translations=[['MATTE OS · ALLA PROFILER','MATTE OS · ALL PROFILES'],['Vem pluggar?','Who is learning?'],['Välj din profil för att börja.','Choose your profile to begin.'],['Min översikt','My overview'],['Hantera profiler och namn','Manage profiles and names'],['Hoppa in som Joker','Play as a guest'],['Utan sparade svar eller konto','No account needed'],['Åk 8 och 9','Years 8 and 9'],['Årskursernas framsteg förblir separata. Jokrar sparas lokalt.','School years keep separate progress. Guest profiles stay on this device.'],['Matte · språk · egna framsteg','Maths · language · your progress'],['Joker · lokal profil','Guest · local profile'],['Nu vald','Selected']];
+      const walker=document.createTreeWalker(modal,NodeFilter.SHOW_TEXT);
+      while(walker.nextNode()){const n=walker.currentNode;for(const [sv,enText] of translations)n.textContent=n.textContent.replaceAll(sv,enText);n.textContent=n.textContent.replaceAll('Åk 8','Year 8').replaceAll('Åk 9','Year 9');}
+      modal.querySelector('[aria-label="Stäng profilvalet"]')?.setAttribute('aria-label','Close profile chooser');
+      modal.querySelector('[aria-label="Tillgängliga profiler"]')?.setAttribute('aria-label','Available profiles');
+      modal.querySelectorAll('[aria-label^="Välj Åk"]').forEach(el=>el.setAttribute('aria-label',el.getAttribute('aria-label').replace('Välj Åk','Choose Year')));
+    }
+  }
+  const nav=app.querySelector('.bottom');
+  if(nav){
+    nav.setAttribute('aria-label','Learning navigation');
+    const labels={'../':'Home','../#/trana':'Maths','#/studio/sv':'Swedish','#/studio/en':'English','#/spel':'Games'};
+    for(const a of nav.querySelectorAll('a[href]')){
+      const label=labels[a.getAttribute('href')];if(!label)continue;
+      let textNode=[...a.childNodes].filter(n=>n.nodeType===3).at(-1);
+      if(textNode)textNode.textContent=label;else a.append(document.createTextNode(label));
+      if(a.getAttribute('aria-label')==='Matte OS start')a.setAttribute('aria-label','Matte OS home');
+    }
+  }
+}
+function shell(body){app.innerHTML=header()+banner()+'<main id="main" tabindex="-1">'+body+'</main>'+bottom();localizeEnglishChrome();document.title=activeNav()==='en'?'English · Matte OS':'Matte OS · Lärande';}
 function route(){return decodeURIComponent(location.hash.replace(/^#/,''))||'/';}
 function activeNav(){
   const r=route();

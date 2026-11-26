@@ -1,0 +1,41 @@
+/* Studio Experience 2.0 — faster first actions, consistent controls, readable mobile grids. */
+.ls-root[data-ls-screen="hub"] .ls-hero{margin:2px 0 14px;padding:clamp(18px,4vw,27px);background:linear-gradient(125deg,var(--ls-surface) 0%,var(--ls-accent-soft) 100%);box-shadow:0 12px 30px rgba(30,37,62,.045)}
+.ls-root[data-ls-screen="hub"] .ls-hero h1{font-size:clamp(27px,6.6vw,41px);margin:7px 0}
+.ls-root[data-ls-screen="hub"] .ls-hero p{font-size:14px;max-width:48ch;line-height:1.55}
+.ls-root[data-ls-screen="hub"] .ls-start-now{margin:0 0 17px}
+.ls-root[data-ls-screen="hub"] .ls-feature{min-height:84px;border:2px solid var(--ls-accent);background:linear-gradient(135deg,var(--ls-accent-soft) 0%,var(--ls-surface) 100%);box-shadow:0 9px 23px rgba(21,31,53,.075);grid-template-columns:42px minmax(0,1fr) 18px}
+.ls-root[data-ls-screen="hub"] .ls-feature .ls-card-icon{height:40px;width:40px;background:var(--ls-surface)}
+.ls-root[data-ls-screen="hub"] .ls-feature strong{font-size:clamp(16px,3.8vw,20px)}
+.ls-root[data-ls-screen="hub"] .ls-feature small{font-size:13px;line-height:1.4;margin-top:3px}
+.ls-root[data-ls-screen="hub"] .ls-section-heading{font-size:clamp(18px,4vw,22px);margin:20px 0 9px}
+.ls-root[data-ls-screen="hub"] .ls-shelf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ls-root[data-ls-screen="hub"] .ls-shelf-grid .ls-shelf-card{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;min-height:123px;padding:12px 13px;border-radius:17px}
+.ls-root[data-ls-screen="hub"] .ls-shelf-grid .ls-shelf-card .ls-card-icon{width:37px;height:37px;flex:none;border-radius:12px;font-size:19px}
+.ls-root[data-ls-screen="hub"] .ls-shelf-grid .ls-shelf-card>span:nth-child(2){min-width:0;width:100%}
+.ls-root[data-ls-screen="hub"] .ls-shelf-grid .ls-shelf-card strong{display:block;font-size:15px;line-height:1.24;overflow-wrap:anywhere}
+.ls-root[data-ls-screen="hub"] .ls-shelf-grid .ls-shelf-card small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:12px;line-height:1.35;color:var(--ls-sub)}
+.ls-root[data-ls-screen="hub"] .ls-shelf-grid .ls-arrow{display:none}
+.ls-root[data-ls-screen="hub"] .ls-game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ls-root[data-ls-screen="hub"] .ls-game-grid .ls-game-link{min-height:96px;padding:12px 13px;border-radius:16px;grid-template-columns:36px minmax(0,1fr)}
+.ls-root[data-ls-screen="hub"] .ls-game-grid .ls-game-link .ls-card-icon{width:34px;height:34px;border-radius:11px;font-size:17px}
+.ls-root[data-ls-screen="hub"] .ls-game-grid .ls-game-link .ls-arrow{display:none}
+.ls-root[data-ls-screen="hub"] .ls-game-grid .ls-game-link strong{font-size:14px}
+.ls-root[data-ls-screen="hub"] .ls-game-grid .ls-game-link small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:1.4;font-size:12px}
+.ls-root .ls-coop-shortcut{margin:0 0 8px}
+.ls-root .ls-coop-shortcut details{border-radius:13px;border:1px solid var(--ls-line);background:var(--ls-surface)}
+.ls-root .ls-coop-shortcut summary{padding:10px 14px;min-height:44px;display:list-item;cursor:pointer;font-size:13px;font-weight:780;color:var(--ls-accent)}
+.ls-root .ls-coop-shortcut details[open] .ls-pair-shortcut{margin:6px 12px 12px}
+.ls-root .ls-coop-shortcut .ls-pair-shortcut .ls-game-link{min-height:76px}
+.ls-root .ls-more{border-radius:16px;border:1px solid var(--ls-line);background:var(--ls-surface);margin:19px 0 8px}
+.ls-root .ls-more>summary{cursor:pointer;min-height:59px;padding:17px 18px;font-weight:820;color:var(--ls-ink);font-size:15px}
+.ls-root .ls-more[open]>summary{border-bottom:1px solid var(--ls-line)}
+.ls-root .ls-more-body{padding:13px;display:grid;gap:9px}
+.ls-root .ls-more-body .ls-shelf-card{min-height:78px}
+.ls-root .ls-quiet{font-size:12px;line-height:1.5}
+.ls-root .ls-primary-link{border-color:var(--ls-accent);background:var(--ls-accent-soft)}
+.ls-root .ls-answer:focus-visible,.ls-root .ls-shelf-card:focus-visible,.ls-root summary:focus-visible{outline:3px solid var(--ls-accent);outline-offset:3px}
+.ls-root .ls-question-title{line-height:1.3}
+.ls-root .ls-feedback p{line-height:1.6}
+@media(min-width:730px){.ls-root[data-ls-screen="hub"] .ls-shelf-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.ls-root[data-ls-screen="hub"] .ls-game-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:350px){.ls-root[data-ls-screen="hub"] .ls-shelf-grid{grid-template-columns:1fr}.ls-root[data-ls-screen="hub"] .ls-shelf-grid .ls-shelf-card{min-height:80px;flex-direction:row;align-items:center;justify-content:flex-start}.ls-root[data-ls-screen="hub"] .ls-game-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.ls-root *,.ls-root *::after,.ls-root *::before{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
