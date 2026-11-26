@@ -135,7 +135,7 @@ function options(){
  +(settings?'<div class="sp-settings"><span>How many are speaking?</span><div class="sp-modes" role="group" aria-label="Choose the number of speakers">'
  +[['solo','Solo'],['pair','Two'],['group','Four']].map(([id,t])=>btn('mode',t,session.mode===id?'selected':'','data-mode="'+id+'" aria-pressed="'+(session.mode===id)+'"')).join('')+'</div>'
  +'<label for="sp-category">Choose a topic (optional)</label><select id="sp-category"><option value="all"'+(session.category==='all'?' selected':'')+'>Surprise me!</option>'
- +D.categories.map(x=>'<option value="'+esc(x.id)+'"'+(session.category===x.id?' selected':'')+'>'+esc(x.sv)+'</option>').join('')+'</select>'
+ +D.categories.map(x=>'<option value="'+esc(x.id)+'"'+(session.category===x.id?' selected':'')+'>'+esc(x.en)+'</option>').join('')+'</select>'
  +btn('theme',theme==='dark'?'Light mode':'Dark mode','sp-ghost')+'</div>':'')+'</section>';
 }
 function render(scroll=false){

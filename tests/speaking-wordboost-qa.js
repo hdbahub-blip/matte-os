@@ -48,6 +48,7 @@ ok(W.forStep('fashion',2).some(x=>x.term==='second-hand outfit'),'accessible eve
 ok(W.forStep('not-a-topic',0).length===0,'safe unknown topic');
 const player=read('lara/speaking-play.js'),html=read('lara/speaking-lab.html'),sw=read('lara/sw.js'),css=read('lara/speaking-wordboost.css');
 ok(html.includes('<html lang="en">'),'English context preserved');
+ok(player.includes('esc(x.en)')&&!player.includes('esc(x.sv)'),'Speak Quest topic picker labels are English');
 ok(html.indexOf('speaking-wordbank.js')<html.indexOf('speaking-play.js'),'words load before player code');
 for(const asset of ['speaking-wordbank.js?v=1.0.0','speaking-wordboost.css?v=1.0.0']){
  ok(html.includes(asset),'new asset actually loaded: '+asset);

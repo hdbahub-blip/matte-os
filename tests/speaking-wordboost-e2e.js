@@ -60,6 +60,15 @@ for(const width of [320,390,980]){
  await page.locator('[data-action="next-person"]').click();
  ok(await page.locator('.sp-wordboost-body').count()===0,'new card resets glossary '+width);
  ok((await page.locator('.sp-question h1').innerText()).endsWith('?'),'different new question still playable '+width);
+ await page.locator('[data-action="settings"]').click();
+ const categories=await page.locator('#sp-category option').allInnerTexts();
+ ok(categories.includes('Technology')&&!categories.includes('Teknik och medier'),'English settings topic names '+width);
+ await page.locator('#sp-category').selectOption('tech');
+ ok((await page.locator('.sp-category').innerText())==='Technology','topic filter chooses technology '+width);
+ const tech=await page.evaluate(()=>window.MO_SPEAKING_DATA.topics.find(x=>x.prompt===document.querySelector('.sp-question h1').innerText)?.id);
+ await page.locator('.sp-wordboost-trigger').click();
+ const techTerm=await page.evaluate(id=>window.MO_SPEAKING_WORDS.forStep(id,0)[0].term,tech);
+ ok((await page.locator('.sp-wordboost-word strong').first().innerText())===techTerm,'topic-specific glossary changes with chosen category '+width);
  await page.locator('[data-action="guide"]').click();
  ok(await page.locator('.sp-guide-words').count()===1,'quick guide includes contextual words '+width);
  ok(await page.locator('.sp-guide-words[open]').count()===0,'quick guide word list remains optional '+width);
