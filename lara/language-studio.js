@@ -46,7 +46,7 @@ function hub(lang,grade){
  return '<div class="ls-root" data-ls-screen="hub">'
  +back('../#/',lang==='sv'?'Start':'Start')
  +backdrop(lang,grade,W.title,lang==='sv'?'Välj vad du vill öva. Börja enkelt, få stöd och prova själv.':'Choose a skill. Learn it, try it and make it your own.')
- +'<div class="ls-start-now">'+plainLink(base(lang)+'/area/'+encodeURIComponent(learning[0].name),lang==='sv'?'Börja här: första uppgiften':'Start here: first skill',lang==='sv'?'Ett lugnt steg i taget':'One clear step at a time','→','ls-feature')+plainLink(lang==='en'?'speaking-lab.html':'debatt.html?lang='+lang,lang==='sv'?'Debattspelet – för och emot':'Speaking Lab – surprise cards',lang==='sv'?'Ta ett ämne, växla sida och dra jokern':'Unexpected topics, PACE and real conversation','⚖','ls-feature ls-speaking')+'</div>'
+ +'<div class="ls-start-now">'+(lang==='en'?plainLink('speaking-lab.html','Prata engelska – börja direkt','Ditt kort visas direkt. Två riktiga exempel och hjälp på samma sida.','◎','ls-feature ls-speaking'):plainLink(base(lang)+'/area/'+encodeURIComponent(learning[0].name),'Börja här: första uppgiften','Ett lugnt steg i taget','→','ls-feature'))+'</div>'
  +'<h2 class="ls-section-heading">'+(lang==='sv'?'Vad vill du lära dig?':'What do you want to learn?')+'</h2>'
  +'<div class="ls-shelf-grid">'+sections+'</div>'
  +'<h2 class="ls-section-heading">'+(lang==='sv'?'Lär genom att spela':'Learn by playing')+'</h2>'
