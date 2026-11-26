@@ -30,6 +30,8 @@ const {chromium} = require('playwright');
   assert.equal((await page.locator('a[href="#/korta/sv"]').count())>0,true);
   const firstMath=await page.evaluate(()=>localStorage.getItem('matteos.v5'));
   // The subject entry now opens the full reading workshop; legacy mini-lessons remain under Snabbövningar.
+  // Extra lessons are intentionally tucked into the accessible 'more practice' drawer.
+  await page.locator('.ls-more summary').click();
   await page.locator('a[href="#/korta/sv"]').click();
   await page.locator('a.lessonItem[href="#/lektion/sv-begrepp"]').click();
   await page.locator('[data-a="go-guided"]').click();

@@ -31,8 +31,9 @@ const page=fs.readFileSync('lara/speaking-lab.html','utf8'),js=fs.readFileSync('
 for(const asset of ['speaking-play.js','speaking-play.css','speaking-lab-examples.js','speaking-lab-core.js','speaking-lab-content.js']){
  ok(page.includes(asset),'page loads '+asset);ok(sw.includes(asset),'PWA precaches '+asset);
 }
+ok(page.includes('<html lang="en">'),'the standalone speaking page is marked English');
 ok(!page.includes('speaking-lab-simple.js')&&!page.includes('speaking-lab-simple.css'),'old busy layout not loaded');
-ok(sw.includes('5.5.0-speakquest')&&sw.includes('speaking-lab.html?v=3.0.0'),'isolated versioned offline cache');
+ok(sw.includes('5.6.0-english-flow')&&sw.includes('speaking-lab.html?v=3.0.0'),'isolated versioned offline cache');
 for(const forbidden of ['getUserMedia','MediaRecorder','webkitSpeechRecognition','XMLHttpRequest','sendBeacon','fetch(','input type="text"','textarea']){
  ok(!js.includes(forbidden),'no personal response capture '+forbidden);
 }
@@ -40,7 +41,7 @@ ok(js.includes('sessionStorage')&&js.includes('C.save'),'persists only temporary
 ok(js.includes('chosen=[-1,-1,-1,-1]')&&js.includes('steps.map'),'four-step learning game');
 ok(js.includes('examplesOpen=false')&&js.includes('show(true)')===false,'models not a wall of mandatory reading');
 ok(js.includes('sp-choices')&&js.includes('sp-help')&&js.includes('nextPerson()'),'interaction, focused help, quick round transition');
-ok(js.includes('Jag vill svara helt själv'),'optional spontaneous oral mode');
-ok(js.includes('Exempel 1')===false&&js.includes('Svar '+''+'2')===false || js.includes('exempel'),'no reliance on a single model');
+ok(js.includes('I want to speak on my own'),'optional spontaneous oral mode');
+ok(js.includes('X.cards')&&js.includes('exampleIndex'),'no reliance on a single model');
 ok(css.includes('focus-visible')&&css.includes('prefers-reduced-motion')&&css.includes('max-width:390px'),'mobile accessibility safeguards');
 console.log('SPEAK QUEST QA '+n+'/'+n+' PASS · 49 topics · 98 full examples');

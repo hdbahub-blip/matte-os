@@ -37,7 +37,7 @@ function viewHome(){
   body='<h2>'+esc(ui.lang==='sv'?'Hur vill ni spela?':'How do you want to play?')+'</h2><div class="seg col">'
    +'<button type="button" class="btn alt bigopt" data-a="mode" data-m="duo" aria-pressed="'+(ui.mode==='duo')+'"><b>'+esc(l.mode2)+'</b><small>'+esc(l.mode2Hint)+'</small></button>'
    +'<button type="button" class="btn alt bigopt" data-a="mode" data-m="solo" aria-pressed="'+(ui.mode==='solo')+'"><b>'+esc(l.modeSolo)+'</b><small>'+esc(l.modeSoloHint)+'</small></button></div>'
-   +'<h3>'+esc(l.lang)+'</h3><div class="seg">'+['sv','en'].map(function(c){return '<button type="button" class="btn alt" data-a="lang" data-l="'+c+'" aria-pressed="'+(ui.lang===c)+'">'+(c==='sv'?'Svenska':'English')+'</button>';}).join('')+'</div>'
+   +'<h3>'+esc(l.lang)+'</h3><div class="seg">'+['sv','en'].map(function(c){return '<button type="button" class="btn alt" data-a="lang" data-l="'+c+'" aria-pressed="'+(ui.lang===c)+'">'+(c==='sv'?(ui.lang==='en'?'Swedish':'Svenska'):'English')+'</button>';}).join('')+'</div>'
    +btn(esc(ui.lang==='sv'?'Nästa: välj ämne ›':'Next: choose topic ›'),'step','data-s="2"','big');
  }else if(ui.step===2){
   body='<h2>'+esc(l.pickTopic)+'</h2>'+btn('🎲 '+esc(l.randomTopic),'randtopic','','alt')
@@ -123,6 +123,7 @@ function viewEnd(){
 function header(){return '<header class="np-top"><a class="back-svenska" href="./#/'+(ui.lang==='en'?'en':'sv')+'">‹ '+(ui.lang==='en'?'English':'Svenska')+'</a><span class="brand"><b>MATTE OS</b> <small>'+esc(L().title)+'</small></span><div class="top-actions"><button type="button" class="btn alt sm" data-a="theme" aria-label="'+(ui.lang==='sv'?'Växla dag och kväll':'Switch day and night')+'">☾</button></div></header>';}
 var lastRoute='';
 function render(keep){
+  document.documentElement.lang=ui.lang;
  var r=route(),y=window.scrollY,html='';
  if(r!==lastRoute&&ui.timer)stopTimer();
  try{switch(r){case 'prep':html=viewPrep();break;case 'play':html=viewPlay();break;case 'end':html=viewEnd();break;default:html=viewHome();}}

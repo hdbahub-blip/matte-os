@@ -56,7 +56,7 @@ const engine=process.argv[3]==='webkit'?'webkit':'chromium';
    assert.equal(await p.locator('.ux-together-home > .ux-topics .ux-topic:visible').count(),3);checks++;
    assert.equal(await p.locator('nav.bottom a').count(),5);checks++;
    await p.locator('[data-action=choose-topic][data-topic=en]').click();
-   assert.match(await p.locator('.ux-selected-topic').innerText(),/Engelska/);checks++;
+   assert.match(await p.locator('.ux-selected-topic').innerText(),/English/);checks++;
    await p.locator('.top-actions [data-action=profiles]').click();
    await p.locator('.ux-profile-dialog').waitFor();checks++;
    assert.equal(await p.locator('.ux-profile-grid .ux-identity').count()>=5,true);checks++;

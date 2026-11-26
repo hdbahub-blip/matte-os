@@ -1,0 +1,25 @@
+/* Matte OS: unified, non-destructive interaction finish across student/teacher surfaces.
+   Keeps existing subject palettes, accounts, routing and grades untouched. */
+:root{--apex-keyboard-focus:#4279c7;--apex-comfort-radius:14px}
+html{scroll-behavior:auto}
+body{font-feature-settings:"kern";text-rendering:optimizeLegibility}
+:where(button,a,summary,[role="button"],label[for]){-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+:where(button,select,input,textarea){font-family:inherit}
+:where(button,a,summary,[role="button"],input,select,textarea):focus-visible{outline:3px solid var(--apex-keyboard-focus)!important;outline-offset:3px!important}
+:where(main h1,main h2){text-wrap:balance}
+:where(main h1,main h2,main h3,main p,main label){overflow-wrap:break-word}
+:where(.btn,.button,.ls-button,.sp-btn,.ux-topic,.flow-choice,.ls-shelf-card,.ls-game-link,.pc-card,summary){min-height:44px}
+:where(.bottom,.sitehead,.topline){isolation:isolate}
+:where(.bottom a[aria-current="page"]){font-weight:850}
+:where(.ls-feedback,.sp-feedback,.notice,[role="status"]){scroll-margin-top:74px}
+:where(button[disabled],input[disabled],select[disabled]){cursor:not-allowed}
+@media(hover:hover) and (pointer:fine){
+ :where(.btn,.button,.ls-button,.sp-btn,.ux-topic,.flow-choice,.ls-shelf-card,.ls-game-link,.pc-card):not(:disabled):hover{filter:brightness(.987)}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+@media(forced-colors:active){
+ :where(button,a,summary,[role="button"]):focus-visible{outline:3px solid Highlight!important}
+ :where(.ls-shelf-card,.ls-game-link,.sp-choice,.flow-choice){border:1px solid CanvasText}
+}
