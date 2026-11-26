@@ -15,6 +15,8 @@ try{
   ok(first.endsWith('?'),'topic question shown without any setup click '+width);
   ok(await p.locator('.ss-example').count()===2,'two concrete examples immediately displayed '+width);
   ok(await p.locator('.ss-example li').count()===8,'each example has four explicit PACE lines '+width);
+  const firstModel=await p.locator('.ss-example').first().locator('li [lang=en]').first().innerText();
+  ok((await p.locator('.ss-rescueitem').first().innerText()).includes(firstModel),'help uses a complete sentence about the actual card '+width);
   ok(await p.locator('[data-act="next-card"]').count()===1,'one-click next topic '+width);
   ok(await p.locator('[data-act="turn"]').count()===1,'one-click next turn '+width);
   ok(await p.locator('.ss-guidehero').count()===0,'no separate guide screen before speaking '+width);

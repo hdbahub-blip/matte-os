@@ -58,8 +58,16 @@ function builderSection(){
  +'<p class="ss-note">Det här är meningsbyggande, inte ett facit. Byt gärna ett ord och gör svaret till ditt eget.</p></section>';
 }
 function rescue(){
- return '<div class="ss-rescue" id="when-stuck"><h2>Fastnat? Börja här.</h2>'
- +'<div class="ss-rescuegrid">'+[['blank','Helt blankt','I have not thought about this before, but I think it affects people because ...'],['bored','Tråkigt ämne','This is not my favourite topic, but one important question is who it affects.'],['excited','Jag babblar','So, to come back to the question, my main point is ... What is your view?'],['word','Saknar ett ord','I cannot remember the word, but what I mean is ...'],['disagree','Inte samma åsikt','I see your point. I see it differently because ...']].map(x=>'<div class="ss-rescueitem"><h3>'+x[1]+'</h3><p lang="en">'+E(x[2])+'</p></div>').join('')+'</div></div>';
+ const ex=examples();
+ const items=[
+ ['Helt blankt','Börja med en tanke som passar just kortet.',ex[0][0]+' '+ex[0][1]],
+ ['Tråkigt ämne','Ta en annan sida av frågan och ge ett konkret exempel.',ex[1][0]+' '+ex[1][2]],
+ ['Jag babblar','En poäng. Ett exempel. Fråga sedan nästa person.',ex[0][0]+' '+ex[0][2]+' '+ex[0][3]],
+ ['Saknar ett ord','Säg det enklare, och fortsätt med en faktisk tanke.','Let me put it another way. '+ex[1][0]],
+ ['Inte samma åsikt','Lyssna först, förklara sedan din synvinkel.','I see your point. '+ex[1][0]+' '+ex[1][1]]
+ ];
+ return '<section class="ss-rescue" id="when-stuck"><h2>Fastnat? Här är riktiga meningar till kortet.</h2><div class="ss-rescuegrid">'
+ +items.map(x=>'<article class="ss-rescueitem"><h3>'+E(x[0])+'</h3><small>'+E(x[1])+'</small><p lang="en">'+E(x[2])+'</p></article>').join('')+'</div></section>';
 }
 function bottom(){
  return '<section class="ss-more"><details class="ss-details"><summary>Fler val (om du behöver)</summary><div class="ss-detailsbody"><label for="ss-topic-filter">Träna bara ett visst ämnesområde</label><select id="ss-topic-filter"><option value="all"'+(session.category==='all'?' selected':'')+'>Överraska mig – blandade kort</option>'+D.categories.map(x=>'<option value="'+E(x.id)+'"'+(session.category===x.id?' selected':'')+'>'+E(x.sv)+'</option>').join('')+'</select><p>Byter du område startar ett nytt kort utan att ändra någon elevprofil.</p>'+btn('theme',theme==='dark'?'Byt till ljust läge':'Byt till mörkt läge','ss-outline')+'</div></details>'
