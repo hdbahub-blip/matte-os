@@ -39,10 +39,13 @@ jobs:
           node tests/np-private-qa.js
           node tests/debatt-core-qa.js
           node tests/speaking-lab-qa.js
+          node tests/speaking-wordboost-qa.js
           node tests/platform-ux-qa.js
           node --check tests/platform-ux-e2e.js
           node --check tillsammans/english-context.js
           node --check tests/speaking-lab-e2e.js
+          node --check tests/speaking-wordboost-e2e.js
+          node --check lara/speaking-wordbank.js
           node --check js/engine.js
           node --check sw.js
           node --check prov/sw.js
@@ -162,6 +165,7 @@ jobs:
           node tests/np-cloud-e2e.js http://127.0.0.1:8765/
           node tests/debatt-e2e.js http://127.0.0.1:8765/
           node tests/speaking-lab-e2e.js http://127.0.0.1:8765/
+          node tests/speaking-wordboost-e2e.js http://127.0.0.1:8765/
           node tests/platform-ux-e2e.js http://127.0.0.1:8765/
           node tests/login-first-e2e.js http://127.0.0.1:8765/
           node tests/play-e2e.js http://127.0.0.1:8765/
@@ -238,6 +242,7 @@ jobs:
           node tests/profile-chooser-e2e.js http://127.0.0.1:8765/ webkit
           node tests/simple-entry-e2e.js http://127.0.0.1:8765/ webkit
           node tests/language-studio-e2e.js http://127.0.0.1:8765/ webkit
+          node tests/speaking-wordboost-e2e.js http://127.0.0.1:8765/ webkit
           node tests/one-tap-journeys-e2e.js http://127.0.0.1:8765/ webkit
           node tests/netflix-simple-e2e.js http://127.0.0.1:8765/ webkit
           node tests/ux-polish-e2e.js http://127.0.0.1:8765/ webkit

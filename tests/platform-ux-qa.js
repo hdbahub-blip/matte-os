@@ -42,7 +42,7 @@ const debate=read('lara/debatt-app.js');
 ok(debate.includes('document.documentElement.lang=ui.lang'),'debate document language follows selected game');
 const root=read('sw.js'),learning=read('lara/sw.js'),exam=read('prov/sw.js');
 ok(root.includes('6.12.1-20261126-ux'),'root cache version changed');
-ok(learning.includes('5.6.0-english-flow'),'learning cache version changed');
+ok(learning.includes('5.7.0-pace-words'),'learning cache version changed');
 ok(exam.includes('v1.3.10-20261126-ux'),'exam cache version changed');
 ok(learning.includes("'../css/unified-student-ui.css'"),'offline shared stylesheet intercepted by learning worker');
 ok(!learning.includes("pg?pages[pg]:'./index.html','./studio"),'no accidental multi-item cache navigation key');

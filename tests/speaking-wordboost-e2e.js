@@ -1,0 +1,135 @@
+'use strict';
+/* Synthetic browser acceptance for stage-aware Word Boost. No account access or recording. */
+const assert=require('node:assert/strict'),{chromium,webkit}=require('playwright');
+const engine=process.argv[3]==='webkit'?webkit:chromium;
+const base=(process.argv[2]||'http://127.0.0.1:8765/').replace(/\/?$/,'/');
+(async()=>{
+const browser=await engine.launch({headless:true,...(engine===chromium&&process.env.MATTE_BROWSER_EXE?{executablePath:process.env.MATTE_BROWSER_EXE}:{})});
+let n=0;const ok=(yes,why)=>{assert.ok(yes,why);n++};
+const visit=()=>base+'lara/speaking-lab.html';
+try{
+for(const width of [320,390,980]){
+ const context=await browser.newContext({viewport:{width,height:844},serviceWorkers:'block',reducedMotion:'reduce'});
+ const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e.message)));
+ await page.goto(visit(),{waitUntil:'domcontentloaded'});
+ await page.locator('.sp-choices .sp-choice').first().waitFor();
+ const id=await page.evaluate(()=>window.MO_SPEAKING_DATA.topics.find(x=>x.prompt===document.querySelector('.sp-question h1').innerText)?.id);
+ ok(!!id,'original topic loaded at width '+width);
+ ok(await page.locator('.sp-wordboost-trigger').count()===1,'optional topic vocabulary exists '+width);
+ ok(await page.locator('.sp-wordboost-trigger').getAttribute('aria-expanded')==='false','collapsed on first load '+width);
+ ok(await page.locator('.sp-wordboost-body').count()===0,'no extra vocabulary wall before choice '+width);
+ ok((await page.locator('.sp-wordboost-title').innerText()).includes('Word Boost'),'clear word help label '+width);
+ ok((await page.locator('.sp-wordboost-title').innerText()).includes('2 words'),'two P words at opening '+width);
+ const saved=await page.evaluate(()=>sessionStorage.getItem('matteos.speaking-lab.session.v1'));
+ await page.locator('.sp-wordboost-trigger').click();
+ ok(await page.locator('.sp-wordboost-body').count()===1,'word guide opens '+width);
+ ok(await page.locator('.sp-wordboost-item').count()===2,'two topic-specific P terms '+width);
+ ok((await page.locator('.sp-wordboost-connector').innerText()).includes('P · Your point'),'PACE point label '+width);
+ const original=await page.evaluate(id=>window.MO_SPEAKING_WORDS.forStep(id,0)[0],id);
+ ok((await page.locator('.sp-wordboost-word strong').first().innerText())===original.term,'first glossary word matches exact topic '+width);
+ ok((await page.locator('.sp-wordboost-example').first().innerText()).includes(original.example),'meaningful spoken example '+width);
+ ok((await page.locator('.sp-wordboost-meaning').first().innerText())===original.meaning,'easy English definition '+width);
+ ok(await page.locator('.sp-wordboost-listen').count()===2,'optional pronunciation for both P terms '+width);
+ ok(await page.evaluate(()=>document.activeElement?.classList.contains('sp-wordboost-trigger')),'focus stays on toggle after rendering '+width);
+ ok((await page.evaluate(()=>sessionStorage.getItem('matteos.speaking-lab.session.v1')))===saved,'opening words does not write progress '+width);
+ const hear=page.locator('.sp-wordboost-listen').first();
+ ok((await hear.getAttribute('aria-label')).includes(original.term),'pronunciation control has useful accessible label '+width);
+ await hear.click();
+ ok(errors.length===0,'pronunciation cannot crash app '+width);
+ await page.locator('.sp-choices [data-action="choose"][data-choice="0"]').click();
+ ok((await page.locator('.sp-wordboost-connector').innerText()).includes('A · Your reason'),'vocab follows actual A stage '+width);
+ ok(await page.locator('.sp-wordboost-item').count()===2,'two A terms '+width);
+ const reason=await page.evaluate(id=>window.MO_SPEAKING_WORDS.forStep(id,1)[0].term,id);
+ ok((await page.locator('.sp-wordboost-word strong').first().innerText())===reason,'actual A words from current topic '+width);
+ await page.locator('.sp-choices [data-action="choose"][data-choice="0"]').click();
+ ok((await page.locator('.sp-wordboost-connector').innerText()).includes('C · Your example'),'vocab follows C stage '+width);
+ ok(await page.locator('.sp-wordboost-item').count()===1,'one specific concrete C term '+width);
+ await page.locator('.sp-choices [data-action="choose"][data-choice="0"]').click();
+ ok((await page.locator('.sp-wordboost-connector').innerText()).includes('E · Keep talking'),'vocab follows E stage '+width);
+ ok(await page.locator('.sp-wordboost-item').count()===1,'one engaging conversation E term '+width);
+ await page.locator('.sp-choices [data-action="choose"][data-choice="0"]').click();
+ ok(await page.locator('.sp-win').count()===1,'normal game completes unchanged '+width);
+ ok(await page.locator('.sp-wordboost-item').count()===6,'finish shows all six useful terms on demand '+width);
+ await page.locator('[data-action="try-again"]').click();
+ ok(await page.locator('.sp-choices').count()===1,'another practice still possible '+width);
+ ok(await page.locator('.sp-wordboost-trigger').getAttribute('aria-expanded')==='false','new practice hides expanded glossary '+width);
+ await page.locator('[data-action="free"]').click();
+ ok(await page.locator('.sp-free').count()===1,'solo freestyle route preserved '+width);
+ await page.locator('.sp-wordboost-trigger').click();
+ ok(await page.locator('.sp-wordboost-item').count()===6,'free speaking offers all six terms '+width);
+ await page.locator('[data-action="next-person"]').click();
+ ok(await page.locator('.sp-wordboost-body').count()===0,'new card resets glossary '+width);
+ ok((await page.locator('.sp-question h1').innerText()).endsWith('?'),'different new question still playable '+width);
+ await page.locator('[data-action="settings"]').click();
+ const categories=await page.locator('#sp-category option').allInnerTexts();
+ ok(categories.includes('Technology')&&!categories.includes('Teknik och medier'),'English settings topic names '+width);
+ await page.locator('#sp-category').selectOption('tech');
+ ok((await page.locator('.sp-category').innerText())==='Technology','topic filter chooses technology '+width);
+ const tech=await page.evaluate(()=>window.MO_SPEAKING_DATA.topics.find(x=>x.prompt===document.querySelector('.sp-question h1').innerText)?.id);
+ await page.locator('.sp-wordboost-trigger').click();
+ const techTerm=await page.evaluate(id=>window.MO_SPEAKING_WORDS.forStep(id,0)[0].term,tech);
+ ok((await page.locator('.sp-wordboost-word strong').first().innerText())===techTerm,'topic-specific glossary changes with chosen category '+width);
+ await page.locator('[data-action="guide"]').click();
+ ok(await page.locator('.sp-guide-words').count()===1,'quick guide includes contextual words '+width);
+ ok(await page.locator('.sp-guide-words[open]').count()===0,'quick guide word list remains optional '+width);
+ await page.locator('.sp-guide-words summary').click();
+ ok(await page.locator('.sp-guide-words ul li').count()===4,'quick guide shows one term per PACE step '+width);
+ const moneyWord=await page.locator('.sp-guide-words ul li b').first().innerText();
+ await page.locator('[data-action="guide-topic"][data-topic="crime"]').click();
+ ok((await page.locator('.sp-guide-words summary').innerText()).includes('Useful words'),'vocabulary stays available after selecting crime '+width);
+ await page.locator('.sp-guide-words summary').click();
+ const crimeWord=await page.locator('.sp-guide-words ul li b').first().innerText();
+ ok(crimeWord!==moneyWord,'guide vocabulary updates when topic changes '+width);
+ await page.locator('[data-action="close-guide"]').last().click();
+ ok(await page.locator('.sp-question h1').count()===1,'guide returns to exact speaking card '+width);
+ ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'no horizontal scrolling '+width);
+ ok(errors.length===0,'no JS exceptions '+width);
+ await page.close();await context.close();
+}
+// Same-origin isolated PWA upgrade and offline readability of original words.
+const context=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'allow'});
+const page=await context.newPage();
+await page.goto(visit(),{waitUntil:'networkidle'});
+await page.evaluate(()=>navigator.serviceWorker.ready);
+const keys=await page.evaluate(()=>caches.keys());
+ok(keys.includes('matte-os-larande-5.7.0-pace-words'),'new isolated offline cache is active');
+const files=await page.evaluate(async()=>{const cache=await caches.open('matte-os-larande-5.7.0-pace-words');return (await cache.keys()).map(x=>x.url);});
+ok(files.some(x=>x.includes('speaking-wordbank.js')),'full vocabulary precached');
+ok(files.some(x=>x.includes('speaking-wordboost.css')),'vocabulary UI styling precached');
+if(engine===chromium){
+ await context.setOffline(true);
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.locator('.sp-wordboost-trigger').click();
+ ok(await page.locator('.sp-wordboost-item').count()===2,'stage-specific words work after real Chromium offline reload');
+ ok(await page.locator('.sp-choices').count()===1,'offline still shows normal interactive answer');
+ await context.setOffline(false);
+}else{
+ // Playwright WebKit 1.49 on Linux reports an internal engine error on setOffline + full-page reload.
+ // Do not mistake a cached resource check for a real iPhone Safari offline acceptance test.
+ const cached=await page.evaluate(async()=>{
+  const c=await caches.open('matte-os-larande-5.7.0-pace-words');
+  const response=await c.match('./speaking-lab.html?v=3.1.0-pace-words');
+  return !!response&&response.ok;
+ });
+ ok(cached,'WebKit cache contains the complete updated speaking page; offline reload not asserted');
+}
+await context.close();
+
+// Dark-mode contrast: stage letters, the short conversational cue and the "Try saying" label are small text.
+const darkContext=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'});
+await darkContext.addInitScript(()=>localStorage.setItem('matteos.appearance.v1','dark'));
+const darkPage=await darkContext.newPage();
+await darkPage.goto(visit(),{waitUntil:'domcontentloaded'});
+await darkPage.locator('.sp-wordboost-trigger').click();
+const contrasts=await darkPage.evaluate(()=>{
+ const lum=c=>{const [r,g,b]=(c.match(/\d+/g)||[]).slice(0,3).map(v=>{const x=Number(v)/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;});return r*.2126+g*.7152+b*.0722;};
+ const cr=(f,b)=>{const a=lum(f),z=lum(b);return (Math.max(a,z)+.05)/(Math.min(a,z)+.05);};
+ const get=s=>document.querySelector(s);
+ const stage=get('.sp-wordboost-step'),example=get('.sp-wordboost-example span'),cue=get('.sp-wordboost-connector b');
+ return {stage:cr(getComputedStyle(stage).color,getComputedStyle(stage).backgroundColor),example:cr(getComputedStyle(example).color,getComputedStyle(get('.sp-wordboost-item')).backgroundColor),cue:cr(getComputedStyle(cue).color,getComputedStyle(cue.parentElement).backgroundColor)};
+});
+ok(Object.values(contrasts).every(x=>x>=4.5),'dark mode small-label contrast >=4.5: '+JSON.stringify(contrasts));
+await darkContext.close();
+console.log('SPEAK WORD BOOST E2E '+n+'/'+n+' PASS · '+(engine===webkit?'WebKit':'Chromium')+' 320/390/980 responsive PACE & offline PWA');
+}finally{await browser.close()}
+})().catch(err=>{console.error(err);process.exit(1)});
