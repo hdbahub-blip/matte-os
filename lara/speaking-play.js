@@ -1,8 +1,8 @@
 /* Speak Quest · original interactive oral practice. No recording, assessment or personal data. */
 (function(){
 'use strict';
-const D=window.MO_SPEAKING_DATA,C=window.MO_SPEAKING_CORE,X=window.MO_SPEAKING_EXAMPLES,app=document.getElementById('app');
-if(!D||!C||!X||!app)return;
+const D=window.MO_SPEAKING_DATA,C=window.MO_SPEAKING_CORE,X=window.MO_SPEAKING_EXAMPLES,W=window.MO_SPEAKING_WORDS,app=document.getElementById('app');
+if(!D||!C||!X||!W||!app)return;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const steps=[
  {letter:'P',name:'Your opinion',label:'What do you think?',prompt:'Pick an idea to start with.'},
@@ -13,7 +13,7 @@ const steps=[
 let session=C.load(sessionStorage)||C.make({seed:Date.now()+'-'+Math.random(),mode:'solo'});
 if(!C.safe(session))session=C.make({mode:'solo'});
 if(session.stage!=='card')session={...session,stage:'card'};
-let step=0,chosen=[-1,-1,-1,-1],free=false,examplesOpen=false,exampleIndex=0,help='',guide=location.hash==='#guide',settings=false,theme='light',hint='',guideTopic='moneychoice',guideExample=0,message='';
+let step=0,chosen=[-1,-1,-1,-1],free=false,examplesOpen=false,exampleIndex=0,help='',guide=location.hash==='#guide',settings=false,wordBoostOpen=false,theme='light',hint='',guideTopic='moneychoice',guideExample=0,message='';
 try{theme=['dark','night'].includes(localStorage.getItem('matteos.appearance.v1'))?'dark':'light'}catch{}
 const card=()=>C.card(session);
 const ex=()=>X.cards[card().id];
@@ -21,7 +21,7 @@ const modeText=()=>session.mode==='pair'?'Two players':session.mode==='group'?'F
 const btn=(a,t,cls='',attrs='')=>'<button type="button" class="sp-btn '+cls+'" data-action="'+a+'" '+attrs+'>'+t+'</button>';
 const notice=t=>'<p class="sp-screenreader" role="status">'+esc(t||'')+'</p>';
 function save(){try{C.save(sessionStorage,session)}catch{}}
-function beginAgain(){step=0;chosen=[-1,-1,-1,-1];free=false;examplesOpen=false;exampleIndex=0;help='';hint='';message='';}
+function beginAgain(){step=0;chosen=[-1,-1,-1,-1];free=false;examplesOpen=false;exampleIndex=0;help='';wordBoostOpen=false;hint='';message='';}
 function nextPerson(){
  const n=C.participants(session.mode);if(session.turn+1<n){session={...session,turn:session.turn+1,stage:'card'};}
  else{session=C.skip(session);}
@@ -74,11 +74,36 @@ function tips(){
  +[['blank','Mind went blank'],['boring','Not my favourite topic'],['ramble','I am talking too much'],['word','I cannot find the word']].map(([id,t])=>btn('select-help',t,help===id?'active':'','data-kind="'+id+'"')).join('')+'</div>'
  +'<p class="sp-help-line" lang="en">'+esc((lines[help]||lines.blank)[0])+'</p><p class="sp-help-note">This fits your card. Borrow one idea, then try it your way.</p></div>':'')+'</div>';
 }
+/* One topic-specific word bank per card. Vocabulary is optional, never graded.
+   P and A have two terms; C and E have one each. Solo/finish view exposes all six. */
+function wordBoost(){
+ const q=card(),all=free||step>=4,active=Math.min(step,3);
+ const words=all?W.byTopic[q.id]?.flatMap((set,i)=>set.map((word,j)=>({word,i,j}))):
+  W.forStep(q.id,active).map((word,j)=>({word,i:active,j}));
+ const caption=all?'6 words across all four P.A.C.E. moves':
+  (words?.length||0)+' words for '+steps[active].name.toLowerCase();
+ return '<section class="sp-wordboost" aria-label="Topic vocabulary for '+esc(q.title)+'">'
+  +'<button type="button" class="sp-wordboost-trigger" data-action="word-boost" aria-expanded="'+wordBoostOpen+'" aria-controls="sp-wordboost-body">'
+  +'<span class="sp-wordboost-symbol" aria-hidden="true">Aa</span><span class="sp-wordboost-title"><strong>Word Boost · '+esc(q.title)+'</strong><small>'+esc(caption)+'</small></span>'
+  +'<span class="sp-wordboost-caret" aria-hidden="true">'+(wordBoostOpen?'−':'+')+'</span></button>'
+  +(wordBoostOpen?'<div class="sp-wordboost-body" id="sp-wordboost-body">'
+   +(!all?'<p class="sp-wordboost-connector"><b>'+esc(W.stages[active])+'</b><span>Conversation move: '+esc(W.connectors[active])+'</span></p>'
+    :'<p class="sp-wordboost-connector">Pick one word to use as you give your own answer. You do not have to use them all.</p>')
+   +'<div class="sp-wordboost-list">'+(words||[]).map(({word,i,j})=>
+     '<article class="sp-wordboost-item"><div class="sp-wordboost-word"><span class="sp-wordboost-step" aria-label="'+esc(W.stages[i])+'">'+steps[i].letter+'</span>'
+     +'<strong>'+esc(word.term)+'</strong>'
+     +btn('word-speak','Listen','sp-wordboost-listen','data-step="'+i+'" data-item="'+j+'" aria-label="Hear '+esc(word.term)+' in an example sentence"')
+     +'</div><p class="sp-wordboost-meaning">'+esc(word.meaning)+'</p>'
+     +'<p class="sp-wordboost-example"><span>Try saying</span> '+esc(word.example)+'</p></article>').join('')+'</div>'
+   +'<p class="sp-wordboost-fine">Borrow a word, then express your own idea. Nothing you say is recorded or graded.</p></div>':'')
+  +'</section>';
+}
 function play(){
  const count=C.participants(session.mode),last=session.turn>=count-1;
  return '<section class="sp-play">'+(count>1?'<div class="sp-turn"><span>PLAYER '+(session.turn+1)+' OF '+count+'</span><small>'+(session.turn===0?'Start with one clear idea.':'Listen to the previous player and build on their point.')+'</small></div>':'')
  +progress()
  +(free?freeView():step>=4?finishView():chooseView())
+ +wordBoost()
  +tips()
  +'<div class="sp-next">'+btn('next-person',count===1||last?'I spoke · Next card →':'Next player →','sp-primary')+'</div>'
  +'<p class="sp-fine">This is practice. No recording, listening or grades.</p></section>';
@@ -92,7 +117,7 @@ function guideView(){
  +'<h2>Hear what it sounds like</h2><div class="sp-guide-filters" role="group" aria-label="Choose a practice topic">'
  +btn('guide-topic','Money',guideTopic==='moneychoice'?'selected':'','data-topic="moneychoice" aria-pressed="'+(guideTopic==='moneychoice')+'"')
  +btn('guide-topic','Crime',guideTopic==='crime'?'selected':'','data-topic="crime" aria-pressed="'+(guideTopic==='crime')+'"')+'</div>'
- +workedExample(guideTopic,guideExample)+'<div class="sp-guide-filters" role="group" aria-label="Choose an example answer">'
+ +workedExample(guideTopic,guideExample)+'<details class="sp-guide-words"><summary>Useful words for this topic</summary><ul>'+W.byTopic[guideTopic].map((set,i)=>'<li><b>'+steps[i].letter+' · '+esc(set[0].term)+'</b><span>'+esc(set[0].meaning)+'</span></li>').join('')+'</ul></details><div class="sp-guide-filters" role="group" aria-label="Choose an example answer">'
  +btn('guide-example','Example 1',guideExample===0?'selected':'','data-ex="0" aria-pressed="'+(guideExample===0)+'"')
  +btn('guide-example','Example 2',guideExample===1?'selected':'','data-ex="1" aria-pressed="'+(guideExample===1)+'"')+'</div>'
  +'<div class="sp-cta-guide">'+btn('close-guide','Let us play →','sp-primary')+'</div><p class="sp-fine">These are original practice cards, not official national exam questions.</p></section>';
@@ -141,6 +166,13 @@ app.addEventListener('click',ev=>{
  if(a==='next-person'){nextPerson();return;}
  if(a==='new'){nextCard();return;}
  if(a==='read'){speak(card().prompt);return;}
+ if(a==='word-boost'){wordBoostOpen=!wordBoostOpen;render();document.querySelector('.sp-wordboost-trigger')?.focus({preventScroll:true});return;}
+ if(a==='word-speak'){
+  const i=Number(b.dataset.step),j=Number(b.dataset.item);
+  const word=Number.isInteger(i)&&Number.isInteger(j)&&i>=0&&i<4?W.forStep(card().id,i)[j]:null;
+  if(word)speak(word.term+'. '+word.example);
+  return;
+ }
  if(a==='say'){speak(steps.map((_,i)=>ex()[chosen[i]][i]).join(' '));return;}
  if(a==='help'){help=help?'':'blank';render();return;}
  if(a==='select-help'){help=b.dataset.kind;render();return;}

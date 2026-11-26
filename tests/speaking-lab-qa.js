@@ -33,7 +33,7 @@ for(const asset of ['speaking-play.js','speaking-play.css','speaking-lab-example
 }
 ok(page.includes('<html lang="en">'),'the standalone speaking page is marked English');
 ok(!page.includes('speaking-lab-simple.js')&&!page.includes('speaking-lab-simple.css'),'old busy layout not loaded');
-ok(sw.includes('5.6.0-english-flow')&&sw.includes('speaking-lab.html?v=3.0.0'),'isolated versioned offline cache');
+ok(sw.includes('5.7.0-pace-words')&&sw.includes('speaking-lab.html?v=3.1.0-pace-words'),'isolated versioned offline cache');
 for(const forbidden of ['getUserMedia','MediaRecorder','webkitSpeechRecognition','XMLHttpRequest','sendBeacon','fetch(','input type="text"','textarea']){
  ok(!js.includes(forbidden),'no personal response capture '+forbidden);
 }
