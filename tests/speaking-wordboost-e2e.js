@@ -96,12 +96,24 @@ ok(keys.includes('matte-os-larande-5.7.0-pace-words'),'new isolated offline cach
 const files=await page.evaluate(async()=>{const cache=await caches.open('matte-os-larande-5.7.0-pace-words');return (await cache.keys()).map(x=>x.url);});
 ok(files.some(x=>x.includes('speaking-wordbank.js')),'full vocabulary precached');
 ok(files.some(x=>x.includes('speaking-wordboost.css')),'vocabulary UI styling precached');
-await context.setOffline(true);
-await page.reload({waitUntil:'domcontentloaded'});
-await page.locator('.sp-wordboost-trigger').click();
-ok(await page.locator('.sp-wordboost-item').count()===2,'stage-specific words work offline');
-ok(await page.locator('.sp-choices').count()===1,'offline still shows normal interactive answer');
-await context.setOffline(false);await context.close();
+if(engine===chromium){
+ await context.setOffline(true);
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.locator('.sp-wordboost-trigger').click();
+ ok(await page.locator('.sp-wordboost-item').count()===2,'stage-specific words work after real Chromium offline reload');
+ ok(await page.locator('.sp-choices').count()===1,'offline still shows normal interactive answer');
+ await context.setOffline(false);
+}else{
+ // Playwright WebKit 1.49 on Linux reports an internal engine error on setOffline + full-page reload.
+ // Do not mistake a cached resource check for a real iPhone Safari offline acceptance test.
+ const cached=await page.evaluate(async()=>{
+  const c=await caches.open('matte-os-larande-5.7.0-pace-words');
+  const response=await c.match('./speaking-lab.html?v=3.1.0-pace-words');
+  return !!response&&response.ok;
+ });
+ ok(cached,'WebKit cache contains the complete updated speaking page; offline reload not asserted');
+}
+await context.close();
 
 // Dark-mode contrast: stage letters, the short conversational cue and the "Try saying" label are small text.
 const darkContext=await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'});

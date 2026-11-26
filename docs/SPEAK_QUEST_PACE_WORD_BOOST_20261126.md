@@ -29,7 +29,7 @@ The four-stage game already helped learners build English responses but supplied
 - lara/speaking-lab.html: loads new module before interactive player.
 - lara/sw.js: isolated offline cache now versioned 5.7.0-pace-words, including glossary, styles and updated player.
 - tests/speaking-wordboost-qa.js: topic coverage, stage counts, content quality, consistency, privacy and offline resource checks.
-- tests/speaking-wordboost-e2e.js: real random card interactions in three widths, stage transitions, free mode, conversation guide, keyboard focus, offline load and unchanged session state; Chromium and WebKit in established GitHub CI.
+- tests/speaking-wordboost-e2e.js: actual original cards in three widths, stage transitions, free mode, topic selection, guide, keyboard focus and unchanged session state. Chromium verifies a real offline page reload. WebKit verifies all speaking interactions and the offline-cache contents; offline full-page reload is explicitly not asserted because Playwright WebKit 1.49 on Linux produced an internal engine error. A physical Safari offline test remains outstanding.
 
 ## Verification and release policy
 The minimum gate is new content/JS tests, existing Speak Quest E2E, new Chromium and WebKit E2E, existing learning and offline regressions, and private-NP workflow all successful on exactly the PR head SHA. Merge only then; confirm GitHub Pages deploy on the exact merge SHA and live public card/word examples.
