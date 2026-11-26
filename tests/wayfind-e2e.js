@@ -28,7 +28,7 @@ const cr=(a,b)=>{const x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,
  ok(/^none\|none$/.test(h1),'focused heading shows no box: '+h1);
  await p.goto(base+'#/installningar');await p.waitForSelector('h1');
  ok(!/Matte/.test(await p.locator('nav.nav [aria-current="page"]').allInnerTexts().then(a=>a.join(' '))),'settings does not pretend to be Matte');
- for(const [url,want,tab] of [['lara/#/studio/sv','sv','Svenska'],['lara/#/studio/en','en','Engelska'],['lara/#/spel','play','Spela']]){
+ for(const [url,want,tab] of [['lara/#/studio/sv','sv','Svenska'],['lara/#/studio/en','en','English'],['lara/#/spel','play','Spela']]){
   await p.goto(base+url);await p.waitForSelector('nav.bottom',{state:'attached'});await p.waitForTimeout(300);
   ok(await subj()===want,url+' → '+want);
   ok(/ /.test(' ')&&(await p.locator('nav.bottom [aria-current="page"]').innerText()).includes(tab),url+' active tab '+tab);
