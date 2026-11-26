@@ -5,7 +5,7 @@ const sw=file('sw.js'),learnsw=file('lara/sw.js'),engine=file('js/engine.js'),ap
 const lapp=file('lara/app.js'),lcss=file('lara/style.css'),css=file('css/app.css'),tabcss=file('css/tabell-arena.css');
 const prov=file('prov/js/app.js'),provcss=file('prov/css/app.css'),provhtml=file('prov/index.html'),provsw=file('prov/sw.js');
 let n=0;const ok=(v,msg)=>{assert.ok(v,msg);n++};
-const cache='matte-os-larande-5.4.0-simple';
+const cache='matte-os-larande-5.5.0-speakquest';
 const shouldDelete=k=>k.startsWith('matte-os-')&&!k.startsWith('matte-os-larande-')&&k!=='matte-os-6.3.2-20261111-private-history';
 ok(!shouldDelete(cache),'Root worker must preserve language cache');
 ok(shouldDelete('matte-os-5.5.8-20261108-orddark'),'Root worker may retire its own old cache');

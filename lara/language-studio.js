@@ -46,7 +46,7 @@ function hub(lang,grade){
  return '<div class="ls-root" data-ls-screen="hub">'
  +back('../#/',lang==='sv'?'Start':'Start')
  +backdrop(lang,grade,W.title,lang==='sv'?'Välj vad du vill öva. Börja enkelt, få stöd och prova själv.':'Choose a skill. Learn it, try it and make it your own.')
- +'<div class="ls-start-now">'+(lang==='en'&&grade==='grade9'?plainLink('speaking-lab.html','Prata engelska – börja direkt','Ditt kort visas direkt. Två riktiga exempel och hjälp på samma sida.','◎','ls-feature ls-speaking'):plainLink(base(lang)+'/area/'+encodeURIComponent(learning[0].name),'Börja här: första uppgiften','Ett lugnt steg i taget','→','ls-feature'))+'</div>'
+ +'<div class="ls-start-now">'+(lang==='en'&&grade==='grade9'?plainLink('speaking-lab.html','Speak Quest – spela och prata','Välj en tanke, bygg fyra steg och prata med egna ord.','◎','ls-feature ls-speaking'):plainLink(base(lang)+'/area/'+encodeURIComponent(learning[0].name),'Börja här: första uppgiften','Ett lugnt steg i taget','→','ls-feature'))+'</div>'
  +'<h2 class="ls-section-heading">'+(lang==='sv'?'Vad vill du lära dig?':'What do you want to learn?')+'</h2>'
  +'<div class="ls-shelf-grid">'+sections+'</div>'
  +'<h2 class="ls-section-heading">'+(lang==='sv'?'Lär genom att spela':'Learn by playing')+'</h2>'
@@ -63,7 +63,7 @@ function gamesHub(grade){
  const labels={sv:['Fem snabba','Para ihop','Rätt ordning','Samtalskort'],en:['Quick five','Match it','Put in order','Talk cards']};
  return '<div class="ls-root" data-ls-screen="game-hub">'+back('../#/','Start')
  +backdrop('sv',grade,'Välj ett spel','Träna genom att spela. Du kan välja ämne, spel och om ni vill vara två.')
- +'<h2 class="ls-section-heading">Engelska muntligt</h2><div class="ls-game-grid">'+plainLink('speaking-lab.html','Speaking Lab','Slumpkort, PACE, lyssna och samtala','✦','ls-game-link')+'</div>'+'<h2 class="ls-section-heading">Debatt</h2><div class="ls-game-grid">'+plainLink('debatt.html?lang=sv','Debattspelet','För och emot, bemöt och joker','⚖','ls-game-link')+plainLink('debatt.html?lang=en','The Debate Game','For and against, answer back, joker','⚖','ls-game-link')+'</div>'
+ +'<h2 class="ls-section-heading">Engelska muntligt</h2><div class="ls-game-grid">'+plainLink('speaking-lab.html','Speak Quest','Spela fyra steg eller prata helt fritt','✦','ls-game-link')+'</div>'+'<h2 class="ls-section-heading">Debatt</h2><div class="ls-game-grid">'+plainLink('debatt.html?lang=sv','Debattspelet','För och emot, bemöt och joker','⚖','ls-game-link')+plainLink('debatt.html?lang=en','The Debate Game','For and against, answer back, joker','⚖','ls-game-link')+'</div>'
  +'<h2 class="ls-section-heading">Välj språk</h2><div class="ls-shelf-grid">'+t+'</div>'
  +'<h2 class="ls-section-heading">Spel på svenska</h2><div class="ls-game-grid">'
  +modes.map((m,i)=>plainLink(gameBase('sv')+'/'+m,labels.sv[i],['Korta frågor','Begrepp och ord','Bygg en tydlig ordning','Prata med en vän'][i],['5','↔','≡','◎'][i],'ls-game-link')).join('')+'</div>'
